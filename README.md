@@ -240,3 +240,12 @@ FidelityFX shaders and concepts are courtesy of [AMD](https://github.com/GPUOpen
 Built for AMD GPUs and Moore Threads. Tested on RDNA2 (RX 6700 XT), RADV (Linux), and MUSA (Moore Threads).
 
 Built for AMD GPUs. Tested on RDNA2 (RX 6700 XT) and RADV (Linux).
+
+---
+
+## Credits & Acknowledgments
+
+- **AMD** — FidelityFX SDK, FSR 3.1.5, FSR 4.1.1, FSR Frame Generation
+- **Intel** — XeSS 3 technology
+- **OptiScaler** — DX12↔Vulkan interop for FSR 4 on Vulkan, runtime injection compatibility
+- **Moore Threads** — MTT driver support

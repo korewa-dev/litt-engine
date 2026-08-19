@@ -2,7 +2,7 @@
 
 Litt Engine integrates the [AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) for upscaling and frame generation.
 
-> **Note:** The official FSR SDK is **DX12 only**. Vulkan support requires workarounds like OptiScaler's DX12↔Vulkan interop.
+> **Note:** The official FSR SDK is **DX12 only**. [OptiScaler](https://github.com/OptiScaler/OptiScaler) provides DX12↔Vulkan interop for FSR 4 runtime injection. Litt Engine is compatible with OptiScaler's injection framework.
 
 ## FSR Versions
 
