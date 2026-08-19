@@ -14,8 +14,9 @@ Litt Engine supports the full FSR family for upscaling and frame generation acro
 
 | GPU | FSR 1 | FSR 3.1.5 | FSR 3 |
 |-----|-------|-----------|-------|
-| AMD RDNA 2 | ✅ | ✅ | Partial |
-| AMD RDNA 3 | ✅ | ✅ | ✅ |
+| AMD RDNA 2 | ✅ | ✅ | ❌ (FSR 4.1 early 2027) |
+| AMD RDNA 3 (desktop) | ✅ | ✅ | ✅ |
+| AMD RDNA 4 | ✅ | ✅ | ✅ |
 | AMD RDNA 4 | ✅ | ✅ | ✅ (Native) |
 | Intel Arc | ✅ | ✅ | ✅ |
 | Samsung Exynos | ✅ | ✅ | ✅ |
