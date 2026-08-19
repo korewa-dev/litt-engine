@@ -1,6 +1,6 @@
 [package]
 name = "litt"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Ultra-lightweight Vulkan path tracing engine for AMD, Intel Arc, and Moore Threads GPUs with NPU acceleration with NPU acceleration"
 license = "MIT"

@@ -22,6 +22,7 @@ use alloc::vec::Vec;
 use alloc::string::String;
 
 // Re-export crates
+pub mod version;
 pub use litt_math::*;
 pub use litt_platform::*;
 pub use litt_vulkan::*;
@@ -37,6 +38,9 @@ use app::*;
 use logging::*;
 
 /// Main entry point
+fn print_version() {
+    println!("{} v{} (build {})", version::NAME, version::VERSION, version::GIT_COMMIT);
+}
 #[cfg(target_os = "windows")]
 #[no_mangle]
 pub extern "system" fn wWinMain(

@@ -17,7 +17,10 @@ fn main() {
     let compiler = find_glsl_compiler();
     compile_shaders(&dest_path, compiler.as_ref());
 
-    println!("cargo:rustc-link-lib=vulkan");
+        // Pass version info to compiler
+    println!("cargo:rustc-env=BUILD_DATE={}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs());
+    println!("cargo:rustc-env=GIT_COMMIT={}", std::process::Command::new("git").arg("rev-parse").arg("--short").arg("HEAD").output().ok().map(|o| String::from_utf8(o.stdout).unwrap_or_default()).unwrap_or_else(|| "unknown".to_string()));
+println!("cargo:rustc-link-lib=vulkan");
     if cfg!(target_os = "windows") {
         println!("cargo:rustc-link-lib=dylib=dxgi");
         println!("cargo:rustc-link-lib=dylib=kernel32");
