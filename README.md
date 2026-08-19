@@ -120,7 +120,11 @@ Math Library (litt-math) - zero external deps
 - **Vulkan SDK 1.3+** (for glslc / glslangValidator)
 - **AMD GPU** (RDNA2/RDNA3) recommended for best ray tracing performance
   - **Intel Arc** (Battlemage/Alchemist) with XeSS 3 support
+  - **Samsung Exynos** 2200+ (AMD RDNA 2 iGPU)
   - **Moore Threads** MTT S80 with MUSA driver
+  - **Qualcomm** Adreno 7xx with Hexagon NPU
+  - **MediaTek** Dimensity with APU
+  - **Huawei** Kirin 9000+ with Da Vinci NPU
 
 ### Build
 
