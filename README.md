@@ -82,8 +82,8 @@ Renderer (litt-renderer)
   - Command Pools, Render Passes, Descriptor Sets
 
 FidelityFX (litt-fidelityfx)
-  - FSR 3(temporal upscaler)
-  - FSR 3 (frame generation)
+  - FSR 3.1.5(temporal upscaler)
+  - FSR 3.1.5 (frame generation)
   - CAS (sharpening)
   - Ray Reconstruction (denoiser)
   - Diffuse/Specular Denoisers
