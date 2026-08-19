@@ -211,6 +211,10 @@ This project is structured for **AI coding agents**:
 
 ## License
 
-**MIT** - free for personal and commercial use.
+[MIT](LICENSE) — free for personal and commercial use.
+
+FidelityFX shaders and concepts are courtesy of [AMD](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK), also MIT-licensed.
+
+Built for AMD GPUs. Tested on RDNA2 (RX 6700 XT) and RADV (Linux).
 
 Built for AMD GPUs. Tested on RDNA2 (RX 6700 XT) and RADV (Linux).
