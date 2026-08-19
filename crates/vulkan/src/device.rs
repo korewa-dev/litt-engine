@@ -142,6 +142,17 @@ impl VulkanDevice {
         device_exts.push(std::ffi::CString::new("VK_EXT_extended_srgb").unwrap());
     }
 
+    // Intel Arc specific extensions
+    if ext_names.contains(&"VK_EXT_robustness2".to_string()) {
+        device_exts.push(std::ffi::CString::new("VK_EXT_robustness2").unwrap());
+    }
+    if ext_names.contains(&"VK_EXT_extended_srgb".to_string()) {
+        device_exts.push(std::ffi::CString::new("VK_EXT_extended_srgb").unwrap());
+    }
+    if ext_names.contains(&"VK_INTEL_shader_integer_functions2".to_string()) {
+        device_exts.push(std::ffi::CString::new("VK_INTEL_shader_integer_functions2").unwrap());
+    }
+
 // AMD-specific extensions
         if ext_names.contains(&"VK_AMD_shader_core_properties".to_string()) {
             device_exts.push(std::ffi::CString::new("VK_AMD_shader_core_properties").unwrap());

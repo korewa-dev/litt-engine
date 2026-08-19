@@ -5,7 +5,7 @@ use ash::{vk, extensions::khr, Instance};
 use super::*;
 
 /// Required Vulkan extensions for all platforms
-/// Supports: AMD (RADV/AMDVLK), Moore Threads (MUSA)
+/// Supports: AMD (RADV/AMDVLK), Moore Threads (MUSA), Intel (Arc/DDR Xe)
 const REQUIRED_EXTENSIONS: &[&str] = &[
     khr::Surface::NAME.as_ptr() as *const u8 as &str,
     khr::Swapchain::NAME.as_ptr() as *const u8 as &str,
@@ -74,6 +74,9 @@ pub fn enumerate_adapters(
             amd_devices.push(device);
         // Moore Threads vendor ID (0x1DD = 573)
         } else if vendor_id == 0x1DD {
+            amd_devices.push(device);
+        // Intel vendor ID (0x8086)
+        } else if vendor_id == 0x8086 {
             amd_devices.push(device);
         } else {
             other_devices.push(device);

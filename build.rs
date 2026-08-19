@@ -71,6 +71,7 @@ fn compile_shaders(out_dir: &Path, compiler: Option<&PathBuf>) {
         ("fidelityfx/fsr3_compensate.comp.glsl", "fsr3_comp.spv"),
         ("fidelityfx/fsr3_upscaler.comp.glsl", "fsr3_upscale.spv"),
         ("fidelityfx/fsr3_framegen.comp.glsl", "fsr3_fg.spv"),
+        ("fidelityfx/xess3_framegen.comp.glsl", "xess3_fg.spv"),
         ("compute/blur.comp.glsl", "blur.spv"),
         ("compute/copy.comp.glsl", "copy.spv"),
         ("compute/tonemap.comp.glsl", "tonemap.spv"),

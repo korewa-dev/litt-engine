@@ -24,16 +24,20 @@
 ### Cross-Platform Support
 | Platform | Window Backend | GPU Target |
 |----------|---------------|------------|
-| Windows  | Win32 (native) | AMD (RDNA2/3), NVIDIA, Intel, Moore Threads |
-| Linux    | X11 / Wayland  | AMD (RADV), NVIDIA, Intel, Moore Threads |
+| Windows  | Win32 (native) | AMD (RDNA2/3), Intel (Arc), NVIDIA, Moore Threads |
+| Linux    | X11 / Wayland  | AMD (RADV), Intel (Arc), NVIDIA, Moore Threads |
 | Android  | ANativeWindow  | Adreno, Mali, PowerVR |
 
-### AMD-Specific Optimizations
-- AVX2/FMA vectorization on x86 host code
-- Neon acceleration on ARM (Android)
-- RADV driver compatibility flags
-- Wave32/Wave64 dispatch hints in shaders
-- Radeon GPU Profiler (RGP) / Radeon Memory Visualizer (RMV) ready
+### GPU-Specific Optimizations
+
+| GPU Vendor | Optimizations |
+|------------|--------------|
+| **AMD** (RDNA2/3) | AVX2/FMA, RADV flags, Wave32/64 hints, RGP/RMV profiling |
+| **Intel** (Arc/DDR) | XeSS 3 frame gen, INTEL_shader_integer_functions2, XeTS tracking |
+| **Moore Threads** (MTT) | MUSA driver flags, robustness2, shader cache control |
+| **NVIDIA** | DLSS 3 frame gen ready, RT core acceleration |
+
+All platforms: Neon on ARM (Android), AVX2 on x86.
 
 ---
 
@@ -104,7 +108,9 @@ Math Library (litt-math) - zero external deps
 ### Prerequisites
 - **Rust 1.75+** (nightly recommended for best size optimization)
 - **Vulkan SDK 1.3+** (for glslc / glslangValidator)
-- **AMD GPU** recommended (RDNA2/RDNA3) for best ray tracing performance
+- **AMD GPU** (RDNA2/RDNA3) recommended for best ray tracing performance
+  - **Intel Arc** (Battlemage/Alchemist) with XeSS 3 support
+  - **Moore Threads** MTT S80 with MUSA driver
 
 ### Build
 
