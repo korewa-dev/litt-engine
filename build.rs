@@ -73,8 +73,8 @@ fn compile_shaders(out_dir: &Path, compiler: Option<&PathBuf>) {
         ("fidelityfx/fsr3_create.comp.glsl", "fsr3_create.spv"),
         ("fidelityfx/fsr3_compensate.comp.glsl", "fsr3_comp.spv"),
         ("fidelityfx/fsr3_upscaler.comp.glsl", "        ("fidelityfx/fsr3_framegen.comp.glsl", "        ("fidelityfx/xess3_framegen.comp.glsl", "xess3_fg.spv"),
-        ("fidelityfx/fsr3_upscaler.comp.glsl", "fsr4_upscale.spv"),
-        ("fidelityfx/fsr3_framegen.comp.glsl", "fsr4_fg.spv"),
+,
+,
         ("compute/blur.comp.glsl", "blur.spv"),
         ("compute/copy.comp.glsl", "copy.spv"),
         ("compute/tonemap.comp.glsl", "tonemap.spv"),
@@ -82,6 +82,8 @@ fn compile_shaders(out_dir: &Path, compiler: Option<&PathBuf>) {
         ("quad/quad.frag.glsl", "quad_frag.spv"),
         ("mesh.vert.glsl", "mesh_vert.spv"),
         ("mesh.frag.glsl", "mesh_frag.spv"),
+        ("fidelityfx/fsr4_upscaler.comp.glsl", "fsr4_upscale.spv"),
+        ("fidelityfx/fsr4_framegen.comp.glsl", "fsr4_fg.spv"),
     ];
 
     for (src, out) in shaders {
