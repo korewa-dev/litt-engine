@@ -134,7 +134,15 @@ impl VulkanDevice {
             device_exts.push(std::ffi::CString::new("VK_EXT_descriptor_indexing").unwrap());
         }
 
-        // AMD-specific extensions
+            // Moore Threads specific extensions
+    if ext_names.contains(&"VK_EXT_robustness2".to_string()) {
+        device_exts.push(std::ffi::CString::new("VK_EXT_robustness2").unwrap());
+    }
+    if ext_names.contains(&"VK_EXT_extended_srgb".to_string()) {
+        device_exts.push(std::ffi::CString::new("VK_EXT_extended_srgb").unwrap());
+    }
+
+// AMD-specific extensions
         if ext_names.contains(&"VK_AMD_shader_core_properties".to_string()) {
             device_exts.push(std::ffi::CString::new("VK_AMD_shader_core_properties").unwrap());
         }

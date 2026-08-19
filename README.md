@@ -24,8 +24,8 @@
 ### Cross-Platform Support
 | Platform | Window Backend | GPU Target |
 |----------|---------------|------------|
-| Windows  | Win32 (native) | AMD (RDNA2/3), NVIDIA, Intel |
-| Linux    | X11 / Wayland  | AMD (RADV), NVIDIA, Intel |
+| Windows  | Win32 (native) | AMD (RDNA2/3), NVIDIA, Intel, Moore Threads |
+| Linux    | X11 / Wayland  | AMD (RADV), NVIDIA, Intel, Moore Threads |
 | Android  | ANativeWindow  | Adreno, Mali, PowerVR |
 
 ### AMD-Specific Optimizations
@@ -214,6 +214,6 @@ This project is structured for **AI coding agents**:
 
 FidelityFX shaders and concepts are courtesy of [AMD](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK), also MIT-licensed.
 
-Built for AMD GPUs. Tested on RDNA2 (RX 6700 XT) and RADV (Linux).
+Built for AMD GPUs and Moore Threads. Tested on RDNA2 (RX 6700 XT), RADV (Linux), and MUSA (Moore Threads).
 
 Built for AMD GPUs. Tested on RDNA2 (RX 6700 XT) and RADV (Linux).
