@@ -24,6 +24,18 @@ use bytemuck::{Pod, Zeroable};
 
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
 #[repr(C)]
+/// GPU vendor type
+#[derive(Clone, Copy, Debug, Default)]
+pub enum GpuVendor {
+    #[default]
+    Unknown,
+    Amd,
+    MooreThreads,
+    Intel,
+    Nvidia,
+    Other(u32),
+}
+
 pub struct BufferCreateInfo {
     pub size: u64,
     pub usage: vk::BufferUsageFlags,
