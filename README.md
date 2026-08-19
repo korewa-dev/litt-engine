@@ -41,7 +41,7 @@
 
 | GPU Vendor | Optimizations |
 |------------|--------------|
-| **AMD** (RDNA2/3) | AVX2/FMA, RADV flags, Wave32/64 hints, RGP/RMV profiling |
+| **AMD** (RDNA2/3/4) | AVX2/FMA, RADV flags, Wave32/64 hints, RGP/RMV, FSR 4 native |
 | **Intel** (Arc/DDR) | XeSS 3 frame gen, INTEL_shader_integer_functions2, XeTS tracking |
 | **Moore Threads** (MTT) | MUSA driver flags, robustness2, shader cache control |
 | **Samsung** (Exynos 2200+) | AMD RDNA 2 iGPU, NPU integrated |
@@ -123,6 +123,7 @@ Math Library (litt-math) - zero external deps
   - **Samsung Exynos** 2200+ (AMD RDNA 2 iGPU)
   - **Moore Threads** MTT S80 with MUSA driver
   - **Qualcomm** Adreno 7xx with Hexagon NPU
+  - **FSR 4** support on RDNA 4/5, temporal on all other GPUs
   - **MediaTek** Dimensity with APU
   - **Huawei** Kirin 9000+ with Da Vinci NPU
 
