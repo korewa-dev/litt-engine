@@ -41,15 +41,7 @@
 
 | GPU Vendor | Optimizations |
 |------------|--------------|
-| **AMD** (RDNA2/3/4) | AVX2/FMA, RADV flags, Wave32/64 hints, RGP/RMV, FSR 4 native |
-| **Intel** (Arc/DDR) | XeSS 3 frame gen, INTEL_shader_integer_functions2, XeTS tracking |
-| **Moore Threads** (MTT) | MUSA driver flags, robustness2, shader cache control |
-| **Samsung** (Exynos 2200+) | AMD RDNA 2 iGPU, NPU integrated |
-| **NVIDIA** | 3 frame gen ready, RT core acceleration |
-
-All platforms: Neon on ARM (Android), AVX2 on x86.
-
----
+| **AMD** (RDNA2/3/4) | AVX2/FMA, RADV flags, Wave32/64 hints, RGP/RMV, FSR 3---
 
 ## AI / LLM Support
 
@@ -62,8 +54,7 @@ Litt Engine is designed for **AI-assisted development** and can integrate with A
 
 ### AI-Enhanced Rendering
 - **Ray Reconstruction** uses a lightweight neural network to denoise path-traced images
-- Future: integration with AMD FSR 4 (AI upscaling) and FSR frame generation
-- Template: template/assets/browser_asset_ingest.md - ingest 3D assets from web AI model hubs
+- Future: integration with AMD FSR 3- Template: template/assets/browser_asset_ingest.md - ingest 3D assets from web AI model hubs
 
 ### Agent-Ready Architecture
 - template/agent/actions.log - tracks all agent actions for audit
@@ -123,8 +114,7 @@ Math Library (litt-math) - zero external deps
   - **Samsung Exynos** 2200+ (AMD RDNA 2 iGPU)
   - **Moore Threads** MTT S80 with MUSA driver
   - **Qualcomm** Adreno 7xx with Hexagon NPU
-  - **FSR 4** support on RDNA 4/5, temporal on all other GPUs
-  - **MediaTek** Dimensity with APU
+  - **FSR 3- **MediaTek** Dimensity with APU
   - **Huawei** Kirin 9000+ with Da Vinci NPU
 
 ### Build

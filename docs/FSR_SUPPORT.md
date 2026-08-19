@@ -8,11 +8,11 @@ Litt Engine supports the full FSR family for upscaling and frame generation acro
 |---------|------|------|-------------|
 | **FSR 1** | Spatial | All | Basic upscaling, no temporal |
 | **FSR 2/3.1.5** | Temporal + Frame Gen | AMD, Intel, Samsung | AI-quality upscaling + FG |
-| **FSR 4** | AI + Temporal + FG | RDNA 4/5 + all | Next-gen with ML reconstruction |
+| **FSR 3** | AI + Temporal + FG | RDNA 4/5 + all | Next-gen with ML reconstruction |
 
 ## GPU Support Matrix
 
-| GPU | FSR 1 | FSR 3.1.5 | FSR 4 |
+| GPU | FSR 1 | FSR 3.1.5 | FSR 3 |
 |-----|-------|-----------|-------|
 | AMD RDNA 2 | ✅ | ✅ | Partial |
 | AMD RDNA 3 | ✅ | ✅ | ✅ |
@@ -28,27 +28,27 @@ Litt Engine supports the full FSR family for upscaling and frame generation acro
 ## Usage
 
 \`\`\rust
-use litt_fidelityfx::fsr4::*;
+use litt_fidelityfx::fsr3::*;
 
-// Initialize FSR 4
-let mut fsr4 = Fsr4::new(960, 540, 1920, 1080);
+// Initialize FSR 3
+let mut fsr3 = Fsr4::new(960, 540, 1920, 1080);
 
 // Detect GPU support level
-fsr4.support_level = Fsr4::detect_support(&device, physical_device);
+fsr3.support_level = Fsr4::detect_support(&device, physical_device);
 
 // Configure based on support
-match fsr4.support_level {
+match fsr3.support_level {
     Fsr4Support::Full => {
-        // RDNA 4/5: use full FSR 4 with AI reconstruction
-        fsr4.update(Fsr4Quality::Quality, Fsr4Mode::Full, true, true);
+        // RDNA 4/5: use full FSR 3 with AI reconstruction
+        fsr3.update(Fsr4Quality::Quality, Fsr4Mode::Full, true, true);
     }
     Fsr4Support::Temporal => {
         // All other GPUs: use FSR 3.1.5 temporal upscaling
-        fsr4.update(Fsr4Quality::Quality, Fsr4Mode::FrameGen, false, true);
+        fsr3.update(Fsr4Quality::Quality, Fsr4Mode::FrameGen, false, true);
     }
     Fsr4Support::Spatial => {
         // Basic GPUs: spatial upscaling only
-        fsr4.update(Fsr4Quality::Quality, Fsr4Mode::Upscale, false, false);
+        fsr3.update(Fsr4Quality::Quality, Fsr4Mode::Upscale, false, false);
     }
     _ => {}
 }
@@ -68,7 +68,7 @@ match fsr4.support_level {
 
 \`\`\bash
 # Force FSR mode
-export LIT_FSR_MODE=4          # Use FSR 4 if available
+export LIT_FSR_MODE=4          # Use FSR 3 if available
 export LIT_FSR_QUALITY=1       # Quality preset
 export LIT_FSR_FRAMEGEN=1      # Enable frame generation
 \`\`\
