@@ -12,6 +12,7 @@
 - **Intel AI Boost** — 48 TOPS for AI upscaling and reconstruction
 - **Mobile NPUs** — Qualcomm Hexagon, MediaTek APU, Huawei Kirin
 - **RISC-V AI** — Sophgo, VectorTile support for edge devices
+- **Samsung Exynos** — RDNA 2 iGPU + NPU (Exynos 2200+)
 - Auto-detection and fallback to GPU when NPU unavailable
 
 
@@ -24,7 +25,7 @@
 - Support for ReSTIR-style reservoir sampling (architecture ready)
 
 ### FidelityFX Integration (AMD)
-- **FSR 3** - frame generation (create, compensate, upscaler, framegen passes)
+- **FSR 3.1.5** - frame generation (create, compensate, upscaler, framegen passes)
 - **CAS** - Contrast Adaptive Sharpening for crisp final output
 - **Ray Reconstruction** - lightweight CNN-style denoiser for low-sample RT
 - **Diffuse + Specular Denoisers** - temporal-spatial filtering for path-traced images
@@ -32,8 +33,8 @@
 ### Cross-Platform Support
 | Platform | Window Backend | GPU Target |
 |----------|---------------|------------|
-| Windows  | Win32 (native) | AMD (RDNA2/3), Intel (Arc), Moore Threads |
-| Linux    | X11 / Wayland  | AMD (RADV), Intel (Arc), Moore Threads |
+| Windows  | Win32 (native) | AMD (RDNA2/3), Intel (Arc), Samsung (RDNA iGPU), Moore Threads |
+| Linux    | X11 / Wayland  | AMD (RADV), Intel (Arc), Samsung (RDNA iGPU), Moore Threads |
 | Android  | ANativeWindow  | Adreno, Mali, PowerVR |
 
 ### GPU-Specific Optimizations
@@ -43,6 +44,7 @@
 | **AMD** (RDNA2/3) | AVX2/FMA, RADV flags, Wave32/64 hints, RGP/RMV profiling |
 | **Intel** (Arc/DDR) | XeSS 3 frame gen, INTEL_shader_integer_functions2, XeTS tracking |
 | **Moore Threads** (MTT) | MUSA driver flags, robustness2, shader cache control |
+| **Samsung** (Exynos 2200+) | AMD RDNA 2 iGPU, NPU integrated |
 | **NVIDIA** | 3 frame gen ready, RT core acceleration |
 
 All platforms: Neon on ARM (Android), AVX2 on x86.
@@ -176,10 +178,10 @@ litt-engine/
     vulkan/              # ash-based Vulkan backend
     renderer/            # Command pools, render passes, descriptors
     pathtracer/          # Scene, BRDFs, GPU tracer
-    fidelityfx/          # FSR 33, CAS, denoisers
+    fidelityfx/          # FSR 3.1.5, CAS, denoisers
   shaders/
     pathtracer/          # raygen, chit, miss (GLSL to SPIR-V)
-    fidelityfx/          # FSR 33, CAS, denoisers, ray recon
+    fidelityfx/          # FSR 3.1.5, CAS, denoisers, ray recon
     compute/             # tonemap, TAA, copy, blur, resolve
     quad/                # Full-screen quad (display)
   template/                # Agent scaffold
@@ -209,10 +211,10 @@ litt-engine/
 - [x] Platform layer (Win32, X11, Android)
 - [x] Vulkan backend with RT support
 - [x] Path tracing shaders (raygen/chit/miss)
-- [x] FidelityFX shaders (FSR 33, CAS, denoisers)
+- [x] FidelityFX shaders (FSR 3.1.5, CAS, denoisers)
 - [ ] Complete Vulkan device initialization
 - [ ] Implement BLAS/TLAS build pipeline
-- [ ] Full FSR 33 compute shader integration
+- [ ] Full FSR 3.1.5 compute shader integration
 - [ ] VMA memory allocator
 - [ ] Binary size verification (< 1 MB)
 - [ ] RGP profiling and optimization

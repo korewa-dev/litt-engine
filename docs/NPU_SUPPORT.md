@@ -15,6 +15,10 @@ Litt Engine supports NPU acceleration for AI-powered rendering tasks including d
 ### Mobile NPUs
 | NPU | Vendor | TOPS (INT8) |
 |-----|--------|-------------|
+| Exynos NPU (RDNA 2 iGPU) | Samsung | 12 TOPS |
+| NPU | Vendor | TOPS (INT8) |
+|-----|--------|-------------|
+| Exynos NPU | Samsung | 12 TOPS |
 | Hexagon | Qualcomm | 15 TOPS |
 | APU | MediaTek | 10 TOPS |
 | Da Vinci NPU | Huawei Kirin | 8 TOPS |

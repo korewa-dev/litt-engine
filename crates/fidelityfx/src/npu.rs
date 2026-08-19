@@ -22,8 +22,8 @@ pub enum NpuVendor {
     MediaTek,
     /// Huawei Kirin NPU
     Kirin,
-    /// Samsung NPUs
-    Samsung,
+    /// Samsung Exynos with AMD RDNA iGPU (Exynos 2200+)
+    SamsungRdna,
     /// RISC-V AI accelerators
     RiscvAi,
     /// Other
@@ -126,7 +126,7 @@ fn detect_npu_vendor(name: &str, vendor_id: u32) -> NpuVendor {
         0x5143 | _ if n.contains("qualcomm") || n.contains("hexagon") || n.contains("adreno") => NpuVendor::QualcommHexagon,
         _ if n.contains("mediaTek") || n.contains("mediatek") => NpuVendor::MediaTek,
         _ if n.contains("kirin") || n.contains("hiSilicon") => NpuVendor::Kirin,
-        _ if n.contains("samsung") => NpuVendor::Samsung,
+        _ if n.contains("samsung") || vendor_id == 0x1AE => NpuVendor::SamsungRdna,
         _ if n.contains("riscv") || n.contains("risc-v") => NpuVendor::RiscvAi,
         _ => NpuVendor::Other(name.clone()),
     }
@@ -152,6 +152,10 @@ fn estimate_npu_capabilities(name: &str, vendor_id: u32, vendor: NpuVendor) -> N
         NpuVendor::QualcommHexagon => NpuCapabilities { mm_count: 64, fp16_tflops: 4.0, int8_tops: 15.0, bandwidth_gbps: 30.0, precision_mask: 0b0011 },
         NpuVendor::MediaTek => NpuCapabilities { mm_count: 48, fp16_tflops: 3.0, int8_tops: 10.0, bandwidth_gbps: 25.0, precision_mask: 0b0011 },
         NpuVendor::Kirin => NpuCapabilities { mm_count: 32, fp16_tflops: 2.0, int8_tops: 8.0, bandwidth_gbps: 20.0, precision_mask: 0b0001 },
+        NpuVendor::SamsungRdna => {
+            // Exynos 2200+ has AMD RDNA 2 iGPU with integrated NPU
+            NpuCapabilities { mm_count: 64, fp16_tflops: 4.0, int8_tops: 12.0, bandwidth_gbps: 35.0, precision_mask: 0b0011 }
+        }
         NpuVendor::RiscvAi => NpuCapabilities { mm_count: 16, fp16_tflops: 1.0, int8_tops: 4.0, bandwidth_gbps: 10.0, precision_mask: 0b0001 },
         _ => NpuCapabilities { mm_count: 32, fp16_tflops: 2.0, int8_tops: 8.0, bandwidth_gbps: 20.0, precision_mask: 0b0001 },
     }

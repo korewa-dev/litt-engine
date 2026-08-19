@@ -75,8 +75,13 @@ pub fn enumerate_adapters(
         // Moore Threads vendor ID (0x1DD = 573)
         } else if vendor_id == 0x1DD {
             amd_devices.push(device);
-        // Intel vendor ID (0x8086)
-        } else if vendor_id == 0x8086 {
+                // Samsung (Exynos with AMD RDNA iGPU - Exynos 2200+)
+        } else if vendor_id == 0x1AE {
+            amd_devices.push(device);
+// Intel vendor ID (0x8086)
+        } else if vendor_id == 0x8086 { (Exynos with AMD RDNA iGPU - Exynos 2200+)
+        } else if vendor_id == 0x1AE {
+            amd_devices.push(device);
             amd_devices.push(device);
         } else {
             other_devices.push(device);

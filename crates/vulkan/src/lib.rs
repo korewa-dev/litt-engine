@@ -32,6 +32,7 @@ pub enum GpuVendor {
     Amd,
     MooreThreads,
     Intel,
+    Samsung,
     Nvidia,
     Other(u32),
 }
