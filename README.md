@@ -114,7 +114,7 @@ Math Library (litt-math) - zero external deps
   - **Samsung Exynos** 2200+ (AMD RDNA 2 iGPU)
   - **Moore Threads** MTT S80 with MUSA driver
   - **Qualcomm** Adreno 7xx with Hexagon NPU
-  - **FSR 3- **MediaTek** Dimensity with APU
+  - **MediaTek** Dimensity with APU 790
   - **Huawei** Kirin 9000+ with Da Vinci NPU
 
 ### Build
