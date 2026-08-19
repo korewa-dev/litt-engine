@@ -7,6 +7,14 @@
 
 ## What It Does
 
+### NPU Acceleration
+- **Ryzen AI** (XDNA 1/2) — 25-50 TOPS for denoising and frame gen
+- **Intel AI Boost** — 48 TOPS for AI upscaling and reconstruction
+- **Mobile NPUs** — Qualcomm Hexagon, MediaTek APU, Huawei Kirin
+- **RISC-V AI** — Sophgo, VectorTile support for edge devices
+- Auto-detection and fallback to GPU when NPU unavailable
+
+
 ### Real-Time Path Tracing
 - **Ray tracing** via Vulkan 1.3 VK_KHR_ray_tracing_pipeline + VK_KHR_acceleration_structure
 - BLAS + TLAS build pipeline for triangle and sphere scenes
@@ -123,7 +131,18 @@ Linux (RADV driver):
 Android (ARM64):
   cargo build --release --target aarch64-linux-android
 
-### Environment Variables (Linux/RADV)
+### Environment Variables
+
+\`\`\bash
+# NPU acceleration
+export LIT_NPU_MODE=3          # Hybrid: NPU denoise + GPU RT
+export LIT_NPU_PRECISION=7     # FP16 + INT8 + BF16
+export LIT_NPU_FALLBACK=1      # Auto fallback to GPU
+
+# Linux/RADV
+export RADV_PERFTEST=rt
+export RADV_DEBUG=denormal_flush_to_zero
+\`\`\
   export RADV_PERFTEST=rt          # Enable hardware ray tracing
   export RADV_DEBUG=denormal_flush_to_zero
 
