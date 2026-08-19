@@ -24,8 +24,8 @@
 ### Cross-Platform Support
 | Platform | Window Backend | GPU Target |
 |----------|---------------|------------|
-| Windows  | Win32 (native) | AMD (RDNA2/3), Intel (Arc), NVIDIA, Moore Threads |
-| Linux    | X11 / Wayland  | AMD (RADV), Intel (Arc), NVIDIA, Moore Threads |
+| Windows  | Win32 (native) | AMD (RDNA2/3), Intel (Arc), Moore Threads |
+| Linux    | X11 / Wayland  | AMD (RADV), Intel (Arc), Moore Threads |
 | Android  | ANativeWindow  | Adreno, Mali, PowerVR |
 
 ### GPU-Specific Optimizations
@@ -35,7 +35,7 @@
 | **AMD** (RDNA2/3) | AVX2/FMA, RADV flags, Wave32/64 hints, RGP/RMV profiling |
 | **Intel** (Arc/DDR) | XeSS 3 frame gen, INTEL_shader_integer_functions2, XeTS tracking |
 | **Moore Threads** (MTT) | MUSA driver flags, robustness2, shader cache control |
-| **NVIDIA** | DLSS 3 frame gen ready, RT core acceleration |
+| **NVIDIA** | 3 frame gen ready, RT core acceleration |
 
 All platforms: Neon on ARM (Android), AVX2 on x86.
 
@@ -52,7 +52,7 @@ Litt Engine is designed for **AI-assisted development** and can integrate with A
 
 ### AI-Enhanced Rendering
 - **Ray Reconstruction** uses a lightweight neural network to denoise path-traced images
-- Future: integration with AMD FSR 4 (AI upscaling) and DLSS/FSR frame generation
+- Future: integration with AMD FSR 4 (AI upscaling) and FSR frame generation
 - Template: template/assets/browser_asset_ingest.md - ingest 3D assets from web AI model hubs
 
 ### Agent-Ready Architecture
