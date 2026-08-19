@@ -16,7 +16,6 @@
 - Support for ReSTIR-style reservoir sampling (architecture ready)
 
 ### FidelityFX Integration (AMD)
-- **FSR 2** - temporal upscaling with motion-vector reprojection
 - **FSR 3** - frame generation (create, compensate, upscaler, framegen passes)
 - **CAS** - Contrast Adaptive Sharpening for crisp final output
 - **Ray Reconstruction** - lightweight CNN-style denoiser for low-sample RT
@@ -69,7 +68,7 @@ Renderer (litt-renderer)
   - Command Pools, Render Passes, Descriptor Sets
 
 FidelityFX (litt-fidelityfx)
-  - FSR 2 (temporal upscaler)
+  - FSR 3(temporal upscaler)
   - FSR 3 (frame generation)
   - CAS (sharpening)
   - Ray Reconstruction (denoiser)
@@ -152,10 +151,10 @@ litt-engine/
     vulkan/              # ash-based Vulkan backend
     renderer/            # Command pools, render passes, descriptors
     pathtracer/          # Scene, BRDFs, GPU tracer
-    fidelityfx/          # FSR 2/3, CAS, denoisers
+    fidelityfx/          # FSR 33, CAS, denoisers
   shaders/
     pathtracer/          # raygen, chit, miss (GLSL to SPIR-V)
-    fidelityfx/          # FSR 2/3, CAS, denoisers, ray recon
+    fidelityfx/          # FSR 33, CAS, denoisers, ray recon
     compute/             # tonemap, TAA, copy, blur, resolve
     quad/                # Full-screen quad (display)
   template/                # Agent scaffold
@@ -185,10 +184,10 @@ litt-engine/
 - [x] Platform layer (Win32, X11, Android)
 - [x] Vulkan backend with RT support
 - [x] Path tracing shaders (raygen/chit/miss)
-- [x] FidelityFX shaders (FSR 2/3, CAS, denoisers)
+- [x] FidelityFX shaders (FSR 33, CAS, denoisers)
 - [ ] Complete Vulkan device initialization
 - [ ] Implement BLAS/TLAS build pipeline
-- [ ] Full FSR 2/3 compute shader integration
+- [ ] Full FSR 33 compute shader integration
 - [ ] VMA memory allocator
 - [ ] Binary size verification (< 1 MB)
 - [ ] RGP profiling and optimization

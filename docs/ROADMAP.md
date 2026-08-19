@@ -23,7 +23,7 @@
 - [ ] Add ReSTIR for light sampling
 
 ## Phase 4: FidelityFX
-- [ ] Integrate FSR 2 with full compute shaders
+- [ ] Integrate FSR 3 with full compute shaders
 - [ ] Add CAS sharpening
 - [ ] Implement Ray Reconstruction
 - [ ] Add FSR 3 frame generation

@@ -63,7 +63,6 @@ fn compile_shaders(out_dir: &Path, compiler: Option<&PathBuf>) {
         ("pathtracer/raygen.rgen.glsl", "raygen.spv"),
         ("pathtracer/miss.rmiss.glsl", "miss.spv"),
         ("pathtracer/chit.rchit.glsl", "chit.spv"),
-        ("fidelityfx/fsr2_compute.comp.glsl", "fsr2.spv"),
         ("fidelityfx/denoiser_diffuse.comp.glsl", "denoise_diffuse.spv"),
         ("fidelityfx/denoiser_specular.comp.glsl", "denoise_specular.spv"),
         ("fidelityfx/ray_reconstruction.comp.glsl", "ray_recon.spv"),

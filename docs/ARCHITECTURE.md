@@ -13,7 +13,7 @@ litt (root)
 └── litt-fidelityfx     (ash, bytemuck, litt-math, litt-vulkan)
 
 ## Render Pipeline
-Frame Start -> Path Trace (Compute) -> FidelityFX Ray Reconstruction -> FidelityFX FSR 2 -> FidelityFX CAS -> Tonemap -> Present
+Frame Start -> Path Trace (Compute) -> FidelityFX Ray Reconstruction -> FidelityFX FSR 3 -> FidelityFX CAS -> Tonemap -> Present
 
 ## Data Flow
 Scene Data (CPU) -> Upload to GPU buffers -> Create acceleration structures -> Shader binding (SBT)
