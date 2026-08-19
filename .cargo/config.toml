@@ -1,0 +1,13 @@
+[build]
+target = "x86_64-pc-windows-msvc"
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+avx2,+fma"]
+
+[target.aarch64-linux-android]
+rustflags = ["-C", "target-feature=+neon"]
+linker = "aarch64-linux-android21-clang"
+
+[target.armv7-linux-androideabi]
+rustflags = ["-C", "target-feature=+neon"]
+linker = "armv7a-linux-androideabi21-clang"

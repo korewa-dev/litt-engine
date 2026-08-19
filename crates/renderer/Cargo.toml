@@ -1,0 +1,21 @@
+[package]
+name = "litt-renderer"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ash = { workspace = true }
+bytemuck = { workspace = true }
+log = { workspace = true }
+litt-math = { path = "../math" }
+litt-vulkan = { path = "../vulkan" }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
