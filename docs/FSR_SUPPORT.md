@@ -1,6 +1,8 @@
 # AMD FidelityFX Super Resolution (FSR) Support
 
-Litt Engine supports the full FSR family for upscaling and frame generation across all GPUs.
+Litt Engine integrates the [AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) for upscaling and frame generation.
+
+> **Note:** The official FSR SDK is **DX12 only**. Vulkan support requires workarounds like OptiScaler's DX12↔Vulkan interop.
 
 ## FSR Versions
 
