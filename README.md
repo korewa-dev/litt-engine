@@ -109,7 +109,7 @@ Math Library (litt-math) - zero external deps
 ### Prerequisites
 - **Rust 1.75+** (nightly recommended for best size optimization)
 - **Vulkan SDK 1.3+** (for glslc / glslangValidator)
-- **AMD GPU** (RDNA2/RDNA3) recommended for best ray tracing performance
+- **AMD GPU** (RDNA 2-4) recommended for best ray tracing performance
   - **Intel Arc** (Battlemage/Alchemist) with XeSS 3 support
   - **Samsung Exynos** 2200+ (AMD RDNA 2 iGPU)
   - **Moore Threads** MTT S80 with MUSA driver
