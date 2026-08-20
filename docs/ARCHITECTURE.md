@@ -1,19 +1,69 @@
 # Litt Engine Architecture
 
 ## High-Level Overview
-Application Layer -> Renderer Layer -> FidelityFX Layer -> Path Tracer Layer -> Vulkan Layer -> Platform Layer -> Math Library
+Application Layer -> Platform Layer -> Vulkan Backend (VMA) -> Renderer -> Path Tracer -> FidelityFX -> Display
 
 ## Crate Dependencies
+```
 litt (root)
 ├── litt-math           (no dependencies)
 ├── litt-platform       (ash, bytemuck, platform-specific)
-├── litt-vulkan         (ash, bytemuck, litt-math, litt-platform)
+├── litt-vulkan         (ash, ash-window, vma, bytemuck, litt-math, litt-platform)
 ├── litt-renderer       (ash, bytemuck, litt-math, litt-vulkan)
-├── litt-pathtracer     (ash, bytemuck, litt-math, litt-vulkan, litt-renderer)
-└── litt-fidelityfx     (ash, bytemuck, litt-math, litt-vulkan)
+├── litt-pathtracer     (ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma)
+└── litt-fidelityfx     (ash, bytemuck, litt-math, litt-vulkan, vma)
+```
 
 ## Render Pipeline
-Frame Start -> Path Trace (Compute) -> FidelityFX Ray Reconstruction -> FidelityFX FSR 3 -> FidelityFX CAS -> Tonemap -> Present
+```
+Frame Start
+  -> Path Trace (Compute Shader)
+  -> FidelityFX Ray Reconstruction (Denoiser)
+  -> FidelityFX FSR 3.1.5
+      ├─ Create Pass (temporal accumulation)
+      ├─ Compensate Pass (motion vectors)
+      ├─ Upscaler Pass (upscaling)
+      └─ Frame Gen Pass (frame generation)
+  -> FidelityFX CAS (sharpening)
+  -> Tonemap
+  -> Present
+```
+
+## Memory Management (VMA)
+```
+VMA Allocator
+  ├─ allocate_buffer() - GPU buffer allocation
+  ├─ allocate_image()  - GPU image allocation
+  ├─ map_memory()      - Host-visible mapping
+  ├─ flush_allocation() - Cache flush
+  └─ free_*()          - Cleanup
+```
 
 ## Data Flow
-Scene Data (CPU) -> Upload to GPU buffers -> Create acceleration structures -> Shader binding (SBT)
+```
+Scene Data (CPU)
+  → upload_scene() → GPU Buffers (Triangles, Spheres, Lights, Materials)
+  → build_blas_from_triangles() → BLAS (Bottom-Level AS)
+  → build_scene_acceleration() → TLAS (Top-Level AS)
+  → Shader Binding Table (SBT)
+  → Ray Tracing Pipeline Execution
+```
+
+## Acceleration Structure Pipeline
+```
+BLAS Builder
+  ├─ Add geometries (triangles)
+  ├─ Query build sizes
+  ├─ Allocate BLAS buffer (VMA)
+  └─ Build acceleration structure
+
+TLAS Builder
+  ├─ Add instances (BLAS handles + transforms)
+  ├─ Create instance buffer
+  ├─ Query build sizes
+  ├─ Allocate TLAS buffer (VMA)
+  └─ Build acceleration structure
+```
+
+## Interactive Diagram
+See [litt-engine-architecture.html](../litt-engine-architecture.html) for a full interactive visualization.

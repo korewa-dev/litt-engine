@@ -9,24 +9,24 @@
 - [x] FidelityFX integration points
 
 ## Phase 2: Core Rendering
-- [ ] Complete Vulkan device initialization
-- [ ] Implement swapchain management
-- [ ] Add command buffer recording
-- [ ] Implement descriptor set management
-- [ ] Add memory allocation (VMA integration)
+- [x] Complete Vulkan device initialization
+- [x] Implement swapchain management
+- [x] Add command buffer recording
+- [x] Implement descriptor set management
+- [x] **Add VMA memory allocator integration** (vma crate)
 
 ## Phase 3: Path Tracing
-- [ ] Implement BLAS/TLAS build
-- [ ] Complete ray tracing shaders
-- [ ] Add Russian roulette termination
-- [ ] Implement temporal accumulation
+- [x] **Implement BLAS/TLAS build pipeline**
+- [x] Complete ray tracing shaders
+- [x] Add Russian roulette termination
+- [x] Implement temporal accumulation
 - [ ] Add ReSTIR for light sampling
 
 ## Phase 4: FidelityFX
-- [ ] Integrate FSR 3 with full compute shaders
-- [ ] Add CAS sharpening
-- [ ] Implement Ray Reconstruction
-- [ ] Add FSR 3 frame generation
+- [x] **Integrate FSR 3.1.5 with full compute shaders**
+- [x] Add CAS sharpening
+- [x] Implement Ray Reconstruction
+- [x] **Add FSR 3 frame generation (create, compensate, upscaler, framegen)**
 
 ## Phase 5: Polish
 - [ ] Binary size verification (< 1 MB)
