@@ -130,6 +130,58 @@ match BackendSelector::best_available() {
 
 ---
 
+### Graphics API Status
+
+| API | Tier | Status | Notes |
+|-----|------|--------|-------|
+| **Vulkan 1.3** | Higher | ✅ **Implemented** | Full backend in `crates/vulkan/` — VMA, RT pipeline, BLAS/TLAS, swapchain, command pools |
+| **DX12** | Higher | 📋 **Planned** | Phase 7 — DXGI, DXR, descriptor heaps, PSOs, root signatures |
+| **AMD AGS** | Lower | ❌ **Not implemented** | No references in codebase; AMD GPU Services for power/performance control |
+| **MUSA** | Lower | 📋 **Planned** | Vendor detection in `fsr4_integration.rs` (ID `0x1DD`); native compute physics in roadmap |
+| **NNAPI** | Lower | 📋 **Planned** | Referenced as ARM NPU inference path in README; no implementation yet |
+| **DirectML** | Lower | 📋 **Planned** | Listed for NVIDIA Tensor Cores and Windows AI inference; no implementation yet |
+
+```rust
+// Graphics backend selector (conceptual)
+match BackendSelector::graphics_backend() {
+    Backend::Vulkan  => vulkan::initialize(),   // ✅ Implemented
+    Backend::Dx12    => dx12::initialize(),     // 📋 Planned (Phase 7)
+    _ => unreachable!("No graphics backend available"),
+}
+
+// AI inference backend selector (conceptual)
+match BackendSelector::ai_backend() {
+    Backend::Vulkan        => vulkan_compute::infer(model, input),  // ✅ Fallback path
+    Backend::AMD_XDNA      => xdna::run(model, input),              // 📋 Planned (Phase 6)
+    Backend::MooreThreads  => musa_ml::dispatch(model, input),      // 📋 Planned (Phase 6)
+    Backend::ARM_NPU       => nnapi::infer(model, input),           // 📋 Planned (Phase 6)
+    Backend::NVIDIA_TENSOR => directml::infer(model, input),        // 📋 Planned (Phase 6)
+    Backend::CPU           => cpu_simd::infer(model, input),        // ✅ Fallback path
+}
+```
+
+**Implemented crates:**
+
+| Crate | Path | Graphics APIs |
+|-------|------|---------------|
+| `litt-vulkan` | `crates/vulkan/src/` | Vulkan 1.3 full backend |
+| `litt-fidelityfx` | `crates/fidelityfx/src/` | FSR 3/4, CAS, XESS 3, NPU vendor detection |
+| `litt-platform` | `crates/platform/src/` | Windows (Win32), Linux (X11), Android (AAPI) |
+
+**Planned crates:**
+
+| Crate | Path | APIs |
+|-------|------|------|
+| `litt-dx12` | `crates/dx12/` | DX12 + DXR + DirectML |
+| `litt-ags` | `crates/ags/` | AMD GPU Services |
+| `litt-musa` | `crates/musa/` | Moore Threads MUSA compute |
+| `litt-nnapi` | `crates/nnapi/` | Android/ARM NPU inference |
+| `litt-directml` | `crates/directml/` | Windows ML / NVIDIA Tensor RT |
+
+See [docs/ROADMAP.md](./docs/ROADMAP.md) for detailed phase tracking.
+
+---
+
 ## Architecture
 
 ```

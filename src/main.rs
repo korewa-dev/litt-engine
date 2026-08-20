@@ -21,8 +21,10 @@ pub use litt_platform::*;
 pub use litt_vulkan::*;
 pub use litt_renderer::*;
 pub use litt_pathtracer::*;
+pub use litt_ecs::*;
 pub use litt_fidelityfx::*;
 
+pub mod ecs;
 mod app;
 mod debug;
 mod logging;
