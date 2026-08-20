@@ -1,4 +1,4 @@
-﻿# Litt Engine Development Roadmap
+# Litt Engine Development Roadmap
 
 ---
 
@@ -449,4 +449,85 @@ fn main() {
 
 ---
 
-*Last updated: 2025-07-18*
+
+
+---
+
+## NPU Roadmap [PLANNED]
+
+### Phase NPU-1: NPU Core Infrastructure
+- [ ] `NpuContext` global state management
+- [ ] `NpuPipeline` compilation and loading
+- [ ] `NpuTensor` pinned memory allocator
+- [ ] Async inference queue with batching
+- [ ] NPU telemetry system
+- [ ] Error handling and recovery
+
+### Phase NPU-2: NPC Neural AI
+- [ ] `NeuralBrain` component full implementation
+- [ ] `BehaviorState` NPU-driven state machine
+- [ ] `EmotionalState` vector dynamics
+- [ ] `NpcMemory` long-term memory system
+- [ ] `NeuralAISystem` ECS integration
+- [ ] Emergent behavior generation
+
+### Phase NPU-3: Player Prediction
+- [ ] `PlayerPredictor` component
+- [ ] Movement pattern modeling
+- [ ] Combat habit learning
+- [ ] Exploration tendency tracking
+- [ ] Adaptive difficulty adjustment
+
+### Phase NPU-4: Procedural Generation
+- [ ] `ProceduralGenerationSystem`
+- [ ] Level/dungeon generation models
+- [ ] Quest and puzzle generation
+- [ ] Loot table optimization
+- [ ] Enemy wave balancing
+
+### Phase NPU-5: Dialogue & Personality
+- [ ] `DialogueState` component
+- [ ] LLM-like NPC dialogue models
+- [ ] Personality shift system
+- [ ] Emotional reaction modeling
+- [ ] Memory-augmented conversations
+
+### Phase NPU-6: Neural Animation
+- [ ] `NeuralAnimationBlend` component
+- [ ] Neural locomotion system
+- [ ] Neural IK solver
+- [ ] Gesture prediction
+- [ ] Facial animation inference
+
+### Phase NPU-7: Combat AI
+- [ ] `CombatDecisionSystem`
+- [ ] Attack selection models
+- [ ] Dodge/defense prediction
+- [ ] Target prioritization
+- [ ] Group tactic generation
+
+### Phase NPU-8: World Simulation
+- [ ] `WorldSimulationSystem`
+- [ ] Crowd behavior models
+- [ ] Ecosystem simulation
+- [ ] Faction AI networks
+- [ ] Wildlife behavior trees
+
+### Phase NPU-9: Advanced Systems
+- [ ] `AudioAISystem` - voice synthesis
+- [ ] `AntiCheatSystem` - anomaly detection
+- [ ] `PhysicsPredictionSystem` - neural physics helpers
+- [ ] `RlTrainingSystem` - online RL for NPCs
+- [ ] `EngineOptimizerSystem` - AI-based LOD/scheduling
+
+### Phase NPU-10: Cross-Platform NPU Support
+- [ ] AMD X DNA inference pipeline
+- [ ] Intel AI Boost inference
+- [ ] Qualcomm Hexagon NPU
+- [ ] Apple Neural Engine
+- [ ] Kirin NPU
+- [ ] Samsung Exynos NPU
+- [ ] RISC-V AI accelerators
+
+
+*Last updated: 2026-07-18*

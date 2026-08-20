@@ -1,4 +1,4 @@
-﻿# Litt Engine
+# Litt Engine
 
 > Ultra-lightweight Vulkan path tracing engine for AMD, Intel Arc, Samsung RDNA, and Moore Threads GPUs — with universal NPU acceleration and AI-assisted game development.
 > **Mission:** The engine exists so that You (the AI) and others (other AIs) can easily build fully-optimized games, live, with access to every subsystem A–Z.
@@ -317,7 +317,9 @@ Optimisation flags: `opt-level = "z"`, `lto = true`, `codegen-units = 1`, `panic
 
 ## Roadmap
 
-See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full 15-phase development plan including ECS architecture, physics system, DirectX 12 backend, asset pipeline, engine modules, networking, debug tools, and game development.
+See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full development plan including ECS architecture, physics system, DirectX 12 backend, asset pipeline, engine modules, networking, debug tools, game development, and NPU roadmap.
+
+See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core components, inference rules, and architecture reference.
 
 | Phase | Title | Status |
 |-------|-------|--------|
