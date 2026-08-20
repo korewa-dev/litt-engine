@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Litt Engine Architecture",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "application", "type": "frontend", "label": "Application", "pos": [100, 100], "size": [140, 60] },
+    { "id": "platform", "type": "backend", "label": "Platform Layer", "pos": [100, 200], "size": [140, 60] },
+    { "id": "vulkan", "type": "backend", "label": "Vulkan Backend", "pos": [100, 300], "size": [140, 60] },
+    { "id": "renderer", "type": "backend", "label": "Renderer", "pos": [300, 100], "size": [140, 60] },
+    { "id": "pathtracer", "type": "backend", "label": "Path Tracer", "pos": [300, 200], "size": [140, 60] },
+    { "id": "fidelityfx", "type": "backend", "label": "FidelityFX", "pos": [500, 150], "size": [140, 60] }
+  ],
+  "connections": [
+    { "id": "app-to-platform", "from": "application", "to": "platform" },
+    { "id": "platform-to-vulkan", "from": "platform", "to": "vulkan" },
+    { "id": "vulkan-to-renderer", "from": "vulkan", "to": "renderer" },
+    { "id": "renderer-to-pathtracer", "from": "renderer", "to": "pathtracer" },
+    { "id": "pathtracer-to-fx", "from": "pathtracer", "to": "fidelityfx" }
+  ]
+}
