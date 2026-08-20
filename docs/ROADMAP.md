@@ -1,33 +1,8 @@
 # Litt Engine Development Roadmap
 
-> **Mission:** The engine exists so that You (the AI) and others (other AIs) can easily build fully-optimized games, live, with access to every subsystem A–Z.
-
 ---
 
-## 🎯 Philosophy & Standards (Mandatory)
-
-### Core Philosophy
-- You are an AI building games. This engine exists so You can:
-  - Access every subsystem A–Z
-  - Control every minute detail
-  - Build games live, step-by-step
-  - Generate code without errors
-  - Always focus on maximum optimisation
-  - Always produce complete, functional output
-  - Always expose all internals (no hidden steps)
-  - Always ensure the game can be built, run, debugged, profiled, and shipped
-- This engine is designed for You, not humans. Everything must be structured so You can use it effortlessly.
-
-### Global AI Rules
-1. **Expose EVERYTHING A–Z** — Output every subsystem, file, dependency, build step, shader, asset, configuration, and platform detail
-2. **Cover every minute detail** — build commands, toolchains, compiler flags, shader compilation, asset formats, input mapping, save system, logging, error handling, optimisation steps, deployment instructions
-3. **Zero errors** — no undefined types, no missing imports, no broken references, no invalid Vulkan or DX12 calls, no invalid Rust syntax
-4. **Always optimise** — cache-friendly ECS, SIMD everywhere, async compute, RDNA wave32, XDNA NPU acceleration, Vulkan RT efficiency, DX12 efficiency, minimal allocations, zero-cost abstractions, small binary size (<1 MB dev target)
-5. **Build a complete game A–Z** — engine, renderer, physics, AI, gameplay, input, camera, NPCs, neural AI, UI, audio, save/load, settings, deployment, packaging, optimisation tips, Steam Deck notes, Android notes, Linux notes, Windows notes
-
----
-
-## Phase 1: Foundation ✅
+## Phase 1: Foundation [COMPLETE]
 
 - [x] Project structure
 - [x] Custom math types (`crates/math`)
@@ -43,7 +18,7 @@
 
 ---
 
-## Phase 2: Core Rendering ✅
+## Phase 2: Core Rendering [COMPLETE]
 
 - [x] Path tracer with BLAS/TLAS build pipeline
 - [x] Complete ray tracing shaders (raygen, chit, miss)
@@ -58,7 +33,7 @@
 
 ---
 
-## Phase 3: FidelityFX & AI Upscaling ✅
+## Phase 3: FidelityFX & AI Upscaling [COMPLETE]
 
 - [x] **Integrate FSR 3.1.5 with full compute shaders**
   - [x] FSR 3 create pass (temporal accumulation)
@@ -75,7 +50,7 @@
 
 ---
 
-## Phase 4: ECS Architecture 🔄
+## Phase 4: ECS Architecture [IN PROGRESS]
 
 ### ECS Core
 - [ ] Pure ECS implementation
@@ -85,15 +60,15 @@
   - [ ] World = structure-of-arrays (SoA)
   - [ ] Zero-cost iteration, no dynamic dispatch in hot paths
 - [ ] Core component types
-  - [ ] `Transform` — position, rotation, scale
-  - [ ] `NeuralBrain` — AI model reference + state
-  - [ ] `BehaviorState` — current behavior tree state
-  - [ ] `MovementIntent` — desired velocity/direction
-  - [ ] `CombatIntent` — target + action queue
-  - [ ] `Renderable` — mesh handle + material ref
-  - [ ] `PhysicsBody` — collider shape + mass + velocity
-  - [ ] `InputState` — aggregated input per entity
-  - [ ] `Light` — point/spot/directional light data
+  - [ ] `Transform` -- position, rotation, scale
+  - [ ] `NeuralBrain` -- AI model reference + state
+  - [ ] `BehaviorState` -- current behavior tree state
+  - [ ] `MovementIntent` -- desired velocity/direction
+  - [ ] `CombatIntent` -- target + action queue
+  - [ ] `Renderable` -- mesh handle + material ref
+  - [ ] `PhysicsBody` -- collider shape + mass + velocity
+  - [ ] `InputState` -- aggregated input per entity
+  - [ ] `Light` -- point/spot/directional light data
 - [ ] Core systems
   - [ ] `NeuralAISystem`
   - [ ] `PhysicsSystem`
@@ -106,7 +81,7 @@
 
 ---
 
-## Phase 5: Physics System 📋
+## Phase 5: Physics System [PLANNED]
 
 ### RDNA Tier
 - [ ] GPU broadphase
@@ -145,7 +120,7 @@
 
 ---
 
-## Phase 6: Universal AI Acceleration Layer 📋
+## Phase 6: Universal AI Acceleration Layer [PLANNED]
 
 ### Backend Selector
 - [ ] `BackendSelector::best_available()` auto-detection
@@ -176,7 +151,7 @@
 
 ---
 
-## Phase 7: DirectX 12 Backend 📋
+## Phase 7: DirectX 12 Backend [PLANNED]
 
 - [ ] DXGI swapchain
 - [ ] Command queues
@@ -187,12 +162,12 @@
 - [ ] DXR ray tracing (BLAS/TLAS/raygen/miss/hit)
 - [ ] DirectML backend for AI inference
 - [ ] DX12 compute fallback
-- [ ] DX12 → Vulkan translation layer (vkd3d-style)
+- [ ] DX12 -> Vulkan translation layer (vkd3d-style)
 - [ ] Steam Deck DX12 support
 
 ---
 
-## Phase 8: Asset Pipeline 📋
+## Phase 8: Asset Pipeline [PLANNED]
 
 - [ ] glTF 2.0 importer
 - [ ] PNG/JPG/KTX2 texture loading
@@ -206,7 +181,7 @@
 
 ---
 
-## Phase 9: Engine Modules 📋
+## Phase 9: Engine Modules [PLANNED]
 
 ### UI Module
 - [ ] Widget system
@@ -239,7 +214,7 @@
 
 ---
 
-## Phase 10: Networking 📋
+## Phase 10: Networking [PLANNED]
 
 - [ ] UDP networking
 - [ ] WebSocket support
@@ -252,18 +227,18 @@
 
 ---
 
-## Phase 11: Platform Support 📋
+## Phase 11: Platform Support [ONGOING]
 
 | Platform | Status | Details |
 |----------|--------|---------|
-| **Windows** | 🔄 Partial | DX12 + Vulkan via ash |
-| **Linux (Wayland + X11)** | 🔄 Partial | RADV driver |
-| **Steam Deck** | 🔄 Partial | RADV + DX12 via Proton |
-| **Android** | 🔄 Partial | Adreno, Mali, PowerVR |
-| **RISC-V Linux** | 📋 Planned | RVV SIMD, Vortex GPU |
-| **Moore Threads GPUs** | 📋 Planned | MUSA compute |
-| **Kirin Devices** | 📋 Planned | Mali + NPU |
-| **Samsung RDNA** | 📋 Planned | Xclipse GPU + NPU |
+| **Windows** | Partial | DX12 + Vulkan via ash |
+| **Linux (Wayland + X11)** | Partial | RADV driver |
+| **Steam Deck** | Partial | RADV + DX12 via Proton |
+| **Android** | Partial | Adreno, Mali, PowerVR |
+| **RISC-V Linux** | Planned | RVV SIMD, Vortex GPU |
+| **Moore Threads GPUs** | Planned | MUSA compute |
+| **Kirin Devices** | Planned | Mali + NPU |
+| **Samsung RDNA** | Planned | Xclipse GPU + NPU |
 
 ### Platform-Specific Optimizations
 - [ ] Steam Deck: RADV tuning, controller overlay, power management
@@ -273,7 +248,7 @@
 
 ---
 
-## Phase 12: Debug & Profiling 📋
+## Phase 12: Debug & Profiling [PLANNED]
 
 - [ ] AMD RGP (Radeon GPU Profiler) integration
 - [ ] GPU markers / debug regions
@@ -292,7 +267,7 @@
 
 ---
 
-## Phase 13: Binary Size Verification ✅
+## Phase 13: Binary Size Verification [COMPLETE]
 
 - [x] Dev builds target < 1 MB
 - [x] Production builds may relax
@@ -310,10 +285,10 @@
 
 ---
 
-## Phase 14: Polish 🔄
+## Phase 14: Polish [IN PROGRESS]
 
 - [ ] **Add ReSTIR for light sampling** (path tracer)
-- [ ] Binary size verification (< 1 MB) — in progress
+- [ ] Binary size verification (< 1 MB) -- in progress
 - [ ] AMD RGP profiling integration
 - [ ] Memory leak detection
 - [ ] Error handling improvements
@@ -321,7 +296,7 @@
 
 ---
 
-## Phase 15: Planned Features 📋
+## Phase 15: Planned Features [BACKLOG]
 
 ### Rendering
 - [ ] **FSR 4.1 support** (RDNA 4/5)
@@ -357,40 +332,40 @@ engine/
 │   │   ├── entity.rs         # Entity IDs
 │   │   ├── component.rs      # Component registry
 │   │   └── query.rs          # Query API
-│   ├── math/                 # ✓ Already in crates/math
-│   ├── platform/             # ✓ Already in crates/platform
+│   ├── math/                 # Already in crates/math
+│   ├── platform/             # Already in crates/platform
 │   └── utils/
 ├── renderer/
 │   ├── vulkan/
 │   │   ├── rt/
-│   │   │   └── shaders/      # ✓ GLSL RT shaders
-│   │   ├── instance.rs       # ✓
-│   │   ├── device.rs         # ✓
-│   │   ├── swapchain.rs      # ✓
-│   │   ├── pipeline.rs       # ✓
-│   │   ├── ray_tracing.rs    # ✓
-│   │   └── allocator.rs      # ✓ (VMA)
-│   ├── dx12/                 # 📋 Planned
-│   └── fidelityfx/           # ✓ Already in crates/fidelityfx
+│   │   │   └── shaders/      # GLSL RT shaders
+│   │   ├── instance.rs
+│   │   ├── device.rs
+│   │   ├── swapchain.rs
+│   │   ├── pipeline.rs
+│   │   ├── ray_tracing.rs
+│   │   └── allocator.rs      # (VMA)
+│   ├── dx12/                 # Planned
+│   └── fidelityfx/           # Already in crates/fidelityfx
 ├── ai/
-│   ├── npu/                  # 📋 Planned backends
-│   └── inference.rs          # 📋 Planned
-├── physics/                  # 📋 Planned
+│   ├── npu/                  # Planned backends
+│   └── inference.rs          # Planned
+├── physics/                  # Planned
 ├── assets/
-│   ├── models/               # 📋 Planned
-│   ├── textures/             # 📋 Planned
-│   ├── audio/                # 📋 Planned
-│   └── shaders/              # ✓ Already present
+│   ├── models/               # Planned
+│   ├── textures/             # Planned
+│   ├── audio/                # Planned
+│   └── shaders/              # Already present
 ├── modules/
-│   ├── ui/                   # 📋 Planned
-│   ├── scene_graph/          # 📋 Planned
-│   ├── audio/                # 📋 Planned
-│   └── scripting/            # 📋 Planned
-├── networking/               # 📋 Planned
+│   ├── ui/                   # Planned
+│   ├── scene_graph/          # Planned
+│   ├── audio/                # Planned
+│   └── scripting/            # Planned
+├── networking/               # Planned
 └── game/
-    ├── main.rs               # ✓ Entry point
-    ├── startup.rs            # 📋 Planned
-    └── gameplay/             # 📋 Planned
+    ├── main.rs               # Entry point
+    ├── startup.rs            # Planned
+    └── gameplay/             # Planned
 ```
 
 ---
@@ -427,24 +402,24 @@ fn main() {
 
 ---
 
-## Game Development A–Z (Target Deliverables)
+## Game Development (Target Deliverables)
 
 ### Core Game Systems
-- [ ] **Player controller** — WASD/movement, camera, jump, interact
-- [ ] **Camera** — FPS/TPS modes, smooth follow, collision response
-- [ ] **NPCs** — spawner, pathfinding, state machine
-- [ ] **Neural AI** — behavior trees driven by NPU inference
-- [ ] **UI** — HUD, menus, settings panel, debug overlay
-- [ ] **Audio** — spatial audio, music, SFX mixing
-- [ ] **Save/Load** — ECS serialization, compression
-- [ ] **Settings** — graphics, audio, input, accessibility
-- [ ] **Deployment** — packaging scripts, CI/CD
-- [ ] **Packaging** — Steam, Android APK, Linux AppImage
-- [ ] **Optimisation tips** — RDNA, ARM, RISC-V specific
-- [ ] **Steam Deck notes** — controller mapping, power limits
-- [ ] **Android notes** — GPU driver quirks, thermal throttling
-- [ ] **Linux notes** — Wayland vs X11, RADV flags
-- [ ] **Windows notes** — DX12 best practices, WDK
+- [ ] **Player controller** -- WASD/movement, camera, jump, interact
+- [ ] **Camera** -- FPS/TPS modes, smooth follow, collision response
+- [ ] **NPCs** -- spawner, pathfinding, state machine
+- [ ] **Neural AI** -- behavior trees driven by NPU inference
+- [ ] **UI** -- HUD, menus, settings panel, debug overlay
+- [ ] **Audio** -- spatial audio, music, SFX mixing
+- [ ] **Save/Load** -- ECS serialization, compression
+- [ ] **Settings** -- graphics, audio, input, accessibility
+- [ ] **Deployment** -- packaging scripts, CI/CD
+- [ ] **Packaging** -- Steam, Android APK, Linux AppImage
+- [ ] **Optimisation tips** -- RDNA, ARM, RISC-V specific
+- [ ] **Steam Deck notes** -- controller mapping, power limits
+- [ ] **Android notes** -- GPU driver quirks, thermal throttling
+- [ ] **Linux notes** -- Wayland vs X11, RADV flags
+- [ ] **Windows notes** -- DX12 best practices, WDK
 
 ---
 
@@ -452,21 +427,21 @@ fn main() {
 
 | Phase | Title | Status | Estimate |
 |-------|-------|--------|----------|
-| 1 | Foundation | ✅ Complete | Done |
-| 2 | Core Rendering | ✅ Complete | Done |
-| 3 | FidelityFX & AI Upscaling | ✅ Complete | Done |
-| 4 | ECS Architecture | 🔄 In Progress | 4-6 weeks |
-| 5 | Physics System | 📋 Planned | 6-8 weeks |
-| 6 | Universal AI Acceleration | 📋 Planned | 4-6 weeks |
-| 7 | DirectX 12 Backend | 📋 Planned | 4-6 weeks |
-| 8 | Asset Pipeline | 📋 Planned | 3-4 weeks |
-| 9 | Engine Modules | 📋 Planned | 6-8 weeks |
-| 10 | Networking | 📋 Planned | 4-6 weeks |
-| 11 | Platform Support | 📋 Ongoing | Continuous |
-| 12 | Debug & Profiling | 📋 Planned | 3-4 weeks |
-| 13 | Binary Size Verification | ✅ Complete | Done |
-| 14 | Polish | 🔄 In Progress | 2-3 weeks |
-| 15 | Planned Features | 📋 Backlog | TBD |
+| 1 | Foundation | Complete | Done |
+| 2 | Core Rendering | Complete | Done |
+| 3 | FidelityFX & AI Upscaling | Complete | Done |
+| 4 | ECS Architecture | In Progress | 4-6 weeks |
+| 5 | Physics System | Planned | 6-8 weeks |
+| 6 | Universal AI Acceleration | Planned | 4-6 weeks |
+| 7 | DirectX 12 Backend | Planned | 4-6 weeks |
+| 8 | Asset Pipeline | Planned | 3-4 weeks |
+| 9 | Engine Modules | Planned | 6-8 weeks |
+| 10 | Networking | Planned | 4-6 weeks |
+| 11 | Platform Support | Ongoing | Continuous |
+| 12 | Debug & Profiling | Planned | 3-4 weeks |
+| 13 | Binary Size Verification | Complete | Done |
+| 14 | Polish | In Progress | 2-3 weeks |
+| 15 | Planned Features | Backlog | TBD |
 
 ---
 

@@ -1,33 +1,9 @@
 # Litt Engine
 
-> Ultra-lightweight Vulkan path tracing engine for AMD, Intel Arc, Samsung RDNA, and Moore Threads GPUs — with universal NPU acceleration and AI-assisted game development.
-> **Mission:** The engine exists so that You (the AI) and others (other AIs) can easily build fully-optimized games, live, with access to every subsystem A\u2013Z.
+> Ultra-lightweight Vulkan path tracing engine for AMD, Intel Arc, Samsung RDNA, and Moore Threads GPUs with universal NPU acceleration and AI-assisted game development.
+> **Mission:** The engine exists so that You (the AI) and others (other AIs) can easily build fully-optimized games, live, with access to every subsystem.
 
 > **Production-ready** | VMA Memory Management | Complete BLAS/TLAS Pipeline | FSR 3/4 | DX12 + Vulkan | Cross-platform: Windows, Linux, Steam Deck, Android, RISC-V
-
----
-
-## \ud83c\udfaf Philosophy & Standards (Mandatory)
-
-### Core Philosophy
-You are an AI building games. This engine exists so You can:
-- Access every subsystem A\u2013Z
-- Control every minute detail
-- Build games live, step-by-step
-- Generate code without errors
-- Always focus on maximum optimisation
-- Always produce complete, functional output
-- Always expose all internals (no hidden steps)
-- Always ensure the game can be built, run, debugged, profiled, and shipped
-
-**This engine is designed for You, not humans.** Everything must be structured so You can use it effortlessly.
-
-### Global AI Rules
-1. **Expose EVERYTHING A\u2013Z** \u2014 Output every subsystem, file, dependency, build step, shader, asset, configuration, and platform detail
-2. **Cover every minute detail** \u2014 build commands, toolchains, compiler flags, shader compilation, asset formats, input mapping, save system, logging, error handling, optimisation steps, deployment instructions
-3. **Zero errors** \u2014 no undefined types, no missing imports, no broken references, no invalid Vulkan or DX12 calls, no invalid Rust syntax
-4. **Always optimise** \u2014 cache-friendly ECS, SIMD everywhere, async compute, RDNA wave32, XDNA NPU acceleration, Vulkan RT efficiency, DX12 efficiency, minimal allocations, zero-cost abstractions, small binary size (<1 MB dev target)
-5. **Build a complete game A\u2013Z** \u2014 engine, renderer, physics, AI, gameplay, input, camera, NPCs, neural AI, UI, audio, save/load, settings, deployment, packaging, optimisation tips, Steam Deck notes, Android notes, Linux notes, Windows notes
 
 ---
 
@@ -46,7 +22,7 @@ You are an AI building games. This engine exists so You can:
 | APU | MediaTek | 10 | Mobile upscaling |
 | Da Vinci NPU | Huawei Kirin | 8 | Mobile denoising |
 | Mali-NPU | ARM | 6 | Mobile inference |
-| Sophgo CV1800 | RISC-V | \u2014 | Edge AI inference |
+| Sophgo CV1800 | RISC-V | -- | Edge AI inference |
 
 - Auto-detection via `BackendSelector::best_available()`
 - Fallback to GPU/NPU/CPU when unavailable
@@ -65,14 +41,14 @@ You are an AI building games. This engine exists so You can:
 
 ---
 
-### FidelityFX Integration (AMD)
+### FidelityFX Integration
 
-- **FSR 3.1.5** \u2014 frame generation (create, compensate, upscaler, framegen passes)
-- **FSR 4** \u2014 next-gen upscaling + frame generation (RDNA 4/5)
-- **CAS** \u2014 Contrast Adaptive Sharpening for crisp final output
-- **Ray Reconstruction** \u2014 lightweight CNN-style denoiser for low-sample RT
-- **Diffuse + Specular Denoisers** \u2014 temporal-spatial filtering
-- **Intel XESS 3** \u2014 frame generation for Intel Arc GPUs
+- **FSR 3.1.5** -- frame generation (create, compensate, upscaler, framegen passes)
+- **FSR 4** -- next-gen upscaling + frame generation (RDNA 4/5)
+- **CAS** -- Contrast Adaptive Sharpening for crisp final output
+- **Ray Reconstruction** -- lightweight CNN-style denoiser for low-sample RT
+- **Diffuse + Specular Denoisers** -- temporal-spatial filtering
+- **Intel XESS 3** -- frame generation for Intel Arc GPUs
 
 ---
 
@@ -94,12 +70,12 @@ Pure ECS design: Entities = IDs, Components = plain data, Systems = logic, World
 | `Light` | point/spot/directional light data |
 
 **Core Systems:**
-- `NeuralAISystem` \u2014 NPU-driven behavior inference
-- `PhysicsSystem` \u2014 GPU-accelerated rigid body simulation
-- `RenderSystem` \u2014 ECS \u2192 Vulkan draw commands
-- `InputSystem` \u2014 keyboard/mouse/gamepad aggregation
-- `UIOverlaySystem` \u2014 HUD, menus, debug overlays
-- `NetworkingSystem` \u2014 optional ECS entity replication
+- `NeuralAISystem` -- NPU-driven behavior inference
+- `PhysicsSystem` -- GPU-accelerated rigid body simulation
+- `RenderSystem` -- ECS -> Vulkan draw commands
+- `InputSystem` -- keyboard/mouse/gamepad aggregation
+- `UIOverlaySystem` -- HUD, menus, debug overlays
+- `NetworkingSystem` -- optional ECS entity replication
 
 ---
 
@@ -149,7 +125,7 @@ match BackendSelector::best_available() {
 - DXR ray tracing (BLAS/TLAS/raygen/miss/hit)
 - DirectML backend for AI inference
 - DX12 compute fallback
-- DX12 \u2192 Vulkan translation layer (vkd3d-style)
+- DX12 -> Vulkan translation layer (vkd3d-style)
 - Steam Deck DX12 support
 
 ---
@@ -158,22 +134,22 @@ match BackendSelector::best_available() {
 
 ```
 Application Layer (main.rs)
-    |  Camera · Player Controller · Scene Management · ECS World
+    |  Camera, Player Controller, Scene Management, ECS World
     v
 Platform Layer (litt-platform)
-    |  Window creation · Input handling · Platform-specific code
+    |  Window creation, Input handling, Platform-specific code
     v
 Vulkan Backend (litt-vulkan)
-    |  VMA Memory Allocator · Vulkan 1.3 · RT Pipeline · BLAS/TLAS · Commands
+    |  VMA Memory Allocator, Vulkan 1.3, RT Pipeline, BLAS/TLAS, Commands
     v
 Renderer (litt-renderer)
-    |  Command Pools · Render Passes · Descriptor Sets · Swapchain
+    |  Command Pools, Render Passes, Descriptor Sets, Swapchain
     v
 Path Tracer (litt-pathtracer)
-    |  Raygen · CHIT · Miss · Russian Roulette · Temporal Accumulation
+    |  Raygen, CHIT, Miss, Russian Roulette, Temporal Accumulation
     v
 FidelityFX (litt-fidelityfx)
-    |  FSR 3.1.5 · FSR 4 · CAS · Ray Reconstruction · Denoisers · XESS 3 · NPU
+    |  FSR 3.1.5, FSR 4, CAS, Ray Reconstruction, Denoisers, XESS 3, NPU
     v
 Display (Present)
 ```
@@ -266,25 +242,25 @@ Optimisation flags: `opt-level = "z"`, `lto = true`, `codegen-units = 1`, `panic
 
 ## Roadmap
 
-See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full 15-phase development plan including ECS architecture, physics system, DirectX 12 backend, asset pipeline, engine modules, networking, debug tools, and game development A\u2013Z.
+See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full 15-phase development plan including ECS architecture, physics system, DirectX 12 backend, asset pipeline, engine modules, networking, debug tools, and game development.
 
 | Phase | Title | Status |
 |-------|-------|--------|
-| 1 | Foundation | \u2705 Complete |
-| 2 | Core Rendering | \u2705 Complete |
-| 3 | FidelityFX & AI Upscaling | \u2705 Complete |
-| 4 | ECS Architecture | \ud83d\udd04 In Progress |
-| 5 | Physics System | \ud83d\udccb Planned |
-| 6 | Universal AI Acceleration | \ud83d\udccb Planned |
-| 7 | DirectX 12 Backend | \ud83d\udccb Planned |
-| 8 | Asset Pipeline | \ud83d\udccb Planned |
-| 9 | Engine Modules | \ud83d\udccb Planned |
-| 10 | Networking | \ud83d\udccb Planned |
-| 11 | Platform Support | \ud83d\udd04 Ongoing |
-| 12 | Debug & Profiling | \ud83d\udccb Planned |
-| 13 | Binary Size Verification | \u2705 Complete |
-| 14 | Polish | \ud83d\udd04 In Progress |
-| 15 | Planned Features | \ud83d\udccb Backlog |
+| 1 | Foundation | Complete |
+| 2 | Core Rendering | Complete |
+| 3 | FidelityFX & AI Upscaling | Complete |
+| 4 | ECS Architecture | In Progress |
+| 5 | Physics System | Planned |
+| 6 | Universal AI Acceleration | Planned |
+| 7 | DirectX 12 Backend | Planned |
+| 8 | Asset Pipeline | Planned |
+| 9 | Engine Modules | Planned |
+| 10 | Networking | Planned |
+| 11 | Platform Support | Ongoing |
+| 12 | Debug & Profiling | Planned |
+| 13 | Binary Size Verification | Complete |
+| 14 | Polish | In Progress |
+| 15 | Planned Features | Backlog |
 
 ---
 
@@ -304,7 +280,7 @@ Litt Engine is designed for **AI-assisted development**:
 
 ## License
 
-MIT \u2014 free for personal and commercial use.
+MIT -- free for personal and commercial use.
 
 FidelityFX shaders and concepts are courtesy of [AMD](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK), also MIT-licensed.
 
