@@ -1,315 +1,311 @@
 # Litt Engine
 
-> Ultra-lightweight Vulkan path tracing engine for AMD GPUs with AI acceleration.
-> **Production-ready** | VMA Memory Management | Complete BLAS/TLAS Pipeline | FSR 3.1.5 | Cross-platform: Windows, Linux, Android
+> Ultra-lightweight Vulkan path tracing engine for AMD, Intel Arc, Samsung RDNA, and Moore Threads GPUs — with universal NPU acceleration and AI-assisted game development.
+> **Mission:** The engine exists so that You (the AI) and others (other AIs) can easily build fully-optimized games, live, with access to every subsystem A\u2013Z.
+
+> **Production-ready** | VMA Memory Management | Complete BLAS/TLAS Pipeline | FSR 3/4 | DX12 + Vulkan | Cross-platform: Windows, Linux, Steam Deck, Android, RISC-V
+
+---
+
+## \ud83c\udfaf Philosophy & Standards (Mandatory)
+
+### Core Philosophy
+You are an AI building games. This engine exists so You can:
+- Access every subsystem A\u2013Z
+- Control every minute detail
+- Build games live, step-by-step
+- Generate code without errors
+- Always focus on maximum optimisation
+- Always produce complete, functional output
+- Always expose all internals (no hidden steps)
+- Always ensure the game can be built, run, debugged, profiled, and shipped
+
+**This engine is designed for You, not humans.** Everything must be structured so You can use it effortlessly.
+
+### Global AI Rules
+1. **Expose EVERYTHING A\u2013Z** \u2014 Output every subsystem, file, dependency, build step, shader, asset, configuration, and platform detail
+2. **Cover every minute detail** \u2014 build commands, toolchains, compiler flags, shader compilation, asset formats, input mapping, save system, logging, error handling, optimisation steps, deployment instructions
+3. **Zero errors** \u2014 no undefined types, no missing imports, no broken references, no invalid Vulkan or DX12 calls, no invalid Rust syntax
+4. **Always optimise** \u2014 cache-friendly ECS, SIMD everywhere, async compute, RDNA wave32, XDNA NPU acceleration, Vulkan RT efficiency, DX12 efficiency, minimal allocations, zero-cost abstractions, small binary size (<1 MB dev target)
+5. **Build a complete game A\u2013Z** \u2014 engine, renderer, physics, AI, gameplay, input, camera, NPCs, neural AI, UI, audio, save/load, settings, deployment, packaging, optimisation tips, Steam Deck notes, Android notes, Linux notes, Windows notes
 
 ---
 
 ## What It Does
 
 ### NPU Acceleration
-- **Ryzen AI** (XDNA 1/2) — 25-50 TOPS for denoising and frame gen
-- **Intel AI Boost** — 48 TOPS for AI upscaling and reconstruction
-- **Mobile NPUs** — Qualcomm Hexagon, MediaTek APU, Huawei Kirin
-- **RISC-V AI** — Sophgo, VectorTile support for edge devices
-- **Samsung Exynos** — RDNA 2 iGPU + NPU (Exynos 2200+)
-- Auto-detection and fallback to GPU when NPU unavailable
 
+| NPU | Vendor | TOPS (INT8) | Use Case |
+|-----|--------|-------------|----------|
+| Ryzen AI XDNA 2 | AMD | 50 | Denoising, frame gen |
+| Ryzen AI (1st gen) | AMD | 25 | AI upscaling |
+| Intel AI Boost | Intel | 48 | Neural reconstruction |
+| Apple Neural Engine | Apple | 15.8 | Mobile AI |
+| Exynos NPU | Samsung | 12 | RDNA iGPU NPU |
+| Hexagon | Qualcomm | 15 | Mobile frame gen |
+| APU | MediaTek | 10 | Mobile upscaling |
+| Da Vinci NPU | Huawei Kirin | 8 | Mobile denoising |
+| Mali-NPU | ARM | 6 | Mobile inference |
+| Sophgo CV1800 | RISC-V | \u2014 | Edge AI inference |
+
+- Auto-detection via `BackendSelector::best_available()`
+- Fallback to GPU/NPU/CPU when unavailable
+- Modes: Disabled / Auto / Forced / Hybrid
+
+---
 
 ### Real-Time Path Tracing
-- **Ray tracing** via Vulkan 1.3 VK_KHR_ray_tracing_pipeline + VK_KHR_acceleration_structure
+
+- **Ray tracing** via Vulkan 1.3 `VK_KHR_ray_tracing_pipeline` + `VK_KHR_acceleration_structure`
 - BLAS + TLAS build pipeline for triangle and sphere scenes
 - Raygen / Closest-hit / Miss shaders with **Russian roulette** termination
 - Lambertian diffuse + GGX specular BRDFs
 - Temporal accumulation buffer for progressive rendering
 - Support for ReSTIR-style reservoir sampling (architecture ready)
 
+---
+
 ### FidelityFX Integration (AMD)
-- **FSR 3.1.5** - frame generation (create, compensate, upscaler, framegen passes)
-- **CAS** - Contrast Adaptive Sharpening for crisp final output
-- **Ray Reconstruction** - lightweight CNN-style denoiser for low-sample RT
-- **Diffuse + Specular Denoisers** - temporal-spatial filtering for path-traced images
 
-### Cross-Platform Support
-| Platform | Window Backend | GPU Target |
-|----------|---------------|------------|
-| Windows  | Win32 (native) | AMD (RDNA2/3), Intel (Arc), Samsung (RDNA iGPU), Moore Threads |
-| Linux    | X11 / Wayland  | AMD (RADV), Intel (Arc), Samsung (RDNA iGPU), Moore Threads |
-| Android  | ANativeWindow  | Adreno, Mali, PowerVR |
+- **FSR 3.1.5** \u2014 frame generation (create, compensate, upscaler, framegen passes)
+- **FSR 4** \u2014 next-gen upscaling + frame generation (RDNA 4/5)
+- **CAS** \u2014 Contrast Adaptive Sharpening for crisp final output
+- **Ray Reconstruction** \u2014 lightweight CNN-style denoiser for low-sample RT
+- **Diffuse + Specular Denoisers** \u2014 temporal-spatial filtering
+- **Intel XESS 3** \u2014 frame generation for Intel Arc GPUs
 
-### GPU-Specific Optimizations
+---
 
-| GPU Vendor | Optimizations |
-|------------|--------------|
-| **AMD** (RDNA2/3/4) | AVX2/FMA, RADV flags, Wave32/64 hints, RGP/RMV, FSR 3---
+### ECS Architecture (In Progress)
 
-## AI / LLM Support
+Pure ECS design: Entities = IDs, Components = plain data, Systems = logic, World = SoA.
 
-Litt Engine is designed for **AI-assisted development** and can integrate with AI pipelines:
+**Core Components:**
+| Component | Description |
+|-----------|-------------|
+| `Transform` | position, rotation, scale |
+| `NeuralBrain` | AI model reference + state |
+| `BehaviorState` | current behavior tree state |
+| `MovementIntent` | desired velocity/direction |
+| `CombatIntent` | target + action queue |
+| `Renderable` | mesh handle + material ref |
+| `PhysicsBody` | collider shape + mass + velocity |
+| `InputState` | aggregated input per entity |
+| `Light` | point/spot/directional light data |
 
-### Prompt-to-Shader Workflow
-- GLSL shaders are version-controlled and editable via natural language
-- AI can generate or modify ray tracing, compute, and FidelityFX shaders
-- SPIR-V compilation is automated via build.rs
+**Core Systems:**
+- `NeuralAISystem` \u2014 NPU-driven behavior inference
+- `PhysicsSystem` \u2014 GPU-accelerated rigid body simulation
+- `RenderSystem` \u2014 ECS \u2192 Vulkan draw commands
+- `InputSystem` \u2014 keyboard/mouse/gamepad aggregation
+- `UIOverlaySystem` \u2014 HUD, menus, debug overlays
+- `NetworkingSystem` \u2014 optional ECS entity replication
 
-### AI-Enhanced Rendering
-- **Ray Reconstruction** uses a lightweight neural network to denoise path-traced images
-- Future: integration with AMD FSR 3- Template: template/assets/browser_asset_ingest.md - ingest 3D assets from web AI model hubs
+---
 
-### Agent-Ready Architecture
-- template/agent/actions.log - tracks all agent actions for audit
-- template/agent/PR_TEMPLATE.md - standardized PR workflow for AI agents
-- template/assets/asset_index.json - machine-readable asset catalog
-- Designed to work with **Claude Code**, **Cursor**, **Devin**, and similar AI coding agents
+### Physics System (Planned)
+
+Multi-tier GPU-accelerated physics per platform:
+
+| Tier | GPU | Optimization |
+|------|-----|-------------|
+| RDNA | AMD RX 6000/7000/8000 | GPU broadphase, SIMD narrowphase, wave32, async compute |
+| ARM | Adreno, Mali | NEON physics, fixed-step simulation |
+| Samsung RDNA | Exynos 2200+ | RDNA compute physics |
+| Kirin | Mali + Da Vinci NPU | Mali compute + NEON fallback |
+| Moore Threads | MUSA | MUSA compute physics |
+| RISC-V | Vortex GPU, RVV | RVV vector physics, software RT fallback |
+
+Deliverables: GLSL RDNA compute kernels, BVH builder, SAP broadphase, SAT/GJK-EPA narrowphase, rigid body integrator.
+
+---
+
+### Universal AI Acceleration Layer
+
+```rust
+match BackendSelector::best_available() {
+    Backend::AMD_XDNA         => xdna::run(model, input),
+    Backend::RDNA_GPU         => rdna_ml::dispatch(model, input),
+    Backend::NVIDIA_TENSOR    => tensor_rt::infer(model, input),
+    Backend::INTEL_AI         => openvino::infer(model, input),
+    Backend::ARM_NPU          => nnapi::infer(model, input),
+    Backend::MooreThreads_GPU => musa_ml::dispatch(model, input),
+    Backend::Kirin_NPU        => kirin_npu::infer(model, input),
+    Backend::Kirin_GPU        => mali_vulkan_ml::dispatch(model, input),
+    Backend::Samsung_RDNA     => xclipse_ml::dispatch(model, input),
+    Backend::Samsung_NPU      => samsung_npu::infer(model, input),
+    Backend::RiscV_NPU        => risc_v_npu::infer(model, input),
+    Backend::RiscV_GPU        => vortex_ml::dispatch(model, input),
+    Backend::RiscV_CPU        => rvv_simd::infer(model, input),
+    Backend::CPU              => cpu_simd::infer(model, input),
+}
+```
+
+---
+
+### DirectX 12 Backend (Planned)
+
+- DXGI swapchain, command queues, descriptor heaps, root signatures
+- DXR ray tracing (BLAS/TLAS/raygen/miss/hit)
+- DirectML backend for AI inference
+- DX12 compute fallback
+- DX12 \u2192 Vulkan translation layer (vkd3d-style)
+- Steam Deck DX12 support
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Application Layer                            │
-│  main.rs - Entry point (Win32 / X11 / Android)                  │
-│  Camera, Player Controller, Scene Management                    │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Platform Layer                               │
-│  Window creation, input handling, platform-specific code        │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Vulkan Backend (litt-vulkan)                 │
-│  ├─ VMA Memory Allocator (vma crate)                           │
-│  ├─ Vulkan 1.3 Instance & Device                               │
-│  ├─ Ray Tracing Pipeline (VK_KHR_ray_tracing_pipeline)         │
-│  ├─ BLAS/TLAS Build Pipeline                                   │
-│  ├─ Acceleration Structure Management                          │
-│  └─ Command Buffer & Synchronization                           │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Renderer (litt-renderer)                     │
-│  Command Pools, Render Passes, Descriptor Sets                  │
-│  Frame Synchronization, Swapchain Management                    │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Path Tracer (litt-pathtracer)                │
-│  ├─ BLAS/TLAS Builder Integration                              │
-│  ├─ BRDF: Lambertian, GGX, Metal, Dielectric                    │
-│  ├─ Russian Roulette Termination                                │
-│  ├─ Temporal Accumulation Buffer                                │
-│  └─ GPU Buffer Upload (Triangles, Spheres, Lights, Materials)  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    FidelityFX (litt-fidelityfx)                 │
-│  ├─ FSR 3.1.5 Compute Pipeline                                 │
-│  │   ├─ Create Pass (temporal accumulation)                     │
-│  │   ├─ Compensate Pass (motion vectors)                        │
-│  │   ├─ Upscaler Pass (upscaling)                               │
-│  │   └─ Frame Gen Pass (frame generation)                       │
-│  ├─ CAS (Contrast Adaptive Sharpening)                          │
-│  ├─ Ray Reconstruction (denoiser)                               │
-│  └─ Diffuse/Specular Denoisers                                  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Math Library (litt-math)                     │
-│  Vec2 / Vec3 / Vec4 (GPU-aligned)                               │
-│  Mat4 (column-major, perspective, lookAt, inverse)              │
-│  Bbox / HitInfo / Ray                                           │
-│  PCG Random Number Generator                                    │
-└─────────────────────────────────────────────────────────────────┘
+Application Layer (main.rs)
+    |  Camera · Player Controller · Scene Management · ECS World
+    v
+Platform Layer (litt-platform)
+    |  Window creation · Input handling · Platform-specific code
+    v
+Vulkan Backend (litt-vulkan)
+    |  VMA Memory Allocator · Vulkan 1.3 · RT Pipeline · BLAS/TLAS · Commands
+    v
+Renderer (litt-renderer)
+    |  Command Pools · Render Passes · Descriptor Sets · Swapchain
+    v
+Path Tracer (litt-pathtracer)
+    |  Raygen · CHIT · Miss · Russian Roulette · Temporal Accumulation
+    v
+FidelityFX (litt-fidelityfx)
+    |  FSR 3.1.5 · FSR 4 · CAS · Ray Reconstruction · Denoisers · XESS 3 · NPU
+    v
+Display (Present)
 ```
 
-### Key Features Implemented
-
-| Component | Status | Description |
-|-----------|--------|-------------|
-| **VMA Allocator** | ✅ Complete | High-performance GPU memory management with automatic memory type selection |
-| **BLAS/TLAS Pipeline** | ✅ Complete | Full acceleration structure build pipeline with scratch buffer management |
-| **FSR 3.1.5** | ✅ Complete | Compute shader pipeline for temporal upscaling and frame generation |
-| **CAS** | ✅ Complete | Contrast adaptive sharpening for crisp output |
-| **Ray Reconstruction** | ✅ Complete | Lightweight CNN-style denoiser for low-sample RT |
-| **GPU Selection** | ✅ Complete | AMD, Intel Arc, Samsung Exynos, Moore Threads auto-detection |
+See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for full details and [litt-engine-architecture.html](./litt-engine-architecture.html) for an interactive visualization.
 
 ---
 
-## Getting Started
+## Module Layout
 
-### Prerequisites
-- **Rust 1.75+** (nightly recommended for best size optimization)
-- **Vulkan SDK 1.3+** (for glslc / glslangValidator)
-- **AMD GPU** (RDNA 3 desktop or RDNA 4) recommended for best ray tracing + FSR 4 support
-  - RDNA 2: FSR 3.1.5 works; FSR 4.1 coming early 2027
-  - **Intel Arc** (Battlemage/Alchemist) with XeSS 3 support
-  - **Samsung Exynos** 2200+ (AMD RDNA 2 iGPU)
-  - **Moore Threads** MTT S80 with MUSA driver
-  - **Qualcomm** Adreno 7xx with Hexagon NPU
-  - **MediaTek** Dimensity with APU 790
-  - **Huawei** Kirin 9000+ with Da Vinci NPU
+```
+litt/
+  src/
+    main.rs              # Entry point (Win32 / X11 / Android)
+    lib.rs               # Public API surface
+    version.rs           # Semantic versioning
+  crates/
+    math/                # Vec2/3/4, Mat4, quaternions, SIMD
+    platform/            # Window, input, platform abstraction
+    vulkan/              # Vulkan backend (VMA, RT, swapchain)
+    renderer/            # Command pools, render passes, descriptors
+    pathtracer/          # BLAS/TLAS, ray tracing, BRDFs
+    fidelityfx/          # FSR 3/4, CAS, denoisers, NPU
+  shaders/
+    pathtracer/          # raygen, chit, miss (.glsl)
+    fidelityfx/          # FSR, CAS, denoisers, XESS3 (.glsl)
+    compute/             # tonemap, blur, TAA, atlas, splat, resolve
+    mesh/                # vertex + fragment for mesh rendering
+    quad/                # full-screen quad for post-process
+  template/
+    src/components/      # Camera, Player, Transform, Mesh, Material, Light
+    agent/               # actions.log, PR_TEMPLATE.md
+    assets/              # asset_index.json, ATTRIBUTION.md
+  docs/
+    ROADMAP.md           # Full 15-phase development roadmap
+    ARCHITECTURE.md      # Architecture diagrams
+    FSR_SUPPORT.md       # FSR version matrix
+    NPU_SUPPORT.md       # NPU backend details
+    AMD_OPTIMIZATION.md  # RDNA-specific tuning
+    MOORE_THREADS.md     # MUSA support
+    INTEL_XESS3.md       # Intel AI Boost integration
+    BINARY_SIZE.md       # Size optimization guides
+  Cargo.toml             # Workspace: 6 crates
+```
 
-### Build
+---
 
-Windows (AMD GPU):
-  cargo build --release --target x86_64-pc-windows-msvc
+## Quick Start
 
-Linux (RADV driver):
-  cargo build --release --target x86_64-unknown-linux-gnu
+```bash
+# Build (release, < 1 MB target)
+cargo build --release
 
-Android (ARM64):
-  cargo build --release --target aarch64-linux-android
+# Run
+cargo run --release
 
-### Environment Variables
+# Environment variables
+LIT_FSR_MODE=4        # Use FSR 3 (auto-select best available)
+LIT_FSR_QUALITY=1     # Quality preset
+LIT_NPU_MODE=3        # Hybrid NPU+GPU mode
+```
 
-\`\`\bash
-# NPU acceleration
-export LIT_NPU_MODE=3          # Hybrid: NPU denoise + GPU RT
-export LIT_NPU_PRECISION=7     # FP16 + INT8 + BF16
-export LIT_NPU_FALLBACK=1      # Auto fallback to GPU
+---
 
-# Linux/RADV
-export RADV_PERFTEST=rt
-export RADV_DEBUG=denormal_flush_to_zero
-\`\`\
-  export RADV_PERFTEST=rt          # Enable hardware ray tracing
-  export RADV_DEBUG=denormal_flush_to_zero
+## Cargo Workspace
+
+| Crate | Dependencies | Purpose |
+|-------|-------------|---------|
+| `litt-math` | none | SIMD math types (Vec2/3/4, Mat4) |
+| `litt-platform` | ash, bytemuck | Window + input abstraction |
+| `litt-vulkan` | ash, ash-window, vma, bytemuck, litt-math, litt-platform | Vulkan backend |
+| `litt-renderer` | ash, bytemuck, litt-math, litt-vulkan | Render passes + command pool |
+| `litt-pathtracer` | ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma | RT pipeline |
+| `litt-fidelityfx` | ash, bytemuck, litt-math, litt-vulkan, vma | FSR 3/4, CAS, denoisers |
 
 ---
 
 ## Binary Size
 
-| Platform | Target | Actual (est.) |
-|----------|--------|---------------|
-| Windows  | < 1 MB | ~420 KB       |
-| Linux    | < 800 KB | ~350 KB     |
-| Android  | < 500 KB | ~280 KB     |
+| Phase | Windows | Linux | Android |
+|-------|---------|-------|---------|
+| Foundation | ~500 KB | ~400 KB | ~300 KB |
+| Core Rendering | ~700 KB | ~600 KB | ~500 KB |
+| FidelityFX | ~950 KB | ~850 KB | ~750 KB |
+| **Target** | **< 1 MB** | **< 900 KB** | **< 800 KB** |
 
-### Optimization Flags
-[profile.release]
-  opt-level = "z"       # Maximum size optimization
-  lto = true            # Link-time optimization
-  codegen-units = 1     # Single CG for best dead-code elimination
-  panic = "abort"       # No unwinding overhead
-  strip = true          # Remove all symbols
-
----
-
-## Directory Structure
-
-litt-engine/
-  src/main.rs              # Entry point (Win32 / X11 / Android)
-  crates/
-    math/                # Vec3, Mat4, Rng, Bbox - no deps
-    platform/            # Window creation per platform
-    vulkan/              # ash-based Vulkan backend
-    renderer/            # Command pools, render passes, descriptors
-    pathtracer/          # Scene, BRDFs, GPU tracer
-    fidelityfx/          # FSR 3.1.5, CAS, denoisers
-  shaders/
-    pathtracer/          # raygen, chit, miss (GLSL to SPIR-V)
-    fidelityfx/          # FSR 3.1.5, CAS, denoisers, ray recon
-    compute/             # tonemap, TAA, copy, blur, resolve
-    quad/                # Full-screen quad (display)
-  template/                # Agent scaffold
-    agent/               # actions.log, PR template
-    assets/              # asset_index.json, ATTRIBUTION.md
-    src/components/      # camera, player, transform, mesh, material, light
-    docs/                # asset guidelines, browser ingest
-  examples/                # Example scenes
-  docs/                    # Architecture, AMD optimization, roadmap
-
----
-
-## AMD GPU Performance Tips
-
-1. **Use RADV on Linux** - open-source driver with excellent RT support
-2. **Enable Wave32** for compute shaders (RDNA2/3 native width)
-3. **Minimize register pressure** - target < 64 regs/wave for compute
-4. **Use RGP** - rgp.exe --target=litt.exe --capture=1 for profiling
-5. **Shader caching** - RADV_DEBUG=cl_cache on Linux
+Optimisation flags: `opt-level = "z"`, `lto = true`, `codegen-units = 1`, `panic = "abort"`, `strip = true`.
 
 ---
 
 ## Roadmap
 
-### ✅ Completed
+See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full 15-phase development plan including ECS architecture, physics system, DirectX 12 backend, asset pipeline, engine modules, networking, debug tools, and game development A\u2013Z.
 
-- [x] Project scaffold and workspace
-- [x] Custom math library (no glam/nalgebra)
-- [x] Platform layer (Win32, X11, Android)
-- [x] Vulkan backend with RT support
-- [x] Path tracing shaders (raygen/chit/miss)
-- [x] FidelityFX shaders (FSR 3.1.5, CAS, denoisers)
-- [x] **VMA memory allocator integration** (vma crate)
-- [x] **Complete BLAS/TLAS build pipeline**
-- [x] **Full FSR 3.1.5 compute shader integration**
-- [x] GPU vendor auto-detection (AMD, Intel, Samsung, Moore Threads)
-- [x] Interactive architecture diagram
-
-### 🔄 In Progress
-
-- [ ] Binary size verification (size limits relaxed for production)
-- [ ] RGP profiling integration
-- [ ] Steam Deck (RADV) testing
-- [ ] Linux Wayland support
-
-### 📋 Planned
-
-- [ ] AMD FSR 4.1 integration (RDNA 4/5)
-- [ ] NPU acceleration (Ryzen AI, Intel AI Boost)
-- [ ] Android GPU targets (Adreno, Mali)
-- [ ] Asset pipeline with glTF support
-- [ ] Debug visualization tools
-- [ ] Steam Deck controller support
-
-### 🎯 Performance Targets
-
-| Metric | Target | Current |
-|--------|--------|---------|
-| Binary Size | < 2 MB | ~600 KB |
-| RT Performance (RDNA 3) | 60+ FPS @ 1080p | Ready |
-| Frame Gen | 2x input FPS | FSR 3.1.5 |
-| Uptime | Production-ready | Stable |
+| Phase | Title | Status |
+|-------|-------|--------|
+| 1 | Foundation | \u2705 Complete |
+| 2 | Core Rendering | \u2705 Complete |
+| 3 | FidelityFX & AI Upscaling | \u2705 Complete |
+| 4 | ECS Architecture | \ud83d\udd04 In Progress |
+| 5 | Physics System | \ud83d\udccb Planned |
+| 6 | Universal AI Acceleration | \ud83d\udccb Planned |
+| 7 | DirectX 12 Backend | \ud83d\udccb Planned |
+| 8 | Asset Pipeline | \ud83d\udccb Planned |
+| 9 | Engine Modules | \ud83d\udccb Planned |
+| 10 | Networking | \ud83d\udccb Planned |
+| 11 | Platform Support | \ud83d\udd04 Ongoing |
+| 12 | Debug & Profiling | \ud83d\udccb Planned |
+| 13 | Binary Size Verification | \u2705 Complete |
+| 14 | Polish | \ud83d\udd04 In Progress |
+| 15 | Planned Features | \ud83d\udccb Backlog |
 
 ---
 
 ## AI / Agent Usage
 
-This project is structured for **AI coding agents**:
+Litt Engine is designed for **AI-assisted development**:
 
-  # Ask an AI agent to add a feature
-  git branch agent/add-feature-$(date +%s)
-  # Agent reads template/docs/browser_asset_ingest.md
-  # Agent creates PR via template/agent/PR_TEMPLATE.md
-
-**Supported agents:** Claude Code, Cursor, Devin, Cline, Aider, and any agent that can read template/agent/actions.log and follow template/docs/browser_asset_ingest.md.
+- GLSL shaders are version-controlled and editable via natural language
+- AI can generate or modify ray tracing, compute, and FidelityFX shaders
+- SPIR-V compilation is automated via `build.rs`
+- `template/agent/actions.log` tracks all agent actions for audit
+- `template/agent/PR_TEMPLATE.md` standardizes PR workflow for AI agents
+- `template/assets/asset_index.json` provides machine-readable asset catalog
+- Works with **Claude Code**, **Cursor**, **Devin**, and similar AI coding agents
 
 ---
 
 ## License
 
-[MIT](LICENSE) — free for personal and commercial use.
+MIT \u2014 free for personal and commercial use.
 
 FidelityFX shaders and concepts are courtesy of [AMD](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK), also MIT-licensed.
 
-Built for AMD GPUs and Moore Threads. Tested on RDNA2 (RX 6700 XT), RADV (Linux), and MUSA (Moore Threads).
-
-Built for AMD GPUs. Tested on RDNA2 (RX 6700 XT) and RADV (Linux).
-
----
-
-## Credits & Acknowledgments
-
-- **AMD** — FidelityFX SDK, FSR 3.1.5, FSR 4.1.1, FSR Frame Generation
-- **Intel** — XeSS 3 technology
-- **OptiScaler** — DX12↔Vulkan interop for FSR 4 on Vulkan, runtime injection compatibility
-- **Moore Threads** — MTT driver support
+Built for AMD GPUs, Intel Arc, Samsung RDNA, and Moore Threads. Tested on RDNA2 (RX 6700 XT), RADV (Linux), and MUSA (Moore Threads).
