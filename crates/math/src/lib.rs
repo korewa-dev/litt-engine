@@ -1,5 +1,5 @@
-//! Ultra-lightweight math types for the path tracer.
-//! No external math library — hand-rolled SIMD-friendly types.
+﻿//! Ultra-lightweight math types for the path tracer.
+//! No external math library â€” hand-rolled SIMD-friendly types.
 //!
 //! Zero-cost abstractions, no heap allocation, no trait objects.
 
@@ -64,7 +64,7 @@ impl MulAssign<f32> for Vec2 { fn mul_assign(&mut self, s: f32) { self.0 *= s; s
 // Vec3 - Core type for path tracing
 // =============================================================================
 
-#[derive(Clone, Copy, Debug, PartialEq, Pod, Zeroable)]
+#[derive(Clone, Copy, Debug, PartialEq, Default, Pod, Zeroable)]
 #[repr(C)]
 pub struct Vec3(pub f32, pub f32, pub f32);
 
@@ -287,7 +287,7 @@ impl Mat4 {
             cof16*inv_det, cof17*inv_det, cof18*inv_det, cof19*inv_det,
             cof20*inv_det, cof21*inv_det, cof22*inv_det, cof23*inv_det,
             cof24*inv_det, cof25*inv_det, cof26*inv_det, cof27*inv_det,
-            -(m[4]*cof1 - m[5]*cof0 + m[1]*cof4 - m[0]*cof5
+            (-m[4]*cof1 + m[5]*cof0 - m[1]*cof4 + m[0]*cof5
               + m[6]*cof3 - m[7]*cof2 + m[3]*cof6 - m[2]*cof7
               + m[8]*cof1 - m[9]*cof0 + m[1]*cof8 - m[0]*cof9
               + m[10]*cof2 - m[11]*cof1 + m[3]*cof10 - m[2]*cof11
@@ -312,7 +312,7 @@ impl Mat4 {
               + m[12]*cof1 - m[13]*cof0 + m[0]*cof13 - m[1]*cof12
               + m[4]*cof0 - m[5]*cof1 + m[1]*cof14 - m[0]*cof13
               + m[8]*cof1 - m[9]*cof0 + m[0]*cof15 - m[1]*cof14
-            ]) / det,
+            ) / det,
         ])
     }
 }
@@ -516,7 +516,7 @@ pub struct HitInfo {
 
 impl HitInfo {
     #[inline]
-    pub const fn miss() -> Self { Self { t: -1.0, ..Default::default() } }
+    pub fn miss() -> Self { Self { t: -1.0, normal: Vec3::ZERO, material: None } }
     #[inline]
     pub const fn hit(t: f32, u: f32, v: f32, normal: Vec3, mat_id: u32) -> Self {
         Self { t, u, v, normal, material_id: mat_id }
@@ -697,22 +697,24 @@ pub struct Material {
 
 impl Material {
     #[inline]
-    pub const fn diffuse(albedo: Vec3) -> Self {
+    pub fn diffuse(albedo: Vec3) -> Self {
         Self { albedo, ..Default::default() }
     }
 
     #[inline]
-    pub const fn metal(albedo: Vec3, roughness: f32) -> Self {
+    pub fn metal(albedo: Vec3, roughness: f32) -> Self {
         Self { albedo, roughness, metallic: 1.0, ..Default::default() }
     }
 
     #[inline]
-    pub const fn emissive(color: Vec3, intensity: f32) -> Self {
+    pub fn emissive(color: Vec3, intensity: f32) -> Self {
         Self { emissive: color, light_intensity: intensity, ..Default::default() }
     }
 
     #[inline]
-    pub const fn glass(ior: f32) -> Self {
+    pub fn glass(ior: f32) -> Self {
         Self { ior, ..Default::default() }
     }
 }
+
+

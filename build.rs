@@ -1,4 +1,4 @@
-//! Build script: compiles GLSL shaders to SPIR-V.
+﻿//! Build script: compiles GLSL shaders to SPIR-V.
 //! Falls back to embedding pre-compiled SPIR-V if no compiler available.
 
 use std::env;
@@ -17,10 +17,9 @@ fn main() {
     let compiler = find_glsl_compiler();
     compile_shaders(&dest_path, compiler.as_ref());
 
-        // Pass version info to compiler
     println!("cargo:rustc-env=BUILD_DATE={}", std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs());
     println!("cargo:rustc-env=GIT_COMMIT={}", std::process::Command::new("git").arg("rev-parse").arg("--short").arg("HEAD").output().ok().map(|o| String::from_utf8(o.stdout).unwrap_or_default()).unwrap_or_else(|| "unknown".to_string()));
-println!("cargo:rustc-link-lib=vulkan");
+    println!("cargo:rustc-link-lib=vulkan");
     if cfg!(target_os = "windows") {
         println!("cargo:rustc-link-lib=dylib=dxgi");
         println!("cargo:rustc-link-lib=dylib=kernel32");
@@ -72,9 +71,9 @@ fn compile_shaders(out_dir: &Path, compiler: Option<&PathBuf>) {
         ("fidelityfx/cas.comp.glsl", "cas.spv"),
         ("fidelityfx/fsr3_create.comp.glsl", "fsr3_create.spv"),
         ("fidelityfx/fsr3_compensate.comp.glsl", "fsr3_comp.spv"),
-        ("fidelityfx/fsr3_upscaler.comp.glsl", "        ("fidelityfx/fsr3_framegen.comp.glsl", "        ("fidelityfx/xess3_framegen.comp.glsl", "xess3_fg.spv"),
-,
-,
+        ("fidelityfx/fsr3_upscaler.comp.glsl", "fsr3_upscale.spv"),
+        ("fidelityfx/fsr3_framegen.comp.glsl", "fsr3_fg.spv"),
+        ("fidelityfx/xess3_framegen.comp.glsl", "xess3_fg.spv"),
         ("compute/blur.comp.glsl", "blur.spv"),
         ("compute/copy.comp.glsl", "copy.spv"),
         ("compute/tonemap.comp.glsl", "tonemap.spv"),

@@ -22,13 +22,6 @@ windows-sys = { version = "0.59", features = [
 
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = { version = "0.29", default-features = false, features = ["fs", "socket", "term", "user"] }
-wayland-client = { version = "0.31", default-features = false, optional = true }
-x11-dl = { version = "2.21", default-features = false, optional = true }
-
-[target.'cfg(target_os = "android")'.dependencies]
-log-ndk = "0.1"
-android-activity = "0.6"
-ndk-context = "0.1"
 
 [profile.release]
 opt-level = "z"
@@ -36,3 +29,5 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+
