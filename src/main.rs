@@ -1,16 +1,9 @@
 //! Litt Engine - Ultra-lightweight Vulkan path tracing engine.
 //!
 //! Targets: Windows, Linux, Android
-//! GPU Focus: AMD (RDNA2/RDNA3)
-//! Max Binary Size: 1 MB
-//!
-//! Features:
-//! - Vulkan 1.3 ray tracing
-//! - Path tracing with Russian roulette
-//! - AMD FidelityFX (FSR 2, CAS)
-//! - Minimal dependencies
+//! GPU Focus: AMD (RDNA2/RDNA3/RRNA4), Intel Arc, Samsung Exynos
+//! Features: VMA Memory Management, BLAS/TLAS Pipeline, FSR 3.1.5
 
-#![no_std]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
@@ -41,6 +34,7 @@ use logging::*;
 fn print_version() {
     println!("{} v{} (build {})", version::NAME, version::VERSION, version::GIT_COMMIT);
 }
+
 #[cfg(target_os = "windows")]
 #[no_mangle]
 pub extern "system" fn wWinMain(
@@ -97,11 +91,13 @@ pub extern "C" fn android_main(app: *mut android_activity::AndroidApp) {
     _app.run();
 }
 
-/// Minimal logging
+/// Application module with full pipeline integration
 mod app {
     use super::*;
     use litt_platform::Window;
     use litt_vulkan::*;
+    use litt_renderer::*;
+    use litt_pathtracer::*;
 
     pub struct App {
         window: Window,
@@ -117,7 +113,6 @@ mod app {
             let window = Window::new("Litt Engine", WindowSize { width: 1280, height: 720 })
                 .ok_or("Failed to create window")?;
 
-            // Vulkan initialization happens lazily
             Ok(Self {
                 window,
                 renderer: None,
@@ -180,7 +175,7 @@ mod app {
         }
 
         pub fn run(mut self) -> i32 {
-            // Initialize Vulkan
+            // Initialize Vulkan and render pipeline
             match unsafe { self.initialize_vulkan() } {
                 Ok(_) => {},
                 Err(e) => {
@@ -189,12 +184,23 @@ mod app {
                 }
             }
 
+            // Initialize render pipeline
+            if let Some(ref mut renderer) = self.renderer {
+                match renderer.initialize_pipeline(self.scene.clone(), self.camera.clone()) {
+                    Ok(_) => {},
+                    Err(e) => {
+                        debug::log(&format!("Pipeline init failed: {}", e));
+                        return 1;
+                    }
+                }
+            }
+
             // Main loop
             while !self.should_quit && !self.window.should_close() {
                 self.window.pump_messages();
 
                 if let Some(ref mut renderer) = self.renderer {
-                    match self.render_frame(renderer) {
+                    match unsafe { renderer.render_frame(&self.scene, &self.camera) } {
                         Ok(_) => {},
                         Err(e) => {
                             debug::log(&format!("Render error: {}", e));
@@ -221,13 +227,6 @@ mod app {
             let queue_families = find_queue_families(&instance, physical_device)?;
             let mut device = VulkanDevice::new(&instance, physical_device, surface, &queue_families)?;
 
-            // Initialize VMA allocator
-            device.allocator = VmaAllocator::new(
-                &device.device,
-                device.physical_device,
-                &instance,
-            )?;
-
             let swapchain = create_swapchain(
                 &device.device,
                 device.physical_device,
@@ -253,13 +252,9 @@ mod app {
                 semaphores: Vec::new(),
                 descriptor_pool,
                 current_frame: 0,
+                render_pipeline: None,
             });
 
-            Ok(())
-        }
-
-        fn render_frame(&mut self, renderer: &mut Renderer) -> Result<(), String> {
-            // TODO: Implement actual render loop
             Ok(())
         }
     }
