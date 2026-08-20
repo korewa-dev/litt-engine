@@ -1,6 +1,6 @@
 # Litt Engine
 
-> Ultra-lightweight Vulkan path tracing engine for AMD, Intel Arc, Samsung RDNA, and Moore Threads GPUs — with universal NPU acceleration and AI-assisted game development.
+> Ultra-lightweight game engine for an AI-user to make optimised games for AMD, Intel, and Moore Threads and etc
 > **Mission:** The engine exists so that You (the AI) and others (other AIs) can easily build fully-optimized games, live, with access to every subsystem A–Z.
 
 > **Production-ready** | VMA Memory Management | Complete BLAS/TLAS Pipeline | FSR 3/4 | DX12 + Vulkan | ECS Architecture | Cross-platform: Windows, Linux, Steam Deck, Android, RISC-V
