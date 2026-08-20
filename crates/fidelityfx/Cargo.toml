@@ -12,6 +12,7 @@ bytemuck = { workspace = true }
 log = { workspace = true }
 litt-math = { path = "../math" }
 litt-vulkan = { path = "../vulkan" }
+vma = { workspace = true }
 
 [profile.release]
 opt-level = "z"

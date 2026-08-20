@@ -215,10 +215,18 @@ mod app {
 
         unsafe fn initialize_vulkan(&mut self) -> Result<(), String> {
             let instance = create_vulkan_instance()?;
-            let surface = create_surface(&instance, &instance.enumerate_physical_devices()?.first().cloned().ok_or("No GPU")?, &self.window)?;
+            let physical_device = *instance.enumerate_physical_devices()?.first().ok_or("No GPU")?;
+            let surface = create_surface(&instance, &physical_device, &self.window)?;
 
-            let queue_families = find_queue_families(&instance, *instance.enumerate_physical_devices()?.first().ok_or("No GPU")?)?;
-            let device = VulkanDevice::new(&instance, *instance.enumerate_physical_devices()?.first().ok_or("No GPU")?, surface, &queue_families)?;
+            let queue_families = find_queue_families(&instance, physical_device)?;
+            let mut device = VulkanDevice::new(&instance, physical_device, surface, &queue_families)?;
+
+            // Initialize VMA allocator
+            device.allocator = VmaAllocator::new(
+                &device.device,
+                device.physical_device,
+                &instance,
+            )?;
 
             let swapchain = create_swapchain(
                 &device.device,

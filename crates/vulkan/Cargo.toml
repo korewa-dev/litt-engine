@@ -8,6 +8,8 @@ path = "src/lib.rs"
 
 [dependencies]
 ash = { workspace = true }
+ash-window = { workspace = true }
+vma = { workspace = true }
 bytemuck = { workspace = true }
 log = { workspace = true }
 litt-math = { path = "../math" }

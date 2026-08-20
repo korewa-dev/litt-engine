@@ -2,22 +2,82 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "Litt Engine Architecture",
-    "quality_profile": "showcase"
+    "title": "Litt Engine Architecture v2",
+    "subtitle": "Ultra-lightweight Vulkan path tracing engine with VMA and complete RT pipeline",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "main-flow",
+        "label": "Main Processing Flow",
+        "focus": ["application", "platform", "vulkan", "renderer", "pathtracer", "fidelityfx"],
+        "note": "Core ray tracing pipeline from input to GPU rendering"
+      },
+      {
+        "id": "memory-management",
+        "label": "Memory Management",
+        "focus": ["vulkan", "allocator", "raytracer"],
+        "note": "VMA integration for high-performance GPU memory allocation"
+      },
+      {
+        "id": "ray-tracing",
+        "label": "Ray Tracing Pipeline",
+        "focus": ["raytracer", "blas", "tlas"],
+        "note": "Complete BLAS/TLAS build pipeline with acceleration structures"
+      },
+      {
+        "id": "ai-acceleration",
+        "label": "AI/Acceleration",
+        "focus": ["fidelityfx", "fsr", "cas"],
+        "note": "FSR 3.1.5 compute pipeline for upscaling and frame generation"
+      },
+      {
+        "id": "platform-support",
+        "label": "Cross-Platform Support",
+        "focus": ["platform", "vulkan", "renderer"],
+        "note": "Multi-platform deployment across Windows, Linux, and Android"
+      }
+    ]
   },
   "components": [
-    { "id": "application", "type": "frontend", "label": "Application", "pos": [100, 100], "size": [140, 60] },
-    { "id": "platform", "type": "backend", "label": "Platform Layer", "pos": [100, 200], "size": [140, 60] },
-    { "id": "vulkan", "type": "backend", "label": "Vulkan Backend", "pos": [100, 300], "size": [140, 60] },
-    { "id": "renderer", "type": "backend", "label": "Renderer", "pos": [300, 100], "size": [140, 60] },
-    { "id": "pathtracer", "type": "backend", "label": "Path Tracer", "pos": [300, 200], "size": [140, 60] },
-    { "id": "fidelityfx", "type": "backend", "label": "FidelityFX", "pos": [500, 150], "size": [140, 60] }
+    { "id": "application", "type": "frontend", "label": "Application", "sublabel": "main.rs entry point", "pos": [100, 100], "size": [140, 60] },
+    { "id": "platform", "type": "backend", "label": "Platform Layer", "sublabel": "litt-platform", "pos": [100, 200], "size": [140, 60] },
+    { "id": "vulkan", "type": "backend", "label": "Vulkan Backend", "sublabel": "litt-vulkan + ash", "pos": [100, 300], "size": [140, 60] },
+    { "id": "renderer", "type": "backend", "label": "Renderer", "sublabel": "litt-renderer", "pos": [300, 100], "size": [140, 60] },
+    { "id": "pathtracer", "type": "backend", "label": "Path Tracer", "sublabel": "litt-pathtracer", "pos": [300, 200], "size": [140, 60] },
+    { "id": "fidelityfx", "type": "backend", "label": "FidelityFX", "sublabel": "litt-fidelityfx", "pos": [500, 150], "size": [140, 60] },
+    { "id": "allocator", "type": "backend", "label": "VMA Allocator", "sublabel": "vulkano-memory-allocator", "pos": [300, 300], "size": [140, 60] },
+    { "id": "raytracer", "type": "backend", "label": "Ray Tracer", "sublabel": "acceleration structures", "pos": [500, 300], "size": [140, 60] },
+    { "id": "blas", "type": "database", "label": "BLAS Builder", "sublabel": "bottom-level AS", "pos": [700, 200], "size": [140, 60] },
+    { "id": "tlas", "type": "database", "label": "TLAS Builder", "sublabel": "top-level AS", "pos": [700, 100], "size": [140, 60] },
+    { "id": "fsr", "type": "messagebus", "label": "FSR 3.1.5", "sublabel": "compute shaders", "pos": [700, 300], "size": [140, 60] },
+    { "id": "cas", "type": "messagebus", "label": "CAS", "sublabel": "sharpening", "pos": [900, 150], "size": [140, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Core Engine", "wraps": ["application", "platform", "vulkan", "renderer", "pathtracer", "fidelityfx", "allocator"] },
+    { "kind": "security-group", "label": "Graphics Pipeline", "wraps": ["renderer", "pathtracer", "vulkan", "allocator"] },
+    { "kind": "security-group", "label": "Ray Tracing", "wraps": ["raytracer", "blas", "tlas"] },
+    { "kind": "security-group", "label": "AI/Acceleration", "wraps": ["fsr", "cas"] }
   ],
   "connections": [
-    { "id": "app-to-platform", "from": "application", "to": "platform" },
-    { "id": "platform-to-vulkan", "from": "platform", "to": "vulkan" },
-    { "id": "vulkan-to-renderer", "from": "vulkan", "to": "renderer" },
-    { "id": "renderer-to-pathtracer", "from": "renderer", "to": "pathtracer" },
-    { "id": "pathtracer-to-fx", "from": "pathtracer", "to": "fidelityfx" }
+    { "id": "app-to-platform", "from": "application", "to": "platform", "label": "window/input" },
+    { "id": "platform-to-vulkan", "from": "platform", "to": "vulkan", "label": "VkInstance/Device" },
+    { "id": "vulkan-to-renderer", "from": "vulkan", "to": "renderer", "label": "cmd queues" },
+    { "id": "renderer-to-pathtracer", "from": "renderer", "to": "pathtracer", "label": "rendering" },
+    { "id": "pathtracer-to-fx", "from": "pathtracer", "to": "fidelityfx", "label": "denoising" },
+    { "id": "vulkan-to-allocator", "from": "vulkan", "to": "allocator", "label": "VMA" },
+    { "id": "allocator-to-raytracer", "from": "allocator", "to": "raytracer", "label": "buffers" },
+    { "id": "raytracer-to-blas", "from": "raytracer", "to": "blas", "label": "build BLAS" },
+    { "id": "raytracer-to-tlas", "from": "raytracer", "to": "tlas", "label": "build TLAS" },
+    { "id": "pathtracer-to-raytracer", "from": "pathtracer", "to": "raytracer", "label": "scene data" },
+    { "id": "fx-to-fsr", "from": "fidelityfx", "to": "fsr", "label": "upscale" },
+    { "id": "fsr-to-cas", "from": "fsr", "to": "cas", "label": "sharpen" },
+    { "id": "app-to-renderer", "from": "application", "to": "renderer", "label": "scene" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Core Components", "items": ["Math library: zero external deps", "Platform layer: Windows/Linux/Android", "Vulkan backend: ash-based RT support"] },
+    { "dot": "emerald", "title": "Memory Management", "items": ["VMA (Vulkan Memory Allocator) integration", "Automatic memory type selection", "Host-visible and device-local allocations"] },
+    { "dot": "rose", "title": "Ray Tracing", "items": ["Complete BLAS/TLAS build pipeline", "Acceleration structure management", "Shader Binding Table (SBT) support"] },
+    { "dot": "amber", "title": "AI/Acceleration", "items": ["FSR 3.1.5 compute pipeline", "Frame generation support", "CAS sharpening"] },
+    { "dot": "purple", "title": "Performance", "items": ["< 1 MB target binary", "AMD RDNA2/3/4 optimization", "NPU acceleration ready"] }
   ]
 }

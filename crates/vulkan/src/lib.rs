@@ -1,4 +1,4 @@
-//! Minimal Vulkan backend using ash.
+//! Minimal Vulkan backend using ash with VMA.
 //! No abstraction layer — explicit Vulkan calls only.
 
 pub mod instance;
@@ -14,6 +14,9 @@ pub use swapchain::*;
 pub use allocator::*;
 pub use pipeline::*;
 pub use ray_tracing::*;
+
+// Re-export VMA types for convenience
+pub use vma::{Allocator, Allocation, AllocationCreateFlags};
 
 use ash::{vk, extensions::khr};
 use bytemuck::{Pod, Zeroable};

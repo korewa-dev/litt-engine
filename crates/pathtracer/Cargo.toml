@@ -13,6 +13,7 @@ log = { workspace = true }
 litt-math = { path = "../math" }
 litt-vulkan = { path = "../vulkan" }
 litt-renderer = { path = "../renderer" }
+vma = { workspace = true }
 
 [profile.release]
 opt-level = "z"

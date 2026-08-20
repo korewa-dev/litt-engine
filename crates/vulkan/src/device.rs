@@ -2,6 +2,7 @@
 
 use ash::{vk, Instance, Device};
 use super::*;
+use crate::allocator::VmaAllocator;
 
 /// Logical Vulkan device with all necessary handles
 pub struct VulkanDevice {
@@ -21,6 +22,8 @@ pub struct VulkanDevice {
     pub properties: vk::PhysicalDeviceProperties,
     pub features: vk::PhysicalDeviceFeatures,
     pub ext_features: PhysicalDeviceExtensions,
+    /// VMA allocator for memory management
+    pub allocator: VmaAllocator,
 }
 
 /// Extension features required for this engine
@@ -217,6 +220,13 @@ impl VulkanDevice {
             device.queue(queue_families.graphics, 0)
         };
 
+        // Initialize VMA allocator
+        let allocator = VmaAllocator::new(
+            &device,
+            physical,
+            instance,
+        )?;
+
         Ok(Self {
             instance: instance.clone(),
             device,
@@ -234,6 +244,7 @@ impl VulkanDevice {
             properties,
             features,
             ext_features,
+            allocator,
         })
     }
 

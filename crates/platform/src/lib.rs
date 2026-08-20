@@ -1,4 +1,4 @@
-//! Platform abstraction layer for Windows, Linux, and Android.
+﻿//! Platform abstraction layer for Windows, Linux, and Android.
 //! Minimal window creation and Vulkan surface setup.
 
 #![allow(clippy::missing_safety_intrinsic)]
@@ -175,7 +175,7 @@ mod win32 {
                 DestroyWindow(hwnd);
                 0
             }
-            _ => DefWindowProcW(hwnd, msg, wparam, lparam),
+            _ => DefWindowProcW(hwnd, msg, wparam, lparam as isize),
         }
     }
 
@@ -202,7 +202,7 @@ mod win32 {
                 cbWndExtra: 0,
                 hInstance: hinst,
                 hIcon: ptr::null(),
-                hCursor: unsafe { LoadCursorW(ptr::null(), IDC_ARROW) },
+                hCursor: unsafe { LoadCursorW(ptr::null_mut()), IDC_ARROW) },
                 hbrBackground: ptr::null_mut() as HBRUSH,
                 lpszMenuName: ptr::null(),
                 lpszClassName: class_name.as_ptr(),
@@ -238,7 +238,7 @@ mod win32 {
 
         pub fn pump_messages(&mut self) {
             let mut msg: MSG = unsafe { std::mem::zeroed() };
-            while unsafe { GetMessageW(&mut msg, ptr::null(), 0, 0) } > 0 {
+            while unsafe { GetMessageW(&mut msg, ptr::null_mut(), 0, 0) } > 0 {
                 unsafe { TranslateMessage(&msg); }
                 unsafe { DispatchMessageW(&msg); }
             }
@@ -411,3 +411,7 @@ mod android {
         }
     }
 }
+
+
+
+
