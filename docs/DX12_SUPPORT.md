@@ -1,0 +1,85 @@
+# DX12 (DirectX 12) Support
+
+Litt Engine now includes a full DirectX 12 backend for Windows platforms.
+
+## Overview
+
+The DX12 backend provides:
+- DXGI adapter enumeration and GPU selection
+- D3D12 device creation with debug layer support
+- Swapchain management for frame presentation
+- Command queue and allocator management
+- Descriptor heap management (CBV/SRV/UAV/RTV/DSV)
+- Pipeline State Object (PSO) creation
+- DXR (DirectX Ray Tracing) support
+- DXIL shader compilation
+- Resource allocation (buffers, textures)
+
+## Backend Selection
+
+The engine automatically selects the best available backend:
+
+```rust
+use litt::graphics::{select_backend, GraphicsBackend};
+
+// On Windows: tries DX12 first, falls back to Vulkan
+let backend = select_backend()?;
+println!("Using: {}", backend.name());
+println!("GPU: {}", backend.adapter_info());
+println!("Ray Tracing: {}", backend.supports_ray_tracing());
+```
+
+## Building
+
+```bash
+# Build with DX12 (Windows)
+cargo build --release --features dx12
+
+# Build with both backends (DX12 preferred)
+cargo build --release --features dx12,vulkan
+
+# Build with only Vulkan
+cargo build --release --features vulkan
+```
+
+## Architecture
+
+```
+src/graphics.rs          # Backend abstraction trait
+crates/dx12/src/
+  lib.rs                 # Public API, types, errors
+  instance.rs            # DXGI factory, adapter enumeration
+  device.rs              # D3D12 device creation
+  swapchain.rs           # IDXGISwapChain4 management
+  command.rs             # Command allocators, lists, fences
+  descriptor.rs          # Descriptor heaps (CBV/SRV/UAV/RTV/DSV)
+  pipeline.rs            # PSO creation (graphics/compute)
+  ray_tracing.rs         # DXR pipeline, acceleration structures
+  shader.rs              # DXIL compilation, root signatures
+  allocator.rs           # Buffer/texture allocation
+```
+
+## GPU Support
+
+| GPU | DX12 Support | Ray Tracing |
+|-----|-------------|-------------|
+| AMD RDNA 2/3 | Full | DXR 1.1 |
+| AMD RDNA 4 | Full | DXR 1.1 |
+| Intel Arc | Full | DXR 1.1 |
+| NVIDIA RTX | Full | DXR 1.1 |
+| Windows WARP | Fallback | No |
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| LIT_GRAPHICS_API=dx12 | Force DX12 backend |
+| LIT_GRAPHICS_API=vulkan | Force Vulkan backend |
+| LIT_DX12_DEBUG=1 | Enable D3D12 debug layer |
+
+## Roadmap
+
+- [x] Phase 7: DX12 Backend
+- [ ] DirectML AI inference integration
+- [ ] DX12 -> Vulkan translation layer
+- [ ] Steam Deck DX12 optimization
