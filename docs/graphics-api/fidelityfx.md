@@ -1,8 +1,8 @@
-# AMD FidelityFX Super Resolution (FSR) Support
+﻿# FidelityFX Integration
 
 Litt Engine integrates the [AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) for upscaling and frame generation.
 
-> **Note:** The official FSR SDK is **DX12 only**. [OptiScaler](https://github.com/OptiScaler/OptiScaler) provides DX12↔Vulkan interop for FSR 4 runtime injection. Litt Engine is compatible with OptiScaler's injection framework.
+> **Note:** The official FSR SDK is **DX12 only**. [OptiScaler](https://github.com/OptiScaler/OptiScaler) provides DX12<->Vulkan interop for FSR 4 runtime injection.
 
 ## FSR Versions
 
@@ -16,46 +16,38 @@ Litt Engine integrates the [AMD FidelityFX SDK](https://github.com/GPUOpen-Libra
 
 | GPU | FSR 1 | FSR 3.1.5 | FSR 3 |
 |-----|-------|-----------|-------|
-| AMD RDNA 2 | ✅ | ✅ | ❌ (FSR 4.1 early 2027) |
-| AMD RDNA 3 (desktop) | ✅ | ✅ | ✅ |
-| AMD RDNA 4 | ✅ | ✅ | ✅ |
-| AMD RDNA 4 | ✅ | ✅ | ✅ (Native) |
-| Intel Arc | ✅ | ✅ | ✅ |
-| Samsung Exynos | ✅ | ✅ | ✅ |
-| Moore Threads | ✅ | ✅ | Partial |
-| Qualcomm Adreno | ✅ | ✅ | ✅ |
-| MediaTek | ✅ | ✅ | ✅ |
-| Huawei Kirin | ✅ | ✅ | ✅ |
-| NVIDIA | ✅ | ✅ | ✅ |
+| AMD RDNA 2 | Yes | Yes | No |
+| AMD RDNA 3 | Yes | Yes | Yes |
+| AMD RDNA 4 | Yes | Yes | Yes (Native) |
+| Intel Arc | Yes | Yes | Yes |
+| Samsung Exynos | Yes | Yes | Yes |
+| Moore Threads | Yes | Yes | Partial |
+| Qualcomm Adreno | Yes | Yes | Yes |
+| MediaTek | Yes | Yes | Yes |
+| Huawei Kirin | Yes | Yes | Yes |
+| NVIDIA | Yes | Yes | Yes |
 
 ## Usage
 
-\`\`\rust
+```rust
 use litt_fidelityfx::fsr3::*;
 
-// Initialize FSR 3
 let mut fsr3 = Fsr4::new(960, 540, 1920, 1080);
-
-// Detect GPU support level
 fsr3.support_level = Fsr4::detect_support(&device, physical_device);
 
-// Configure based on support
 match fsr3.support_level {
     Fsr4Support::Full => {
-        // RDNA 4/5: use full FSR 3 with AI reconstruction
         fsr3.update(Fsr4Quality::Quality, Fsr4Mode::Full, true, true);
     }
     Fsr4Support::Temporal => {
-        // All other GPUs: use FSR 3.1.5 temporal upscaling
         fsr3.update(Fsr4Quality::Quality, Fsr4Mode::FrameGen, false, true);
     }
     Fsr4Support::Spatial => {
-        // Basic GPUs: spatial upscaling only
         fsr3.update(Fsr4Quality::Quality, Fsr4Mode::Upscale, false, false);
     }
     _ => {}
 }
-\`\`\
+```
 
 ## Quality Presets
 
@@ -67,11 +59,37 @@ match fsr3.support_level {
 | Performance | 1.0x | Max FPS |
 | UltraPerformance | 1.5x | Lowest res |
 
+## Other FidelityFX Effects
+
+| Effect | Description | Shader |
+|--------|-------------|--------|
+| **CAS** | Contrast Adaptive Sharpening | `cas.comp.glsl` |
+| **Ray Reconstruction** | CNN-style denoiser | `ray_reconstruction.comp.glsl` |
+| **Diffuse Denoiser** | Temporal-spatial diffuse | `denoiser_diffuse.comp.glsl` |
+| **Specular Denoiser** | Temporal-spatial specular | `denoiser_specular.comp.glsl` |
+| **XESS 3** | Intel frame generation | `xess3_framegen.comp.glsl` |
+
 ## Environment Variables
 
-\`\`\bash
-# Force FSR mode
+```bash
 export LIT_FSR_MODE=4          # Use FSR 3 if available
 export LIT_FSR_QUALITY=1       # Quality preset
 export LIT_FSR_FRAMEGEN=1      # Enable frame generation
-\`\`\
+```
+
+## Frame Graph Integration
+
+```
+Path Trace (Compute Shader)
+  -> FidelityFX Ray Reconstruction (Denoiser)
+  -> FidelityFX FSR 3.1.5
+      ├─ Create Pass (temporal accumulation)
+      ├─ Compensate Pass (motion vectors)
+      ├─ Upscaler Pass (upscaling)
+      └─ Frame Gen Pass (frame generation)
+  -> FidelityFX CAS (sharpening)
+  -> Tonemap
+  -> Present
+```
+
+See [../rendering/frame-graph.md](../rendering/frame-graph.md) for the full frame graph.

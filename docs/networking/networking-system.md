@@ -1,4 +1,4 @@
-﻿# NetworkingSystem
+﻿﻿# NetworkingSystem
 
 > UDP client/server, WebSocket, and ECS entity replication for multiplayer.
 
@@ -144,7 +144,7 @@ mod websocket {
 |-----------|-------------|----------------|
 | Client prediction | Client simulates locally before server ack | PredictedState in NetworkEntity |
 | Server reconciliation | Server corrects client state on ack | Snapshot interpolation buffer |
-| Lag compensation | Server rewinds to player''s past position | Server stores position history |
+| Lag compensation | Server rewinds to player''''s past position | Server stores position history |
 | Dead reckoning | Client extrapolates between snapshots | Linear velocity extrapolation |
 
 ---

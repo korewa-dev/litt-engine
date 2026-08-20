@@ -1,4 +1,4 @@
-﻿# ECS Reference
+﻿﻿# ECS Reference
 
 > Complete reference for all ECS components and systems in the Litt Engine.
 

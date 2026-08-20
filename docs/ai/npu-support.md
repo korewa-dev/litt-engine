@@ -1,4 +1,4 @@
-# NPU (Neural Processing Unit) Support
+﻿# NPU (Neural Processing Unit) Support
 
 Litt Engine supports NPU acceleration for AI-powered rendering tasks including denoising, upscaling, and frame generation.
 

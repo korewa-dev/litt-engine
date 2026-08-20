@@ -1,4 +1,4 @@
-# Intel GPU & XeSS 3 Support
+﻿# Intel GPU & XeSS 3 Support
 
 ## Supported Intel GPUs
 - **Intel Arc A770 / A750** (Alchemist, Xe-HPG)
@@ -11,7 +11,7 @@
 - Full ray tracing support via VK_KHR_ray_tracing_pipeline
 
 ## XeSS 3 Integration
-XeSS 3 is Intel's answer to AMD FSR 3 — combining AI upscaling with frame generation.
+XeSS 3 is Intel''s answer to AMD FSR 3 — combining AI upscaling with frame generation.
 
 ### Features
 - **Spatial Upscaling** — XeSS Quality/Balanced/Performance modes

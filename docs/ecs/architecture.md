@@ -1,4 +1,4 @@
-# Litt Engine ECS Architecture
+﻿# Litt Engine ECS Architecture
 
 ## Overview
 
@@ -25,7 +25,7 @@ crates/ecs/
 
 ### Component
 - Plain data structures attached to entities
-- Implement the `Component` trait (blanket impl for Send + Sync + 'static)
+- Implement the `Component` trait (blanket impl for Send + Sync + ''static)
 - Can be any type: structs, primitives, etc.
 
 ### System

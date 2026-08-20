@@ -1,4 +1,4 @@
-# Moore Threads GPU Support
+﻿# Moore Threads GPU Support
 
 ## Overview
 Moore Threads (摩尔线程) is a Chinese GPU manufacturer with Vulkan 1.2/1.3 support via their MUSA driver.

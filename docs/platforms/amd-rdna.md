@@ -1,4 +1,4 @@
-# AMD GPU Optimization Notes
+﻿# AMD GPU Optimization Notes
 
 ## Target Architectures
 - RDNA 2 (RX 6000 series): Wave32/Wave64, 64 CU

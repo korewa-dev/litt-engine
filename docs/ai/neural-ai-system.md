@@ -1,4 +1,4 @@
-﻿# NeuralAISystem
+﻿﻿# NeuralAISystem
 
 > NPU-driven behavior inference for NPCs, player prediction, and procedural generation.
 

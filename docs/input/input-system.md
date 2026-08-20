@@ -1,4 +1,4 @@
-﻿# InputSystem
+﻿﻿# InputSystem
 
 > Input aggregation, mapping, and ECS integration for keyboard, mouse, and gamepad.
 

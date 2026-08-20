@@ -1,4 +1,4 @@
-# NPU System Rules
+﻿# NPU System Rules
 
 > **Core Rule:** All neural inference must run on the NPU only. No GPU inference. No CPU inference. No fallback paths. No alternative accelerators.
 
@@ -278,4 +278,4 @@ world.add_system(NeuralAnimationSystem::new(&npu_context));
 | `NPU_ERR_MEMORY` | NPU memory pool exhausted |
 | `NPU_ERR_QUEUE_FULL` | Inference queue is full, batch dropped |
 
-When an NPU error occurs, the affected system logs the error and **skips** the frame's inference for that domain. No fallback is attempted.
+When an NPU error occurs, the affected system logs the error and **skips** the frame''s inference for that domain. No fallback is attempted.
