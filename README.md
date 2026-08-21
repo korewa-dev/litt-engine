@@ -1,4 +1,4 @@
-# Litt Engine
+﻿# Litt Engine
 
 Ultra-lightweight Vulkan/DX12 path tracing engine for AMD, Intel Arc, Samsung, and Moore Threads GPUs with NPU acceleration.
 
@@ -25,7 +25,7 @@ Ultra-lightweight Vulkan/DX12 path tracing engine for AMD, Intel Arc, Samsung, a
 
 ---
 
-### Real-Time Path Tracing
+### Real-Time Path Tracing\n\nReSTIR (Reservoir-Based Sampling for Importance Sampling) is implemented in crates/pathtracer/src/restir.rs:\n\n- **Reservoir management** — maintain a reservoir of light samples with importance weighting\n- **Stochastic reselection** — efficiently update reservoir with new samples\n- **Multiple strategies** — Uniform, Importance, and ReSTIR light sampling\n- **Spatio-temporal reuse** — reuse samples from previous frames for noise reduction\n- **GPU-compatible** — works with Vulkan compute shaders\n\n`ust\nuse litt_pathtracer::restir::*;\nuse litt_pathtracer::LightSamplingStrategy;\n\n// Sample a light using ReSTIR\nlet (sample, pdf) = sample_light_restir(\n    &scene.lights,\n    point,\n    normal,\n    LightSamplingStrategy::ReSTIR,\n    &mut rng,\n);\n\n// Evaluate lighting contribution\nlet lighting = evaluate_lighting(&sample, point, normal, albedo);\n`\n
 
 - **Ray tracing** via Vulkan 1.3 `VK_KHR_ray_tracing_pipeline` + `VK_KHR_acceleration_structure`
 - BLAS + TLAS build pipeline for triangle and sphere scenes
