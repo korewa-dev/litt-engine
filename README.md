@@ -166,7 +166,7 @@ println!("Using: {} on {}", backend.name(), backend.adapter_info());
 | **DX12** | ✅ Implemented | DXGI, DXR, descriptor heaps, PSOs |
 | **AMD AGS** | ✅ Implemented | GPU power management, fan control |
 | **NNAPI** | ✅ Implemented | Android NPU inference |
-| **MUSA** | ⚠️ Partial | Moore Threads detection via Vulkan |
+| **MUSA** | ✅ Complete | Full compute pipeline, GPU detection, memory management |
 | **DirectML** | 📋 Planned | NVIDIA Tensor Cores |
 
 ---
