@@ -761,7 +761,8 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 | 10 | Debug & Profiling | ✅ Complete |
 | 11 | FSR 3.1.5 Real Pipeline | ✅ Complete |
 | 12 | GPU Path Tracer | ✅ Complete |
-| 13 | Networking | ⚠️ Planned |
+| 13 | Path Tracer Bug Fixes + Transitions | ✅ Complete |
+| 14 | Networking | ⚠️ Planned |
 | 13 | Binary Size Verification | ✅ Complete |
 | 14 | Polish | ⚠️ In Progress |
 | 15 | Planned Features | ⚠️ Backlog |
