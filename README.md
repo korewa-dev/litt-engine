@@ -1,6 +1,6 @@
 # Litt Engine - Litt om gangen
 
-Ultra-lightweight game engine for AMD, Intel Arc, Samsung, and Moore Threads GPUs with NPU acceleration.
+Ultra-lightweight game engine for for AI-users with support for AMD, Intel Arc, Samsung, and Moore Threads GPUs with NPU acceleration.
 
 ## What It Does
 
