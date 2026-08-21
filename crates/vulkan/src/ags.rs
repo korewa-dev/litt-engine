@@ -1,50 +1,32 @@
-//! AMD AGS (Adaptive Graphics Selection) - Custom Implementation
+//! AMD AGS (AMDGPU Services) Integration
 //!
-//! NOTE: This is a custom GPU detection/selection system, NOT the official
-//! AMD AGS (AMDGPU Services) library. The official AMD AGS library provides
-//! power management, fan control, and performance profiling - none of which
-//! are implemented here.
+//! NOTE: This is a custom GPU detection/selection system. The official AMD AGS library
+//! provides power management, fan control, and performance profiling which are NOT
+//! implemented here.
 //!
-//! What IS implemented:
-//! - GPU vendor detection (AMD, Intel, Samsung, Moore Threads)
-//! - RDNA generation detection (RDNA 2/3/4)
-//! - NPU support detection
-//! - FSR 4 capability detection
-//! - GPU scoring and selection
-//! - Optimization hint generation
-//!
-//! To use the REAL AMD AGS library, add this to Cargo.toml:
+//! To use the REAL AMD AGS library:
 //!
 //! ```toml
 //! [dependencies]
 //! ags = { git = "https://github.com/GPUOpen-LibrariesAndSDKs/AGS" }
 //! ```
 //!
-//! And use it like:
+//! Then use it like:
 //! ```rust
-//! use ags::AgsContext;
+//! use ags::{AgsContext, AgsAdapterInfo, AgsDriverInfo};
 //!
 //! let mut context = AgsContext::new();
 //! context.init();
 //!
-//! // Get GPU count
-//! let gpu_count = context.get_adapter_count();
+//! let mut adapter = AgsAdapterInfo::new();
+//! context.get_adapter_info(0, &mut adapter);
 //!
-//! // Get GPU info
-//! let mut adapter_info = AgsAdapterInfo::new();
-//! context.get_adapter_info(0, &mut adapter_info);
-//!
-//! // Get driver info
-//! let mut driver_info = AgsDriverInfo::new();
-//! context.get_driver_info(&mut driver_info);
-//!
-//! // Power management (requires admin privileges)
+//! // Power management (requires admin)
 //! // context.set_gpu_power_profile(...);
 //! ```
 
-use ash::{vk, Device, Instance};
+use ash::{vk, Instance};
 use bytemuck::{Pod, Zeroable};
-use super::GpuVendor;
 
 /// AMD GPU vendor ID
 pub const AMD_VENDOR_ID: u32 = 0x1002;
@@ -82,6 +64,31 @@ pub struct GpuProperties {
     pub fsr4_support: bool,
     pub npu_tops: f32,
     pub _pad: [u32; 4],
+}
+
+/// GPU vendor
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum GpuVendor {
+    #[default]
+    Unknown,
+    Amd,
+    Intel,
+    Samsung,
+    MooreThreads,
+    Other(String),
+}
+
+impl GpuVendor {
+    pub fn name(&self) -> &str {
+        match self {
+            Self::Amd => "AMD",
+            Self::Intel => "Intel",
+            Self::Samsung => "Samsung",
+            Self::MooreThreads => "Moore Threads",
+            Self::Other(name) => name,
+            Self::Unknown => "Unknown",
+        }
+    }
 }
 
 impl Default for GpuProperties {
@@ -323,6 +330,7 @@ pub struct AgsHints {
     pub sustained_encoding: bool,
     pub pipeline_cache: bool,
     pub shader_core_hints: bool,
+    pub optimized_queues: bool,
 }
 
 impl AgsHints {

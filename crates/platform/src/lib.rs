@@ -1,5 +1,6 @@
-﻿//! Platform abstraction layer for Windows, Linux, and Android.
+//! Platform abstraction layer for Windows, Linux, and Android.
 //! Minimal window creation and Vulkan surface setup.
+//! Also includes AI acceleration backends: MUSA (Moore Threads) and NNAPI (Android).
 
 #![allow(clippy::missing_safety_intrinsic)]
 
@@ -19,6 +20,10 @@ pub use linux::*;
 mod android;
 #[cfg(target_os = "android")]
 pub use android::*;
+
+// AI acceleration backends (platform-independent)
+pub mod musa;
+pub mod nnapi;
 
 use std::ffi::CString;
 use ash::vk;

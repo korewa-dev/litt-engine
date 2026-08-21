@@ -1,132 +1,155 @@
-//! D3D12 device creation and management
+//! DX12 Device Creation and Management
+//! 
+//! Creates D3D12 device, command queues, and feature queries.
 
 use super::*;
 
 /// D3D12 device with command queues
 #[derive(Debug)]
 pub struct Dx12Device {
-    pub device: *mut winapi::um::d3d12::ID3D12Device,
-    pub graphics_queue: *mut winapi::um::d3d12::ID3D12CommandQueue,
+    pub device: *mut d3d12::ID3D12Device,
+    pub graphics_queue: *mut d3d12::ID3D12CommandQueue,
+    pub compute_queue: *mut d3d12::ID3D12CommandQueue,
     pub feature_level: FeatureLevel,
     pub adapter_info: AdapterInfo,
     pub descriptor_handle_size: u32,
+    pub ray_tracing_tier: u32,
 }
 
 /// Create a D3D12 device from an adapter
 pub fn create_device(
-    adapter: *mut winapi::um::dxgi::IDXGIAdapter1,
+    adapter: *mut dxgi::IDXGIAdapter1,
     debug: bool,
 ) -> Result<Dx12Device, Dx12Error> {
     unsafe {
-        let feature_levels = [
-            winapi::um::d3d12::D3D_FEATURE_LEVEL_12_1,
-            winapi::um::d3d12::D3D_FEATURE_LEVEL_12_0,
-        ];
-
-        let mut device: *mut winapi::um::d3d12::ID3D12Device = std::ptr::null_mut();
-        let mut feature_level = winapi::um::d3d12::D3D_FEATURE_LEVEL_11_0;
-
-        let hr = winapi::um::d3d12::D3D12CreateDevice(
+        // Get adapter info
+        let mut desc: dxgi::DXGI_ADAPTER_DESC1 = std::mem::zeroed();
+        (*adapter).GetDesc1(&mut desc);
+        
+        let name = String::from_utf16_lossy(
+            &desc.Description.iter().take_while(|&&c| c != 0).copied().collect::<Vec<u16>>(),
+        );
+        let vendor = GpuVendor::from_vendor_id(desc.VendorId);
+        
+        // Create device
+        let mut device: *mut d3d12::ID3D12Device = std::ptr::null_mut();
+        let feature_level = d3d12::D3D_FEATURE_LEVEL_12_1;
+        
+        let hr = d3d12::D3D12CreateDevice(
             adapter as *mut _,
-            feature_levels[0],
-            &winapi::um::d3d12::IID_ID3D12Device,
+            feature_level,
+            &d3d12::IID_ID3D12Device,
             &mut device as *mut _ as *mut _,
         );
-
+        
         if winapi::shared::winerror::FAILED(hr) {
-            let hr2 = winapi::um::d3d12::D3D12CreateDevice(
-                adapter as *mut _,
-                feature_levels[1],
-                &winapi::um::d3d12::IID_ID3D12Device,
-                &mut device as *mut _ as *mut _,
-            );
-            if winapi::shared::winerror::FAILED(hr2) {
-                return Err(Dx12Error::DeviceCreation(format!("D3D12CreateDevice failed 0x{:X}", hr2)));
-            }
-            feature_level = feature_levels[1];
-        } else {
-            feature_level = feature_levels[0];
+            return Err(Dx12Error::DeviceCreation(format!(
+                "D3D12CreateDevice failed with 0x{:X}", hr
+            )));
         }
-
-        if device.is_null() {
-            return Err(Dx12Error::DeviceCreation("Device is null".into()));
-        }
-
-        // Enable debug layer
+        
+        // Enable debug layer if requested
         if debug {
-            let mut debug_ptr: *mut winapi::um::d3d12::ID3D12Debug = std::ptr::null_mut();
-            let hr = winapi::um::d3d12::D3D12GetDebugInterface(
-                &winapi::um::d3d12::IID_ID3D12Debug,
+            let mut debug_ptr: *mut d3d12::ID3D12Debug = std::ptr::null_mut();
+            let hr = d3d12::D3D12GetDebugInterface(
+                &d3d12::IID_ID3D12Debug,
                 &mut debug_ptr as *mut _ as *mut _,
             );
-            if winapi::shared::winerror::SUCCEEDED(hr) {
+            if winapi::shared::winerror::SUCCEEDED(hr) && !debug_ptr.is_null() {
                 (*debug_ptr).EnableDebugLayer();
             }
         }
-
-        // Query descriptor handle size
-        let mut caps: winapi::um::d3d12::D3D12_FEATURE_DATA_D3D12_OPTIONS = std::mem::zeroed();
+        
+        // Query descriptor handle sizes
+        let mut feature_caps: d3d12::D3D12_FEATURE_DATA_D3D12_OPTIONS = std::mem::zeroed();
         let hr = (*device).CheckFeatureSupport(
-            winapi::um::d3d12::D3D12_FEATURE_D3D12_OPTIONS,
-            &mut caps as *mut _ as *mut _,
-            std::mem::size_of::<winapi::um::d3d12::D3D12_FEATURE_DATA_D3D12_OPTIONS>() as u32,
+            d3d12::D3D12_FEATURE_D3D12_OPTIONS,
+            &mut feature_caps as *mut _ as *mut _,
+            std::mem::size_of::<d3d12::D3D12_FEATURE_DATA_D3D12_OPTIONS>() as u32,
         );
         let descriptor_handle_size = if winapi::shared::winerror::SUCCEEDED(hr) {
-            caps.NodeDescriptorHandleIncrementSize
+            feature_caps.NodeDescriptorHandleIncrementSize[0]
         } else { 16 };
-
-        // Create graphics command queue
-        let mut queue_desc: winapi::um::d3d12::D3D12_COMMAND_QUEUE_DESC = std::mem::zeroed();
-        queue_desc.Type = winapi::um::d3d12::D3D12_COMMAND_LIST_TYPE_GRAPHICS;
-
-        let mut graphics_queue: *mut winapi::um::d3d12::ID3D12CommandQueue = std::ptr::null_mut();
+        
+        // Query ray tracing tier
+        let mut rt_caps: d3d12::D3D12_FEATURE_DATA_D3D12_OPTIONS11 = std::mem::zeroed();
+        let hr = (*device).CheckFeatureSupport(
+            d3d12::D3D12_FEATURE_D3D12_OPTIONS11,
+            &mut rt_caps as *mut _ as *mut _,
+            std::mem::size_of::<d3d12::D3D12_FEATURE_DATA_D3D12_OPTIONS11>() as u32,
+        );
+        let ray_tracing_tier = if winapi::shared::winerror::SUCCEEDED(hr) {
+            rt_caps.RaytracingTier as u32
+        } else { 0 };
+        
+        // Create command queues
+        let mut graphics_queue: *mut d3d12::ID3D12CommandQueue = std::ptr::null_mut();
+        let mut compute_queue: *mut d3d12::ID3D12CommandQueue = std::ptr::null_mut();
+        
+        let mut queue_desc: d3d12::D3D12_COMMAND_QUEUE_DESC = std::mem::zeroed();
+        queue_desc.Type = d3d12::D3D12_COMMAND_LIST_TYPE_GRAPHICS;
+        queue_desc.Priority = 0;
+        queue_desc.Flags = d3d12::D3D12_COMMAND_QUEUE_FLAG_NONE;
+        queue_desc.NodeMask = 0;
+        
         let hr = (*device).CreateCommandQueue(
             &queue_desc,
-            &winapi::um::d3d12::IID_ID3D12CommandQueue,
+            &d3d12::IID_ID3D12CommandQueue,
             &mut graphics_queue as *mut _ as *mut _,
         );
         if winapi::shared::winerror::FAILED(hr) {
             return Err(Dx12Error::CommandQueueCreation("Graphics queue creation failed".into()));
         }
-
-        let feature_level = match feature_level {
-            winapi::um::d3d12::D3D_FEATURE_LEVEL_12_1 => FeatureLevel::D12_1,
-            winapi::um::d3d12::D3D_FEATURE_LEVEL_12_0 => FeatureLevel::D12_0,
-            _ => FeatureLevel::D11_0,
+        
+        // Create compute queue
+        queue_desc.Type = d3d12::D3D12_COMMAND_LIST_TYPE_COMPUTE;
+        let hr = (*device).CreateCommandQueue(
+            &queue_desc,
+            &d3d12::IID_ID3D12CommandQueue,
+            &mut compute_queue as *mut _ as *mut _,
+        );
+        if winapi::shared::winerror::FAILED(hr) {
+            // Fallback to graphics queue if compute not supported
+            compute_queue = graphics_queue;
+        }
+        
+        // Determine feature level
+        let feature_level = if ray_tracing_tier >= 1 {
+            FeatureLevel::D12_1
+        } else {
+            FeatureLevel::D12_0
         };
-
-        // Query adapter info
-        let mut desc: winapi::um::dxgi::DXGI_ADAPTER_DESC1 = std::mem::zeroed();
-        (adapter as *mut winapi::um::dxgi::IDXGIAdapter).as_ref().unwrap().GetDesc1(&mut desc);
+        
+        // Build adapter info
         let adapter_info = AdapterInfo {
-            name: String::from_utf16_lossy(&desc.Description.iter().take_while(|&&c| c != 0).copied().collect::<Vec<u16>>()),
+            name: name.clone(),
             vendor_id: desc.VendorId,
             device_id: desc.DeviceId,
-            description: String::new(),
-            driver_version: 0,
+            description: name,
+            driver_version: ((desc.DriverVersion.High as u64) << 32) | desc.DriverVersion.Low as u64,
             feature_level,
-            ray_tracing_support: desc.Flags & winapi::um::dxgi::DXGI_ADAPTER_FLAG3_RAYTRACING >= winapi::um::dxgi::DXGI_ADAPTER_FLAG3_RAYTRACING,
+            ray_tracing_support: ray_tracing_tier >= 1,
+            ray_tracing_tier,
         };
-
+        
         Ok(Dx12Device {
             device,
             graphics_queue,
+            compute_queue,
             feature_level,
             adapter_info,
             descriptor_handle_size,
+            ray_tracing_tier,
         })
     }
 }
 
-/// Check ray tracing support
+/// Check if ray tracing is supported
 pub fn check_ray_tracing_support(device: &Dx12Device) -> bool {
-    unsafe {
-        let mut rt_caps: winapi::um::d3d12::D3D12_FEATURE_DATA_D3D12_OPTIONS11 = std::mem::zeroed();
-        let hr = (*device.device).CheckFeatureSupport(
-            winapi::um::d3d12::D3D12_FEATURE_D3D12_OPTIONS11,
-            &mut rt_caps as *mut _ as *mut _,
-            std::mem::size_of::<winapi::um::d3d12::D3D12_FEATURE_DATA_D3D12_OPTIONS11>() as u32,
-        );
-        winapi::shared::winerror::SUCCEEDED(hr) && rt_caps.RaytracingTier != 0
-    }
+    device.ray_tracing_tier >= 1
+}
+
+/// Get ray tracing tier
+pub fn get_ray_tracing_tier(device: &Dx12Device) -> u32 {
+    device.ray_tracing_tier
 }

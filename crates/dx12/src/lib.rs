@@ -1,10 +1,18 @@
-//! litt-dx12 — DirectX 12 backend for Litt Engine
-//!
-//! Provides DXGI/DX12 hardware rendering with ray tracing (DXR) support.
-//! Targets Windows only; Linux/Android continue using Vulkan.
+//! DX12 Backend - DirectX 12 with Ray Tracing (DXR)
+//! 
+//! Implements:
+//! - DXGI adapter enumeration
+//! - D3D12 device creation
+//! - Command queues and allocators
+//! - Descriptor heaps (CBV/SRV/UAV/RTV/DSV)
+//! - Pipeline State Objects (PSO)
+//! - DXR ray tracing (BLAS/TLAS, shader table)
+//! - Swapchain management
 
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
+
+use std::ptr;
 
 pub mod instance;
 pub mod device;
@@ -25,6 +33,11 @@ pub use pipeline::*;
 pub use ray_tracing::*;
 pub use shader::*;
 pub use allocator::*;
+
+// Re-export winapi types for convenience
+pub use winapi::um::d3d12;
+pub use winapi::um::dxgi;
+pub use winapi::shared::dxgicommon;
 
 /// DX12 backend feature flags
 #[derive(Clone, Copy, Debug, Default)]
@@ -49,7 +62,7 @@ impl Default for Dx12Backend {
 }
 
 /// Adapter info (GPU identity)
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AdapterInfo {
     pub name: String,
     pub vendor_id: u32,
@@ -58,6 +71,7 @@ pub struct AdapterInfo {
     pub driver_version: u64,
     pub feature_level: FeatureLevel,
     pub ray_tracing_support: bool,
+    pub ray_tracing_tier: u32,
 }
 
 /// D3D feature level
@@ -133,8 +147,8 @@ impl std::fmt::Display for Dx12Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::DxgiFactoryCreation(m) => write!(f, "DXGI factory creation failed: {}", m),
-            Self::AdapterEnumeration(m) => write!(f, "Adapter enumeration failed: {}", m),
-            Self::DeviceCreation(m) => write!(f, "Device creation failed: {}", m),
+            Self::AdapterEnumeration(m) => write!(f, "DXGI adapter enumeration failed: {}", m),
+            Self::DeviceCreation(m) => write!(f, "D3D12 device creation failed: {}", m),
             Self::FeatureLevelUnsupported(m) => write!(f, "Feature level unsupported: {}", m),
             Self::SwapchainCreation(m) => write!(f, "Swapchain creation failed: {}", m),
             Self::CommandQueueCreation(m) => write!(f, "Command queue creation failed: {}", m),
