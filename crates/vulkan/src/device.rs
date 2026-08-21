@@ -3,6 +3,7 @@
 use ash::{vk, Instance, Device};
 use super::*;
 use crate::allocator::VmaAllocator;
+use crate::ags::{AmgInfo, GpuProperties, GpuManager, GpuSelectionCriteria, AgsHints};
 
 /// Logical Vulkan device with all necessary handles
 pub struct VulkanDevice {
@@ -24,6 +25,8 @@ pub struct VulkanDevice {
     pub ext_features: PhysicalDeviceExtensions,
     /// VMA allocator for memory management
     pub allocator: VmaAllocator,
+    /// AMD AGS information
+    pub ags_info: AmgInfo,
 }
 
 /// Extension features required for this engine
@@ -227,6 +230,10 @@ impl VulkanDevice {
             instance,
         )?;
 
+        // Initialize AMD AGS info
+        let ags_props = GpuProperties::from_vulkan(instance, physical);
+        let ags_info = AmgInfo::from_gpu(&ags_props);
+
         Ok(Self {
             instance: instance.clone(),
             device,
@@ -245,6 +252,7 @@ impl VulkanDevice {
             features,
             ext_features,
             allocator,
+            ags_info,
         })
     }
 

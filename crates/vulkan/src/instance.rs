@@ -3,6 +3,7 @@
 
 use ash::{vk, extensions::khr, Instance};
 use super::*;
+use crate::ags::{GpuManager, GpuSelectionCriteria, AMD_VENDOR_ID};
 
 /// Required Vulkan extensions for all platforms
 /// Supports: AMD (RADV/AMDVLK), Moore Threads (MUSA), Intel (Arc/DDR Xe)
@@ -32,6 +33,14 @@ pub const INSTANCE_EXTENSIONS: &[&str] = &[
     "VK_KHR_get_physical_device_properties2",
 ];
 
+/// AMD AGS (Adaptive Graphics Selection) extension
+#[cfg(target_os = "windows")]
+pub const AGS_EXTENSIONS: &[&str] = &[
+    "VK_AMD_shader_core_properties",
+    "VK_AMD_shader_info",
+    "VK_AMD_shader_early_exit",
+];
+
 /// Required instance extensions for ray tracing
 pub const RT_INSTANCE_EXTENSIONS: &[&str] = &[
     "VK_KHR_ray_tracing_pipeline",
@@ -51,6 +60,14 @@ pub const AMD_FEATURES: &[&str] = &[
     "VK_KHR_acceleration_structure",
     "VK_KHR_deferred_host_operations",
     "VK_EXT_pipeline_creation_cache_control",
+];
+
+/// AMD AGS (Adaptive Graphics Selection) extensions
+#[cfg(target_os = "windows")]
+pub const AGS_EXTENSIONS: &[&str] = &[
+    "VK_AMD_shader_core_properties",
+    "VK_AMD_shader_info",
+    "VK_AMD_shader_early_exit",
 ];
 
 /// Select the best AMD GPU on the system
@@ -94,6 +111,25 @@ pub fn enumerate_adapters(
     } else {
         Err("No Vulkan-compatible GPU found".to_string())
     }
+}
+
+/// Get GPU manager with all available GPUs
+pub fn create_gpu_manager(
+    instance: &Instance,
+    criteria: GpuSelectionCriteria,
+) -> Result<GpuManager, String> {
+    let devices = unsafe {
+        instance.enumerate_physical_devices()
+            .map_err(|e| format!("Failed to enumerate physical devices: {:?}", e))?
+    };
+
+    let mut manager = GpuManager::new(criteria);
+
+    for device in devices {
+        manager.add_gpu(instance, device);
+    }
+
+    Ok(manager)
 }
 
 /// Check if a physical device supports our requirements
