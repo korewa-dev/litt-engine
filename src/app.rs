@@ -64,9 +64,8 @@ impl App {
         // Build ECS world
         let world = build_world();
 
-        // Create physics system
-        let mut physics = PhysicsSystem::default();
-        physics.set_fps(60.0);
+        // Create physics system at 60 Hz
+        let mut physics = PhysicsSystem::at_hz(60.0);
 
         // Create input system
         let input = InputSystem::new();

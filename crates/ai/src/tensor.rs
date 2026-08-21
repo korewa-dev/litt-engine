@@ -3,6 +3,7 @@
 
 use litt_math::Vec3;
 use bytemuck::{Pod, Zeroable};
+use super::selector::BackendKind;
 
 /// Data type for tensor elements
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]

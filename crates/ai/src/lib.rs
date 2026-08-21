@@ -32,11 +32,6 @@ pub mod tensor;
 pub mod model;
 pub mod execution;
 pub mod npu;
-pub mod amd_xdna;
-pub mod intel_ai;
-pub mod hexagon;
-pub mod core_ml;
-pub mod cpu;
 
 pub use backend::*;
 pub use selector::*;
@@ -44,11 +39,6 @@ pub use tensor::*;
 pub use model::*;
 pub use execution::*;
 pub use npu::*;
-pub use amd_xdna::*;
-pub use intel_ai::*;
-pub use hexagon::*;
-pub use core_ml::*;
-pub use cpu::*;
 
 // ECS integration re-exports
 pub use litt_ecs::*;

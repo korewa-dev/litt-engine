@@ -552,6 +552,7 @@ let result = compile_hlsl(hlsl_source, "main", "dxil_6_5")?;
 | `litt-profiler` | bytemuck, ash | Frame timing, GPU/CPU sync, stats |
 | `litt-scene` | bytemuck, litt-math, litt-asset, litt-ecs | Scene graph and loading |
 | `litt-config` | bytemuck, serde | Settings, presets, JSON persistence |
+| `litt-profiler` | bytemuck, ash, litt-math | Frame timing, GPU profiling, bottleneck analysis, FPS history, debug renderer |
 
 ---
 
@@ -589,11 +590,51 @@ fn main() {
 | `input` | Keyboard, mouse, gamepad — unified `InputState` |
 | `audio` | Sound playback, mixing, source management |
 | `ui` | Debug HUD, overlay primitives, text rendering |
-| `profiler` | Frame timing, GPU/CPU sync, performance stats |
+| `profiler` | Frame timing, GPU profiling, bottleneck analysis, FPS history, debug renderer |
 | `scene` | Hierarchical scene graph with loading |
 | `config` | Settings, presets, JSON persistence |
 | `game_loop` | Fixed timestep loop with FPS capping |
 | `app` | Full pipeline integration |
+
+### Profiler Deep Dive (Phase 10)
+
+The profiler crate provides comprehensive performance analysis:
+
+```rust
+use litt_profiler::*;
+
+// Frame timing with per-stage breakdown
+let mut timer = FrameTimer::new();
+let mut breakdown = FrameTimingBreakdown::new();
+
+// Record frame
+timer.record_frame();
+breakdown.record_total(timer.last_frame_ms);
+breakdown.stage(TimingStage::Physics).stop();
+
+// Bottleneck analysis
+let bn = BottleneckAnalyzer::new();
+bn.update(cpu_ms, gpu_ms, npu_ms, physics_ms, frame_ms);
+let bottleneck = bn.bottleneck(); // BottleneckInfo with recommendation
+
+// FPS history with ASCII graph
+let mut fps_history = FpsHistory::new();
+fps_history.record(timer.fps, timestamp_ms);
+println!("{}", fps_history.to_ascii_graph(60, 10)); // ASCII art graph
+
+// Generate full report
+let report = PerfReport::generate(&timer, &bn, &fps_history, &gpu_mem, &stats);
+report.save("perf_report.txt").ok();
+```
+
+**Key Features:**
+- **FrameTimingBreakdown** — tracks time per stage (Input/Physics/AI/Culling/Upload/Draw/Present)
+- **BottleneckAnalyzer** — identifies the slowest subsystem with actionable fix recommendations
+- **GpuTimerQuery** — Vulkan timestamp queries for precise GPU execution timing
+- **GpuMemoryStats** — tracks GPU memory allocations with peak usage and per-pool breakdown
+- **FpsHistory** — rolling FPS buffer with 1% low detection and ASCII visualization
+- **PerfReport** — complete text report saveable to file for profiling sessions
+- **DebugRenderer** — wireframe boxes, spheres, normals, and text overlays for debugging
 
 ---
 
@@ -627,6 +668,7 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 | 7 | DirectX 12 Backend | ✅ Complete |
 | 8 | Asset Pipeline | ✅ Complete |
 | 9 | Engine Modules | ✅ Complete |
+| 10 | Debug & Profiling | ✅ Complete |
 | 9 | Engine Modules | ⚠️ Planned |
 | 10 | Networking | ⚠️ Planned |
 | 11 | Platform Support | ✅ Ongoing |

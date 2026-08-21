@@ -42,31 +42,31 @@ pub struct Dx12Features {
 pub trait GraphicsBackend: Send + Sync {
     /// Get the backend name
     fn name(&self) -> &str;
-    
+
     /// Check if ray tracing is supported
     fn supports_ray_tracing(&self) -> bool;
-    
+
     /// Check if mesh shaders are supported
     fn supports_mesh_shaders(&self) -> bool;
-    
+
     /// Get the adapter info
     fn adapter_info(&self) -> &str;
-    
+
     /// Initialize the backend (after window creation)
     fn initialize(&mut self, width: u32, height: u32) -> Result<(), String>;
-    
+
     /// Begin a new frame
     fn begin_frame(&mut self) -> Result<(), String>;
-    
+
     /// Record render commands
     fn render(&mut self, scene: &crate::pathtracer::Scene, camera: &crate::pathtracer::Camera) -> Result<(), String>;
-    
+
     /// Present the frame
     fn present(&mut self) -> Result<(), String>;
-    
+
     /// End the frame
     fn end_frame(&mut self) -> Result<(), String>;
-    
+
     /// Shutdown the backend
     fn shutdown(&mut self) -> Result<(), String>;
 }
@@ -76,7 +76,7 @@ pub trait GraphicsBackend: Send + Sync {
 pub mod vulkan {
     use super::*;
     use crate::vulkan::*;
-    
+
     pub struct VulkanBackend {
         pub instance: Option<Instance>,
         pub device: Option<VulkanDevice>,
@@ -86,7 +86,7 @@ pub mod vulkan {
         pub descriptor_pool: Option<DescriptorPool>,
         pub features: GraphicsFeatures,
     }
-    
+
     impl VulkanBackend {
         pub fn new() -> Self {
             Self {
@@ -100,26 +100,26 @@ pub mod vulkan {
             }
         }
     }
-    
+
     impl GraphicsBackend for VulkanBackend {
         fn name(&self) -> &str { "Vulkan" }
-        
+
         fn supports_ray_tracing(&self) -> bool {
             self.features.ray_tracing
         }
-        
+
         fn supports_mesh_shaders(&self) -> bool {
             false
         }
-        
+
         fn adapter_info(&self) -> &str {
             "AMD Radeon / Intel Arc / Moore Threads"
         }
-        
+
         fn initialize(&mut self, _width: u32, _height: u32) -> Result<(), String> {
             Ok(())
         }
-        
+
         fn begin_frame(&mut self) -> Result<(), String> { Ok(()) }
         fn render(&mut self, _scene: &crate::pathtracer::Scene, _camera: &crate::pathtracer::Camera) -> Result<(), String> { Ok(()) }
         fn present(&mut self) -> Result<(), String> { Ok(()) }
@@ -133,12 +133,12 @@ pub mod vulkan {
 pub mod dx12 {
     use super::*;
     use crate::dx12::*;
-    
+
     pub struct Dx12Backend {
         pub device: Option<Device>,
         pub features: GraphicsFeatures,
     }
-    
+
     impl Dx12Backend {
         pub fn new() -> Self {
             Self {
@@ -146,32 +146,32 @@ pub mod dx12 {
                 features: GraphicsFeatures::default(),
             }
         }
-        
+
         pub fn init(&mut self) -> Result<(), String> {
             // DX12 initialization
             Ok(())
         }
     }
-    
+
     impl GraphicsBackend for Dx12Backend {
         fn name(&self) -> &str { "DX12" }
-        
+
         fn supports_ray_tracing(&self) -> bool {
             self.features.ray_tracing
         }
-        
+
         fn supports_mesh_shaders(&self) -> bool {
             true
         }
-        
+
         fn adapter_info(&self) -> &str {
             "DX12 (Windows native)"
         }
-        
+
         fn initialize(&mut self, _width: u32, _height: u32) -> Result<(), String> {
             self.init()
         }
-        
+
         fn begin_frame(&mut self) -> Result<(), String> { Ok(()) }
         fn render(&mut self, _scene: &crate::pathtracer::Scene, _camera: &crate::pathtracer::Camera) -> Result<(), String> { Ok(()) }
         fn present(&mut self) -> Result<(), String> { Ok(()) }
@@ -189,14 +189,14 @@ pub fn select_backend() -> Result<Box<dyn GraphicsBackend>, String> {
             return Ok(Box::new(backend));
         }
     }
-    
+
     #[cfg(feature = "vulkan")]
     {
         let mut backend = vulkan::VulkanBackend::new();
         backend.initialize(1280, 720).map_err(|e| e.to_string())?;
         return Ok(Box::new(backend));
     }
-    
+
     #[allow(unreachable_code)]
     Err("No graphics backend available".to_string())
 }

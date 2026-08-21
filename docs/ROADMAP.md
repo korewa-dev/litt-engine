@@ -237,3 +237,54 @@
 - [x] Workspace: 18 crates total
 
 ---
+
+## Phase 10: Debug & Profiling [✅ COMPLETE]
+
+### Frame Timing System
+- [x] `FrameTimer` — FPS, frame time, min/max/avg tracking (60-frame rolling window)
+- [x] `FrameTimingBreakdown` — per-stage timing (Input, Physics, AI, Culling, Upload, Draw, Present)
+- [x] `BottleneckAnalyzer` — CPU/GPU/NPU/Physics bottleneck detection with recommendations
+- [x] `BottleneckType` — enum identifying which stage is the bottleneck
+
+### GPU Profiling
+- [x] `GpuTimerQuery` — Vulkan timestamp query pool for GPU execution timing
+- [x] `GpuProfileData` — structured GPU timing results (draw/calculate/transfer/total)
+
+### Memory Profiling
+- [x] `GpuMemoryStats` — allocation tracking with peak usage
+- [x] `MemoryAlloc` / `MemoryPool` — named allocations with size tracking
+- [x] `MemoryPressure` — Low/Medium/High/Critical indicators based on usage %
+- [x] Per-pool breakdown (textures, buffers, etc.)
+
+### FPS History & Visualization
+- [x] `FpsHistory` — rolling FPS buffer with VecDeque
+- [x] `FpsStats` — avg/min/max/1% low/stutter detection
+- [x] ASCII art FPS graph (`to_ascii_graph`) for terminal display
+- [x] Quality classification (Excellent/Good/Playable/Poor)
+
+### Performance Report
+- [x] `PerfReport` — comprehensive text report covering all subsystems
+- [x] Frame timing section with FPS and frame time stats
+- [x] FPS history with quality classification
+- [x] Bottleneck analysis with fix recommendations
+- [x] Stage breakdown with visual bars
+- [x] Memory, render, AI/NPU, and physics sections
+- [x] File save support (`save` method)
+
+### Debug Renderer
+- [x] `DebugRenderer` — GPU-compatible debug primitives
+- [x] BoundingBox, WireSphere, Normal, Velocity, Ray, Text, Grid primitives
+- [x] `PrimitiveCounts` — breakdown by type for statistics
+- [x] `DebugOverlayConfig` — toggleable overlay settings
+
+### Deliverables
+- [x] `crates/profiler/src/frame_timing.rs` — per-stage timing
+- [x] `crates/profiler/src/memory_profiler.rs` — GPU memory tracking
+- [x] `crates/profiler/src/bottleneck.rs` — bottleneck analysis
+- [x] `crates/profiler/src/fps_history.rs` — FPS history + ASCII graph
+- [x] `crates/profiler/src/perf_report.rs` — text performance report
+- [x] `crates/profiler/src/debug_renderer.rs` — debug overlay primitives
+- [x] `crates/profiler/src/lib.rs` — updated with all 9 modules
+- [x] Workspace: 18 crates, all modules connected
+
+---

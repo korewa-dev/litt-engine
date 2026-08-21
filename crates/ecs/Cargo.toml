@@ -7,6 +7,7 @@ license = "MIT"
 
 [dependencies]
 litt-math = { path = "../math" }
+litt-ai = { path = "../ai" }
 bytemuck = { workspace = true }
 
 [lib]

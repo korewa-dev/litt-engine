@@ -3,7 +3,6 @@
 
 #[cfg(target_os = "windows")]
 pub mod debug {
-    use windows_sys::Win32::Foundation::HWND;
     use windows_sys::Win32::UI::WindowsAndMessaging::OutputDebugStringW;
 
     pub fn log(msg: &str) {

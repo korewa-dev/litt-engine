@@ -18,18 +18,9 @@ pub use litt_profiler::*;
 pub use litt_scene::*;
 pub use litt_config::*;
 
-pub use config::*;
-
 // Graphics backend abstraction
 pub mod graphics;
 pub use graphics::{GraphicsBackend, select_backend, get_gpu_info};
 
-// Config module (re-exported from config crate)
-pub mod config {
-    pub use crate::math::{Vec3, Vec4, Mat4, Ray, BoundingBox, Triangle};
-    pub use crate::pathtracer::{Scene, Camera, Material, HitInfo};
-    pub use crate::renderer::{Renderer, Swapchain};
-    pub use crate::vulkan::{VulkanDevice, Instance, PhysicalDevice};
-    pub use crate::physics::{PhysicsBody, ColliderShape, PhysicsSystem, PhysicsBackend};
-    pub use crate::graphics::{GraphicsFeatures, Dx12Features, FeatureLevel};
-}
+// Re-export config crate under a different name to avoid conflict
+pub use litt_config as config;

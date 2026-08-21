@@ -2,7 +2,6 @@
 //! Integrates ECS, physics, rendering, audio, and profiler into a single update loop.
 
 use std::time::Instant;
-use crate::version;
 
 /// Game configuration
 #[derive(Debug, Clone)]
@@ -152,7 +151,6 @@ impl GameLoop {
         self.start();
 
         let fixed_dt = self.fixed_timestep();
-        let max_frame_time = 100_000_000u128; // 100ms max frame time cap
 
         while self.running {
             let now = Instant::now();

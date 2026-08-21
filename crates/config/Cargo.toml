@@ -6,8 +6,8 @@ description = "Configuration system for Litt Engine — settings, presets, and p
 
 [dependencies]
 litt-math = { path = "../math" }
-serde = { version = "1", features = ["derive"], optional = true }
-serde_json = { version = "1", optional = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
 
 [profile.release]
 opt-level = "z"
