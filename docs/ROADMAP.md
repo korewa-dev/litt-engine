@@ -360,3 +360,36 @@
 - [x] Workspace: 19 crates, 0 Rust compilation errors
 
 ---
+
+## Phase 13: Path Tracer Bug Fixes + Layout Transitions [✅ COMPLETE]
+
+### Critical Bug Fix: Null ImageViews
+- [x] `crates/pathtracer/src/tracer.rs` — capture image views from `allocate_image()` instead of discarding with `_prefix`
+- [x] `accumulation_buffer.view`, `velocity_buffer.view`, `output_buffer.view` now properly set
+- [x] Path tracer dispatch now actually writes to the accumulation buffer (was silently skipped)
+- [x] `fidelityfx/Cargo.toml` — fixed `build = "build.rs"` moved from `[dependencies]` to `[package]` level
+
+### Vulkan Infrastructure
+- [x] `CommandPool::begin_single_time_commands()` — allocates + begins a one-shot command buffer
+- [x] `CommandPool::end_single_time_commands()` — ends, submits, and waits on queue
+- [x] `CommandPool::transition_image_layout()` — reusable `cmd_pipeline_barrier` helper for image layout transitions
+  - `UNDEFINED → GENERAL` before path trace dispatch
+  - `GENERAL → GENERAL` (read-after-write dependency) for display pass
+  - `PRESENT_SRC_KHR → GENERAL` for swapchain image before display write
+
+### Debug Overlay
+- [x] `DebugHud` — added `path_trace_samples` and `path_trace_active` fields
+- [x] HUD now shows `"Path Tracer: N samples"` in orange when path tracing is enabled
+- [x] `App` holds `Option<RenderPipeline>` for GPU initialization
+- [x] `App::render()` passes current camera + scene to pipeline when available
+
+### Deliverables
+- [x] `crates/pathtracer/src/tracer.rs` — fixed accumulation/velocity/output Image views
+- [x] `crates/renderer/src/command_pool.rs` — +100 lines: single-shot CB + layout transitions
+- [x] `crates/renderer/src/renderer.rs` — image layout transitions before compute passes
+- [x] `crates/ui/src/hud.rs` — path trace debug overlay
+- [x] `src/app.rs` — camera state + path pipeline field
+- [x] `crates/fidelityfx/Cargo.toml` — fixed build script registration
+- [x] Workspace: 19 crates, 0 Rust compilation errors
+
+---
