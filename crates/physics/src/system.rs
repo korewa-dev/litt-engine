@@ -13,6 +13,7 @@ use litt_ecs::*;
 use litt_math::Vec3;
 use ash::{vk, Device};
 use crate::vulkan::{VmaAllocator, ComputePipeline, create_compute_pipeline};
+use crate::rdna_tier::{RDNAPhysicsTier, is_rdna_device, RdnaBroadphaseMode};
 
 use super::{
     PhysicsBody, ColliderShape, PhysicsBodyECS,
@@ -118,6 +119,8 @@ pub struct PhysicsSystem {
     pub gpu_pipeline: Option<GPUPhysicsPipeline>,
     /// Whether async compute is available
     pub async_compute: bool,
+    /// RDNA-tier GPU optimization (wave32, subgroup, BVH reuse, RT)
+    pub rdna_tier: RDNAPhysicsTier,
 }
 
 impl PhysicsSystem {
@@ -134,6 +137,7 @@ impl PhysicsSystem {
             solver: ConstraintSolver::new(),
             gpu_pipeline: None,
             async_compute: false,
+            rdna_tier: RDNAPhysicsTier::default(),
         }
     }
 
@@ -211,6 +215,62 @@ impl PhysicsSystem {
             grid_buffer: None,
             async_compute: true,
         });
+
+        // Initialize RDNA tier (wave32, subgroup, BVH reuse, RT broadphase)
+        // Detection happens at the engine level; this is enabled if the GPU
+        // is AMD/Intel and the physical device is available.
+        // The actual GPU detection is done in the engine's initialization code.
+        self.rdna_tier.enabled = false; // Set to true when RDNA GPU is detected
+
+        Ok(())
+    }
+
+    /// Initialize the RDNA-tier physics shaders and pipelines.
+    ///
+    /// `instance` — the Vulkan instance (used for GPU property queries).
+    /// `physical_device` — the GPU to initialize for.
+    /// `body_count` — number of physics bodies in the scene.
+    pub fn init_rdna_tier(
+        &mut self,
+        device: &Device,
+        physical_device: vk::PhysicalDevice,
+        instance: &ash::Instance,
+        body_count: u32,
+    ) -> Result<(), String> {
+        // Check if this is an RDNA-compatible GPU
+        let is_rdna = is_rdna_device(physical_device, instance);
+        if !is_rdna {
+            self.rdna_tier.enabled = false;
+            return Ok(());
+        }
+
+        self.rdna_tier.enabled = true;
+
+        // Query available extensions for feature detection
+        let exts = instance
+            .enumerate_device_extension_properties(physical_device)
+            .unwrap_or_default();
+        let ext_names: Vec<String> = exts
+            .iter()
+            .map(|e| {
+                std::ffi::CStr::from_ptr(e.extension_name.as_ptr())
+                    .to_string_lossy()
+                    .into_owned()
+            })
+            .collect();
+
+        let has_ray_query = ext_names.contains(&"VK_KHR_ray_query".to_string());
+        let has_subgroup = ext_names.contains(&"VK_KHR_shader_subgroup_basic".to_string())
+            || ext_names.contains(&"VK_KHR_shader_subgroup".to_string());
+
+        // Initialize the RDNA tier with detected capabilities
+        self.rdna_tier.initialize(device, body_count)
+            .map_err(|e| format!("RDNA tier init: {}", e))?;
+
+        println!(
+            "[Physics] RDNA tier initialized: mode={:?}, ray_query={}, subgroup={}",
+            self.rdna_tier.mode, has_ray_query, has_subgroup
+        );
 
         Ok(())
     }

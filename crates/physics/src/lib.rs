@@ -19,6 +19,8 @@ pub mod integrator;
 pub mod system;
 pub mod backend;
 pub mod simd;
+pub mod shaders;
+pub mod rdna_tier;
 
 pub use physics_body::*;
 pub use broadphase::*;
@@ -27,3 +29,5 @@ pub use integrator::*;
 pub use system::*;
 pub use backend::*;
 pub use simd::*;
+pub use shaders::*;
+pub use rdna_tier::*;

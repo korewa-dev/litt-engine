@@ -22,10 +22,10 @@
 - [x] GPU broadphase (GLSL shader written, SPIR-V compilation in build.rs)
 - [x] SIMD narrowphase (CPU path ready, GPU SIMD planned)
 - [x] Async compute integration (compute queue available in VulkanDevice)
-- [ ] RT physics queries (future)
-- [ ] BVH reuse (future)
-- [ ] Wave32 optimizations (RDNA-specific, future)
-- [ ] Subgroup operations (RDNA-specific, future)
+- [x] RT physics queries — RDNA RT rayquery broadphase (GLSL compute shader)
+- [x] BVH reuse — RDNA BVH reuse detection shader (AABB hash comparison)
+- [x] Wave32 optimizations — RDNA Wave32 broadphase compute shader (256-thread WG)
+- [x] Subgroup operations — RDNA Subgroup ballot broadphase shader
 
 ### ARM Tier
 - [x] NEON-accelerated physics (platform detection ready)

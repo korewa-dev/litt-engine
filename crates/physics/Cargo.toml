@@ -3,6 +3,7 @@ name = "litt-physics"
 version = "0.1.0"
 edition = "2021"
 description = "GPU-accelerated rigid body physics for Litt Engine"
+build = "build.rs"
 
 [dependencies]
 litt-math = { path = "../math" }
