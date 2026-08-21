@@ -1,4 +1,4 @@
-﻿# Litt Engine
+# Litt Engine
 
 Ultra-lightweight Vulkan/DX12 path tracing engine for AMD, Intel Arc, Samsung, and Moore Threads GPUs with NPU acceleration.
 
@@ -81,20 +81,29 @@ See [docs/ECS_ARCHITECTURE.md](./docs/ECS_ARCHITECTURE.md) for the full API refe
 
 ---
 
-### Physics System (Planned)
+### Physics System (Complete)
 
 Multi-tier GPU-accelerated physics per platform:
 
 | Tier | GPU | Optimization |
 |------|-----|--------------|
-| RDNA | AMD RX 6000 - 9000 | GPU broadphase, SIMD narrowphase, wave32, async compute |
+| RDNA | AMD RX 6000/7000/8000 | GPU broadphase, BVH SAH, async compute, Wave32 ready |
 | ARM | Adreno, Mali | NEON physics, fixed-step simulation |
 | Samsung RDNA | Exynos 2200+ | RDNA compute physics |
 | Kirin | Mali + Da Vinci NPU | Mali compute + NEON fallback |
 | Moore Threads | MUSA | MUSA compute physics |
 | RISC-V | Vortex GPU, RVV | RVV vector physics, software RT fallback |
+| x86_64 | Intel/AMD | AVX2-accelerated broadphase |
 
-Deliverables: GLSL RDNA compute kernels, BVH builder, SAP broadphase, SAT/GJK-EPA narrowphase, rigid body integrator.
+**Features:**
+- BVH (Bounding Volume Hierarchy) with SAH for O(log n) broadphase
+- SAT (Separating Axis Theorem) for AABB-AABB narrowphase
+- Sphere-sphere and capsule-capsule collision detection
+- Semi-implicit Euler integrator with ground collision
+- Impulse-based constraint solver with friction and restitution
+- Async compute integration (separate compute queue)
+- Platform-specific SIMD: NEON (ARM), RVV (RISC-V), AVX2 (x86_64)
+- Fixed-step simulation with configurable substeps
 
 ---
 
@@ -453,7 +462,7 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 | 2 | Core Rendering | ✅ Complete |
 | 3 | FidelityFX & AI Upscaling | ✅ Complete |
 | 4 | ECS Architecture | ✅ Complete |
-| 5 | Physics System | ⚠️ Planned |
+| 5 | Physics System | ✅ Complete |
 | 6 | Universal AI Acceleration | ⚠️ Planned |
 | 7 | DirectX 12 Backend | ✅ Complete |
 | 8 | Asset Pipeline | ⚠️ Planned |

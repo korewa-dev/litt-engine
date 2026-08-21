@@ -2,14 +2,14 @@
 //!
 //! Selects the optimal physics backend based on available hardware:
 //! - **GPU**: Vulkan compute shaders for RDNA/AMD, MUSA for Moore Threads
-//! - **CPU**: Spatial hash + SAT for all other platforms
+//! - **CPU**: BVH broadphase + SAT narrowphase with platform-specific SIMD
 
 /// Available physics backends
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PhysicsBackend {
     /// GPU compute (Vulkan compute shaders) — RDNA, Intel Arc, Moore Threads
     GPU,
-    /// CPU fallback with SIMD (AVX2/NEON/RVV)
+    /// CPU fallback with platform-specific SIMD (AVX2/NEON/RVV)
     CPU,
     /// Auto-detect best available backend
     Auto,
@@ -23,15 +23,36 @@ impl PhysicsBackend {
     pub fn is_gpu(&self) -> bool { matches!(self, Self::GPU | Self::Auto) }
     pub fn is_cpu(&self) -> bool { matches!(self, Self::CPU) }
 
+    /// Detect the best available backend for the current platform
     pub fn detect() -> Self {
         #[cfg(target_arch = "x86_64")]
-        { Self::Auto }
+        {
+            // Check for Vulkan compute support
+            Self::Auto
+        }
         #[cfg(target_arch = "aarch64")]
-        { Self::Auto }
+        {
+            // ARM with NEON support
+            Self::Auto
+        }
         #[cfg(target_arch = "riscv64")]
-        { Self::CPU }
+        {
+            // RISC-V with RVV support
+            Self::CPU
+        }
         #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "riscv64")))]
-        { Self::CPU }
+        {
+            Self::CPU
+        }
+    }
+
+    /// Get a human-readable name for the backend
+    pub fn name(&self) -> &'static str {
+        match self {
+            Self::GPU => "GPU (Vulkan Compute)",
+            Self::CPU => "CPU (SIMD Optimized)",
+            Self::Auto => "Auto (Platform Optimal)",
+        }
     }
 }
 

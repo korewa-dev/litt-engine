@@ -25,7 +25,7 @@ litt-ags = { path = "crates/ags" }
 litt-physics = { path = "crates/physics" }
 ash = { version = "0.38", default-features = false }
 ash-window = "0.13"
-vma = "0.6"
+vma = "0.3"
 bytemuck = { version = "1", features = ["extern_crate_alloc"] }
 bitflags = "2"
 log = { version = "0.4", default-features = false }
@@ -33,11 +33,11 @@ log = { version = "0.4", default-features = false }
 [dependencies]
 litt-math = { path = "crates/math" }
 litt-platform = { path = "crates/platform" }
-litt-vulkan = { path = "crates/vulkan" }
+litt-vulkan = { path = "crates/vulkan", optional = true }
 litt-renderer = { path = "crates/renderer" }
 litt-pathtracer = { path = "crates/pathtracer" }
 litt-fidelityfx = { path = "crates/fidelityfx" }
-litt-dx12 = { path = "crates/dx12" }
+litt-dx12 = { path = "crates/dx12", optional = true }
 litt-ags = { path = "crates/ags" }
 litt-physics = { path = "crates/physics" }
 ash = { workspace = true }
@@ -77,3 +77,4 @@ path = "src/lib.rs"
 [features]
 default = ["vulkan"]
 vulkan = ["litt-vulkan"]
+dx12 = ["litt-dx12"]

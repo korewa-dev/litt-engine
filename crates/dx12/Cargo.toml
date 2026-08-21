@@ -12,7 +12,7 @@ bytemuck = { workspace = true }
 log = { workspace = true }
 litt-math = { path = "../math" }
 litt-platform = { path = "../platform" }
-winapi = { version = "0.3", features = ["libloaderapi", "d3d12", "dxgi", "d3d11", "winerror", "d3dcommon", "d3d12shader", "dxguid", "winnt", "ntsecapi"] }
+winapi = { version = "0.3", features = ["libloaderapi", "d3d12", "dxgi", "d3d11", "winerror", "d3dcommon", "d3d12shader", "cguid", "winnt"] }
 libloading = "0.8"
 
 [profile.release]

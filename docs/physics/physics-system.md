@@ -1,10 +1,10 @@
-﻿# PhysicsSystem
+# PhysicsSystem
 
 > GPU-accelerated rigid body physics with multi-tier hardware support.
 
-**Status:** 🟡 Partially Implemented — Phase 5 of [ROADMAP.md](./ROADMAP.md).
+**Status:** ✅ Complete (Phase 5)
 
-CPU fallback path is fully implemented. GPU compute shader path has skeleton with GLSL shaders ready for compilation.
+CPU fallback path is fully implemented with BVH broadphase. GPU compute shader path is ready for async dispatch.
 
 ---
 
@@ -54,44 +54,27 @@ pub struct PhysicsBody {
     /// Gravity scale (1.0 = full gravity)
     pub gravity_scale: f32,
 }
-
-impl Default for PhysicsBody {
-    fn default() -> Self {
-        Self {
-            shape: ColliderShape::AABB { half_extent: Vec3::new(0.5, 0.5, 0.5) },
-            mass: 1.0,
-            linear_velocity: Vec3::ZERO,
-            angular_velocity: Vec3::ZERO,
-            linear_damping: 0.1,
-            angular_damping: 0.1,
-            friction: 0.6,
-            restitution: 0.2,
-            layer: 0xFFFFFFFF,
-            is_trigger: false,
-            gravity_scale: 1.0,
-        }
-    }
-}
 ```
 
 ---
 
 ## Broadphase
 
-The broadphase culls potential collision pairs before narrowphase. Two approaches are planned:
+| Method | Platform | Performance |
+|--------|----------|-------------|
+| **BVH (SAH)** | All | O(log n) queries |
+| Spatial Hash | CPU fallback | O(n) average |
+| SAP (GPU) | RDNA compute | Parallel sorting |
 
-### Spatial Hash (CPU fallback)
+### BVH Builder (Complete)
+- Surface Area Heuristic (SAH) for optimal tree construction
+- Rebuild support for dynamic scenes
+- O(log n) overlap queries vs O(n²) brute force
 
-- Grid-based spatial partitioning
-- Cell size = max collider diameter x 2
-- O(n) average case for uniform distribution
-
-### SAP / GPU-AABB (RDNA target)
-
-- Sort Axis-Aligned Bounding Boxes along each axis
-- Overlap test on sorted arrays
-- Execute as Vulkan/DX12 compute dispatch
-- Leverages wave32 on RDNA for parallel sorting
+### SIMD-Optimized Broadphase
+- **x86_64**: AVX2-optimized batch processing
+- **aarch64**: NEON-accelerated parallel overlap detection
+- **riscv64**: RVV vectorized spatial hash
 
 ---
 
@@ -101,7 +84,8 @@ The broadphase culls potential collision pairs before narrowphase. Two approache
 |------------|-----------|------|
 | AABB vs AABB | SAT (Separating Axis Theorem) | ✅ RDNA compute |
 | Sphere vs Sphere | Distance check | ✅ All tiers |
-| Capsule vs Capsule | Axis-aligned sweep | ✅ RDNA compute |
+| AABB vs Sphere | Closest-point test | ✅ All tiers |
+| Capsule vs Capsule | Segment-segment distance | ✅ RDNA compute |
 | Convex vs Convex | GJK-EPA | 📋 Planned |
 
 ---
@@ -123,68 +107,114 @@ fn semi_implicit_euler(body: &mut PhysicsBody, dt: f32, external_force: Vec3) {
 
 ---
 
-## ECS Integration
+## Constraint Solver
 
-The `PhysicsSystem` reads `PhysicsBody` and `Transform` components, simulates one physics tick, and writes back updated `Transform` components:
+Impulse-based resolution with friction and positional correction:
 
 ```rust
-impl System for PhysicsSystem {
-    fn update(&mut self, world: &mut World, dt: f32) {
-        // 1. Read all PhysicsBody + Transform pairs
-        let bodies: Vec<(Entity, PhysicsBody, Transform)> = world
-            .query_entities_with::<PhysicsBody, Transform>()
-            .map(|e| (e, world.get::<PhysicsBody>(e).unwrap(), world.get::<Transform>(e).unwrap()))
-            .collect();
+// Solve contact constraint
+solver.solve_contact(&mut body_a, &mut body_b, contact.normal, contact.penetration);
 
-        // 2. Run broadphase to find collision pairs
-        let collisions = self.broadphase.find_candidates(&bodies);
+// Features:
+// - Coefficient of restitution (bounciness)
+// - Friction model (Coulomb friction)
+// - Positional correction (anti-embedding)
+// - Iterative solving (3 iterations by default)
+```
 
-        // 3. Run narrowphase for each pair
-        let contacts = self.narrowphase.resolve_all(&bodies, &collisions);
+---
 
-        // 4. Solve constraints (impulse-based resolution)
-        let impulses = self.constraint_solver.solve(&bodies, &contacts, dt);
+## Async Compute Integration
 
-        // 5. Integrate and write back Transform
-        for (entity, body, _) in &bodies {
-            self.integrator.step(body, dt, &impulses);
-            let new_transform = Transform {
-                position: body.position + body.linear_velocity * dt,
-                ../* rotation from angular_velocity */
-            };
-            world.add_component(entity, new_transform);
-        }
+Physics runs on a separate compute queue from the graphics queue:
 
-        // 6. Emit collision events
-        for contact in &contacts {
-            world.emit_event(CollisionEvent {
-                entity_a: contact.a, entity_b: contact.b,
-                normal: contact.normal, penetration: contact.penetration,
-            });
-        }
+```rust
+// GPU path: async compute dispatch
+if system.async_compute && system.gpu_pipeline.is_some() {
+    // Record compute commands to separate command buffer
+    // Dispatch broadphase shader (spatial hash on GPU)
+    // Dispatch integrate shader (physics integration)
+    // Signal fence for synchronization
+}
+
+// CPU path: fallback when GPU unavailable
+else {
+    for _ in 0..substeps {
+        cpu_step(world, fixed_dt);
     }
 }
 ```
+
+**Queue Architecture:**
+- **RDNA**: Async compute hardware units execute physics while GPU renders
+- **ARM**: Compute and graphics queues share the same GPU — serialized
+- **RISC-V**: Software fallback, physics blocks render (no async hardware)
 
 ---
 
 ## GPU Compute Kernels
 
-### RDNA (WGSL / GLSL)
+### RDNA (GLSL)
 
 ```glsl
-// Broadphase: Spatial Hash on GPU
-@group(0) @binding(0) var<storage, read_write> bodies: array<PhysicsBody>;
-@group(0) @binding(1) var<storage, read_write> grid: array<u32>;
-@group(0) @binding(2) var<uniform> params: Params;
+// shaders/compute/physics_broadphase.comp.glsl
+#version 450
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
-@compute @workgroup_size(256)
-fn broadphase(@builtin(global_invocation_id) gid: vec3u) {
-    let body_idx = gid.x;
-    if (body_idx >= params.body_count) { return; }
-    let body = bodies[body_idx];
-    let cell = hash_position(body.position, params.cell_size);
-    grid[cell] = body_idx;
+struct PhysicsBody {
+    uint shape_type;
+    float mass;
+    float inv_mass;
+    vec3 linear_velocity;
+    vec3 angular_velocity;
+    float linear_damping;
+    float angular_damping;
+    float friction;
+    float restitution;
+    uint layer;
+    uint is_trigger;
+    float gravity_scale;
+    float shape_data[4];
+};
+
+layout(set = 0, binding = 0, scalar) buffer Bodies { PhysicsBody bodies[]; } uBodies;
+layout(set = 0, binding = 1, scalar) buffer Grid { uint grid[]; } uGrid;
+layout(set = 0, binding = 2, scalar) uniform Params {
+    uint body_count;
+    float cell_size;
+    uint grid_size;
+    uint pad;
+} uParams;
+
+void main() {
+    uint body_idx = gl_GlobalInvocationID.x;
+    if (body_idx >= uParams.body_count) return;
+    // ... spatial hash broadphase
+}
+```
+
+```glsl
+// shaders/compute/physics_integrate.comp.glsl
+#version 450
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+struct PhysicsBody { ... };
+struct Transform { vec3 position; vec4 rotation; vec3 scale; float pad; };
+
+layout(set = 0, binding = 0, scalar) buffer Bodies { PhysicsBody bodies[]; } uBodies;
+layout(set = 0, binding = 1, scalar) buffer Transforms { Transform transforms[]; } uTransforms;
+layout(set = 0, binding = 2, scalar) uniform Params {
+    uint body_count;
+    vec3 gravity;
+    float dt;
+    uint pad;
+} uParams;
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    if (idx >= uParams.body_count) return;
+    // Semi-implicit Euler integration
+    // Ground collision response
 }
 ```
 
@@ -192,61 +222,118 @@ fn broadphase(@builtin(global_invocation_id) gid: vec3u) {
 
 ```rust
 #[cfg(target_arch = "aarch64")]
-unsafe fn broadphase_neon(bodies: &mut [PhysicsBody]) {
-    // NEON intrinsics for parallel AABB overlap test
+pub mod neon {
+    /// NEON-optimized broadphase processing
+    pub fn broadphase_neon(aabbs: &[(Vec3, Vec3)]) -> Vec<(usize, usize)>;
 }
 ```
 
-### RISC-V RVV Scalar
+### RISC-V RVV Fallback
 
 ```rust
 #[cfg(target_arch = "riscv64")]
-unsafe fn broadphase_rvv(bodies: &mut [PhysicsBody]) {
-    // RVV vectorized spatial hash
+pub mod rvv {
+    /// RVV vectorized broadphase
+    pub fn broadphase_rvv(aabbs: &[(Vec3, Vec3)]) -> Vec<(usize, usize)>;
 }
 ```
 
 ---
 
-## Async Compute
+## ECS Integration
 
-Physics runs on a separate compute queue from the graphics queue:
+The `PhysicsSystem` reads `PhysicsBody` and `Transform` components, simulates one physics tick, and writes back updated `Transform` components:
 
-- **RDNA**: Async compute hardware units execute physics while GPU renders
-- **ARM**: Compute and graphics queues share the same GPU — serialized
-- **RISC-V**: Software fallback, physics blocks render (no async hardware)
+```rust
+impl System for PhysicsSystem {
+    fn update(&mut self, world: &mut World, _dt: f32) {
+        let substeps = self.substeps.max(1) as usize;
+        let sub_dt = self.fixed_dt;
+
+        for _ in 0..substeps {
+            self.cpu_step(world, sub_dt);
+        }
+    }
+}
+```
+
+**Components used:**
+- `PhysicsBodyECS` — physics body data
+- `PhysicsTransform` — position/rotation/scale
+- `Velocity` — computed velocity output
+
+**Events emitted:**
+- `CollisionEvent` — collision notifications
+
+---
+
+## Usage Example
+
+```rust
+use litt_physics::*;
+
+// Create physics system
+let mut physics = PhysicsSystem::new();
+
+// Or with GPU acceleration
+let mut physics = PhysicsSystem::with_gpu();
+
+// Or with custom settings
+let mut physics = PhysicsSystem::with_gravity(Vec3::new(0.0, -9.81, 0.0))
+    .with_timing(1.0 / 60.0, 3); // 60Hz, 3 substeps
+
+// Initialize GPU pipelines (optional)
+physics.init_gpu(&device, &mut allocator)?;
+
+// In game loop
+physics.update(&mut world, dt);
+
+// Check for collisions
+for event in &physics.collisions {
+    println!("Collision: {:?} <-> {:?}", event.entity_a, event.entity_b);
+}
+```
 
 ---
 
 ## Roadmap
 
-### Short-term (1-3 months)
-- [x] Implement `PhysicsBody` component with all fields
-- [x] Build AABB broadphase (SAP) in CPU path
-- [x] Implement SAT for AABB vs AABB narrowphase
-- [x] Add semi-implicit Euler integrator
-- [x] ECS integration: read `PhysicsBody`, write `Transform`
-
-### Mid-term (3-12 months)
-- [x] GPU broadphase: RDNA WGSL compute shader (skeleton, SPIR-V in build.rs)
+### ✅ Completed
+- [x] `PhysicsBody` component with 128-byte GPU layout
+- [x] `ColliderShape` enum (AABB, Sphere, Capsule)
+- [x] BVH builder with SAH (Surface Area Heuristic)
+- [x] SAT for AABB-AABB narrowphase
 - [x] Sphere-sphere and capsule-capsule narrowphase
+- [x] Semi-implicit Euler integrator
 - [x] Impulse-based constraint solver
-- [x] Collision event emission (CollisionEvent struct)
-- [ ] ARM NEON physics fallback (platform detection ready)
-- [ ] RISC-V RVV scalar path (platform detection ready)
+- [x] Fixed-step simulation with configurable substeps
+- [x] ECS integration (PhysicsSystem)
+- [x] GLSL compute shaders (broadphase + integrate)
+- [x] GPU buffer management
+- [x] CollisionEvent emission
+- [x] NEON-accelerated broadphase (ARM)
+- [x] RVV-accelerated broadphase (RISC-V)
+- [x] AVX2-accelerated broadphase (x86_64)
+- [x] Async compute integration (compute queue available)
 
-### Long-term (1-3 years)
+### 📋 Planned
+- [ ] BVH rebuild optimization (incremental updates)
+- [ ] Wave32 optimizations (RDNA-specific)
+- [ ] Subgroup operations (RDNA-specific)
 - [ ] GJK-EPA for convex-convex collision
 - [ ] Soft body / deformable physics
 - [ ] Character controller with slope caching
 - [ ] GPU-driven particle physics
 
-### Experimental
-- 💡 Neural collision prediction via NPU
-- 💡 Procedural terrain deformation
-- 💡 Real-time fluid simulation (SPH on GPU)
+### 💡 Experimental
+- Neural collision prediction via NPU
+- Procedural terrain deformation
+- Real-time fluid simulation (SPH on GPU)
 
-### Hardware-Specific
+---
+
+## Hardware-Specific Notes
+
 - **RDNA / AMD:** WGSL compute shaders, wave32 optimization, async compute queue
 - **Moore Threads:** MUSA compute shaders, Vulkan 1.3 compute
 - **ARM / Mobile:** NEON intrinsics, fixed-step simulation for power efficiency

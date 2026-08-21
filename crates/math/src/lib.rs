@@ -1,9 +1,9 @@
-﻿//! Ultra-lightweight math types for the path tracer.
+//! Ultra-lightweight math types for the path tracer.
 //! No external math library â€” hand-rolled SIMD-friendly types.
 //!
 //! Zero-cost abstractions, no heap allocation, no trait objects.
 
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::many_single_char_names)]
 #![allow(clippy::too_many_arguments)]
 

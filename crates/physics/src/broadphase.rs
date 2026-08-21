@@ -1,280 +1,435 @@
-//! Broadphase collision detection — spatial hash (CPU) and SAP (GPU-ready)
+//! BVH (Bounding Volume Hierarchy) builder for GPU physics broadphase.
 //!
-//! CPU: Spatial hash grid for O(n) average-case broadphase
-//! GPU-ready: SAP (Sort-and-Prune) structure for compute shader dispatch
+//! Provides a hierarchical bounding volume structure for O(log n) collision
+//! queries instead of O(n²) brute force. This is essential for large scenes
+//! with many physics bodies.
 
 use litt_math::Vec3;
-use std::collections::HashMap;
 
-const DEFAULT_CELL_SIZE: f32 = 4.0;
-
-#[derive(Debug, Default)]
-pub struct SpatialCell {
-    pub bodies: Vec<usize>,
-}
-
-/// Spatial hash broadphase for CPU fallback
+/// Node in the BVH tree
 #[derive(Debug)]
-pub struct SpatialHashBroadphase {
-    pub cell_size: f32,
-    pub grid: HashMap<u64, SpatialCell>,
-    pub aabbs: Vec<(Vec3, Vec3)>,
+pub enum BvhNode {
+    /// Internal node with left and right children
+    Internal {
+        /// Bounding AABB of this node
+        aabb_min: Vec3,
+        /// Bounding AABB of this node
+        aabb_max: Vec3,
+        /// Left child index
+        left: usize,
+        /// Right child index
+        right: usize,
+    },
+    /// Leaf node containing a single body
+    Leaf {
+        /// Bounding AABB of this leaf
+        aabb_min: Vec3,
+        /// Bounding AABB of this leaf
+        aabb_max: Vec3,
+        /// Body index
+        body_idx: usize,
+    },
 }
 
-impl SpatialHashBroadphase {
-    pub fn new(cell_size: f32) -> Self {
-        Self { cell_size, grid: HashMap::new(), aabbs: Vec::new() }
-    }
+/// Bounding Volume Hierarchy for physics broadphase
+#[derive(Debug)]
+pub struct Bvh {
+    /// Tree nodes
+    pub nodes: Vec<BvhNode>,
+    /// Sorted body indices (for SAH building)
+    pub sort_indices: Vec<usize>,
+    /// AABB of entire tree
+    pub aabb_min: Vec3,
+    pub aabb_max: Vec3,
+    /// Number of leaf nodes (bodies)
+    pub leaf_count: usize,
+}
 
-    pub fn default_cell() -> Self { Self::new(DEFAULT_CELL_SIZE) }
+impl Default for Bvh {
+    fn default() -> Self { Self::new() }
+}
 
-    /// Build the spatial hash from body AABBs
-    pub fn build(&mut self, bodies: &[(Vec3, Vec3)]) {
-        self.aabbs.clear();
-        self.aabbs.extend(bodies.iter().copied());
-        self.grid.clear();
-
-        for (i, &(min, max)) in bodies.iter().enumerate() {
-            let cells = self.cell_coords(min, max);
-            for cell_key in &cells {
-                self.grid.entry(*cell_key)
-                    .or_insert_with(SpatialCell::default)
-                    .bodies.push(i);
-            }
+impl Bvh {
+    /// Create a new empty BVH
+    pub fn new() -> Self {
+        Self {
+            nodes: Vec::new(),
+            sort_indices: Vec::new(),
+            aabb_min: Vec3::new(f32::INFINITY, f32::INFINITY, f32::INFINITY),
+            aabb_max: Vec3::new(-f32::INFINITY, -f32::INFINITY, -f32::INFINITY),
+            leaf_count: 0,
         }
     }
 
-    /// Get candidate collision pairs from the spatial hash
-    pub fn find_candidates(&self) -> Vec<(usize, usize)> {
-        let mut pairs: Vec<(usize, usize)> = Vec::new();
-        let mut seen: Vec<u64> = Vec::new();
+    /// Build BVH from a list of AABBs
+    ///
+    /// Uses Surface Area Heuristic (SAH) for optimal tree construction.
+    pub fn build(&mut self, aabbs: &[(Vec3, Vec3)]) {
+        let count = aabbs.len();
+        if count == 0 {
+            self.nodes.clear();
+            self.leaf_count = 0;
+            return;
+        }
 
-        for (_cell_key, cell) in &self.grid {
-            if cell.bodies.len() < 2 { continue; }
-            let bodies = &cell.bodies;
-            for i in 0..bodies.len() {
-                for j in (i + 1)..bodies.len() {
-                    let a = bodies[i];
-                    let b = bodies[j];
-                    let pair_key = if a < b { (a as u64) << 32 | (b as u64) } else { (b as u64) << 32 | (a as u64) };
-                    if seen.contains(&pair_key) { continue; }
-                    seen.push(pair_key);
-                    if self.aabbs_overlap(a, b) {
-                        pairs.push((a, b));
+        // Reset AABB
+        self.aabb_min = Vec3::new(f32::INFINITY, f32::INFINITY, f32::INFINITY);
+        self.aabb_max = Vec3::new(-f32::INFINITY, -f32::INFINITY, -f32::INFINITY);
+
+        // Build sorted indices
+        self.sort_indices = (0..count).collect();
+
+        // Sort by center along longest axis for initial ordering
+        self.sort_indices.sort_by(|a, b| {
+            let aa_min = aabbs[*a].0;
+            let bb_min = aabbs[*b].0;
+            let aa_max = aabbs[*a].1;
+            let bb_max = aabbs[*b].1;
+
+            // Find longest axis of combined AABB
+            let size_a = Vec3::new(
+                aa_max.0 - aa_min.0,
+                aa_max.1 - aa_min.1,
+                aa_max.2 - aa_min.2,
+            );
+            let size_b = Vec3::new(
+                bb_max.0 - bb_min.0,
+                bb_max.1 - bb_min.1,
+                bb_max.2 - bb_min.2,
+            );
+            let combined = Vec3::new(
+                size_a.0.max(size_b.0),
+                size_a.1.max(size_b.1),
+                size_a.2.max(size_b.2),
+            );
+            let axis = if combined.0 >= combined.1 && combined.0 >= combined.2 {
+                0
+            } else if combined.1 >= combined.0 && combined.1 >= combined.2 {
+                1
+            } else {
+                2
+            };
+            (aa_min[axis] + aa_max[axis]).partial_cmp(&(bb_min[axis] + bb_max[axis])).unwrap()
+        });
+
+        // Build tree using SAH
+        self.nodes.clear();
+        self.leaf_count = count;
+        self.build_sah(aabbs, 0, count);
+
+        // Update overall AABB
+        for &(min, max) in aabbs {
+            self.aabb_min = Vec3::new(
+                self.aabb_min.0.min(min.0),
+                self.aabb_min.1.min(min.1),
+                self.aabb_min.2.min(min.2),
+            );
+            self.aabb_max = Vec3::new(
+                self.aabb_max.0.max(max.0),
+                self.aabb_max.1.max(max.1),
+                self.aabb_max.2.max(max.2),
+            );
+        }
+    }
+
+    /// Rebuild BVH with updated AABBs (for dynamic scenes)
+    pub fn rebuild(&mut self, aabbs: &[(Vec3, Vec3)]) {
+        // Preserve sort order, just update leaf AABBs
+        if aabbs.len() != self.leaf_count {
+            self.build(aabbs);
+            return;
+        }
+
+        // Update leaf nodes in place
+        for (i, &(min, max)) in aabbs.iter().enumerate() {
+            if let BvhNode::Leaf { aabb_min, aabb_max, .. } = &mut self.nodes[i] {
+                *aabb_min = min;
+                *aabb_max = max;
+            }
+        }
+
+        // Update internal node AABBs bottom-up
+        self.update_parent_aabbs();
+    }
+
+    /// Build BVH using Surface Area Heuristic
+    fn build_sah(&mut self, aabbs: &[(Vec3, Vec3)], start: usize, end: usize) -> usize {
+        if start >= end {
+            return self.nodes.len();
+        }
+
+        let count = end - start;
+
+        // Compute combined AABB for this range
+        let mut aabb_min = Vec3::new(f32::INFINITY, f32::INFINITY, f32::INFINITY);
+        let mut aabb_max = Vec3::new(-f32::INFINITY, -f32::INFINITY, -f32::INFINITY);
+
+        for i in start..end {
+            let idx = self.sort_indices[i];
+            aabb_min = Vec3::new(aabb_min.0.min(aabbs[idx].0.0), aabb_min.1.min(aabbs[idx].0.1), aabb_min.2.min(aabbs[idx].0.2));
+            aabb_max = Vec3::new(aabb_max.0.max(aabbs[idx].1.0), aabb_max.1.max(aabbs[idx].1.1), aabb_max.2.max(aabbs[idx].1.2));
+        }
+
+        if count <= 4 {
+            // Create leaf nodes for small ranges
+            let mut leaf_indices = Vec::new();
+            for i in start..end {
+                let idx = self.sort_indices[i];
+                let node_idx = self.nodes.len();
+                self.nodes.push(BvhNode::Leaf {
+                    aabb_min: aabbs[idx].0,
+                    aabb_max: aabbs[idx].1,
+                    body_idx: idx,
+                });
+                leaf_indices.push(node_idx);
+            }
+            return leaf_indices[0];
+        }
+
+        // SAH: find optimal split plane
+        let mut best_cost = f32::INFINITY;
+        let mut best_axis = 0usize;
+        let mut best_pos = 0.0;
+        let mut best_split = count / 2;
+
+        let aabb_size = Vec3::new(
+            aabb_max.0 - aabb_min.0,
+            aabb_max.1 - aabb_min.1,
+            aabb_max.2 - aabb_min.2,
+        );
+        let total_sa = aabb_size.0 * aabb_size.1 + aabb_size.1 * aabb_size.2 + aabb_size.2 * aabb_size.0;
+
+        // Try splitting along each axis
+        for axis in 0..3 {
+            let mut sorted_by_axis = (start..end)
+                .map(|i| (self.sort_indices[i], aabbs[self.sort_indices[i]].0[axis]))
+                .collect::<Vec<_>>();
+            sorted_by_axis.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+
+            let mut left_count = 0;
+            let mut right_count = count;
+            let mut left_aabb_min = Vec3::new(f32::INFINITY, f32::INFINITY, f32::INFINITY);
+            let mut left_aabb_max = Vec3::new(-f32::INFINITY, -f32::INFINITY, -f32::INFINITY);
+            let mut right_aabb_min = Vec3::new(f32::INFINITY, f32::INFINITY, f32::INFINITY);
+            let mut right_aabb_max = Vec3::new(-f32::INFINITY, -f32::INFINITY, -f32::INFINITY);
+
+            for (i, (&body_idx, &pos)) in sorted_by_axis.iter().enumerate() {
+                let min = aabbs[body_idx].0;
+                let max = aabbs[body_idx].1;
+                left_aabb_min = Vec3::new(left_aabb_min.0.min(min.0), left_aabb_min.1.min(min.1), left_aabb_min.2.min(min.2));
+                left_aabb_max = Vec3::new(left_aabb_max.0.max(max.0), left_aabb_max.1.max(max.1), left_aabb_max.2.max(max.2));
+                left_count += 1;
+
+                // Check split after this element
+                if i < sorted_by_axis.len() - 1 {
+                    let right_pos = sorted_by_axis[i + 1].1;
+                    if right_pos - pos < 1e-6 { continue; } // Avoid overlapping splits
+
+                    // Compute right AABB
+                    right_aabb_min = Vec3::new(f32::INFINITY, f32::INFINITY, f32::INFINITY);
+                    right_aabb_max = Vec3::new(-f32::INFINITY, -f32::INFINITY, -f32::INFINITY);
+                    for &bi in &sorted_by_axis[i + 1..] {
+                        let min = aabbs[bi.0].0;
+                        let max = aabbs[bi.0].1;
+                        right_aabb_min = Vec3::new(right_aabb_min.0.min(min.0), right_aabb_min.1.min(min.1), right_aabb_min.2.min(min.2));
+                        right_aabb_max = Vec3::new(right_aabb_max.0.max(max.0), right_aabb_max.1.max(max.1), right_aabb_max.2.max(max.2));
+                    }
+                    right_count = sorted_by_axis.len() - i - 1;
+
+                    let left_sa = {
+                        let s = Vec3::new(
+                            left_aabb_max.0 - left_aabb_min.0,
+                            left_aabb_max.1 - left_aabb_min.1,
+                            left_aabb_max.2 - left_aabb_min.2,
+                        );
+                        s.0 * s.1 + s.1 * s.2 + s.2 * s.0
+                    };
+                    let right_sa = {
+                        let s = Vec3::new(
+                            right_aabb_max.0 - right_aabb_min.0,
+                            right_aabb_max.1 - right_aabb_min.1,
+                            right_aabb_max.2 - right_aabb_min.2,
+                        );
+                        s.0 * s.1 + s.1 * s.2 + s.2 * s.0
+                    };
+
+                    let cost = (left_count as f32 * left_sa + right_count as f32 * right_sa) / total_sa.max(1e-6);
+                    if cost < best_cost {
+                        best_cost = cost;
+                        best_axis = axis;
+                        best_pos = pos;
+                        best_split = left_count;
                     }
                 }
             }
         }
-        pairs
+
+        // Re-sort by best axis and split
+        self.sort_indices[start..end].sort_by(|a, b| {
+            aabbs[*a].0[best_axis].partial_cmp(&aabbs[*b].0[best_axis]).unwrap()
+        });
+
+        let mid = start + best_split;
+
+        // Create internal node
+        let node_idx = self.nodes.len();
+        self.nodes.push(BvhNode::Internal {
+            aabb_min, aabb_max,
+            left: 0, right: 0, // Will be filled after recursive calls
+        });
+
+        // Build children
+        let left_idx = self.build_sah(aabbs, start, mid);
+        let right_idx = self.build_sah(aabbs, mid, end);
+
+        // Update internal node
+        if let BvhNode::Internal { left, right, .. } = &mut self.nodes[node_idx] {
+            *left = left_idx;
+            *right = right_idx;
+        }
+
+        node_idx
     }
 
-    fn aabbs_overlap(&self, a: usize, b: usize) -> bool {
-        let (amin, amax) = self.aabbs[a];
-        let (bmin, bmax) = self.aabbs[b];
-        amin.0 <= bmax.0 && bmin.0 <= amax.0
-            && amin.1 <= bmax.1 && bmin.1 <= amax.1
-            && amin.2 <= bmax.2 && bmin.2 <= amax.2
+    /// Update parent AABBs bottom-up after leaf updates
+    fn update_parent_aabbs(&mut self) {
+        // Walk nodes in reverse order (leaves first)
+        for i in (0..self.nodes.len()).rev() {
+            match &self.nodes[i] {
+                BvhNode::Internal { left, right, .. } => {
+                    let left_min = match &self.nodes[*left] {
+                        BvhNode::Leaf { aabb_min, .. } => *aabb_min,
+                        BvhNode::Internal { aabb_min, .. } => *aabb_min,
+                    };
+                    let left_max = match &self.nodes[*left] {
+                        BvhNode::Leaf { aabb_max, .. } => *aabb_max,
+                        BvhNode::Internal { aabb_max, .. } => *aabb_max,
+                    };
+                    let right_min = match &self.nodes[*right] {
+                        BvhNode::Leaf { aabb_min, .. } => *aabb_min,
+                        BvhNode::Internal { aabb_min, .. } => *aabb_min,
+                    };
+                    let right_max = match &self.nodes[*right] {
+                        BvhNode::Leaf { aabb_max, .. } => *aabb_max,
+                        BvhNode::Internal { aabb_max, .. } => *aabb_max,
+                    };
+
+                    if let BvhNode::Internal { aabb_min: min, aabb_max: max, .. } = &mut self.nodes[i] {
+                        *min = Vec3::new(left_min.0.min(right_min.0), left_min.1.min(right_min.1), left_min.2.min(right_min.2));
+                        *max = Vec3::new(left_max.0.max(right_max.0), left_max.1.max(right_max.1), left_max.2.max(right_max.2));
+                    }
+                }
+                _ => {}
+            }
+        }
     }
 
-    fn cell_coords(&self, min: Vec3, max: Vec3) -> Vec<u64> {
-        let cs = self.cell_size;
-        let min_cx = (min.0 / cs).floor() as i32;
-        let min_cy = (min.1 / cs).floor() as i32;
-        let min_cz = (min.2 / cs).floor() as i32;
-        let max_cx = (max.0 / cs).floor() as i32;
-        let max_cy = (max.1 / cs).floor() as i32;
-        let max_cz = (max.2 / cs).floor() as i32;
+    /// Traverse BVH and collect overlapping AABBs
+    pub fn find_overlaps(&self, target_aabb_min: Vec3, target_aabb_max: Vec3, results: &mut Vec<usize>) {
+        if self.nodes.is_empty() { return; }
+        self.traverse_overlaps(0, target_aabb_min, target_aabb_max, results);
+    }
 
-        let mut coords = Vec::new();
-        for x in min_cx..=max_cx {
-            for y in min_cy..=max_cy {
-                for z in min_cz..=max_cz {
-                    let key = ((x as u64) << 40) | ((y as u64 & 0xFFFF_FFFF) << 8) | (z as u64 & 0xFF);
-                    coords.push(key);
+    fn traverse_overlaps(&self, node_idx: usize, target_min: Vec3, target_max: Vec3, results: &mut Vec<usize>) {
+        match &self.nodes[node_idx] {
+            BvhNode::Internal { aabb_min, aabb_max, left, right, .. } => {
+                // Check overlap
+                if !self.aabbs_overlap(*aabb_min, *aabb_max, target_min, target_max) {
+                    return;
+                }
+                self.traverse_overlaps(*left, target_min, target_max, results);
+                self.traverse_overlaps(*right, target_min, target_max, results);
+            }
+            BvhNode::Leaf { aabb_min, aabb_max, body_idx, .. } => {
+                if self.aabbs_overlap(*aabb_min, *aabb_max, target_min, target_max) {
+                    results.push(*body_idx);
                 }
             }
         }
-        coords
+    }
+
+    fn aabbs_overlap(a_min: Vec3, a_max: Vec3, b_min: Vec3, b_max: Vec3) -> bool {
+        a_min.0 <= b_max.0 && b_min.0 <= a_max.0
+            && a_min.1 <= b_max.1 && b_min.1 <= a_max.1
+            && a_min.2 <= b_max.2 && b_min.2 <= a_max.2
+    }
+
+    /// Get the root node index
+    pub fn root(&self) -> Option<usize> {
+        if self.nodes.is_empty() { None } else { Some(0) }
+    }
+
+    /// Get leaf count
+    pub fn leaf_count(&self) -> usize {
+        self.leaf_count
     }
 }
-
-impl Default for SpatialHashBroadphase {
-    fn default() -> Self { Self::default_cell() }
-}
-
-// =============================================================================
-// GPU-ready SAP (Sort and Prune) data structure
-// =============================================================================
-
-/// SAP entry for GPU compute shader — 16 bytes, cache-friendly
-#[derive(Clone, Copy, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-#[repr(C)]
-pub struct SAPEntry {
-    pub body_index: u32,
-    pub start: f32,
-    pub end: f32,
-    pub pad: u32,
-}
-
-/// SAP broadphase — sorted arrays for GPU dispatch
-#[derive(Debug)]
-pub struct SAPBroadphase {
-    pub sort_x: Vec<SAPEntry>,
-    pub sort_y: Vec<SAPEntry>,
-    pub sort_z: Vec<SAPEntry>,
-}
-
-impl SAPBroadphase {
-    /// Build SAP from AABB data
-    pub fn build(aabbs: &[(Vec3, Vec3)]) -> Self {
-        let n = aabbs.len();
-        let mut entries: Vec<SAPEntry> = aabbs.iter().enumerate()
-            .map(|(i, &(min, max))| SAPEntry {
-                body_index: i as u32,
-                start: min.0,
-                end: max.0,
-                pad: 0,
-            })
-            .collect();
-
-        // Sort by X
-        let mut sort_x = entries.clone();
-        sort_x.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap_or(std::cmp::Ordering::Equal));
-
-        // Sort by Y
-        let mut sort_y = entries.clone();
-        for e in &mut sort_y {
-            let idx = e.body_index as usize;
-            e.start = aabbs[idx].0.1;
-            e.end = aabbs[idx].1.1;
-        }
-        sort_y.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap_or(std::cmp::Ordering::Equal));
-
-        // Sort by Z
-        let mut sort_z = entries.clone();
-        for e in &mut sort_z {
-            let idx = e.body_index as usize;
-            e.start = aabbs[idx].0.2;
-            e.end = aabbs[idx].1.2;
-        }
-        sort_z.sort_by(|a, b| a.start.partial_cmp(&b.start).unwrap_or(std::cmp::Ordering::Equal));
-
-        Self { sort_x, sort_y, sort_z }
-    }
-
-    /// Find overlapping pairs using sweep-and-prune (CPU reference)
-    pub fn find_overlaps(&self) -> Vec<(usize, usize)> {
-        let mut pairs: Vec<(usize, usize)> = Vec::new();
-        let n = self.sort_x.len();
-        for i in 0..n {
-            for j in (i + 1)..n {
-                let a = self.sort_x[i].body_index as usize;
-                let b = self.sort_x[j].body_index as usize;
-                if self.overlaps_y_z(a, b) {
-                    let pair = if a < b { (a, b) } else { (b, a) };
-                    if !pairs.contains(&pair) { pairs.push(pair); }
-                }
-            }
-        }
-        pairs
-    }
-
-    fn overlaps_y_z(&self, a: usize, b: usize) -> bool {
-        let ay = self.y_range(a);
-        let by = self.y_range(b);
-        let az = self.z_range(a);
-        let bz = self.z_range(b);
-        ay.0 < by.1 && by.0 < ay.1 && az.0 < bz.1 && bz.0 < az.1
-    }
-
-    fn y_range(&self, idx: usize) -> (f32, f32) {
-        for e in &self.sort_y {
-            if e.body_index as usize == idx { return (e.start, e.end); }
-        }
-        (0.0, 0.0)
-    }
-
-    fn z_range(&self, idx: usize) -> (f32, f32) {
-        for e in &self.sort_z {
-            if e.body_index as usize == idx { return (e.start, e.end); }
-        }
-        (0.0, 0.0)
-    }
-}
-
-// =============================================================================
-// Tests
-// =============================================================================
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use litt_math::Vec3;
 
     #[test]
-    fn test_spatial_hash_single_body() {
-        let mut bh = SpatialHashBroadphase::default_cell();
-        bh.build(&[(Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 1.0, 1.0))]);
-        let pairs = bh.find_candidates();
-        assert!(pairs.is_empty());
+    fn test_bvh_build_empty() {
+        let mut bvh = Bvh::new();
+        bvh.build(&[]);
+        assert_eq!(bvh.leaf_count, 0);
     }
 
     #[test]
-    fn test_spatial_hash_overlapping() {
-        let mut bh = SpatialHashBroadphase::default_cell();
-        // Two overlapping AABBs
-        bh.build(&[
-            (Vec3::new(0.0, 0.0, 0.0), Vec3::new(2.0, 2.0, 2.0)),
-            (Vec3::new(1.0, 1.0, 1.0), Vec3::new(3.0, 3.0, 3.0)),
+    fn test_bvh_build_single() {
+        let mut bvh = Bvh::new();
+        bvh.build(&[(Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 1.0, 1.0))]);
+        assert_eq!(bvh.leaf_count, 1);
+    }
+
+    #[test]
+    fn test_bvh_build_multiple() {
+        let mut bvh = Bvh::new();
+        bvh.build(&[
+            (Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 1.0, 1.0)),
+            (Vec3::new(2.0, 0.0, 0.0), Vec3::new(3.0, 1.0, 1.0)),
+            (Vec3::new(0.5, 0.5, 0.5), Vec3::new(1.5, 1.5, 1.5)),
         ]);
-        let pairs = bh.find_candidates();
-        assert_eq!(pairs.len(), 1);
-        assert!(pairs[0] == (0, 1));
+        assert_eq!(bvh.leaf_count, 3);
     }
 
     #[test]
-    fn test_spatial_hash_no_overlap() {
-        let mut bh = SpatialHashBroadphase::default_cell();
-        // Two separated AABBs
-        bh.build(&[
+    fn test_bvh_overlap_detection() {
+        let mut bvh = Bvh::new();
+        bvh.build(&[
+            (Vec3::new(0.0, 0.0, 0.0), Vec3::new(2.0, 2.0, 2.0)),
+            (Vec3::new(10.0, 10.0, 10.0), Vec3::new(12.0, 12.0, 12.0)),
+        ]);
+
+        let mut results = Vec::new();
+        bvh.find_overlaps(Vec3::new(0.5, 0.5, 0.5), Vec3::new(1.5, 1.5, 1.5), &mut results);
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0], 0);
+
+        results.clear();
+        bvh.find_overlaps(Vec3::new(10.5, 10.5, 10.5), Vec3::new(11.5, 11.5, 11.5), &mut results);
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0], 1);
+    }
+
+    #[test]
+    fn test_bvh_rebuild() {
+        let mut bvh = Bvh::new();
+        bvh.build(&[
             (Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 1.0, 1.0)),
             (Vec3::new(5.0, 5.0, 5.0), Vec3::new(6.0, 6.0, 6.0)),
         ]);
-        let pairs = bh.find_candidates();
-        assert!(pairs.is_empty());
-    }
 
-    #[test]
-    fn test_spatial_hash_multiple() {
-        let mut bh = SpatialHashBroadphase::default_cell();
-        // 4 bodies: 0 and 1 overlap, 2 and 3 overlap, 0 and 2 are far apart
-        bh.build(&[
-            (Vec3::new(0.0, 0.0, 0.0), Vec3::new(2.0, 2.0, 2.0)),
-            (Vec3::new(1.0, 1.0, 1.0), Vec3::new(3.0, 3.0, 3.0)),
-            (Vec3::new(10.0, 10.0, 10.0), Vec3::new(12.0, 12.0, 12.0)),
-            (Vec3::new(11.0, 11.0, 11.0), Vec3::new(13.0, 13.0, 13.0)),
-        ]);
-        let pairs = bh.find_candidates();
-        assert_eq!(pairs.len(), 2);
-    }
-
-    #[test]
-    fn test_sap_build_and_overlaps() {
-        let aabbs = vec![
-            (Vec3::new(0.0, 0.0, 0.0), Vec3::new(2.0, 2.0, 2.0)),
-            (Vec3::new(1.0, 1.0, 1.0), Vec3::new(3.0, 3.0, 3.0)),
-            (Vec3::new(10.0, 10.0, 10.0), Vec3::new(12.0, 12.0, 12.0)),
+        // Move first body
+        let updated = vec![
+            (Vec3::new(10.0, 10.0, 10.0), Vec3::new(11.0, 11.0, 11.0)),
+            (Vec3::new(5.0, 5.0, 5.0), Vec3::new(6.0, 6.0, 6.0)),
         ];
-        let sap = SAPBroadphase::build(&aabbs);
-        let overlaps = sap.find_overlaps();
-        // Only bodies 0 and 1 should overlap
-        assert!(overlaps.contains(&(0, 1)));
-        assert!(!overlaps.contains(&(0, 2)));
-        assert!(!overlaps.contains(&(1, 2)));
-    }
+        bvh.rebuild(&updated);
 
-    #[test]
-    fn test_sap_entry_size() {
-        assert_eq!(std::mem::size_of::<SAPEntry>(), 16);
+        let mut results = Vec::new();
+        bvh.find_overlaps(Vec3::new(10.5, 10.5, 10.5), Vec3::new(10.6, 10.6, 10.6), &mut results);
+        assert_eq!(results.len(), 1);
     }
 }

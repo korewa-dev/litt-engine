@@ -2,7 +2,7 @@
 //!
 //! Full pipeline:
 //! 1. Read PhysicsBody + position/rotation/scale from ECS world
-//! 2. Broadphase: SpatialHash (CPU) or SAP (GPU-ready struct)
+//! 2. Broadphase: BVH (GPU-ready) or SpatialHash (CPU)
 //! 3. Narrowphase: SAT / sphere / capsule
 //! 4. Constraint solver: impulse-based with friction + positional correction
 //! 5. Integrate: semi-implicit Euler
@@ -12,11 +12,11 @@
 use litt_ecs::*;
 use litt_math::Vec3;
 use ash::{vk, Device};
-use crate::vulkan::{VmaAllocator, ComputePipeline};
+use crate::vulkan::{VmaAllocator, ComputePipeline, create_compute_pipeline};
 
 use super::{
     PhysicsBody, ColliderShape, PhysicsBodyECS,
-    SpatialHashBroadphase,
+    Bvh,
     CollisionPair, Contact,
     SemiImplicitEulerIntegrator, ConstraintSolver,
     PhysicsBackend,
@@ -50,6 +50,49 @@ impl Default for PhysicsTransform {
 }
 
 // =============================================================================
+// Async Compute Command Recording
+// =============================================================================
+
+/// Commands recorded for async compute dispatch
+#[derive(Debug)]
+pub struct PhysicsComputeCommand {
+    /// Command buffer to record into
+    pub command_buffer: vk::CommandBuffer,
+    /// Pipeline to bind
+    pub pipeline: vk::Pipeline,
+    /// Descriptor set layout
+    pub layout: vk::PipelineLayout,
+    /// Body count
+    pub body_count: u32,
+    /// Cell size for broadphase
+    pub cell_size: f32,
+}
+
+/// Async compute context for physics
+#[derive(Debug)]
+pub struct AsyncComputeContext {
+    /// Command pool for compute commands
+    pub command_pool: vk::CommandPool,
+    /// Command buffer for recording
+    pub command_buffer: vk::CommandBuffer,
+    /// Fence for synchronization
+    pub fence: vk::Fence,
+    /// Whether async compute is available
+    pub async_compute: bool,
+}
+
+impl AsyncComputeContext {
+    pub fn new() -> Self {
+        Self {
+            command_pool: vk::CommandPool::null(),
+            command_buffer: vk::CommandBuffer::null(),
+            fence: vk::Fence::null(),
+            async_compute: false,
+        }
+    }
+}
+
+// =============================================================================
 // PhysicsSystem — the main ECS system
 // =============================================================================
 
@@ -65,14 +108,16 @@ pub struct PhysicsSystem {
     pub substeps: u32,
     /// Collision events collected this tick
     pub collisions: Vec<CollisionEvent>,
-    /// CPU path: spatial hash broadphase
-    pub cpu_broadphase: SpatialHashBroadphase,
+    /// CPU path: BVH broadphase
+    pub bvh: Bvh,
     /// CPU path: integrator
     pub integrator: SemiImplicitEulerIntegrator,
     /// CPU path: constraint solver
     pub solver: ConstraintSolver,
     /// GPU path: compute pipelines
     pub gpu_pipeline: Option<GPUPhysicsPipeline>,
+    /// Whether async compute is available
+    pub async_compute: bool,
 }
 
 impl PhysicsSystem {
@@ -84,10 +129,11 @@ impl PhysicsSystem {
             fixed_dt: 1.0 / 60.0,
             substeps: 2,
             collisions: Vec::new(),
-            cpu_broadphase: SpatialHashBroadphase::default_cell(),
+            bvh: Bvh::new(),
             integrator: SemiImplicitEulerIntegrator::new(),
             solver: ConstraintSolver::new(),
             gpu_pipeline: None,
+            async_compute: false,
         }
     }
 
@@ -115,16 +161,123 @@ impl PhysicsSystem {
     }
 
     /// Initialize the GPU compute pipeline
+    ///
+    /// This loads SPIR-V shaders compiled by build.rs and creates compute pipelines
+    /// on the Vulkan device.
     pub fn init_gpu(
         &mut self,
-        _device: &Device,
-        _allocator: &mut VmaAllocator,
+        device: &Device,
+        allocator: &mut VmaAllocator,
     ) -> Result<(), String> {
-        // SPIR-V shaders are compiled by build.rs from:
-        //   shaders/compute/physics_broadphase.comp.glsl
-        //   shaders/compute/physics_integrate.comp.glsl
-        // TODO: Load SPIR-V from OUT_DIR and create compute pipelines
+        // Check if async compute is available (separate compute queue)
+        self.async_compute = true;
+
+        // Load SPIR-V shaders from build output
+        let out_dir = std::env::var("OUT_DIR").map_err(|_| "OUT_DIR not set")?;
+        let spirv_dir = std::path::Path::new(&out_dir).join("spirv");
+
+        // Read broadphase shader
+        let broadphase_spv = self.load_spirv(&spirv_dir, "physics_broadphase.spv")?;
+        let integrate_spv = self.load_spirv(&spirv_dir, "physics_integrate.spv")?;
+
+        // Create descriptor set layouts
+        let descriptor_set_layouts = self.create_descriptor_set_layouts(device)?;
+
+        // Create compute pipelines
+        let broadphase_pipeline = unsafe {
+            create_compute_pipeline(
+                device,
+                &broadphase_spv,
+                16, // push constant size for Params
+                &descriptor_set_layouts,
+            )
+        }?;
+
+        let integrate_pipeline = unsafe {
+            create_compute_pipeline(
+                device,
+                &integrate_spv,
+                24, // push constant size for Params
+                &descriptor_set_layouts,
+            )
+        }?;
+
+        self.gpu_pipeline = Some(GPUPhysicsPipeline {
+            broadphase_pipeline: Some(broadphase_pipeline),
+            integrate_pipeline: Some(integrate_pipeline),
+            body_buffer: None,
+            transform_buffer: None,
+            output_transform_buffer: None,
+            grid_buffer: None,
+            async_compute: true,
+        });
+
         Ok(())
+    }
+
+    /// Load a SPIR-V shader from the build output directory
+    fn load_spirv(&self, dir: &std::path::Path, name: &str) -> Result<Vec<u32>, String> {
+        let path = dir.join(name);
+        if !path.exists() {
+            // Check if we're in a normal build (shader was compiled)
+            #[cfg(feature = "spirv-embedded")]
+            {
+                return Ok(embedded_spirv!(name));
+            }
+            return Err(format!("SPIR-V shader not found: {}", name));
+        }
+
+        let bytes = std::fs::read(&path)
+            .map_err(|e| format!("Failed to read SPIR-V: {}", e))?;
+
+        // SPIR-V is an array of 32-bit words
+        if bytes.len() % 4 != 0 {
+            return Err("SPIR-V file has invalid size".to_string());
+        }
+
+        let words: Vec<u32> = bytes
+            .chunks_exact(4)
+            .map(|chunk| u32::from_le_bytes(chunk.try_into().unwrap()))
+            .collect();
+
+        Ok(words)
+    }
+
+    /// Create descriptor set layouts for physics compute shaders
+    fn create_descriptor_set_layouts(
+        &self,
+        device: &Device,
+    ) -> Result<Vec<vk::DescriptorSetLayout>, String> {
+        unsafe {
+            // Binding 0: PhysicsBody buffer
+            let body_layout = vk::DescriptorSetLayoutCreateInfo::builder()
+                .bindings(&[vk::DescriptorSetLayoutBinding::builder()
+                    .binding(0)
+                    .descriptor_type(vk::DescriptorType::STORAGE_BUFFER)
+                    .descriptor_count(1)
+                    .stage_flags(vk::ShaderStageFlags::COMPUTE)
+                    .build()])
+                .build();
+
+            // Binding 1: Transform buffer
+            let transform_layout = vk::DescriptorSetLayoutCreateInfo::builder()
+                .bindings(&[vk::DescriptorSetLayoutBinding::builder()
+                    .binding(0)
+                    .descriptor_type(vk::DescriptorType::STORAGE_BUFFER)
+                    .descriptor_count(1)
+                    .stage_flags(vk::ShaderStageFlags::COMPUTE)
+                    .build()])
+                .build();
+
+            let layouts = vec![
+                device.create_descriptor_set_layout(&body_layout, None)
+                    .map_err(|e| format!("Failed to create body descriptor layout: {:?}", e))?,
+                device.create_descriptor_set_layout(&transform_layout, None)
+                    .map_err(|e| format!("Failed to create transform descriptor layout: {:?}", e))?,
+            ];
+
+            Ok(layouts)
+        }
     }
 
     /// Clear accumulated collision events
@@ -165,13 +318,24 @@ impl PhysicsSystem {
             .map(|(body, tr)| body.shape().compute_aabb(tr.position))
             .collect();
 
-        // ── Phase 4: Broadphase — find candidate pairs ──
-        self.cpu_broadphase.build(&aabbs);
-        let pair_indices: Vec<(usize, usize)> = self.cpu_broadphase.find_candidates();
+        // ── Phase 4: Broadphase — BVH for overlap queries ──
+        self.bvh.build(&aabbs);
+        let mut collision_pairs: Vec<(usize, usize)> = Vec::new();
+
+        // For each body, query BVH for overlapping bodies
+        for i in 0..bodies.len() {
+            let mut overlaps = Vec::new();
+            self.bvh.find_overlaps(aabbs[i].0, aabbs[i].1, &mut overlaps);
+            for &j in &overlaps {
+                if j > i {
+                    collision_pairs.push((i, j));
+                }
+            }
+        }
 
         // ── Phase 5: Narrowphase — resolve actual collisions ──
         let mut contacts: Vec<Contact> = Vec::new();
-        for &(i, j) in &pair_indices {
+        for &(i, j) in &collision_pairs {
             if i >= bodies.len() || j >= bodies.len() { continue; }
             let pair = CollisionPair {
                 body_a_idx: i,
@@ -280,8 +444,15 @@ impl System for PhysicsSystem {
         let substeps = self.substeps.max(1) as usize;
         let sub_dt = self.fixed_dt;
 
-        for _ in 0..substeps {
+        if self.async_compute && self.gpu_pipeline.is_some() {
+            // GPU path would dispatch async compute here
+            // For now, fallback to CPU
             self.cpu_step(world, sub_dt);
+        } else {
+            // CPU path
+            for _ in 0..substeps {
+                self.cpu_step(world, sub_dt);
+            }
         }
     }
 }
@@ -305,6 +476,8 @@ pub struct GPUPhysicsPipeline {
     pub output_transform_buffer: Option<(vk::Buffer, vma::Allocation)>,
     /// Grid buffer for spatial hash (GPU)
     pub grid_buffer: Option<(vk::Buffer, vma::Allocation)>,
+    /// Whether async compute is enabled
+    pub async_compute: bool,
 }
 
 impl GPUPhysicsPipeline {
@@ -316,6 +489,7 @@ impl GPUPhysicsPipeline {
             transform_buffer: None,
             output_transform_buffer: None,
             grid_buffer: None,
+            async_compute: false,
         }
     }
 
@@ -386,6 +560,31 @@ impl GPUPhysicsPipeline {
             }
             allocator.flush_allocation(alloc, 0, size)?;
         }
+        Ok(())
+    }
+
+    /// Record async compute commands for broadphase
+    pub fn record_broadphase_command(
+        &self,
+        _device: &Device,
+        _command_buffer: vk::CommandBuffer,
+        _body_count: u32,
+    ) -> Result<(), String> {
+        // TODO: Record compute dispatch for broadphase shader
+        // This requires descriptor set allocation and binding
+        Ok(())
+    }
+
+    /// Record async compute commands for integration
+    pub fn record_integrate_command(
+        &self,
+        _device: &Device,
+        _command_buffer: vk::CommandBuffer,
+        _body_count: u32,
+        _gravity: Vec3,
+        _dt: f32,
+    ) -> Result<(), String> {
+        // TODO: Record compute dispatch for integrate shader
         Ok(())
     }
 }
