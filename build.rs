@@ -1,4 +1,4 @@
-﻿//! Build script: compiles GLSL shaders to SPIR-V.
+//! Build script: compiles GLSL shaders to SPIR-V.
 //! Falls back to embedding pre-compiled SPIR-V if no compiler available.
 
 use std::env;
@@ -83,6 +83,8 @@ fn compile_shaders(out_dir: &Path, compiler: Option<&PathBuf>) {
         ("mesh.frag.glsl", "mesh_frag.spv"),
         ("fidelityfx/fsr4_upscaler.comp.glsl", "fsr4_upscale.spv"),
         ("fidelityfx/fsr4_framegen.comp.glsl", "fsr4_fg.spv"),
+        ("compute/physics_broadphase.comp.glsl", "physics_broadphase.spv"),
+        ("compute/physics_integrate.comp.glsl", "physics_integrate.spv"),
     ];
 
     for (src, out) in shaders {

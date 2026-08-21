@@ -32,7 +32,7 @@ Ultra-lightweight Vulkan/DX12 path tracing engine for AMD, Intel Arc, Samsung, a
 - Raygen / Closest-hit / Miss shaders with **Russian roulette** termination
 - Lambertian diffuse + GGX specular BRDFs
 - Temporal accumulation buffer for progressive rendering
-- Support for ReSTIR-style reservoir sampling (architecture ready)
+- **ReSTIR** (Reservoir-Based Sampling for Importance Sampling) — efficient light sampling with spatio-temporal reuse, reducing noise in indirect lighting
 
 ---
 
@@ -421,7 +421,7 @@ let result = compile_hlsl(hlsl_source, "main", "dxil_6_5")?;
 | `litt-ags` | libloading | AMD AGS bindings (power/fan/performance) |
 | `litt-vulkan` | ash, ash-window, vma, bytemuck, litt-math, litt-platform, litt-ags | Vulkan backend |
 | `litt-renderer` | ash, bytemuck, litt-math, litt-vulkan | Render passes + command pool |
-| `litt-pathtracer` | ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma | RT pipeline |
+| `litt-pathtracer` | ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma | RT pipeline with ReSTIR light sampling |
 | `litt-fidelityfx` | ash, bytemuck, litt-math, litt-vulkan, vma | FSR 3/4, CAS, denoisers |
 | `litt-ecs` | litt-math, bytemuck | ECS core (World, Entity, Component, System) |
 | `litt-dx12` | bytemuck, libloading, litt-math, litt-platform, winapi | DX12 backend with DXC |

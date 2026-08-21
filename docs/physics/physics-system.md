@@ -1,8 +1,10 @@
-﻿﻿# PhysicsSystem
+﻿# PhysicsSystem
 
 > GPU-accelerated rigid body physics with multi-tier hardware support.
 
-**Status:** 📋 Planned — Phase 5 of [ROADMAP.md](./ROADMAP.md). No implementation exists yet.
+**Status:** 🟡 Partially Implemented — Phase 5 of [ROADMAP.md](./ROADMAP.md).
+
+CPU fallback path is fully implemented. GPU compute shader path has skeleton with GLSL shaders ready for compilation.
 
 ---
 
@@ -219,19 +221,19 @@ Physics runs on a separate compute queue from the graphics queue:
 ## Roadmap
 
 ### Short-term (1-3 months)
-- [ ] Implement `PhysicsBody` component with all fields
-- [ ] Build AABB broadphase (SAP) in CPU path
-- [ ] Implement SAT for AABB vs AABB narrowphase
-- [ ] Add semi-implicit Euler integrator
-- [ ] ECS integration: read `PhysicsBody`, write `Transform`
+- [x] Implement `PhysicsBody` component with all fields
+- [x] Build AABB broadphase (SAP) in CPU path
+- [x] Implement SAT for AABB vs AABB narrowphase
+- [x] Add semi-implicit Euler integrator
+- [x] ECS integration: read `PhysicsBody`, write `Transform`
 
 ### Mid-term (3-12 months)
-- [ ] GPU broadphase: RDNA WGSL compute shader
-- [ ] Sphere-sphere and capsule-capsule narrowphase
-- [ ] Impulse-based constraint solver
-- [ ] Collision event emission
-- [ ] ARM NEON physics fallback
-- [ ] RISC-V RVV scalar path
+- [x] GPU broadphase: RDNA WGSL compute shader (skeleton, SPIR-V in build.rs)
+- [x] Sphere-sphere and capsule-capsule narrowphase
+- [x] Impulse-based constraint solver
+- [x] Collision event emission (CollisionEvent struct)
+- [ ] ARM NEON physics fallback (platform detection ready)
+- [ ] RISC-V RVV scalar path (platform detection ready)
 
 ### Long-term (1-3 years)
 - [ ] GJK-EPA for convex-convex collision

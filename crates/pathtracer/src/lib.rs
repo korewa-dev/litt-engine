@@ -1,15 +1,18 @@
 //! Complete path tracing backend with BLAS/TLAS and FSR 3.1.5 integration.
 //! Full GPU buffer management with VMA memory allocator.
+//! Includes ReSTIR for efficient light sampling.
 
 pub mod scene;
 pub mod tracer;
 pub mod material;
 pub mod rng;
+pub mod restir;
 
 pub use scene::*;
 pub use tracer::*;
 pub use material::*;
 pub use rng::*;
+pub use restir::*;
 
 use ash::{vk, Device};
 use crate::vulkan::{VmaAllocator, AccelerationStructures, BlasBuilder, TlasBuilder, TlasInstance, BlasGeometry, AllocFlags};

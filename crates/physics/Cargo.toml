@@ -1,0 +1,12 @@
+[package]
+name = "litt-physics"
+version = "0.1.0"
+edition = "2021"
+description = "GPU-accelerated rigid body physics for Litt Engine"
+
+[dependencies]
+litt-math = { path = "../math" }
+litt-ecs = { path = "../ecs" }
+litt-vulkan = { path = "../vulkan" }
+ash = { workspace = true }
+bytemuck = { workspace = true }
