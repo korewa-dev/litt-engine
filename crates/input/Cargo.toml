@@ -11,8 +11,7 @@ bytemuck = { workspace = true }
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Graphics", "Win32_UI_Input_KeyboardAndMouse"] }
 
-[target.'cfg(target_os = "linux")'.dependencies]
-nix = { version = "0.29", default-features = false, features = ["fs", "input"] }
+# No Linux-specific dependencies needed — input is pure Rust with virtual key codes.
 
 [profile.release]
 opt-level = "z"

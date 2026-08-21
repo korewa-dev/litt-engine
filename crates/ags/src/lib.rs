@@ -9,8 +9,7 @@
 #![allow(non_snake_case)]
 
 use libloading::{Library, Symbol};
-use std::ffi::{CStr, CString};
-use std::os::raw::c_void;
+use std::ffi::CStr;
 
 // =============================================================================
 // C Types (matching AMD AGS C API)
@@ -56,6 +55,10 @@ impl AGSResult {
     pub fn is_success(&self) -> bool {
         *self == Self::AGS_SUCCESS
     }
+}
+
+impl From<AGSResult> for String {
+    fn from(e: AGSResult) -> Self { e.to_string() }
 }
 
 // =============================================================================
@@ -109,22 +112,22 @@ impl Default for AGSAdapterInfo {
 impl AGSAdapterInfo {
     pub fn new() -> Self { Self::default() }
 
-    pub fn adapter_name(&self) -> &str {
+    pub fn adapter_name(&self) -> String {
         CStr::from_bytes_until_nul(&self.AdapterName)
-            .map(|s| s.to_string_lossy().as_ref())
-            .unwrap_or("")
+            .map(|s| s.to_string_lossy().into_owned())
+            .unwrap_or_default()
     }
 
-    pub fn vendor_name(&self) -> &str {
+    pub fn vendor_name(&self) -> String {
         CStr::from_bytes_until_nul(&self.VendorName)
-            .map(|s| s.to_string_lossy().as_ref())
-            .unwrap_or("")
+            .map(|s| s.to_string_lossy().into_owned())
+            .unwrap_or_default()
     }
 
-    pub fn vbios_version(&self) -> &str {
+    pub fn vbios_version(&self) -> String {
         CStr::from_bytes_until_nul(&self.VBIOSVersion)
-            .map(|s| s.to_string_lossy().as_ref())
-            .unwrap_or("")
+            .map(|s| s.to_string_lossy().into_owned())
+            .unwrap_or_default()
     }
 }
 
@@ -314,13 +317,13 @@ impl AGSContext {
                 }
 
                 let lib = lib.ok_or_else(|| "Failed to load AMD AGS library".to_string())?;
-
                 let init: Symbol<AGSInitFn> = lib.get(b"AGSInit")
                     .map_err(|e| format!("Failed to get AGSInit: {}", e))?;
+                let init_fn = *init;
+                drop(init); // drop borrow on lib before moving it
 
                 let mut context: AGSContext = AGSContext { lib, version: (0, 0, 0, 0) };
-
-                let result = init(&mut context as *mut _);
+                let result = init_fn(&mut context as *mut _);
                 if result != AGSResult::AGS_SUCCESS {
                     return Err(format!("AGSInit failed: {}", result));
                 }
@@ -333,13 +336,13 @@ impl AGSContext {
                 let lib = Library::new("libamd_ags.so")
                     .or_else(|_| Library::new("libamd_ags.so.1"))
                     .map_err(|e| format!("Failed to load libamd_ags: {}", e))?;
-
                 let init: Symbol<AGSInitFn> = lib.get(b"AGSInit")
                     .map_err(|e| format!("Failed to get AGSInit: {}", e))?;
+                let init_fn = *init;
+                drop(init); // drop borrow on lib before moving it
 
                 let mut context: AGSContext = AGSContext { lib, version: (0, 0, 0, 0) };
-
-                let result = init(&mut context as *mut _);
+                let result = init_fn(&mut context as *mut _);
                 if result != AGSResult::AGS_SUCCESS {
                     return Err(format!("AGSInit failed: {}", result));
                 }

@@ -116,7 +116,6 @@ pub unsafe fn create_surface<'a>(
 ) -> Result<vk::SurfaceKHR, String> {
     #[cfg(target_os = "windows")]
     {
-        use ash::vk::AndroidSurfaceCreateInfoKHR;
         let info = vk::Win32SurfaceCreateInfoKHR::builder()
             .hinstance(std::ptr::null())
             .hwnd(window.inner.hwnd() as *mut _)
@@ -207,7 +206,7 @@ mod win32 {
                 cbWndExtra: 0,
                 hInstance: hinst,
                 hIcon: ptr::null(),
-                hCursor: unsafe { LoadCursorW(ptr::null_mut()), IDC_ARROW) },
+                hCursor: unsafe { LoadCursorW(ptr::null_mut(), IDC_ARROW) },
                 hbrBackground: ptr::null_mut() as HBRUSH,
                 lpszMenuName: ptr::null(),
                 lpszClassName: class_name.as_ptr(),
@@ -268,8 +267,6 @@ mod linux {
 
     impl X11Window {
         pub fn new(title: &str, size: WindowSize) -> Option<Self> {
-            use nix::unistd::Pid;
-
             // Minimal X11 setup using libc calls
             let display_name = CString::new(":0").ok()?;
             let display = unsafe {

@@ -150,12 +150,8 @@ pub fn get_musa_properties(
             ),
             clock_rate: props.max_work_group_size[0] as u32, // Approximation
             supports_ray_tracing: false, // MUSA ray tracing via Vulkan extensions
-            supports_fp64: props.shader_float64_pipeline_registry_hint.contains(
-                vk::ShaderFloat64PipelineFlagsKHR::SUBPASS
-            ),
-            supports_fp16: props.shader_float16_int8_pipeline_registry_hint.contains(
-                vk::ShaderFloat16Int8PipelineFlagsKHR::SUBPASS
-            ),
+            supports_fp64: props.shader_float64,
+            supports_fp16: props.shader_float16_int8,
             supports_int8: true, // MUSA supports INT8
         })
     }
@@ -187,8 +183,7 @@ pub fn musa_is_available(instance: &Instance) -> Result<bool, MusaError> {
 }
 
 /// Get MUSA version (reported by driver)
-pub fn musa_get_version(instance: &Instance) -> Result<String, MusaError> {
-    let props = unsafe { instance.enumerate_device_extension_properties vk::PhysicalDevice::null())? };
+pub fn musa_get_version(_instance: &Instance) -> Result<String, MusaError> {
     // MUSA doesn't expose version through Vulkan, return driver version
     Ok("MUSA 1.0 (Vulkan-based)".to_string())
 }
@@ -229,12 +224,12 @@ impl MusaContext {
             .build();
         
         unsafe {
-            let (device, queue) = instance.create_device2(
+            let device = instance.create_device(
                 physical_device,
                 &device_create_info,
                 None,
             ).map_err(|e| MusaError::VulkanInitFailed(format!("Failed to create device: {:?}", e)))?;
-            
+
             let queue = device.get_device_queue(queue_family, 0);
             
             Ok(MusaContext {

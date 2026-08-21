@@ -6,7 +6,6 @@ description = "Universal AI acceleration layer for Litt Engine — NPU, GPU, and
 
 [dependencies]
 litt-math = { path = "../math" }
-litt-ecs = { path = "../ecs" }
 ash = { workspace = true, optional = true }
 bytemuck = { workspace = true }
 log = { workspace = true }

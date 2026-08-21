@@ -39,6 +39,3 @@ pub use tensor::*;
 pub use model::*;
 pub use execution::*;
 pub use npu::*;
-
-// ECS integration re-exports
-pub use litt_ecs::*;
