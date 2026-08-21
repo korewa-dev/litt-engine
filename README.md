@@ -167,6 +167,7 @@ println!("Using: {} on {}", backend.name(), backend.adapter_info());
 | **AMD AGS** | ✅ Implemented | GPU power management, fan control |
 | **NNAPI** | ✅ Implemented | Android NPU inference |
 | **MUSA** | ✅ Complete | Full compute pipeline, GPU detection, memory management |
+| **RDNA Tier** | ✅ Complete | Wave32, subgroup, BVH reuse, RT ray-query broadphase |
 | **DirectML** | 📋 Planned | NVIDIA Tensor Cores |
 
 ---
@@ -269,7 +270,8 @@ See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
 | 12 | GPU Path Tracer | ✅ Complete |
 | 13 | Binary Size Verification | ✅ Complete |
 | 14 | Polish | 🔄 In Progress |
-| 15 | Networking | 📋 Planned |
+| 15 | RDNA Tier | ✅ Complete |
+| 16 | Networking | 📋 Planned |
 
 ---
 

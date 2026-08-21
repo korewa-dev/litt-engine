@@ -361,6 +361,47 @@
 
 ---
 
+## Phase 15: RDNA Tier [✅ COMPLETE]
+
+### Compute Shaders (4 new GLSL shaders)
+- [x] `crates/physics/src/shaders/rdna_wave32_broadphase.comp` — wave32 parallel AABB overlap detection
+- [x] `crates/physics/src/shaders/rdna_subgroup_ballot.comp` — subgroup ballot collision detection
+- [x] `crates/physics/src/shaders/rdna_bvh_reuse.comp` — BVH reuse via AABB hash comparison
+- [x] `crates/physics/src/shaders/rdna_rt_rayquery.comp` — RT ray-query broadphase
+
+### Rust Integration
+- [x] `crates/physics/src/shaders.rs` — shader source constants + SPIR-V fallback
+- [x] `crates/physics/src/rdna_tier.rs` — `RDNAPhysicsTier` with full pipeline management
+- [x] `RDNAPhysicsTier::initialize()` — builds wave32, subgroup, BVH reuse, RT pipelines
+- [x] `RDNAPhysicsTier::dispatch_wave32()` — one-shot compute dispatch
+- [x] `RDNAPhysicsTier::dispatch_subgroup()` — subgroup ballot dispatch
+- [x] `RDNAPhysicsTier::dispatch_bvh_reuse()` — BVH reuse detection
+- [x] `RDNAPhysicsTier::dispatch_rt()` — RT ray-query dispatch
+- [x] `RDNAPhysicsTier::allocate_*_descriptor_set()` — descriptor allocation helpers
+- [x] `RDNAPhysicsTier::auto_select()` — automatic mode selection (Wave32/Subgroup/RT/BVH)
+- [x] `is_rdna_device()` — GPU vendor ID check (AMD 0x1002, Intel 0x8086)
+- [x] `compute_aabbs()` / `compute_aabb_max()` — CPU-side AABB computation
+
+### Build System
+- [x] `crates/physics/build.rs` — GLSL→SPIR-V compilation for 4 RDNA shaders
+- [x] `crates/physics/Cargo.toml` — `build = "build.rs"` registered
+
+### PhysicsSystem Integration
+- [x] `PhysicsSystem::rdna_tier: RDNAPhysicsTier` field added
+- [x] `PhysicsSystem::init_rdna_tier()` — detects RDNA GPU, initializes pipelines
+- [x] `PhysicsSystem::init_gpu()` — references RDNA tier in GPU init flow
+
+### Deliverables
+- [x] `crates/physics/src/shaders/` — 4 GLSL compute shaders
+- [x] `crates/physics/src/shaders.rs` — shader module
+- [x] `crates/physics/src/rdna_tier.rs` — 300+ lines RDNA tier
+- [x] `crates/physics/src/system.rs` — RDNA integration
+- [x] `crates/physics/build.rs` — GLSL build step
+- [x] `docs/ROADMAP.md` — Phase 15 checklist
+- [x] Workspace: 19 crates, 0 Rust compilation errors
+
+---
+
 ## Phase 13: Path Tracer Bug Fixes + Layout Transitions [✅ COMPLETE]
 
 ### Critical Bug Fix: Null ImageViews
@@ -390,6 +431,47 @@
 - [x] `crates/ui/src/hud.rs` — path trace debug overlay
 - [x] `src/app.rs` — camera state + path pipeline field
 - [x] `crates/fidelityfx/Cargo.toml` — fixed build script registration
+- [x] Workspace: 19 crates, 0 Rust compilation errors
+
+---
+
+## Phase 15: RDNA Tier [✅ COMPLETE]
+
+### Compute Shaders (4 new GLSL shaders)
+- [x] `crates/physics/src/shaders/rdna_wave32_broadphase.comp` — wave32 parallel AABB overlap detection
+- [x] `crates/physics/src/shaders/rdna_subgroup_ballot.comp` — subgroup ballot collision detection
+- [x] `crates/physics/src/shaders/rdna_bvh_reuse.comp` — BVH reuse via AABB hash comparison
+- [x] `crates/physics/src/shaders/rdna_rt_rayquery.comp` — RT ray-query broadphase
+
+### Rust Integration
+- [x] `crates/physics/src/shaders.rs` — shader source constants + SPIR-V fallback
+- [x] `crates/physics/src/rdna_tier.rs` — `RDNAPhysicsTier` with full pipeline management
+- [x] `RDNAPhysicsTier::initialize()` — builds wave32, subgroup, BVH reuse, RT pipelines
+- [x] `RDNAPhysicsTier::dispatch_wave32()` — one-shot compute dispatch
+- [x] `RDNAPhysicsTier::dispatch_subgroup()` — subgroup ballot dispatch
+- [x] `RDNAPhysicsTier::dispatch_bvh_reuse()` — BVH reuse detection
+- [x] `RDNAPhysicsTier::dispatch_rt()` — RT ray-query dispatch
+- [x] `RDNAPhysicsTier::allocate_*_descriptor_set()` — descriptor allocation helpers
+- [x] `RDNAPhysicsTier::auto_select()` — automatic mode selection (Wave32/Subgroup/RT/BVH)
+- [x] `is_rdna_device()` — GPU vendor ID check (AMD 0x1002, Intel 0x8086)
+- [x] `compute_aabbs()` / `compute_aabb_max()` — CPU-side AABB computation
+
+### Build System
+- [x] `crates/physics/build.rs` — GLSL→SPIR-V compilation for 4 RDNA shaders
+- [x] `crates/physics/Cargo.toml` — `build = "build.rs"` registered
+
+### PhysicsSystem Integration
+- [x] `PhysicsSystem::rdna_tier: RDNAPhysicsTier` field added
+- [x] `PhysicsSystem::init_rdna_tier()` — detects RDNA GPU, initializes pipelines
+- [x] `PhysicsSystem::init_gpu()` — references RDNA tier in GPU init flow
+
+### Deliverables
+- [x] `crates/physics/src/shaders/` — 4 GLSL compute shaders
+- [x] `crates/physics/src/shaders.rs` — shader module
+- [x] `crates/physics/src/rdna_tier.rs` — 300+ lines RDNA tier
+- [x] `crates/physics/src/system.rs` — RDNA integration
+- [x] `crates/physics/build.rs` — GLSL build step
+- [x] `docs/ROADMAP.md` — Phase 15 checklist
 - [x] Workspace: 19 crates, 0 Rust compilation errors
 
 ---
@@ -431,6 +513,47 @@
 - [x] `crates/platform/build.rs` — GLSL→SPIR-V build step
 - [x] `crates/platform/Cargo.toml` — `build = "build.rs"` registered
 - [x] `README.md` — MUSA status updated to ✅ Complete
+- [x] Workspace: 19 crates, 0 Rust compilation errors
+
+---
+
+## Phase 15: RDNA Tier [✅ COMPLETE]
+
+### Compute Shaders (4 new GLSL shaders)
+- [x] `crates/physics/src/shaders/rdna_wave32_broadphase.comp` — wave32 parallel AABB overlap detection
+- [x] `crates/physics/src/shaders/rdna_subgroup_ballot.comp` — subgroup ballot collision detection
+- [x] `crates/physics/src/shaders/rdna_bvh_reuse.comp` — BVH reuse via AABB hash comparison
+- [x] `crates/physics/src/shaders/rdna_rt_rayquery.comp` — RT ray-query broadphase
+
+### Rust Integration
+- [x] `crates/physics/src/shaders.rs` — shader source constants + SPIR-V fallback
+- [x] `crates/physics/src/rdna_tier.rs` — `RDNAPhysicsTier` with full pipeline management
+- [x] `RDNAPhysicsTier::initialize()` — builds wave32, subgroup, BVH reuse, RT pipelines
+- [x] `RDNAPhysicsTier::dispatch_wave32()` — one-shot compute dispatch
+- [x] `RDNAPhysicsTier::dispatch_subgroup()` — subgroup ballot dispatch
+- [x] `RDNAPhysicsTier::dispatch_bvh_reuse()` — BVH reuse detection
+- [x] `RDNAPhysicsTier::dispatch_rt()` — RT ray-query dispatch
+- [x] `RDNAPhysicsTier::allocate_*_descriptor_set()` — descriptor allocation helpers
+- [x] `RDNAPhysicsTier::auto_select()` — automatic mode selection (Wave32/Subgroup/RT/BVH)
+- [x] `is_rdna_device()` — GPU vendor ID check (AMD 0x1002, Intel 0x8086)
+- [x] `compute_aabbs()` / `compute_aabb_max()` — CPU-side AABB computation
+
+### Build System
+- [x] `crates/physics/build.rs` — GLSL→SPIR-V compilation for 4 RDNA shaders
+- [x] `crates/physics/Cargo.toml` — `build = "build.rs"` registered
+
+### PhysicsSystem Integration
+- [x] `PhysicsSystem::rdna_tier: RDNAPhysicsTier` field added
+- [x] `PhysicsSystem::init_rdna_tier()` — detects RDNA GPU, initializes pipelines
+- [x] `PhysicsSystem::init_gpu()` — references RDNA tier in GPU init flow
+
+### Deliverables
+- [x] `crates/physics/src/shaders/` — 4 GLSL compute shaders
+- [x] `crates/physics/src/shaders.rs` — shader module
+- [x] `crates/physics/src/rdna_tier.rs` — 300+ lines RDNA tier
+- [x] `crates/physics/src/system.rs` — RDNA integration
+- [x] `crates/physics/build.rs` — GLSL build step
+- [x] `docs/ROADMAP.md` — Phase 15 checklist
 - [x] Workspace: 19 crates, 0 Rust compilation errors
 
 ---
