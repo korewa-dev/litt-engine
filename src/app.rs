@@ -15,6 +15,7 @@ use litt_ui::*;
 use litt_profiler::*;
 use litt_scene::*;
 use litt_config::*;
+use litt_pathtracer::{CameraControls, default_scene, default_camera};
 use litt_platform::Window;
 use litt_math::*;
 
@@ -35,6 +36,8 @@ pub struct App {
     pub should_quit: bool,
     pub fps_counter: f32,
     pub frame_time_ms: f32,
+    /// FPS-style camera controls (WASD + mouse look)
+    pub camera_controls: CameraControls,
 }
 
 impl App {
@@ -125,6 +128,7 @@ impl App {
             should_quit: false,
             fps_counter: 0.0,
             frame_time_ms: 0.0,
+            camera_controls: CameraControls::new(),
         })
     }
 
@@ -187,8 +191,14 @@ impl App {
 
     /// Poll input events
     fn poll_input(&mut self) {
-        // Platform-specific input polling would go here
-        // This is a stub — full implementation uses platform crate
+        // WASD movement + mouse look
+        self.camera_controls.process_keyboard(
+            &self.input.state.keyboard,
+            1.0 / 60.0,
+        );
+        // Mouse delta from locked cursor (handled by platform crate)
+        let (dx, dy) = self.input.state.mouse.delta.into();
+        self.camera_controls.process_mouse(dx, dy);
     }
 
     /// Update all systems
@@ -226,8 +236,14 @@ impl App {
 
     /// Render a frame
     fn render(&mut self) {
-        // Render would be implemented here with the Vulkan/DX12 pipeline
-        // For now, just present the window
+        // Get the path tracer camera from camera controls
+        let (w, h) = self.window.size();
+        let aspect = w as f32 / h.max(1) as f32;
+        let camera = self.camera_controls.to_camera(90.0, aspect);
+        let scene = default_scene();
+
+        // Render through the Vulkan pipeline (if available)
+        // The actual render call is in the graphics module
         self.window.swap_buffers();
     }
 

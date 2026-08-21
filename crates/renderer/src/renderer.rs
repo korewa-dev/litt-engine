@@ -4,6 +4,7 @@ use ash::{vk, Device};
 use litt_vulkan::*;
 use litt_math::*;
 use super::*;
+use crate::fidelityfx::DisplayPipeline;
 
 /// The main renderer with complete pipeline integration
 pub struct Renderer {
@@ -150,41 +151,183 @@ impl Renderer {
             pipeline.update(camera, scene, self.swapchain.extents[0], self.swapchain.extents[1]);
         }
 
-        // ── Path Trace (compute) ──────────────────────────────────────────
-        // The path tracer dispatches rays and writes to the accumulation buffer.
-        // For now we record a placeholder compute dispatch — the actual
-        // ray-tracing dispatch uses the TLAS built in RenderPipeline::new().
+        // ── GPU Path Trace (compute) ──────────────────────────────────────
         if let Some(ref pipeline) = self.render_pipeline {
-            let input_view = pipeline.path_tracer_buffers.accumulation_buffer.view;
-            if pipeline.fsr_enabled && pipeline.fsr_pipeline.is_initialized {
-                // Run FSR 3 upscaler: path-traced result → upscaled output
-                let fsr_consts = Fsr3UpscalerConstants {
-                    input_width: pipeline.path_tracer_buffers.accumulation_buffer.extent[0],
-                    input_height: pipeline.path_tracer_buffers.accumulation_buffer.extent[1],
-                    output_width: pipeline.fsr_pipeline.output_width,
-                    output_height: pipeline.fsr_pipeline.output_height,
-                    ..Default::default()
-                };
-                pipeline.fsr_pipeline.run_upscaler(
-                    command_buffer,
-                    input_view,
-                    input_view, // history = input for first frame
-                    pipeline.path_tracer_buffers.velocity_buffer.view,
-                    self.swapchain.views[image_index as usize],
-                    &fsr_consts,
-                ).ok();
+            if pipeline.path_trace_enabled && pipeline.path_tracer.is_initialized {
+                let acc_view = pipeline.path_tracer_buffers.accumulation_buffer.view;
+                if acc_view != vk::ImageView::null() {
+                    // Allocate descriptor set for path tracer
+                    let desc_set = unsafe {
+                        pipeline.allocate_path_tracer_desc_set()?
+                    };
 
-                // Run CAS sharpening on the upscaled output
-                let cas_consts = CasConstants {
-                    sharpening: pipeline.cas_constants.sharpening,
-                    ..Default::default()
-                };
-                pipeline.cas_pipeline.run(
-                    command_buffer,
-                    self.swapchain.views[image_index as usize],
-                    self.swapchain.views[image_index as usize],
-                    &cas_consts,
-                ).ok();
+                    // Build push constants from tracer_constants
+                    let tc = &pipeline.tracer_constants;
+                    let pt_consts = PathTracePushConstants {
+                        resolution_x: pipeline.path_tracer.width,
+                        resolution_y: pipeline.path_tracer.height,
+                        max_bounces: tc.max_bounces,
+                        frame_count: pipeline.frame_count,
+                        camera_pos_x: tc.camera_pos_x,
+                        camera_pos_y: tc.camera_pos_y,
+                        camera_pos_z: tc.camera_pos_z,
+                        camera_yaw: tc.camera_yaw,
+                        camera_pitch: tc.camera_pitch,
+                        fov: tc.fov,
+                        aspect: tc.aspect,
+                        light_count: tc.light_count,
+                        ..Default::default()
+                    };
+
+                    // Bind scene buffers to descriptor set
+                    let writes = [
+                        vk::WriteDescriptorSet {
+                            dst_set: desc_set, dst_binding: 0, descriptor_count: 1,
+                            descriptor_type: vk::DescriptorType::STORAGE_BUFFER,
+                            p_buffer_info: &[vk::DescriptorBufferInfo {
+                                buffer: pipeline.path_tracer_buffers.scene_triangles.handle,
+                                offset: 0,
+                                range: pipeline.path_tracer_buffers.scene_triangles.size,
+                            }],
+                            ..Default::default()
+                        },
+                        vk::WriteDescriptorSet {
+                            dst_set: desc_set, dst_binding: 1, descriptor_count: 1,
+                            descriptor_type: vk::DescriptorType::STORAGE_BUFFER,
+                            p_buffer_info: &[vk::DescriptorBufferInfo {
+                                buffer: pipeline.path_tracer_buffers.scene_spheres.handle,
+                                offset: 0,
+                                range: pipeline.path_tracer_buffers.scene_spheres.size,
+                            }],
+                            ..Default::default()
+                        },
+                        vk::WriteDescriptorSet {
+                            dst_set: desc_set, dst_binding: 2, descriptor_count: 1,
+                            descriptor_type: vk::DescriptorType::STORAGE_BUFFER,
+                            p_buffer_info: &[vk::DescriptorBufferInfo {
+                                buffer: pipeline.path_tracer_buffers.scene_lights.handle,
+                                offset: 0,
+                                range: pipeline.path_tracer_buffers.scene_lights.size,
+                            }],
+                            ..Default::default()
+                        },
+                        vk::WriteDescriptorSet {
+                            dst_set: desc_set, dst_binding: 3, descriptor_count: 1,
+                            descriptor_type: vk::DescriptorType::STORAGE_BUFFER,
+                            p_buffer_info: &[vk::DescriptorBufferInfo {
+                                buffer: pipeline.path_tracer_buffers.scene_materials.handle,
+                                offset: 0,
+                                range: pipeline.path_tracer_buffers.scene_materials.size,
+                            }],
+                            ..Default::default()
+                        },
+                        vk::WriteDescriptorSet {
+                            dst_set: desc_set, dst_binding: 4, descriptor_count: 1,
+                            descriptor_type: vk::DescriptorType::STORAGE_IMAGE,
+                            p_image_info: &[vk::DescriptorImageInfo {
+                                sampler: vk::Sampler::null(),
+                                image_view: acc_view,
+                                image_layout: vk::ImageLayout::GENERAL,
+                            }],
+                            ..Default::default()
+                        },
+                    ];
+                    unsafe { self.device.device.update_descriptor_sets(&writes, &[]); }
+
+                    // Dispatch path trace
+                    pipeline.path_tracer.dispatch(
+                        command_buffer,
+                        desc_set,
+                        &pt_consts,
+                    )?;
+                }
+            }
+        }
+
+        // ── FSR 3.1.5 Upscale + CAS Sharpen ─────────────────────────────
+        if let Some(ref pipeline) = self.render_pipeline {
+            if pipeline.fsr_enabled && pipeline.fsr_pipeline.is_initialized {
+                let acc_view = pipeline.path_tracer_buffers.accumulation_buffer.view;
+                let swap_view = self.swapchain.views[image_index as usize];
+
+                if acc_view != vk::ImageView::null() {
+                    // FSR upscaler: low-res path trace → high-res swapchain
+                    let fsr_consts = Fsr3UpscalerConstants {
+                        input_width: pipeline.path_tracer_buffers.accumulation_buffer.extent[0],
+                        input_height: pipeline.path_tracer_buffers.accumulation_buffer.extent[1],
+                        output_width: pipeline.fsr_pipeline.output_width,
+                        output_height: pipeline.fsr_pipeline.output_height,
+                        ..Default::default()
+                    };
+                    pipeline.fsr_pipeline.run_upscaler(
+                        command_buffer,
+                        acc_view,
+                        acc_view, // history = input for first frame
+                        pipeline.path_tracer_buffers.velocity_buffer.view,
+                        swap_view,
+                        &fsr_consts,
+                    ).ok();
+
+                    // CAS sharpening
+                    let cas_consts = CasConstants {
+                        sharpening: pipeline.cas_constants.sharpening,
+                        ..Default::default()
+                    };
+                    pipeline.cas_pipeline.run(
+                        command_buffer,
+                        swap_view,
+                        swap_view,
+                        &cas_consts,
+                    ).ok();
+                }
+            }
+        }
+
+        // ── Display / Tone-Map Pass ───────────────────────────────────────
+        if let Some(ref pipeline) = self.render_pipeline {
+            if pipeline.display_pipeline.is_initialized {
+                let acc_view = pipeline.path_tracer_buffers.accumulation_buffer.view;
+                let swap_view = self.swapchain.views[image_index as usize];
+                if acc_view != vk::ImageView::null() && swap_view != vk::ImageView::null() {
+                    let desc_set = unsafe {
+                        pipeline.display_pipeline.allocate_descriptor_set()?
+                    };
+                    let dp_consts = DisplayPushConstants {
+                        resolution_x: pipeline.display_pipeline.width,
+                        resolution_y: pipeline.display_pipeline.height,
+                        ..Default::default()
+                    };
+
+                    let writes = [
+                        vk::WriteDescriptorSet {
+                            dst_set: desc_set, dst_binding: 0, descriptor_count: 1,
+                            descriptor_type: vk::DescriptorType::STORAGE_IMAGE,
+                            p_image_info: &[vk::DescriptorImageInfo {
+                                sampler: vk::Sampler::null(),
+                                image_view: acc_view,
+                                image_layout: vk::ImageLayout::GENERAL,
+                            }],
+                            ..Default::default()
+                        },
+                        vk::WriteDescriptorSet {
+                            dst_set: desc_set, dst_binding: 1, descriptor_count: 1,
+                            descriptor_type: vk::DescriptorType::STORAGE_IMAGE,
+                            p_image_info: &[vk::DescriptorImageInfo {
+                                sampler: vk::Sampler::null(),
+                                image_view: swap_view,
+                                image_layout: vk::ImageLayout::GENERAL,
+                            }],
+                            ..Default::default()
+                        },
+                    ];
+                    unsafe { self.device.device.update_descriptor_sets(&writes, &[]); }
+
+                    pipeline.display_pipeline.dispatch(
+                        command_buffer,
+                        desc_set,
+                        &dp_consts,
+                    )?;
+                }
             }
         }
 

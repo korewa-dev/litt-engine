@@ -321,3 +321,42 @@
 - [x] Workspace: 18 crates, 0 Rust compilation errors
 
 ---
+
+## Phase 12: GPU Path Tracer [✅ COMPLETE]
+
+### Compute Shader Pipeline
+- [x] `crates/fidelityfx/src/shaders/path_trace.comp` — GPU path tracer: triangle+sphere intersection, Lambertian BRDF, direct light sampling, Russian roulette, accumulator
+- [x] `crates/fidelityfx/src/shaders/display.comp` — tone-map + gamma: HDR accumulation → swapchain (Reinhard + 2.2 gamma)
+- [x] `PathTracerPipeline` — real Vulkan compute pipeline with 5 descriptor bindings (4 storage buffers + 1 storage image), push constants, cmd_dispatch
+- [x] `DisplayPipeline` — real Vulkan compute pipeline with 2 descriptor bindings (accumulation image → swapchain image), push constants
+- [x] `allocate_path_tracer_descriptor_set()` / `DisplayPipeline::allocate_descriptor_set()`
+- [x] `build.rs` — path_trace.comp and display.comp registered for SPIR-V compilation
+- [x] `shaders/mod.rs` — `PATH_TRACE_GLSL`, `DISPLAY_GLSL` constants + test
+
+### Renderer Integration
+- [x] `RenderPipeline` initialized with `path_tracer`, `display_pipeline`, `path_trace_enabled`
+- [x] `Renderer::render_frame()` dispatches: path trace compute → FSR upscaler → CAS sharpen → display/tone-map → present
+- [x] Descriptor sets bound: scene_triangles, scene_spheres, scene_lights, scene_materials, accumulation image
+- [x] Push constants uploaded per-frame (resolution, max_bounces, camera params, light_count)
+- [x] Workgroup dispatch: (width+7)/8 × (height+7)/8 × 1
+
+### Camera Controls
+- [x] `crates/pathtracer/src/camera_controls.rs` — WASD + mouse-look FPS controller
+- [x] `CameraControls::process_keyboard()` — W/S forward/back, A/D strafe, Space/Shift up/down
+- [x] `CameraControls::process_mouse()` — yaw/pitch from delta, clamped pitch
+- [x] `CameraControls::to_camera()` → `Camera` struct for path tracer
+- [x] `App` holds `CameraControls`, calls `process_keyboard` + `process_mouse` each frame
+- [x] `default_scene()` / `default_camera()` convenience functions
+
+### Deliverables
+- [x] `crates/fidelityfx/src/shaders/path_trace.comp` — 260-line GLSL compute shader
+- [x] `crates/fidelityfx/src/shaders/display.comp` — 35-line GLSL compute shader
+- [x] `crates/fidelityfx/src/fsr.rs` — +120 lines: PathTracerPipeline + DisplayPipeline
+- [x] `crates/renderer/src/renderer.rs` — path trace dispatch + display pass in render loop
+- [x] `crates/renderer/src/lib.rs` — RenderPipeline with path tracer + display pipeline
+- [x] `crates/pathtracer/src/camera_controls.rs` — camera control system
+- [x] `crates/pathtracer/src/lib.rs` — default_scene() + default_camera()
+- [x] `src/app.rs` — camera controls integration
+- [x] Workspace: 19 crates, 0 Rust compilation errors
+
+---

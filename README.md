@@ -629,7 +629,7 @@ cas_pipeline.run(
 )?;
 ```
 
-**Shader Pipeline (6 GLSL compute shaders, auto-compiled to SPIR-V):**
+**Shader Pipeline (8 GLSL compute shaders, auto-compiled to SPIR-V):**
 
 | Shader | Purpose | Kernel |
 |--------|---------|--------|
@@ -639,6 +639,8 @@ cas_pipeline.run(
 | `fsr3_framegen.comp` | Optical flow frame interpolation | 8×8 threads |
 | `cas.comp` | Contrast Adaptive Sharpening | 8×8 threads, 5-tap Laplacian |
 | `ray_recon.comp` | CNN-style denoiser for path tracer | 8×8 threads, 3×3 average |
+| `path_trace.comp` | Full GPU path tracer — triangle+sphere intersect, Lambertian BRDF, direct light, Russian roulette | 8×8 threads |
+| `display.comp` | Tone-map + gamma: HDR accumulation → swapchain (Reinhard + 2.2) | 8×8 threads |
 
 **Key implementation details:**
 - Descriptor sets allocated per-pass with `vk::DescriptorSetAllocateInfo`
@@ -646,6 +648,42 @@ cas_pipeline.run(
 - Workgroup dispatch: `(width+7)/8 × (height+7)/8 × 1`
 - Fallback pass-through shader when glslang is unavailable
 - Real SPIR-V when `glslangValidator` is on PATH or `GLSLANG_PATH` is set
+
+### GPU Path Tracer (Phase 12)
+
+The `litt-pathtracer` crate now has a **real GPU compute shader** path tracer.
+
+```rust
+use litt_pathtracer::{CameraControls, default_scene, default_camera};
+use litt_input::Key;
+
+let mut controls = CameraControls::new();
+// Each frame:
+controls.process_keyboard(&keyboard_state, dt);   // WASD + Space/Shift
+controls.process_mouse(dx, dy);                    // mouse look (locked cursor)
+let camera = controls.to_camera(90.0, aspect);
+```
+
+**Path Trace Shader Pipeline (8 compute shaders):**
+```
+path_trace.comp (640×360) → FSR 3.1.5 upscaler (1280×720)
+  → CAS sharpen → display.comp (tone-map + gamma) → swapchain present
+```
+
+**Shader: `path_trace.comp`**
+- Triangle intersection (Möller-Trumbore)
+- Sphere intersection (quadratic formula)
+- Lambertian BRDF with hemisphere sampling
+- Direct light sampling with shadow ray
+- Russian roulette termination
+- Temporal accumulation (average over N frames)
+- PCG RNG per-pixel seed
+
+**Shader: `display.comp`**
+- Read R32G32B32A32_SFLOAT accumulation buffer
+- Reinhard tone mapping: `rgb / (1 + rgb)`
+- Gamma correction: `pow(mapped, 1/2.2)`
+- Write to swapchain image (B8G8R8A8_UNORM)
 
 ### Profiler Deep Dive (Phase 10)
 
@@ -721,7 +759,8 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 | 9 | Engine Modules | ✅ Complete |
 | 10 | Debug & Profiling | ✅ Complete |
 | 11 | FSR 3.1.5 Real Pipeline | ✅ Complete |
-| 12 | Networking | ⚠️ Planned |
+| 12 | GPU Path Tracer | ✅ Complete |
+| 13 | Networking | ⚠️ Planned |
 | 13 | Binary Size Verification | ✅ Complete |
 | 14 | Polish | ⚠️ In Progress |
 | 15 | Planned Features | ⚠️ Backlog |

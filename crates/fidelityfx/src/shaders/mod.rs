@@ -29,6 +29,12 @@ pub const CAS_GLSL: &str = include_str!("cas.comp");
 /// Ray Reconstruction denoiser — CNN-based path tracer denoising
 pub const RAY_RECON_GLSL: &str = include_str!("ray_recon.comp");
 
+/// GPU path tracer — full raster+trace compute shader with BRDF
+pub const PATH_TRACE_GLSL: &str = include_str!("path_trace.comp");
+
+/// Display/copy shader — tone maps accumulation buffer to swapchain image
+pub const DISPLAY_GLSL: &str = include_str!("display.comp");
+
 /// Compiled SPIR-V bytecode (populated by build.rs)
 /// When glslang is available, these are replaced with real SPIR-V bytes.
 #[allow(unused)]
@@ -43,6 +49,10 @@ pub const FSR3_FRAMEGEN_SPIR_V: &[u32] = &[];
 pub const CAS_SPIR_V: &[u32] = &[];
 #[allow(unused)]
 pub const RAY_RECON_SPIR_V: &[u32] = &[];
+#[allow(unused)]
+pub const PATH_TRACE_SPIR_V: &[u32] = &[];
+#[allow(unused)]
+pub const DISPLAY_SPIR_V: &[u32] = &[];
 
 /// Returns true when real SPIR-V is available (glslang found at build time)
 pub fn spirv_available() -> bool {
@@ -56,5 +66,6 @@ mod tests {
         assert!(!super::FSR3_UPSCALER_GLSL.is_empty());
         assert!(!super::CAS_GLSL.is_empty());
         assert!(!super::RAY_RECON_GLSL.is_empty());
+        assert!(!super::PATH_TRACE_GLSL.is_empty());
     }
 }

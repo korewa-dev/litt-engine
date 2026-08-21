@@ -13,7 +13,7 @@ pub use descriptor::*;
 
 use ash::{vk, Device};
 use crate::vulkan::{VmaAllocator, AccelerationStructures};
-use crate::fidelityfx::{Fsr3Pipeline, CasPipeline, Fsr3UpscalerConstants, CasConstants};
+use crate::fidelityfx::{Fsr3Pipeline, CasPipeline, PathTracerPipeline, PathTracePushConstants, CasConstants, allocate_path_tracer_descriptor_set, DisplayPipeline};
 use crate::pathtracer::{PathTracerBuffers, PathTracerConstants, Scene, Camera};
 use litt_math::*;
 
@@ -34,6 +34,12 @@ pub struct RenderPipeline {
     pub tracer_constants: PathTracerConstants,
     /// Frame count
     pub frame_count: u32,
+    /// Whether path tracing is enabled
+    pub path_trace_enabled: bool,
+    /// Path tracer compute pipeline
+    pub path_tracer: PathTracerPipeline,
+    /// Display / tone-map compute pipeline
+    pub display_pipeline: DisplayPipeline,
     /// Whether FSR is enabled
     pub fsr_enabled: bool,
     /// Is initialized
@@ -85,6 +91,19 @@ impl RenderPipeline {
         let cas_constants = CasConstants::default();
         let tracer_constants = PathTracerConstants::new(width, height, camera, scene);
 
+        // Initialize GPU path tracer
+        let path_trace_enabled = true;
+        let mut path_tracer = PathTracerPipeline::new();
+        unsafe {
+            path_tracer.initialize(device, fsr_input_w, fsr_input_h)?;
+        }
+
+        // Initialize display/tone-map pipeline
+        let mut display_pipeline = DisplayPipeline::new();
+        unsafe {
+            display_pipeline.initialize(device, fsr_input_w, fsr_input_h, width, height)?;
+        }
+
         Ok(Self {
             path_tracer_buffers,
             acceleration_structures,
@@ -93,6 +112,9 @@ impl RenderPipeline {
             cas_constants,
             tracer_constants,
             frame_count: 0,
+            path_trace_enabled,
+            path_tracer,
+            display_pipeline,
             fsr_enabled,
             is_initialized: true,
         })
@@ -102,6 +124,11 @@ impl RenderPipeline {
     pub fn update(&mut self, camera: &Camera, scene: &Scene, width: u32, height: u32) {
         self.tracer_constants = PathTracerConstants::new(width, height, camera, scene);
         self.frame_count += 1;
+    }
+
+    /// Allocate the path tracer descriptor set for the current frame
+    pub unsafe fn allocate_path_tracer_desc_set(&self) -> Result<vk::DescriptorSet, String> {
+        allocate_path_tracer_descriptor_set(&self.path_tracer)
     }
 
     /// Reset temporal state

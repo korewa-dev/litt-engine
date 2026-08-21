@@ -20,6 +20,8 @@ pub use crate::shaders::{
     FSR3_FRAMEGEN_GLSL as FSR3_FRAMEGEN_SPIR_V,
     CAS_GLSL as CAS_SPIR_V,
     RAY_RECON_GLSL as RAY_RECON_SPIR_V,
+    PATH_TRACE_GLSL,
+    DISPLAY_GLSL,
     spirv_available,
 };
 
@@ -1380,4 +1382,414 @@ pub fn create_fsrs_pipeline(
     }
 
     Ok((fsr, cas))
+}
+
+// =============================================================================
+// GPU Path Tracer Pipeline (Phase 12)
+// =============================================================================
+
+/// Path tracer push constants — matches the GLSL PushConstants struct
+#[derive(Clone, Copy, Debug, Pod, Zeroable)]
+#[repr(C, packed)]
+pub struct PathTracePushConstants {
+    pub resolution_x: u32,
+    pub resolution_y: u32,
+    pub max_bounces: u32,
+    pub frame_count: u32,
+    pub camera_pos_x: f32,
+    pub camera_pos_y: f32,
+    pub camera_pos_z: f32,
+    pub camera_yaw: f32,
+    pub camera_pitch: f32,
+    pub fov: f32,
+    pub aspect: f32,
+    pub light_count: u32,
+    pub _pad: [u32; 3],
+}
+
+impl Default for PathTracePushConstants {
+    fn default() -> Self {
+        Self {
+            resolution_x: 640,
+            resolution_y: 360,
+            max_bounces: 4,
+            frame_count: 0,
+            camera_pos_x: 0.0,
+            camera_pos_y: 2.0,
+            camera_pos_z: 5.0,
+            camera_yaw: 0.0,
+            camera_pitch: 0.0,
+            fov: 90.0,
+            aspect: 640.0 / 360.0,
+            light_count: 0,
+            _pad: [0; 3],
+        }
+    }
+}
+
+/// GPU path tracing pipeline — full compute shader with triangle + sphere tracing
+#[derive(Debug)]
+pub struct PathTracerPipeline {
+    pub device: ash::Device,
+    pub pipeline: Option<vk::Pipeline>,
+    pub layout: Option<vk::PipelineLayout>,
+    pub desc_layout: Option<vk::DescriptorSetLayout>,
+    pub descriptor_pool: Option<vk::DescriptorPool>,
+    pub width: u32,
+    pub height: u32,
+    pub is_initialized: bool,
+}
+
+impl PathTracerPipeline {
+    pub fn new() -> Self {
+        Self {
+            device: ash::Device::null(),
+            pipeline: None,
+            layout: None,
+            desc_layout: None,
+            descriptor_pool: None,
+            width: 0,
+            height: 0,
+            is_initialized: false,
+        }
+    }
+
+    /// Initialize the path tracer with a GPU buffer layout.
+    ///
+    /// Descriptor bindings:
+    ///   0 = scene_triangles (storage buffer)
+    ///   1 = scene_spheres    (storage buffer)
+    ///   2 = scene_lights     (storage buffer)
+    ///   3 = scene_materials  (storage buffer)
+    ///   4 = accumulation     (storage image)
+    pub unsafe fn initialize(
+        &mut self,
+        device: &Device,
+        width: u32,
+        height: u32,
+    ) -> Result<(), String> {
+        self.device = device.clone();
+        self.width = width.max(1);
+        self.height = height.max(1);
+
+        // Descriptor layout: 5 bindings (4 storage buffers + 1 storage image)
+        let bindings = [
+            vk::DescriptorSetLayoutBinding {
+                binding: 0, descriptor_count: 1,
+                descriptor_type: vk::DescriptorType::STORAGE_BUFFER,
+                stage_flags: vk::ShaderStageFlags::COMPUTE, ..Default::default()
+            },
+            vk::DescriptorSetLayoutBinding {
+                binding: 1, descriptor_count: 1,
+                descriptor_type: vk::DescriptorType::STORAGE_BUFFER,
+                stage_flags: vk::ShaderStageFlags::COMPUTE, ..Default::default()
+            },
+            vk::DescriptorSetLayoutBinding {
+                binding: 2, descriptor_count: 1,
+                descriptor_type: vk::DescriptorType::STORAGE_BUFFER,
+                stage_flags: vk::ShaderStageFlags::COMPUTE, ..Default::default()
+            },
+            vk::DescriptorSetLayoutBinding {
+                binding: 3, descriptor_count: 1,
+                descriptor_type: vk::DescriptorType::STORAGE_BUFFER,
+                stage_flags: vk::ShaderStageFlags::COMPUTE, ..Default::default()
+            },
+            vk::DescriptorSetLayoutBinding {
+                binding: 4, descriptor_count: 1,
+                descriptor_type: vk::DescriptorType::STORAGE_IMAGE,
+                stage_flags: vk::ShaderStageFlags::COMPUTE, ..Default::default()
+            },
+        ];
+        let info = vk::DescriptorSetLayoutCreateInfo::builder().bindings(&bindings).build();
+        let desc_layout = device.create_descriptor_set_layout(&info, None)
+            .map_err(|e| format!("Path tracer descriptor layout: {:?}", e))?;
+        self.desc_layout = Some(desc_layout);
+
+        // Descriptor pool
+        let pool_sizes = vec![
+            vk::DescriptorPoolSize {
+                type_: vk::DescriptorType::STORAGE_BUFFER, descriptor_count: 32,
+            },
+            vk::DescriptorPoolSize {
+                type_: vk::DescriptorType::STORAGE_IMAGE, descriptor_count: 16,
+            },
+        ];
+        let pool_info = vk::DescriptorPoolCreateInfo::builder()
+            .max_sets(8).pool_sizes(&pool_sizes).build();
+        let pool = device.create_descriptor_pool(&pool_info, None)
+            .map_err(|e| format!("Path tracer descriptor pool: {:?}", e))?;
+        self.descriptor_pool = Some(pool);
+
+        // Compute pipeline from GLSL source
+        let (pipeline, layout) = build_compute_pipeline(
+            device, PATH_TRACE_GLSL, 64, desc_layout,
+        ).map_err(|e| format!("Path tracer pipeline: {}", e))?;
+        self.pipeline = Some(pipeline);
+        self.layout = Some(layout);
+
+        self.is_initialized = true;
+        Ok(())
+    }
+
+    /// Dispatch the path trace compute shader.
+    ///
+    /// Expects the following descriptors to be bound in order:
+    ///   0 — scene_triangles buffer
+    ///   1 — scene_spheres    buffer
+    ///   2 — scene_lights     buffer
+    ///   3 — scene_materials  buffer
+    ///   4 — accumulation     image (R32G32B32A32_SFLOAT)
+    pub fn dispatch(
+        &self,
+        command_buffer: vk::CommandBuffer,
+        desc_set: vk::DescriptorSet,
+        constants: &PathTracePushConstants,
+    ) -> Result<(), String> {
+        if !self.is_initialized || self.pipeline.is_none() {
+            return Ok(());
+        }
+        let pipeline = self.pipeline.unwrap();
+        let layout = self.layout.unwrap();
+
+        unsafe {
+            self.device.cmd_bind_pipeline(
+                command_buffer,
+                vk::PipelineBindPoint::COMPUTE,
+                pipeline,
+            );
+            self.device.cmd_bind_descriptor_sets(
+                command_buffer,
+                vk::PipelineBindPoint::COMPUTE,
+                layout,
+                0,
+                &[desc_set],
+            );
+            self.device.cmd_push_constants(
+                command_buffer,
+                layout,
+                vk::ShaderStageFlags::COMPUTE,
+                0,
+                bytemuck::cast_slice(&[
+                    constants.resolution_x,
+                    constants.resolution_y,
+                    constants.max_bounces,
+                    constants.frame_count,
+                    constants.camera_pos_x,
+                    constants.camera_pos_y,
+                    constants.camera_pos_z,
+                    constants.camera_yaw,
+                    constants.camera_pitch,
+                    constants.fov,
+                    constants.aspect,
+                    constants.light_count,
+                ]),
+            );
+            let groups_x = (self.width + 7) / 8;
+            let groups_y = (self.height + 7) / 8;
+            self.device.cmd_dispatch(command_buffer, groups_x, groups_y, 1);
+        }
+
+        Ok(())
+    }
+}
+
+impl Default for PathTracerPipeline {
+    fn default() -> Self { Self::new() }
+}
+
+/// Allocate descriptor sets for the path tracer from its pool
+pub unsafe fn allocate_path_tracer_descriptor_set(
+    pipeline: &PathTracerPipeline,
+) -> Result<vk::DescriptorSet, String> {
+    let pool = pipeline.descriptor_pool.ok_or("Path tracer pool not initialized")?;
+    let desc_layout = pipeline.desc_layout.ok_or("Path tracer desc layout not initialized")?;
+    let set_alloc = vk::DescriptorSetAllocateInfo::builder()
+        .descriptor_pool(pool)
+        .set_layouts(&[desc_layout])
+        .build();
+    pipeline.device
+        .allocate_descriptor_sets(&set_alloc)
+        .map_err(|e| format!("Path tracer descriptor alloc: {:?}", e))
+        .map(|v| v[0])
+}
+
+// =============================================================================
+// Display / Tone-Mapping Pipeline (Phase 12)
+// =============================================================================
+
+/// Push constants for the display/tone-map shader
+#[derive(Clone, Copy, Debug, Pod, Zeroable)]
+#[repr(C, packed)]
+pub struct DisplayPushConstants {
+    pub resolution_x: u32,
+    pub resolution_y: u32,
+    pub _pad: [u32; 2],
+}
+
+impl Default for DisplayPushConstants {
+    fn default() -> Self {
+        Self {
+            resolution_x: 0,
+            resolution_y: 0,
+            _pad: [0; 2],
+        }
+    }
+}
+
+/// Display pipeline — copies and tone-maps accumulation buffer to swapchain image
+#[derive(Debug)]
+pub struct DisplayPipeline {
+    pub device: ash::Device,
+    pub pipeline: Option<vk::Pipeline>,
+    pub layout: Option<vk::PipelineLayout>,
+    pub desc_layout: Option<vk::DescriptorSetLayout>,
+    pub descriptor_pool: Option<vk::DescriptorPool>,
+    pub width: u32,
+    pub height: u32,
+    pub output_width: u32,
+    pub output_height: u32,
+    pub is_initialized: bool,
+}
+
+impl DisplayPipeline {
+    pub fn new() -> Self {
+        Self {
+            device: ash::Device::null(),
+            pipeline: None,
+            layout: None,
+            desc_layout: None,
+            descriptor_pool: None,
+            width: 0,
+            height: 0,
+            output_width: 0,
+            output_height: 0,
+            is_initialized: false,
+        }
+    }
+
+    /// Initialize the display pipeline.
+    ///
+    /// `accum_width/height` — resolution of the accumulation (path-traced) image.
+    /// `output_width/height` — resolution of the swapchain image.
+    ///
+    /// Descriptor bindings:
+    ///   0 = accumulation (read-only image)
+    ///   1 = output (write-only image)
+    pub unsafe fn initialize(
+        &mut self,
+        device: &Device,
+        accum_width: u32,
+        accum_height: u32,
+        output_width: u32,
+        output_height: u32,
+    ) -> Result<(), String> {
+        self.device = device.clone();
+        self.width = accum_width.max(1);
+        self.height = accum_height.max(1);
+        self.output_width = output_width.max(1);
+        self.output_height = output_height.max(1);
+
+        let bindings = [
+            vk::DescriptorSetLayoutBinding {
+                binding: 0, descriptor_count: 1,
+                descriptor_type: vk::DescriptorType::STORAGE_IMAGE,
+                stage_flags: vk::ShaderStageFlags::COMPUTE, ..Default::default()
+            },
+            vk::DescriptorSetLayoutBinding {
+                binding: 1, descriptor_count: 1,
+                descriptor_type: vk::DescriptorType::STORAGE_IMAGE,
+                stage_flags: vk::ShaderStageFlags::COMPUTE, ..Default::default()
+            },
+        ];
+        let info = vk::DescriptorSetLayoutCreateInfo::builder().bindings(&bindings).build();
+        let desc_layout = device.create_descriptor_set_layout(&info, None)
+            .map_err(|e| format!("Display desc layout: {:?}", e))?;
+        self.desc_layout = Some(desc_layout);
+
+        let pool_sizes = vec![
+            vk::DescriptorPoolSize {
+                type_: vk::DescriptorType::STORAGE_IMAGE, descriptor_count: 16,
+            },
+        ];
+        let pool_info = vk::DescriptorPoolCreateInfo::builder()
+            .max_sets(4).pool_sizes(&pool_sizes).build();
+        let pool = device.create_descriptor_pool(&pool_info, None)
+            .map_err(|e| format!("Display desc pool: {:?}", e))?;
+        self.descriptor_pool = Some(pool);
+
+        let (pipeline, layout) = build_compute_pipeline(
+            device, DISPLAY_GLSL, 16, desc_layout,
+        ).map_err(|e| format!("Display pipeline: {}", e))?;
+        self.pipeline = Some(pipeline);
+        self.layout = Some(layout);
+
+        self.is_initialized = true;
+        Ok(())
+    }
+
+    /// Dispatch the display/tone-map shader.
+    ///
+    /// Expects descriptors in order:
+    ///   0 = accumulation image (read)
+    ///   1 = output swapchain image (write)
+    pub fn dispatch(
+        &self,
+        command_buffer: vk::CommandBuffer,
+        desc_set: vk::DescriptorSet,
+        constants: &DisplayPushConstants,
+    ) -> Result<(), String> {
+        if !self.is_initialized || self.pipeline.is_none() {
+            return Ok(());
+        }
+        let pipeline = self.pipeline.unwrap();
+        let layout = self.layout.unwrap();
+
+        unsafe {
+            self.device.cmd_bind_pipeline(
+                command_buffer,
+                vk::PipelineBindPoint::COMPUTE,
+                pipeline,
+            );
+            self.device.cmd_bind_descriptor_sets(
+                command_buffer,
+                vk::PipelineBindPoint::COMPUTE,
+                layout,
+                0,
+                &[desc_set],
+            );
+            self.device.cmd_push_constants(
+                command_buffer,
+                layout,
+                vk::ShaderStageFlags::COMPUTE,
+                0,
+                bytemuck::cast_slice(&[
+                    constants.resolution_x,
+                    constants.resolution_y,
+                ]),
+            );
+            let groups_x = (self.width + 7) / 8;
+            let groups_y = (self.height + 7) / 8;
+            self.device.cmd_dispatch(command_buffer, groups_x, groups_y, 1);
+        }
+
+        Ok(())
+    }
+
+    /// Allocate a descriptor set from the display pipeline's pool
+    pub unsafe fn allocate_descriptor_set(&self) -> Result<vk::DescriptorSet, String> {
+        let pool = self.descriptor_pool.ok_or("Display pool not initialized")?;
+        let desc_layout = self.desc_layout.ok_or("Display desc layout not initialized")?;
+        let set_alloc = vk::DescriptorSetAllocateInfo::builder()
+            .descriptor_pool(pool)
+            .set_layouts(&[desc_layout])
+            .build();
+        self.device
+            .allocate_descriptor_sets(&set_alloc)
+            .map_err(|e| format!("Display descriptor alloc: {:?}", e))
+            .map(|v| v[0])
+    }
+}
+
+impl Default for DisplayPipeline {
+    fn default() -> Self { Self::new() }
 }

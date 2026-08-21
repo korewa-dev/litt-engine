@@ -19,6 +19,8 @@ const SHADER_SOURCES: &[(&str, &str)] = &[
     ("fsr3_framegen.comp", "FSR3_FRAMEGEN_SPIR_V"),
     ("cas.comp", "CAS_SPIR_V"),
     ("ray_recon.comp", "RAY_RECON_SPIR_V"),
+    ("path_trace.comp",  "PATH_TRACE_SPIR_V"),
+    ("display.comp",     "DISPLAY_SPIR_V"),
 ];
 
 fn main() {
