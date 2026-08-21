@@ -721,10 +721,7 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 | 9 | Engine Modules | ✅ Complete |
 | 10 | Debug & Profiling | ✅ Complete |
 | 11 | FSR 3.1.5 Real Pipeline | ✅ Complete |
-| 9 | Engine Modules | ⚠️ Planned |
-| 10 | Networking | ⚠️ Planned |
-| 11 | Platform Support | ✅ Ongoing |
-| 12 | Debug & Profiling | ⚠️ Planned |
+| 12 | Networking | ⚠️ Planned |
 | 13 | Binary Size Verification | ✅ Complete |
 | 14 | Polish | ⚠️ In Progress |
 | 15 | Planned Features | ⚠️ Backlog |
