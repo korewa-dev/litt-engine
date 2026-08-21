@@ -393,3 +393,44 @@
 - [x] Workspace: 19 crates, 0 Rust compilation errors
 
 ---
+
+## Phase 14: MUSA (Moore Threads) Complete Compute Pipeline [✅ COMPLETE]
+
+### GPU Detection
+- [x] `MUSA_VENDOR_ID = 0x1DD` — Moore Threads vendor ID
+- [x] `is_musa_device()` — checks `physical_device_properties.vendor_id`
+- [x] `enumerate_musa_gpus()` — returns all MUSA GPUs in the system
+- [x] `musa_is_available()` — boolean availability check
+- [x] `musa_get_version()` — human-readable GPU + driver info string
+- [x] `MusaGpuInfo` — full GPU info: name, VRAM, compute units, capabilities, driver version
+- [x] MTT S2000 / S3000 / S4000 classification via device name
+
+### Compute Pipeline
+- [x] `MusaComputePipeline` — Vulkan compute pipeline with descriptor sets, push constants, cmd_dispatch
+- [x] `MusaContext::create_compute_pipeline()` — build pipeline from GLSL source
+- [x] Descriptor layout: N storage buffers + M storage images
+- [x] Descriptor pool: 128 buffers + 64 images (shared across pipelines)
+- [x] Push constants: up to 128 bytes per dispatch
+- [x] `musa_launch_compute()` — one-shot dispatch with auto-submit and queue wait
+
+### Memory Management
+- [x] `MusaContext::allocate_buffer()` — create storage buffer + descriptor buffer info
+- [x] `MusaContext::free_buffer()` — destroy buffer
+- [x] `MusaContext::allocate_descriptor_set()` — allocate from shared pool
+- [x] `MusaContext::destroy()` — full cleanup (wait idle → destroy all resources)
+
+### Compute Shaders
+- [x] `musa_dotprod.comp` — element-wise float multiplication (256-thread workgroups)
+- [x] `musa_vectoradd.comp` — element-wise float addition (256-thread workgroups)
+- [x] `build.rs` — compiles GLSL to SPIR-V when glslangValidator is available
+
+### Deliverables
+- [x] `crates/platform/src/musa.rs` — 400+ lines: full MUSA compute pipeline
+- [x] `crates/platform/src/shaders/musa_dotprod.comp` — GLSL compute shader
+- [x] `crates/platform/src/shaders/musa_vectoradd.comp` — GLSL compute shader
+- [x] `crates/platform/build.rs` — GLSL→SPIR-V build step
+- [x] `crates/platform/Cargo.toml` — `build = "build.rs"` registered
+- [x] `README.md` — MUSA status updated to ✅ Complete
+- [x] Workspace: 19 crates, 0 Rust compilation errors
+
+---
