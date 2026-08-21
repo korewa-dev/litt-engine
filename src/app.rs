@@ -38,6 +38,8 @@ pub struct App {
     pub frame_time_ms: f32,
     /// FPS-style camera controls (WASD + mouse look)
     pub camera_controls: CameraControls,
+    /// Optional renderer (present when GPU is available)
+    pub path_pipeline: Option<litt_renderer::RenderPipeline>,
 }
 
 impl App {
@@ -129,6 +131,7 @@ impl App {
             fps_counter: 0.0,
             frame_time_ms: 0.0,
             camera_controls: CameraControls::new(),
+            path_pipeline: None,
         })
     }
 
@@ -224,6 +227,9 @@ impl App {
 
         // Update HUD
         if self.config.settings.enable_debug_overlay {
+            let path_samples = if let Some(ref pipeline) = self.path_pipeline {
+                pipeline.frame_count
+            } else { 0 };
             self.hud.update_stats(
                 self.fps_counter,
                 self.frame_time_ms,
@@ -231,19 +237,23 @@ impl App {
                 0, // triangles
                 0.0, // npu latency
             );
+            self.hud.path_trace_samples = path_samples;
+            self.hud.path_trace_active = self.path_pipeline.is_some();
         }
     }
 
     /// Render a frame
     fn render(&mut self) {
-        // Get the path tracer camera from camera controls
         let (w, h) = self.window.size();
         let aspect = w as f32 / h.max(1) as f32;
         let camera = self.camera_controls.to_camera(90.0, aspect);
         let scene = default_scene();
 
-        // Render through the Vulkan pipeline (if available)
-        // The actual render call is in the graphics module
+        // Render through the Vulkan pipeline if available
+        if let Some(ref mut pipeline) = self.path_pipeline {
+            // Update pipeline with current camera and scene
+            pipeline.update(&camera, &scene, w, h);
+        }
         self.window.swap_buffers();
     }
 

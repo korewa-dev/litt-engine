@@ -151,6 +151,25 @@ impl Renderer {
             pipeline.update(camera, scene, self.swapchain.extents[0], self.swapchain.extents[1]);
         }
 
+        // ── Image Layout Transitions ──────────────────────────────────────
+        // Transition accumulation buffer to GENERAL (storage image write)
+        if let Some(ref pipeline) = self.render_pipeline {
+            let acc_image = pipeline.path_tracer_buffers.accumulation_buffer.handle;
+            if acc_image != vk::Image::null() {
+                self.command_pool.transition_image_layout(
+                    command_buffer, &self.device.device,
+                    acc_image,
+                    vk::ImageAspectFlags::COLOR,
+                    vk::ImageLayout::UNDEFINED,
+                    vk::ImageLayout::GENERAL,
+                    vk::PipelineStageFlags::TOP_OF_PIPE,
+                    vk::PipelineStageFlags::COMPUTE_SHADER,
+                    vk::AccessFlags::empty(),
+                    vk::AccessFlags::SHADER_WRITE,
+                )?;
+            }
+        }
+
         // ── GPU Path Trace (compute) ──────────────────────────────────────
         if let Some(ref pipeline) = self.render_pipeline {
             if pipeline.path_trace_enabled && pipeline.path_tracer.is_initialized {
@@ -289,6 +308,34 @@ impl Renderer {
                 let acc_view = pipeline.path_tracer_buffers.accumulation_buffer.view;
                 let swap_view = self.swapchain.views[image_index as usize];
                 if acc_view != vk::ImageView::null() && swap_view != vk::ImageView::null() {
+                    // Transition accumulation to GENERAL for read
+                    let acc_image = pipeline.path_tracer_buffers.accumulation_buffer.handle;
+                    if acc_image != vk::Image::null() {
+                        self.command_pool.transition_image_layout(
+                            command_buffer, &self.device.device,
+                            acc_image,
+                            vk::ImageAspectFlags::COLOR,
+                            vk::ImageLayout::GENERAL,  // already GENERAL from path trace
+                            vk::ImageLayout::GENERAL,
+                            vk::PipelineStageFlags::COMPUTE_SHADER,
+                            vk::PipelineStageFlags::COMPUTE_SHADER,
+                            vk::AccessFlags::SHADER_WRITE,
+                            vk::AccessFlags::SHADER_READ,
+                        )?;
+                    }
+                    // Transition swapchain to GENERAL for write
+                    let swap_image = self.swapchain.images[image_index as usize];
+                    self.command_pool.transition_image_layout(
+                        command_buffer, &self.device.device,
+                        swap_image,
+                        vk::ImageAspectFlags::COLOR,
+                        vk::ImageLayout::PRESENT_SRC_KHR,
+                        vk::ImageLayout::GENERAL,
+                        vk::PipelineStageFlags::BOTTOM_OF_PIPE,
+                        vk::PipelineStageFlags::COMPUTE_SHADER,
+                        vk::AccessFlags::NONE,
+                        vk::AccessFlags::SHADER_WRITE,
+                    )?;
                     let desc_set = unsafe {
                         pipeline.display_pipeline.allocate_descriptor_set()?
                     };

@@ -2,6 +2,7 @@
 name = "litt-fidelityfx"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
 
 [lib]
 path = "src/lib.rs"
@@ -13,8 +14,6 @@ log = { workspace = true }
 litt-math = { path = "../math" }
 litt-vulkan = { path = "../vulkan" }
 vma = { workspace = true }
-
-build = "build.rs"
 
 [profile.release]
 opt-level = "z"

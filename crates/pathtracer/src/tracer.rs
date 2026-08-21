@@ -318,8 +318,8 @@ pub fn upload_scene(
         vk::MemoryPropertyFlags::DEVICE_LOCAL,
     )?;
 
-    // Create accumulation buffer (device local)
-    let (accum_image, _accum_view, accum_alloc) = allocator.allocate_image(
+    // Create accumulation buffer (device local) — R32G32B32A32_SFLOAT HDR
+    let (accum_image, accum_view, accum_alloc) = allocator.allocate_image(
         [640, 360, 1],
         vk::Format::R32G32B32A32_SFLOAT,
         vk::ImageUsageFlags::STORAGE_IMAGE | vk::ImageUsageFlags::TRANSFER_SRC | vk::ImageUsageFlags::TRANSFER_DST,
@@ -330,7 +330,8 @@ pub fn upload_scene(
         1,
     )?;
 
-    let (velocity_image, _vel_view, vel_alloc) = allocator.allocate_image(
+    // Velocity buffer (R16G16_SFLOAT) — motion vectors for reprojection
+    let (velocity_image, velocity_view, vel_alloc) = allocator.allocate_image(
         [640, 360, 1],
         vk::Format::R16G16_SFLOAT,
         vk::ImageUsageFlags::STORAGE_IMAGE,
@@ -341,7 +342,8 @@ pub fn upload_scene(
         1,
     )?;
 
-    let (output_image, _out_view, out_alloc) = allocator.allocate_image(
+    // Output buffer (R8G8B8A8_UNORM) — final display image
+    let (output_image, output_view, out_alloc) = allocator.allocate_image(
         [640, 360, 1],
         vk::Format::R8G8B8A8_UNORM,
         vk::ImageUsageFlags::STORAGE_IMAGE | vk::ImageUsageFlags::TRANSFER_SRC,
@@ -386,7 +388,7 @@ pub fn upload_scene(
         accumulation_buffer: Image {
             handle: accum_image,
             memory: vk::DeviceMemory::null(),
-            view: vk::ImageView::null(),
+            view: accum_view,
             format: vk::Format::R32G32B32A32_SFLOAT,
             extent: [640, 360, 1],
             allocation: None,
@@ -394,7 +396,7 @@ pub fn upload_scene(
         velocity_buffer: Image {
             handle: velocity_image,
             memory: vk::DeviceMemory::null(),
-            view: vk::ImageView::null(),
+            view: velocity_view,
             format: vk::Format::R16G16_SFLOAT,
             extent: [640, 360, 1],
             allocation: None,
@@ -402,7 +404,7 @@ pub fn upload_scene(
         output_buffer: Image {
             handle: output_image,
             memory: vk::DeviceMemory::null(),
-            view: vk::ImageView::null(),
+            view: output_view,
             format: vk::Format::R8G8B8A8_UNORM,
             extent: [640, 360, 1],
             allocation: None,

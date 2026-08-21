@@ -34,12 +34,23 @@ pub struct DebugHud {
     pub triangles: u32,
     pub npu_active: bool,
     pub npu_latency_ms: f32,
+    /// Path trace samples accumulated so far
+    pub path_trace_samples: u32,
+    /// Whether path tracing is active
+    pub path_trace_active: bool,
 }
 
 impl DebugHud {
     pub fn new() -> Self { Self::default() }
 
-    pub fn update_stats(&mut self, fps: f32, frame_time: f32, draw_calls: u32, triangles: u32, npu_latency: f32) {
+    pub fn update_stats(
+        &mut self,
+        fps: f32,
+        frame_time: f32,
+        draw_calls: u32,
+        triangles: u32,
+        npu_latency: f32,
+    ) {
         self.fps = fps;
         self.frame_time_ms = frame_time;
         self.draw_calls = draw_calls;
@@ -66,6 +77,10 @@ impl DebugHud {
         y += 18.0;
         if self.npu_active {
             elements.push(HudElement::new(&format!("NPU: {:.1}ms", self.npu_latency_ms), x, y, [0.0, 1.0, 0.0, 1.0], 14.0));
+            y += 18.0;
+        }
+        if self.path_trace_active {
+            elements.push(HudElement::new(&format!("Path Tracer: {} samples", self.path_trace_samples), x, y, [1.0, 0.6, 0.2, 1.0], 14.0));
             y += 18.0;
         }
         elements.push(HudElement::new("Litt Engine", x, y, [0.5, 0.5, 0.5, 1.0], 12.0));
