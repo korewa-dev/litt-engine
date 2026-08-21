@@ -348,6 +348,13 @@ impl Iterator for EitherIter {
 
 pub use bytemuck;
 
+// Neural AI components
+pub mod neural;
+pub mod neural_system;
+
+pub use neural::*;
+pub use neural_system::*;
+
 // =============================================================================
 // Tests
 // =============================================================================

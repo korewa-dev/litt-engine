@@ -274,7 +274,7 @@ litt/
     BINARY_SIZE.md       # Size optimization guides
   examples/
     basic_scene.rs       # Example scene
-  Cargo.toml             # Workspace: 9 crates
+  Cargo.toml             # Workspace: 11 crates
 ```
 
 ---
@@ -355,6 +355,50 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ---
 
+## Universal AI Acceleration (Phase 6)
+
+The `litt-ai` crate provides a unified AI acceleration layer across all hardware backends:
+
+```rust
+use litt_ai::*;
+
+// Auto-select best backend
+let mut context = AIContext::new();
+let backend = context.best_backend_kind();
+println!("Using: {}", backend.name());
+
+// Or force a specific backend
+context.init_backend(BackendKind::Npu(NpuBackend::AmdXdna))?;
+
+// Run inference
+let result = context.run_auto(&model, &[input])?;
+println!("Latency: {}ms on {}", result.latency_ms, result.backend_used.name());
+```
+
+**Supported backends:**
+
+| Backend | Platform | Precision | Notes |
+|---------|----------|-----------|-------|
+| AMD XDNA | Windows/Linux | INT8, FP16, FP32 | Ryzen AI 9 H-series |
+| Intel AI Boost | Windows | FP16, INT8 | Meteor Lake+ |
+| Qualcomm Hexagon | Android | INT8, FP16, UINT8 | NNAPI-backed |
+| Apple Neural Engine | macOS/iOS | FP16, FP32 | Core ML |
+| MediaTek APU | Android | INT8, FP16 | Dimensity series |
+| Kirin NPU | Android | INT8 | Da Vinci architecture |
+| Samsung Exynos NPU | Android | INT8, FP16 | Exynos 2200+ |
+| RISC-V AI | RISC-V | INT8 | Custom vector accel |
+| Vulkan Compute | All | FP16, FP32 | GPU fallback |
+| CPU SIMD | All | FP32 | AVX2/NEON/RVV |
+
+**ECS Integration:**
+- `NeuralBrain` — AI model reference + state
+- `MovementIntent` — NPU-driven movement
+- `CombatIntent` — NPU-driven combat AI
+- `NeuralAISystem` — Runs inference-driven behavior
+- `CombatAISystem` — NPU-driven combat decisions
+
+---
+
 ## MUSA Support (Moore Threads)
 
 The `litt-platform` crate includes MUSA support for Moore Threads GPUs:
@@ -414,6 +458,59 @@ if nnapi_is_available() {
 
 ---
 
+## Asset Pipeline (Phase 8)
+
+The `litt-asset` crate provides a complete asset loading pipeline:
+
+```rust
+use litt_asset::*;
+
+// Create asset manager
+let mut manager = AssetManager::new()
+    .with_base_path("assets")
+    .with_cache_size(512 * 1024 * 1024); // 512 MB cache
+
+// Load a model
+let model_handle = manager.load_model("models/scene.gltf")?;
+let model = manager.get::<Model>(&model_handle).unwrap();
+println!("Loaded {} meshes, {} vertices", model.meshes.len(), model.total_vertices());
+
+// Load a texture
+let tex_handle = manager.load_texture("textures/albedo.png")?;
+
+// Load a shader
+let shader_handle = manager.load_shader("shaders/raygen.rgen.glsl", ShaderStage::RayGen)?;
+
+// Load a material
+let mat_handle = manager.load_material("materials/concrete");
+let mat = manager.get::<Material>(&mat_handle).unwrap();
+
+// Check stats
+let stats = manager.stats();
+println!("Loaded {} assets, {} errors", stats.load_count, stats.error_count);
+```
+
+**Supported formats:**
+
+| Type | Formats | Notes |
+|------|---------|-------|
+| Models | GLTF, GLB, OBJ | Triangle meshes, UVs, normals |
+| Textures | PNG, JPEG, KTX2 | Auto MIP, format detection |
+| Shaders | GLSL, HLSL, SPIR-V, DXIL | Auto-compile to target format |
+| Materials | Built-in presets | PBR, unlit, transparent, emissive |
+| Fonts | TTF, OTF | Basic metrics parsing |
+
+**Features:**
+- LRU cache with configurable size limit
+- Duplicate load prevention
+- Type-safe asset handles
+- Path resolution with base path
+- Shader compilation with caching
+- Mipmap generation
+- Bounding box computation
+
+---
+
 ## DX12 Shader Compilation
 
 The `litt-dx12` crate includes DirectXShaderCompiler (DXC) integration:
@@ -448,6 +545,7 @@ let result = compile_hlsl(hlsl_source, "main", "dxil_6_5")?;
 | `litt-fidelityfx` | ash, bytemuck, litt-math, litt-vulkan, vma | FSR 3/4, CAS, denoisers |
 | `litt-ecs` | litt-math, bytemuck | ECS core (World, Entity, Component, System) |
 | `litt-dx12` | bytemuck, libloading, litt-math, litt-platform, winapi | DX12 backend with DXC |
+| `litt-asset` | image, bytemuck, litt-math | Model, texture, shader, material, font loading |
 
 ---
 
@@ -477,9 +575,9 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 | 3 | FidelityFX & AI Upscaling | ✅ Complete |
 | 4 | ECS Architecture | ✅ Complete |
 | 5 | Physics System | ✅ Complete |
-| 6 | Universal AI Acceleration | ⚠️ Planned |
+| 6 | Universal AI Acceleration | ✅ Complete |
 | 7 | DirectX 12 Backend | ✅ Complete |
-| 8 | Asset Pipeline | ⚠️ Planned |
+| 8 | Asset Pipeline | ✅ Complete |
 | 9 | Engine Modules | ⚠️ Planned |
 | 10 | Networking | ⚠️ Planned |
 | 11 | Platform Support | ✅ Ongoing |
