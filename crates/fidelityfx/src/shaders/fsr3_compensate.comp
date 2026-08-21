@@ -1,0 +1,29 @@
+#version 450
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+// FSR 3.1.5 Compensate Pass — normalizes history by exposure change
+// Used between frames to prevent exposure jumps in temporal accumulation
+
+layout(set = 0, binding = 0) uniform sampler2D sCurr;
+layout(set = 0, binding = 1) uniform usampler2D sVelocity;
+layout(set = 0, binding = 2) writeonly uniform image2D imgOutput;
+
+layout(push_constant) uniform Push {
+    uint inputSizeX;
+    uint inputSizeY;
+    uint outputSizeX;
+    uint outputSizeY;
+    float motionScale;
+    float exposure;
+    float _pad[2];
+} PC;
+
+void main() {
+    ivec2 dstPx = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 dstSize = ivec2(PC.outputSizeX, PC.outputSizeY);
+    vec2 uv = vec2(dstPx) / vec2(float(dstSize));
+
+    vec4 curr = texture(sCurr, uv);
+    // Apply exposure compensation
+    imageStore(imgOutput, dstPx, curr * PC.exposure);
+}

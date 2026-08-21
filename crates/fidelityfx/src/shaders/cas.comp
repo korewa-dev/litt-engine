@@ -1,0 +1,50 @@
+#version 450
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+// AMD FidelityFX Contrast Adaptive Sharpening (CAS)
+// Fast, high-quality sharpening pass applied to the final image.
+// Operates per-pixel with 5-tap Laplacian kernel.
+
+layout(set = 0, binding = 0) uniform sampler2D sInput;
+layout(set = 0, binding = 1) writeonly uniform image2D imgOutput;
+
+layout(push_constant) uniform Push {
+    float sharpening;
+    float _pad[3];
+} PC;
+
+void main() {
+    ivec2 dstPx = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = ivec2(imageSize(imgOutput));
+    vec2 uv = vec2(dstPx) / vec2(float(size.x), float(size.y));
+    vec2 px = 1.0 / vec2(float(size.x), float(size.y));
+
+    vec3 center = texture(sInput, uv).rgb;
+    vec3 left   = texture(sInput, uv - vec2(px.x, 0.0)).rgb;
+    vec3 right  = texture(sInput, uv + vec2(px.x, 0.0)).rgb;
+    vec3 up     = texture(sInput, uv - vec2(0.0, px.y)).rgb;
+    vec3 down   = texture(sInput, uv + vec2(0.0, px.y)).rgb;
+
+    // Luma weights
+    vec3 w = vec3(0.299, 0.587, 0.114);
+    float lCenter = dot(center, w);
+    float lLeft   = dot(left,   w);
+    float lRight  = dot(right,  w);
+    float lUp     = dot(up,     w);
+    float lDown   = dot(down,   w);
+
+    float mx = max(max(lLeft, lRight), max(lUp, lDown));
+    float mn = min(min(lLeft, lRight), min(lUp, lDown));
+    float rng = mx - mn;
+
+    // Adaptive sharpness based on local contrast
+    float scale = clamp(rng * 8.0, 0.0, 1.0);
+    float amount = PC.sharpening;
+
+    // Laplacian sharpening
+    vec3 sharp = center * (1.0 + amount)
+               - (left + right + up + down) * amount * 0.25;
+
+    vec3 result = mix(center, sharp, scale);
+    imageStore(imgOutput, dstPx, vec4(result, 1.0));
+}

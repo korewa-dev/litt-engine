@@ -1,6 +1,8 @@
 //! FidelityFX integration.
 //! Full FSR 3.1.5 pipeline with CAS, denoisers, and frame generation.
+//! All compute shaders are embedded as GLSL source and compiled at runtime.
 
+pub mod shaders;
 pub mod fsr;
 pub mod denoiser;
 pub mod ray_reconstruction;

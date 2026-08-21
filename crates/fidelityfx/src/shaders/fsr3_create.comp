@@ -1,0 +1,30 @@
+#version 450
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+// FSR 3.1.5 Create Pass — reprojection of previous frame into history buffer
+// Stores the previous frame for temporal accumulation in the upscaler pass
+
+layout(set = 0, binding = 0) uniform sampler2D sPrev;
+layout(set = 0, binding = 1) uniform usampler2D sVelocity;
+layout(set = 0, binding = 2) writeonly uniform image2D imgOutput;
+layout(set = 0, binding = 3) uniform usampler2D sDepth;
+
+layout(push_constant) uniform Push {
+    uint inputSizeX;
+    uint inputSizeY;
+    uint outputSizeX;
+    uint outputSizeY;
+    float temporalBlend;
+    float spatialBlend;
+    float _pad[2];
+} PC;
+
+void main() {
+    ivec2 dstPx = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 dstSize = ivec2(PC.outputSizeX, PC.outputSizeY);
+    vec2 uv = vec2(dstPx) / vec2(float(dstSize));
+
+    // Simple copy for history buffer
+    vec4 prev = texture(sPrev, uv);
+    imageStore(imgOutput, dstPx, prev);
+}

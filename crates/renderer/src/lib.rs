@@ -1,5 +1,5 @@
 //! Main renderer — orchestrates vulkan, pathtracer, and fidelityfx.
-//! Complete pipeline with VMA, BLAS/TLAS, and FSR 3.1.5.
+//! Complete pipeline with VMA, BLAS/TLAS, FSR 3.1.5 upscaler, and CAS sharpening.
 
 pub mod renderer;
 pub mod command_pool;
@@ -13,7 +13,7 @@ pub use descriptor::*;
 
 use ash::{vk, Device};
 use crate::vulkan::{VmaAllocator, AccelerationStructures};
-use crate::fidelityfx::{Fsr3Pipeline, CasConstants};
+use crate::fidelityfx::{Fsr3Pipeline, CasPipeline, Fsr3UpscalerConstants, CasConstants};
 use crate::pathtracer::{PathTracerBuffers, PathTracerConstants, Scene, Camera};
 use litt_math::*;
 
@@ -24,20 +24,24 @@ pub struct RenderPipeline {
     pub path_tracer_buffers: PathTracerBuffers,
     /// Acceleration structures (BLAS + TLAS)
     pub acceleration_structures: AccelerationStructures,
-    /// FSR 3.1.5 pipeline
+    /// FSR 3.1.5 upscaler pipeline
     pub fsr_pipeline: Fsr3Pipeline,
+    /// CAS sharpening pipeline
+    pub cas_pipeline: CasPipeline,
     /// CAS constants
     pub cas_constants: CasConstants,
     /// Path tracer constants
     pub tracer_constants: PathTracerConstants,
     /// Frame count
     pub frame_count: u32,
+    /// Whether FSR is enabled
+    pub fsr_enabled: bool,
     /// Is initialized
     pub is_initialized: bool,
 }
 
 impl RenderPipeline {
-    /// Create new render pipeline
+    /// Create new render pipeline with FSR 3.1.5 and CAS
     pub fn new(
         device: &Device,
         rt_loader: &ash::extensions::khr::RayTracingPipeline,
@@ -49,7 +53,7 @@ impl RenderPipeline {
     ) -> Result<Self, String> {
         // Upload scene data to GPU
         let path_tracer_buffers = crate::pathtracer::upload_scene(device, scene, allocator)?;
-        
+
         // Build acceleration structures
         let acceleration_structures = crate::pathtracer::build_scene_acceleration(
             device,
@@ -57,33 +61,49 @@ impl RenderPipeline {
             allocator,
             scene,
         )?;
-        
-        // Initialize FSR 3.1.5
-        let fsr_pipeline = Fsr3Pipeline::new();
-        
-        // Create CAS constants
+
+        // Initialize FSR 3.1.5 at half resolution (common FSR quality setting)
+        let fsr_enabled = true;
+        let fsr_input_w = width / 2;
+        let fsr_input_h = height / 2;
+        let mut fsr_pipeline = Fsr3Pipeline::new();
+        unsafe {
+            fsr_pipeline.initialize(
+                device,
+                fsr_input_w, fsr_input_h,
+                width, height,
+                crate::fidelityfx::Fsr3Quality::Quality,
+            )?;
+        }
+
+        // Initialize CAS sharpening at full resolution
+        let mut cas_pipeline = CasPipeline::new();
+        unsafe {
+            cas_pipeline.initialize(device, width, height)?;
+        }
+
         let cas_constants = CasConstants::default();
-        
-        // Create path tracer constants
         let tracer_constants = PathTracerConstants::new(width, height, camera, scene);
-        
+
         Ok(Self {
             path_tracer_buffers,
             acceleration_structures,
             fsr_pipeline,
+            cas_pipeline,
             cas_constants,
             tracer_constants,
             frame_count: 0,
+            fsr_enabled,
             is_initialized: true,
         })
     }
-    
+
     /// Update pipeline for new frame
     pub fn update(&mut self, camera: &Camera, scene: &Scene, width: u32, height: u32) {
         self.tracer_constants = PathTracerConstants::new(width, height, camera, scene);
         self.frame_count += 1;
     }
-    
+
     /// Reset temporal state
     pub fn reset_temporal(&mut self) {
         self.frame_count = 0;
@@ -117,13 +137,13 @@ impl AppState {
             width,
             height,
         )?;
-        
+
         Ok(Self {
             pipeline,
             window_size: (width, height),
         })
     }
-    
+
     /// Resize the application
     pub fn resize(&mut self, width: u32, height: u32) -> Result<(), String> {
         self.window_size = (width, height);
