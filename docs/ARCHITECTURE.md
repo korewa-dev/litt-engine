@@ -1,14 +1,14 @@
 # Litt Engine Architecture
 
 ## High-Level Overview
-Application Layer -> Platform Layer -> Vulkan Backend (VMA) -> Renderer -> Path Tracer -> FidelityFX -> Display
+Application Layer -> Platform Layer -> Vulkan Backend (VMA + AMD AGS) -> Renderer -> Path Tracer -> FidelityFX -> Display
 
 ## Crate Dependencies
 ```
 litt (root)
 ├── litt-math           (no dependencies)
 ├── litt-platform       (ash, bytemuck, platform-specific)
-├── litt-vulkan         (ash, ash-window, vma, bytemuck, litt-math, litt-platform)
+├── litt-vulkan         (ash, ash-window, vma, bytemuck, litt-math, litt-platform, ags)
 ├── litt-renderer       (ash, bytemuck, litt-math, litt-vulkan)
 ├── litt-pathtracer     (ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma)
 └── litt-fidelityfx     (ash, bytemuck, litt-math, litt-vulkan, vma)
@@ -17,6 +17,7 @@ litt (root)
 ## Render Pipeline
 ```
 Frame Start
+  -> AMD AGS (GPU Detection & Optimization)
   -> Path Trace (Compute Shader)
   -> FidelityFX Ray Reconstruction (Denoiser)
   -> FidelityFX FSR 3.1.5
@@ -28,6 +29,30 @@ Frame Start
   -> Tonemap
   -> Present
 ```
+
+## AMD AGS (Adaptive Graphics Selection)
+```
+GpuManager
+  ├─ enumerate_adapters() - Find all GPUs
+  ├─ add_gpu() - Add physical device
+  ├─ select_best() - Score and select optimal GPU
+  └─ get_selected() - Get selected GPU properties
+
+GpuProperties
+  ├─ vendor: GpuVendor (AMD, Intel, Samsung, Moore Threads)
+  ├─ rdna_gen: u32 (2, 3, or 4)
+  ├─ npu_support: bool
+  ├─ fsr4_support: bool
+  └─ npu_tops: f32
+
+AgsHints
+  ├─ wave32_enabled: bool (RDNA 2/3 optimization)
+  ├─ sustained_encoding: bool (RDNA 3+ optimization)
+  ├─ pipeline_cache: bool
+  └─ shader_core_hints: bool
+```
+
+---
 
 ## Memory Management (VMA)
 ```
