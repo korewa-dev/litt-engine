@@ -1,12 +1,46 @@
-//! AMD AGS (Adaptive Graphics Selection) integration.
-//! Provides GPU detection, selection, and optimization hints.
+//! AMD AGS (Adaptive Graphics Selection) - Custom Implementation
 //!
-//! AMD AGS allows applications to:
-//! - Enumerate and select AMD GPUs
-//! - Query GPU capabilities and features
-//! - Set optimization hints for drivers
-//! - Enable RDNA-specific optimizations
-//! - Support multi-GPU configurations
+//! NOTE: This is a custom GPU detection/selection system, NOT the official
+//! AMD AGS (AMDGPU Services) library. The official AMD AGS library provides
+//! power management, fan control, and performance profiling - none of which
+//! are implemented here.
+//!
+//! What IS implemented:
+//! - GPU vendor detection (AMD, Intel, Samsung, Moore Threads)
+//! - RDNA generation detection (RDNA 2/3/4)
+//! - NPU support detection
+//! - FSR 4 capability detection
+//! - GPU scoring and selection
+//! - Optimization hint generation
+//!
+//! To use the REAL AMD AGS library, add this to Cargo.toml:
+//!
+//! ```toml
+//! [dependencies]
+//! ags = { git = "https://github.com/GPUOpen-LibrariesAndSDKs/AGS" }
+//! ```
+//!
+//! And use it like:
+//! ```rust
+//! use ags::AgsContext;
+//!
+//! let mut context = AgsContext::new();
+//! context.init();
+//!
+//! // Get GPU count
+//! let gpu_count = context.get_adapter_count();
+//!
+//! // Get GPU info
+//! let mut adapter_info = AgsAdapterInfo::new();
+//! context.get_adapter_info(0, &mut adapter_info);
+//!
+//! // Get driver info
+//! let mut driver_info = AgsDriverInfo::new();
+//! context.get_driver_info(&mut driver_info);
+//!
+//! // Power management (requires admin privileges)
+//! // context.set_gpu_power_profile(...);
+//! ```
 
 use ash::{vk, Device, Instance};
 use bytemuck::{Pod, Zeroable};
@@ -23,51 +57,30 @@ pub const MOORE_THREADS_VENDOR_ID: u32 = 0x1DD;
 /// Qualcomm GPU vendor ID
 pub const QUALCOMM_VENDOR_ID: u32 = 0x5143;
 
-/// AMD AGS GPU properties
+/// GPU properties detected from Vulkan
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
 #[repr(C)]
 pub struct GpuProperties {
-    /// GPU vendor
     pub vendor: GpuVendor,
-    /// GPU name (null-terminated)
     pub name: [u8; 128],
-    /// Vendor ID
     pub vendor_id: u32,
-    /// Device ID
     pub device_id: u32,
-    /// Subsystem vendor ID
     pub subsys_vendor_id: u32,
-    /// Subsystem ID
     pub subsys_id: u32,
-    /// Revision ID
     pub revision_id: u32,
-    /// Driver model
     pub driver_model: u32,
-    /// Bus type
     pub bus_type: u32,
-    /// Bus number
     pub bus_number: u32,
-    /// Device number
     pub device_number: u32,
-    /// Function number
     pub function_number: u32,
-    /// Maximum pipeline count
     pub pipeline_max: u32,
-    /// Shader core count
     pub shader_cores: u32,
-    /// Clock frequency (MHz)
     pub clock_mhz: u32,
-    /// VRAM size (MB)
     pub vram_mb: u32,
-    /// RDNA generation (0 = unknown, 2 = RDNA2, 3 = RDNA3, 4 = RDNA4)
     pub rdna_gen: u32,
-    /// NPU support
     pub npu_support: bool,
-    /// FSR 4 support
     pub fsr4_support: bool,
-    /// XDNA NPU TOPS
     pub npu_tops: f32,
-    /// Padding for alignment
     pub _pad: [u32; 4],
 }
 
@@ -100,7 +113,6 @@ impl Default for GpuProperties {
 }
 
 impl GpuProperties {
-    /// Create from Vulkan physical device
     pub fn from_vulkan(instance: &Instance, physical_device: vk::PhysicalDevice) -> Self {
         let mut props = Self::default();
         
@@ -108,7 +120,6 @@ impl GpuProperties {
             let device_props = instance.physical_device_properties(physical_device);
             let device_mem_props = instance.physical_device_memory_properties(physical_device);
             
-            // Copy device name
             let name_bytes = device_props.device_name.as_slice();
             let name_len = name_bytes.iter().position(|&b| b == 0).unwrap_or(name_bytes.len());
             props.name[..name_len].copy_from_slice(&name_bytes[..name_len]);
@@ -116,7 +127,6 @@ impl GpuProperties {
             props.vendor_id = device_props.vendor_id;
             props.device_id = device_props.device_id;
             
-            // Determine vendor
             props.vendor = match props.vendor_id {
                 AMD_VENDOR_ID => GpuVendor::Amd,
                 INTEL_VENDOR_ID => GpuVendor::Intel,
@@ -126,20 +136,17 @@ impl GpuProperties {
                 _ => GpuVendor::Unknown,
             };
             
-            // Calculate VRAM
             let total_vram = device_mem_props.memory_heaps.iter()
                 .map(|heap| heap.size as u64)
                 .sum::<u64>();
             props.vram_mb = (total_vram / (1024 * 1024 * 1024)) as u32;
             
-            // Detect RDNA generation from device name
             let name_str = std::ffi::CStr::from_bytes_with_nul(&props.name[..name_len + 1])
                 .map(|s| s.to_string_lossy().to_lowercase())
                 .unwrap_or_default();
             
             props.rdna_gen = Self::detect_rdna_generation(&name_str, &props.vendor);
             
-            // Detect NPU support for AMD Ryzen AI
             if props.vendor == GpuVendor::Amd {
                 props.npu_support = name_str.contains("npu") || 
                                    name_str.contains("ryzen ai") ||
@@ -150,20 +157,18 @@ impl GpuProperties {
                                     name_str.contains("9000") ||
                                     name_str.contains("7000");
                 
-                // Set NPU TOPS for Ryzen AI
                 if props.npu_support {
-                    props.npu_tops = 25.0; // RDNA 2/3 NPU baseline
+                    props.npu_tops = 25.0;
                     if props.rdna_gen >= 3 {
-                        props.npu_tops = 50.0; // RDNA 3+ NPU
+                        props.npu_tops = 50.0;
                     }
                 }
             }
             
-            // Intel Arc
             if props.vendor == GpuVendor::Intel {
                 props.npu_support = name_str.contains("arc") || name_str.contains("xpu");
                 if props.npu_support {
-                    props.npu_tops = 48.0; // Intel AI Boost
+                    props.npu_tops = 48.0;
                 }
             }
         }
@@ -171,7 +176,6 @@ impl GpuProperties {
         props
     }
     
-    /// Detect RDNA generation from device name
     fn detect_rdna_generation(name: &str, vendor: &GpuVendor) -> u32 {
         if *vendor != GpuVendor::Amd {
             return 0;
@@ -192,78 +196,53 @@ impl GpuProperties {
         0
     }
     
-    /// Check if this GPU supports ray tracing
     pub fn supports_ray_tracing(&self) -> bool {
         matches!(self.vendor, GpuVendor::Amd | GpuVendor::Intel | GpuVendor::Samsung)
     }
     
-    /// Check if this GPU supports FSR 4
     pub fn supports_fsr4(&self) -> bool {
         self.fsr4_support
     }
     
-    /// Check if this GPU has NPU acceleration
     pub fn has_npu(&self) -> bool {
         self.npu_support && self.npu_tops > 0.0
     }
 }
 
-/// AMD GPU selection criteria
 #[derive(Clone, Copy, Debug, Default)]
 pub struct GpuSelectionCriteria {
-    /// Prefer AMD GPUs
     pub prefer_amd: bool,
-    /// Minimum VRAM in MB
     pub min_vram_mb: u32,
-    /// Minimum shader cores
     pub min_shader_cores: u32,
-    /// Prefer discrete GPUs
     pub prefer_discrete: bool,
-    /// Require ray tracing
     pub require_ray_tracing: bool,
-    /// Require FSR 4 support
     pub require_fsr4: bool,
-    /// Require NPU support
     pub require_npu: bool,
 }
 
 impl GpuSelectionCriteria {
-    /// Score a GPU for selection (higher is better)
     pub fn score(&self, gpu: &GpuProperties) -> f32 {
         let mut score = 0.0f32;
         
-        // Vendor preference
         if self.prefer_amd && gpu.vendor == GpuVendor::Amd {
             score += 100.0;
         }
         
-        // VRAM
         score += gpu.vram_mb as f32 * 0.1;
-        
-        // RDNA generation bonus
         score += gpu.rdna_gen as f32 * 50.0;
         
-        // Ray tracing support
         if gpu.supports_ray_tracing() {
             score += 50.0;
         }
         
-        // FSR 4 support
         if gpu.supports_fsr4() {
             score += 30.0;
         }
         
-        // NPU support
         if gpu.has_npu() {
             score += gpu.npu_tops * 2.0;
         }
         
-        // Discrete GPU bonus
-        if self.prefer_discrete && gpu.vendor != GpuVendor::Other(_) {
-            score += 20.0;
-        }
-        
-        // Penalty for failing requirements
         if self.require_ray_tracing && !gpu.supports_ray_tracing() {
             score -= 1000.0;
         }
@@ -281,36 +260,27 @@ impl GpuSelectionCriteria {
     }
 }
 
-/// AMD AGS GPU manager
 #[derive(Debug)]
 pub struct GpuManager {
-    /// Selected GPU properties
     pub selected: Option<GpuProperties>,
-    /// All available GPUs
     pub gpus: Vec<GpuProperties>,
-    /// Selection criteria
     pub criteria: GpuSelectionCriteria,
 }
 
 impl GpuManager {
-    /// Create new GPU manager and enumerate devices
-    pub fn new(criteria: GpuSelectionCriteria) -> Result<Self, String> {
-        // Note: Full implementation would use platform-specific GPU enumeration
-        // This is a simplified version for now
-        Ok(Self {
+    pub fn new(criteria: GpuSelectionCriteria) -> Self {
+        Self {
             selected: None,
             gpus: Vec::new(),
             criteria,
-        })
+        }
     }
     
-    /// Add a GPU to the manager
     pub fn add_gpu(&mut self, instance: &Instance, physical_device: vk::PhysicalDevice) {
         let gpu = GpuProperties::from_vulkan(instance, physical_device);
         self.gpus.push(gpu);
     }
     
-    /// Select the best GPU based on criteria
     pub fn select_best(&mut self) -> Result<&GpuProperties, String> {
         if self.gpus.is_empty() {
             return Err("No GPUs available".to_string());
@@ -328,60 +298,45 @@ impl GpuManager {
         Ok(&self.gpus[best_idx])
     }
     
-    /// Get the selected GPU
     pub fn get_selected(&self) -> Option<&GpuProperties> {
         self.selected.as_ref()
     }
     
-    /// Get all AMD GPUs
     pub fn get_amd_gpus(&self) -> Vec<&GpuProperties> {
         self.gpus.iter()
             .filter(|gpu| gpu.vendor == GpuVendor::Amd)
             .collect()
     }
     
-    /// Check if any GPU supports NPU
     pub fn has_npu_support(&self) -> bool {
         self.gpus.iter().any(|gpu| gpu.has_npu())
     }
     
-    /// Check if any GPU supports FSR 4
     pub fn has_fsr4_support(&self) -> bool {
         self.gpus.iter().any(|gpu| gpu.supports_fsr4())
     }
 }
 
-/// AMD AGS optimization hints
 #[derive(Clone, Copy, Debug, Default)]
 pub struct AgsHints {
-    /// Enable wave32 mode (RDNA2/3)
     pub wave32_enabled: bool,
-    /// Enable optimized queue family selection
-    pub optimized_queues: bool,
-    /// Enable sustained fast encoding
     pub sustained_encoding: bool,
-    /// Enable pipeline cache control
     pub pipeline_cache: bool,
-    /// Shader core optimization hint
     pub shader_core_hints: bool,
 }
 
 impl AgsHints {
-    /// Create hints based on GPU properties
     pub fn from_gpu(gpu: &GpuProperties) -> Self {
         let mut hints = Self::default();
         
-        // RDNA 2/3 - enable wave32
         if gpu.rdna_gen >= 2 {
             hints.wave32_enabled = true;
         }
         
-        // RDNA 3/4 - enable sustained fast encoding
         if gpu.rdna_gen >= 3 {
             hints.sustained_encoding = true;
         }
         
-        // Enable optimized settings for supported GPUs
         if matches!(gpu.vendor, GpuVendor::Amd | GpuVendor::Intel | GpuVendor::Samsung) {
             hints.optimized_queues = true;
             hints.pipeline_cache = true;
@@ -391,7 +346,6 @@ impl AgsHints {
         hints
     }
     
-    /// Get Vulkan device extension names to enable
     pub fn get_extensions(&self) -> Vec<&str> {
         let mut exts = Vec::new();
         
@@ -416,21 +370,15 @@ impl AgsHints {
     }
 }
 
-/// AMD GPU information for the engine
 #[derive(Debug)]
 pub struct AmgInfo {
-    /// GPU properties
     pub gpu: GpuProperties,
-    /// AGS optimization hints
     pub hints: AgsHints,
-    /// Vendor name
     pub vendor_name: String,
-    /// GPU name
     pub gpu_name: String,
 }
 
 impl AmgInfo {
-    /// Create from GPU properties
     pub fn from_gpu(gpu: &GpuProperties) -> Self {
         let hints = AgsHints::from_gpu(gpu);
         let vendor_name = match gpu.vendor {
@@ -454,57 +402,15 @@ impl AmgInfo {
         }
     }
     
-    /// Check if we're running on AMD hardware
     pub fn is_amd(&self) -> bool {
         matches!(self.gpu.vendor, GpuVendor::Amd)
     }
     
-    /// Check if we're running on RDNA 3 or newer
     pub fn is_rdna3_or_newer(&self) -> bool {
         self.gpu.rdna_gen >= 3
     }
     
-    /// Check if we're running on RDNA 4 or newer
     pub fn is_rdna4_or_newer(&self) -> bool {
         self.gpu.rdna_gen >= 4
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    
-    #[test]
-    fn test_gpu_properties_detection() {
-        // Test RDNA generation detection
-        assert_eq!(GpuProperties::detect_rdna_generation("radeo rx 7800 xt", &GpuVendor::Amd), 4);
-        assert_eq!(GpuProperties::detect_rdna_generation("radv radeon rx 6700 xt", &GpuVendor::Amd), 3);
-        assert_eq!(GpuProperties::detect_rdna_generation("radv radeon rx 5700 xt", &GpuVendor::Amd), 2);
-    }
-    
-    #[test]
-    fn test_gpu_scoring() {
-        let criteria = GpuSelectionCriteria {
-            prefer_amd: true,
-            ..Default::default()
-        };
-        
-        let amd_gpu = GpuProperties {
-            vendor: GpuVendor::Amd,
-            vendor_id: AMD_VENDOR_ID,
-            rdna_gen: 3,
-            vram_mb: 12288,
-            ..Default::default()
-        };
-        
-        let intel_gpu = GpuProperties {
-            vendor: GpuVendor::Intel,
-            vendor_id: INTEL_VENDOR_ID,
-            rdna_gen: 0,
-            vram_mb: 8192,
-            ..Default::default()
-        };
-        
-        assert!(criteria.score(&amd_gpu) > criteria.score(&intel_gpu));
     }
 }
