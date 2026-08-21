@@ -1,4 +1,4 @@
-﻿﻿
+?
 
 
 ## What It Does
@@ -16,7 +16,7 @@
 | APU | MediaTek | 10 | Mobile upscaling |
 | Da Vinci NPU | Huawei Kirin | 8 | Mobile denoising |
 | Mali-NPU | ARM | 6 | Mobile inference |
-| Sophgo CV1800 | RISC-V | — | Edge AI inference |
+| Sophgo CV1800 | RISC-V | � | Edge AI inference |
 
 - Auto-detection via `BackendSelector::best_available()`
 - Fallback to GPU/NPU/CPU when unavailable
@@ -37,20 +37,20 @@
 
 ### FidelityFX Integration
 
-- **FSR 3.1.5** — frame generation (create, compensate, upscaler, framegen passes)
-- **FSR 4** — next-gen upscaling + frame generation (RDNA 4/5)
-- **CAS** — Contrast Adaptive Sharpening for crisp final output
-- **Ray Reconstruction** — lightweight CNN-style denoiser for low-sample RT
-- **Diffuse + Specular Denoisers** — temporal-spatial filtering
-- **Intel XESS 3** — frame generation for Intel Arc GPUs
+- **FSR 3.1.5** � frame generation (create, compensate, upscaler, framegen passes)
+- **FSR 4** � next-gen upscaling + frame generation (RDNA 4/5)
+- **CAS** � Contrast Adaptive Sharpening for crisp final output
+- **Ray Reconstruction** � lightweight CNN-style denoiser for low-sample RT
+- **Diffuse + Specular Denoisers** � temporal-spatial filtering
+- **Intel XESS 3** � frame generation for Intel Arc GPUs
 
 ---
 
 ### ECS Architecture (Complete)
 
-ECS (Entity–Component–System) is implemented in `crates/ecs`.
+ECS (Entity�Component�System) is implemented in `crates/ecs`.
 - **Entity** = unique u32 ID
-- **Component** = plain data structs (blanket impl for Send + Sync + ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''static)
+- **Component** = plain data structs (blanket impl for Send + Sync + static)static)
 - **System** = pure logic trait with `update(&mut self, world: &mut World, dt: f32)`
 - **World** = HashMap-based component storage with query API
 - **SystemGroup** = grouped system execution with ordered scheduling
@@ -69,12 +69,12 @@ ECS (Entity–Component–System) is implemented in `crates/ecs`.
 | `Light` | point/spot/directional light data |
 
 **Core Systems:**
-- `NeuralAISystem` — NPU-driven behavior inference
-- `PhysicsSystem` — GPU-accelerated rigid body simulation
-- `RenderSystem` — ECS → Vulkan/DX12 draw commands
-- `InputSystem` — keyboard/mouse/gamepad aggregation
-- `UIOverlaySystem` — HUD, menus, debug overlays
-- `NetworkingSystem` — optional ECS entity replication
+- `NeuralAISystem` � NPU-driven behavior inference
+- `PhysicsSystem` � GPU-accelerated rigid body simulation
+- `RenderSystem` � ECS ? Vulkan/DX12 draw commands
+- `InputSystem` � keyboard/mouse/gamepad aggregation
+- `UIOverlaySystem` � HUD, menus, debug overlays
+- `NetworkingSystem` � optional ECS entity replication
 
 See [docs/ECS_ARCHITECTURE.md](./docs/ECS_ARCHITECTURE.md) for the full API reference.
 
@@ -129,7 +129,7 @@ Implemented in `crates/dx12/` with full module coverage:
 - DXR ray tracing (BLAS/TLAS/raygen/miss/hit)
 - DXIL shader compilation
 - DirectML backend for AI inference
-- DX12 → Vulkan translation layer (vkd3d-style)
+- DX12 ? Vulkan translation layer (vkd3d-style)
 - Steam Deck DX12 support
 
 **Module breakdown:**
@@ -157,12 +157,12 @@ println!("Using: {}", backend.name());
 
 | API | Tier | Status | Notes |
 |-----|------|--------|-------|
-| **Vulkan 1.3** | Higher | ✅ **Implemented** | Full backend in `crates/vulkan/` — VMA, RT pipeline, BLAS/TLAS, swapchain, command pools |
-| **DX12** | Higher | ✅ **Implemented** | DXGI, DXR, descriptor heaps, PSOs, root signatures, acceleration structures |
-| **AMD AGS** | Lower | ❌ **Not implemented** | No references in codebase; AMD GPU Services for power/performance control |
-| **MUSA** | Lower | 📋 **Planned** | Vendor detection in `fsr4_integration.rs` (ID `0x1DD`); native compute physics in roadmap |
-| **NNAPI** | Lower | 📋 **Planned** | Referenced as ARM NPU inference path; no implementation yet |
-| **DirectML** | Lower | 📋 **Planned** | Listed for NVIDIA Tensor Cores and Windows AI inference; no implementation yet |
+| **Vulkan 1.3** | Higher | ? **Implemented** | Full backend in `crates/vulkan/` � VMA, RT pipeline, BLAS/TLAS, swapchain, command pools |
+| **DX12** | Higher | ? **Implemented** | DXGI, DXR, descriptor heaps, PSOs, root signatures, acceleration structures |
+| **AMD AGS** | Lower | ? **Not implemented** | No references in codebase; AMD GPU Services for power/performance control |
+| **MUSA** | Lower | ?? **Planned** | Vendor detection in `fsr4_integration.rs` (ID `0x1DD`); native compute physics in roadmap |
+| **NNAPI** | Lower | ?? **Planned** | Referenced as ARM NPU inference path; no implementation yet |
+| **DirectML** | Lower | ?? **Planned** | Listed for NVIDIA Tensor Cores and Windows AI inference; no implementation yet |
 
 **Implemented crates:**
 
@@ -189,7 +189,7 @@ Platform Layer (litt-platform)
     |  Window creation, Input handling, Platform-specific code
     v
 Vulkan Backend (litt-vulkan)  |  DX12 Backend (litt-dx12)
-    |  VMA · Vulkan 1.3 · RT   |  DXGI · D3D12 · DXR · PSO
+    |  VMA � Vulkan 1.3 � RT   |  DXGI � D3D12 � DXR � PSO
     v                          |     v
 Renderer (litt-renderer)     ECS Systems (litt-ecs)
     |  Command Pools, Render   |  NeuralAI, Physics, Render, Input, UI
@@ -323,21 +323,21 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 
 | Phase | Title | Status |
 |-------|-------|--------|
-| 1 | Foundation | ✅ Complete |
-| 2 | Core Rendering | ✅ Complete |
-| 3 | FidelityFX & AI Upscaling | ✅ Complete |
-| 4 | ECS Architecture | ✅ Complete |
-| 5 | Physics System | 📋 Planned |
-| 6 | Universal AI Acceleration | 📋 Planned |
-| 7 | DirectX 12 Backend | ✅ Complete |
-| 8 | Asset Pipeline | 📋 Planned |
-| 9 | Engine Modules | 📋 Planned |
-| 10 | Networking | 📋 Planned |
-| 11 | Platform Support | 🔄 Ongoing |
-| 12 | Debug & Profiling | 📋 Planned |
-| 13 | Binary Size Verification | ✅ Complete |
-| 14 | Polish | 🔄 In Progress |
-| 15 | Planned Features | 📋 Backlog |
+| 1 | Foundation | ? Complete |
+| 2 | Core Rendering | ? Complete |
+| 3 | FidelityFX & AI Upscaling | ? Complete |
+| 4 | ECS Architecture | ? Complete |
+| 5 | Physics System | ?? Planned |
+| 6 | Universal AI Acceleration | ?? Planned |
+| 7 | DirectX 12 Backend | ? Complete |
+| 8 | Asset Pipeline | ?? Planned |
+| 9 | Engine Modules | ?? Planned |
+| 10 | Networking | ?? Planned |
+| 11 | Platform Support | ?? Ongoing |
+| 12 | Debug & Profiling | ?? Planned |
+| 13 | Binary Size Verification | ? Complete |
+| 14 | Polish | ?? In Progress |
+| 15 | Planned Features | ?? Backlog |
 
 ---
 
@@ -360,7 +360,7 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 | APU | MediaTek | 10 | Mobile upscaling |
 | Da Vinci NPU | Huawei Kirin | 8 | Mobile denoising |
 | Mali-NPU | ARM | 6 | Mobile inference |
-| Sophgo CV1800 | RISC-V | — | Edge AI inference |
+| Sophgo CV1800 | RISC-V | � | Edge AI inference |
 
 - Auto-detection via `BackendSelector::best_available()`
 - Fallback to GPU/NPU/CPU when unavailable
@@ -381,20 +381,20 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 
 ### FidelityFX Integration
 
-- **FSR 3.1.5** — frame generation (create, compensate, upscaler, framegen passes)
-- **FSR 4** — next-gen upscaling + frame generation (RDNA 4/5)
-- **CAS** — Contrast Adaptive Sharpening for crisp final output
-- **Ray Reconstruction** — lightweight CNN-style denoiser for low-sample RT
-- **Diffuse + Specular Denoisers** — temporal-spatial filtering
-- **Intel XESS 3** — frame generation for Intel Arc GPUs
+- **FSR 3.1.5** � frame generation (create, compensate, upscaler, framegen passes)
+- **FSR 4** � next-gen upscaling + frame generation (RDNA 4/5)
+- **CAS** � Contrast Adaptive Sharpening for crisp final output
+- **Ray Reconstruction** � lightweight CNN-style denoiser for low-sample RT
+- **Diffuse + Specular Denoisers** � temporal-spatial filtering
+- **Intel XESS 3** � frame generation for Intel Arc GPUs
 
 ---
 
 ### ECS Architecture (Complete)
 
-ECS (Entity–Component–System) is implemented in `crates/ecs`.
+ECS (Entity�Component�System) is implemented in `crates/ecs`.
 - **Entity** = unique u32 ID
-- **Component** = plain data structs (blanket impl for Send + Sync + ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''static)
+- **Component** = plain data structs (blanket impl for Send + Sync + static)static)
 - **System** = pure logic trait with `update(&mut self, world: &mut World, dt: f32)`
 - **World** = HashMap-based component storage with query API
 - **SystemGroup** = grouped system execution with ordered scheduling
@@ -413,12 +413,12 @@ ECS (Entity–Component–System) is implemented in `crates/ecs`.
 | `Light` | point/spot/directional light data |
 
 **Core Systems:**
-- `NeuralAISystem` — NPU-driven behavior inference
-- `PhysicsSystem` — GPU-accelerated rigid body simulation
-- `RenderSystem` — ECS → Vulkan/DX12 draw commands
-- `InputSystem` — keyboard/mouse/gamepad aggregation
-- `UIOverlaySystem` — HUD, menus, debug overlays
-- `NetworkingSystem` — optional ECS entity replication
+- `NeuralAISystem` � NPU-driven behavior inference
+- `PhysicsSystem` � GPU-accelerated rigid body simulation
+- `RenderSystem` � ECS ? Vulkan/DX12 draw commands
+- `InputSystem` � keyboard/mouse/gamepad aggregation
+- `UIOverlaySystem` � HUD, menus, debug overlays
+- `NetworkingSystem` � optional ECS entity replication
 
 See [docs/ECS_ARCHITECTURE.md](./docs/ECS_ARCHITECTURE.md) for the full API reference.
 
@@ -473,7 +473,7 @@ Implemented in `crates/dx12/` with full module coverage:
 - DXR ray tracing (BLAS/TLAS/raygen/miss/hit)
 - DXIL shader compilation
 - DirectML backend for AI inference
-- DX12 → Vulkan translation layer (vkd3d-style)
+- DX12 ? Vulkan translation layer (vkd3d-style)
 - Steam Deck DX12 support
 
 **Module breakdown:**
@@ -501,12 +501,12 @@ println!("Using: {}", backend.name());
 
 | API | Tier | Status | Notes |
 |-----|------|--------|-------|
-| **Vulkan 1.3** | Higher | ✅ **Implemented** | Full backend in `crates/vulkan/` — VMA, RT pipeline, BLAS/TLAS, swapchain, command pools |
-| **DX12** | Higher | ✅ **Implemented** | DXGI, DXR, descriptor heaps, PSOs, root signatures, acceleration structures |
-| **AMD AGS** | Lower | ❌ **Not implemented** | No references in codebase; AMD GPU Services for power/performance control |
-| **MUSA** | Lower | 📋 **Planned** | Vendor detection in `fsr4_integration.rs` (ID `0x1DD`); native compute physics in roadmap |
-| **NNAPI** | Lower | 📋 **Planned** | Referenced as ARM NPU inference path; no implementation yet |
-| **DirectML** | Lower | 📋 **Planned** | Listed for NVIDIA Tensor Cores and Windows AI inference; no implementation yet |
+| **Vulkan 1.3** | Higher | ? **Implemented** | Full backend in `crates/vulkan/` � VMA, RT pipeline, BLAS/TLAS, swapchain, command pools |
+| **DX12** | Higher | ? **Implemented** | DXGI, DXR, descriptor heaps, PSOs, root signatures, acceleration structures |
+| **AMD AGS** | Lower | ? **Not implemented** | No references in codebase; AMD GPU Services for power/performance control |
+| **MUSA** | Lower | ?? **Planned** | Vendor detection in `fsr4_integration.rs` (ID `0x1DD`); native compute physics in roadmap |
+| **NNAPI** | Lower | ?? **Planned** | Referenced as ARM NPU inference path; no implementation yet |
+| **DirectML** | Lower | ?? **Planned** | Listed for NVIDIA Tensor Cores and Windows AI inference; no implementation yet |
 
 **Implemented crates:**
 
@@ -532,7 +532,7 @@ Platform Layer (litt-platform)
     |  Window creation, Input handling, Platform-specific code
     v
 Vulkan Backend (litt-vulkan)  |  DX12 Backend (litt-dx12)
-    |  VMA · Vulkan 1.3 · RT   |  DXGI · D3D12 · DXR · PSO
+    |  VMA � Vulkan 1.3 � RT   |  DXGI � D3D12 � DXR � PSO
     v                          |     v
 Renderer (litt-renderer)     ECS Systems (litt-ecs)
     |  Command Pools, Render   |  NeuralAI, Physics, Render, Input, UI
@@ -661,21 +661,21 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 
 | Phase | Title | Status |
 |-------|-------|--------|
-| 1 | Foundation | ✅ Complete |
-| 2 | Core Rendering | ✅ Complete |
-| 3 | FidelityFX & AI Upscaling | ✅ Complete |
-| 4 | ECS Architecture | ✅ Complete |
-| 5 | Physics System | 📋 Planned |
-| 6 | Universal AI Acceleration | 📋 Planned |
-| 7 | DirectX 12 Backend | ✅ Complete |
-| 8 | Asset Pipeline | 📋 Planned |
-| 9 | Engine Modules | 📋 Planned |
-| 10 | Networking | 📋 Planned |
-| 11 | Platform Support | 🔄 Ongoing |
-| 12 | Debug & Profiling | 📋 Planned |
-| 13 | Binary Size Verification | ✅ Complete |
-| 14 | Polish | 🔄 In Progress |
-| 15 | Planned Features | 📋 Backlog |
+| 1 | Foundation | ? Complete |
+| 2 | Core Rendering | ? Complete |
+| 3 | FidelityFX & AI Upscaling | ? Complete |
+| 4 | ECS Architecture | ? Complete |
+| 5 | Physics System | ?? Planned |
+| 6 | Universal AI Acceleration | ?? Planned |
+| 7 | DirectX 12 Backend | ? Complete |
+| 8 | Asset Pipeline | ?? Planned |
+| 9 | Engine Modules | ?? Planned |
+| 10 | Networking | ?? Planned |
+| 11 | Platform Support | ?? Ongoing |
+| 12 | Debug & Profiling | ?? Planned |
+| 13 | Binary Size Verification | ? Complete |
+| 14 | Polish | ?? In Progress |
+| 15 | Planned Features | ?? Backlog |
 
 ---
 
@@ -690,7 +690,7 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 
 ## License
 
-MIT — free for personal and commercial use.
+MIT � free for personal and commercial use.
 
 FidelityFX shaders and concepts are courtesy of [AMD](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK), also MIT-licensed.
 
