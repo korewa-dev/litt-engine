@@ -60,7 +60,7 @@ Pull requests that introduce new fallback paths for neural inference will be rej
 
 ---
 
-*Last updated: 2025*
+*Last updated: 2026*
 
 ### CONTRIBUTING.md
 Content:
@@ -150,4 +150,4 @@ Open an issue with the question label. No private DMs — keep it public.
 
 ---
 
-*Last updated: 2025*
+*Last updated: 2026*
