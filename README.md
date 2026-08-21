@@ -3,7 +3,7 @@
 
 ## What It Does
 
-### NPU Acceleration
+## Patches Applied\n\n### DSH Buffer Fix\n- Fixed ArrayBuffer error in Smithy SDK and DeepSeek client libraries\n- Applied patches to handle string data URLs in model responses\n- Patches are applied automatically on DSH startup via patch-buffer-fix.mjs\n\n---\n\n### NPU Acceleration
 
 | NPU | Vendor | TOPS (INT8) | Use Case |
 |-----|--------|-------------|----------|
