@@ -8,6 +8,7 @@ pub mod player;
 pub mod mesh;
 pub mod material;
 pub mod light;
+pub mod physics;
 
 pub use transform::*;
 pub use camera::*;
@@ -15,3 +16,4 @@ pub use player::*;
 pub use mesh::*;
 pub use material::*;
 pub use light::*;
+pub use physics::*;

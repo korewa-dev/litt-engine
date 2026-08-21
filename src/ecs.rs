@@ -106,6 +106,9 @@ pub fn build_world() -> World {
         scale: Vec3::new(1.0, 1.0, 1.0),
     });
     world.add_component(player, Player::new());
+    world.add_component(player, PhysBody::new(1.0));
+    world.add_component(player, Velocity::new(Vec3::ZERO));
+    world.add_component(player, Collider::sphere(0.5));
     world.add_component(player, Mesh::default());
 
     // Create camera
@@ -131,13 +134,15 @@ pub fn build_world() -> World {
         _pad: [0.0; 2],
     });
 
-    // Create ground plane
+    // Create ground plane (static body)
     let ground = world.create_entity();
     world.add_component(ground, Transform {
         position: Vec3::new(0.0, 0.0, 0.0),
         rotation: Quat::default(),
         scale: Vec3::new(10.0, 0.1, 10.0),
     });
+    world.add_component(ground, PhysBody::static_body());
+    world.add_component(ground, Collider::box_collider(Vec3::new(5.0, 0.05, 5.0)));
     world.add_component(ground, Mesh::default());
     world.add_component(ground, Material {
         albedo: Vec3::new(0.2, 0.2, 0.2),
@@ -152,6 +157,9 @@ pub fn build_world() -> World {
             rotation: Quat::default(),
             scale: Vec3::new(1.0, 1.0, 1.0),
         });
+        world.add_component(cube, PhysBody::new(1.0));
+        world.add_component(cube, Velocity::new(Vec3::ZERO));
+        world.add_component(cube, Collider::box_collider(Vec3::new(0.5, 0.5, 0.5)));
         world.add_component(cube, Mesh::default());
         world.add_component(cube, Material {
             albedo: Vec3::new(0.8, 0.2, 0.2),
