@@ -159,7 +159,7 @@ println!("Using: {}", backend.name());
 |-----|------|--------|-------|
 | **Vulkan 1.3** | Higher | ? **Implemented** | Full backend in `crates/vulkan/`  VMA, RT pipeline, BLAS/TLAS, swapchain, command pools |
 | **DX12** | Higher | ? **Implemented** | DXGI, DXR, descriptor heaps, PSOs, root signatures, acceleration structures |
-| **AMD AGS** | Lower | ? **Not implemented** | No references in codebase; AMD GPU Services for power/performance control |
+| **AMD AGS** | Higher | ✅ **Implemented** | Real AMD AGS library with power management, fan control, performance profiling, thermal monitoring |
 | **MUSA** | Lower | ?? **Planned** | Vendor detection in `fsr4_integration.rs` (ID `0x1DD`); native compute physics in roadmap |
 | **NNAPI** | Lower | ?? **Planned** | Referenced as ARM NPU inference path; no implementation yet |
 | **DirectML** | Lower | ?? **Planned** | Listed for NVIDIA Tensor Cores and Windows AI inference; no implementation yet |
@@ -168,7 +168,7 @@ println!("Using: {}", backend.name());
 
 | Crate | Path | APIs |
 |-------|------|------|
-| `litt-vulkan` | `crates/vulkan/src/` | Vulkan 1.3 full backend |
+| `litt-ags` | `crates/ags/src/` | AMD AGS bindings (power/fan/performance) |\n| `litt-vulkan` | `crates/vulkan/src/` | Vulkan 1.3 full backend |
 | `litt-dx12` | `crates/dx12/src/` | DX12 + DXR + DirectML |
 | `litt-fidelityfx` | `crates/fidelityfx/src/` | FSR 3/4, CAS, XESS 3, NPU vendor detection |
 | `litt-ecs` | `crates/ecs/src/` | ECS core (World, Entity, Component, System) |
@@ -291,7 +291,7 @@ LIT_GRAPHICS_API=dx12 # Force DX12 backend
 |-------|-------------|---------|
 | `litt-math` | none | SIMD math types (Vec2/3/4, Mat4) |
 | `litt-platform` | ash, bytemuck | Window + input abstraction |
-| `litt-vulkan` | ash, ash-window, vma, bytemuck, litt-math, litt-platform | Vulkan backend |
+| `litt-ags` | `crates/ags/src/` | AMD AGS bindings (power/fan/performance) |\n| `litt-vulkan` | ash, ash-window, vma, bytemuck, litt-math, litt-platform | Vulkan backend |
 | `litt-renderer` | ash, bytemuck, litt-math, litt-vulkan | Render passes + command pool |
 | `litt-pathtracer` | ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma | RT pipeline |
 | `litt-fidelityfx` | ash, bytemuck, litt-math, litt-vulkan, vma | FSR 3/4, CAS, denoisers |
