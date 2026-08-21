@@ -1,11 +1,21 @@
 ﻿# UI Documentation
 
-HUD, menus, debug overlays, and UI component system.
+HUD overlays, menus, and debug tools.
 
 ## Files
 
 | File | Content |
 |------|---------|
-| [ui-overlay-system.md](./ui-overlay-system.md) | UIOverlaySystem design, component hierarchy, layout |
+| [ui-overlay-system.md](./ui-overlay-system.md) | UI hierarchy, layout system, debug overlay |
 
-**Status:** Phase 9 — Planned. See [../../ROADMAP.md](../../ROADMAP.md#phase-9).
+## Hardware Targeting
+
+| Hardware | Rendering |
+|----------|-----------|
+| Vulkan    | GPU font atlas |
+| DX12     | GPU font atlas |
+| CPU      | Software bitmap fallback |
+
+## Degradation
+
+When GPU rendering is unavailable, UI falls back to software rendering with basic scaling.

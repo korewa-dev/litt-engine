@@ -1,26 +1,25 @@
 ﻿# Platform Documentation
 
-Per-platform GPU and OS notes for Litt Engine.
+Platform-specific optimizations and support matrices.
 
 ## Files
 
 | File | Content |
 |------|---------|
-| [amd-rdna.md](./amd-rdna.md) | AMD RDNA shader/compiler optimizations, RGP |
-| [intel-arc.md](./intel-arc.md) | Intel Arc XeSS 3 integration |
-| [moore-threads.md](./moore-threads.md) | MUSA GPU support, Vulkan extensions |
-| [risc-v.md](./risc-v.md) | RISC-V Linux, RVV, Vortex GPU |
-| [windows.md](./windows.md) | Windows-specific notes, DX12, registry |
-| [linux.md](./linux.md) | Linux Wayland/X11, RADV, driver flags |
-| [android.md](./android.md) | Android Adreno/Mali/PowerVR, NPU |
-| [steam-deck.md](./steam-deck.md) | Steam Deck profiles, controller, Proton |
+| [amd-rdna.md](./amd-rdna.md) | AMD RDNA optimizations |
+| [intel-arc.md](./intel-arc.md) | Intel Arc and XeSS |
+| [moore-threads.md](./moore-threads.md) | MUSA compute and RADV |
+| [risc-v.md](./risc-v.md) | RISC-V hardware support |
+| [windows.md](./windows.md) | Windows-specific notes |
+| [linux.md](./linux.md) | Linux platform notes |
+| [android.md](./android.md) | Android GPU support |
+| [steam-deck.md](./steam-deck.md) | Steam Deck configuration |
 
-## Platform Matrix
+## Hardware Diversity
 
-| Platform | Window Backend | Primary GPU API | NPU | Status |
-|----------|---------------|-----------------|-----|--------|
-| Windows | Win32 | DX12 (preferred) / Vulkan | Intel AI Boost, AMD X DNA | Implemented |
-| Linux | X11 / Wayland | Vulkan (RADV) | AMD XDNA | Partial |
-| Steam Deck | Win32 (Proton) | Vulkan (RADV) | AMD XDNA 2 | Partial |
-| Android | ANativeWindow | Vulkan | Hexagon, Mali-NPU | Partial |
-| RISC-V | Wayland | Vulkan (MESA) | RVV AI | Planned |
+The engine embraces hardware differences rather than abstracting them away:
+
+- **CPU:** AVX2, AVX-512, NEON, RVV vectorization
+- **GPU:** RDNA wave32, ARM Bifrost, NVIDIA CUDA, Intel Xe, Moore Threads MUSA
+- **NPU:** AMD XDNA, Intel AI Boost, Qualcomm Hexagon, Huawei DaVinci, Samsung Exynos
+- **OS:** Windows, Linux (Wayland/X11), Android, RISC-V Linux

@@ -1,11 +1,22 @@
 ﻿# Networking Documentation
 
-Multiplayer networking, ECS replication, and latency compensation.
+Networking for multiplayer and synchronization.
 
 ## Files
 
 | File | Content |
 |------|---------|
-| [networking-system.md](./networking-system.md) | NetworkingSystem design, packet structure, replication |
+| [networking-system.md](./networking-system.md) | UDP/WebSocket, snapshot interpolation, ECS replication |
 
-**Status:** Phase 10 — Planned. See [../../ROADMAP.md](../../ROADMAP.md#phase-10).
+## Hardware Targeting
+
+| Platform | Network Backend |
+|----------|-----------------|
+| Windows  | Winsock + SteamNetworkingSockets |
+| Linux    | Raw socket APIs |
+| Android | Custom TCP/IP stack |
+| WebGL   | WebSocket (wasm-bindgen) |
+
+## Degradation
+
+When advanced networking features (compression, prediction) are unavailable, basic UDP/raw socket communication is used.
