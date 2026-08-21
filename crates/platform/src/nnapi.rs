@@ -51,32 +51,8 @@ impl std::error::Error for NnapiError {}
 pub enum NnapiModelType {
     /// TFLite model
     Tflite,
-    /// ONNX model
+    /// ONNX model (converted to TFLite)
     Onnx,
-    /// TensorFlow Lite format
-    TfLite,
-}
-
-/// NNAPI execution feedback
-#[derive(Debug, Clone)]
-pub struct NnapiFeedback {
-    pub success: bool,
-    pub execution_time_ns: u64,
-    pub cpu_time_ms: f32,
-    pub gpu_time_ms: f32,
-    pub npu_time_ms: f32,
-}
-
-/// NNAPI device info
-#[derive(Debug, Clone)]
-pub struct NnapiDeviceInfo {
-    pub name: String,
-    pub type_: NnapiDeviceType,
-    pub version: String,
-    pub max_input Dimensions: (u32, u32, u32, u32),
-    pub supports_fp16: bool,
-    pub supports_int8: bool,
-    pub supports_fp32: bool,
 }
 
 /// NNAPI device type
@@ -87,22 +63,6 @@ pub enum NnapiDeviceType {
     Npu,
     APU,
     Other,
-}
-
-/// NNAPI model handle
-#[derive(Debug, Clone, Copy)]
-pub struct NnapiModel(*mut c_void);
-
-/// NNAPI execution handle
-#[derive(Debug, Clone, Copy)]
-pub struct NnapiExecution(*mut c_void);
-
-/// NNAPI input tensor
-#[derive(Debug, Clone)]
-pub struct NnapiTensor {
-    pub shape: Vec<u32>,
-    pub data: Vec<u8>,
-    pub type_: NnapiDataType,
 }
 
 /// NNAPI data type
@@ -129,16 +89,42 @@ impl From<NnapiDataType> for u32 {
     }
 }
 
+/// NNAPI tensor
+#[derive(Debug, Clone)]
+pub struct NnapiTensor {
+    pub shape: Vec<u32>,
+    pub data: Vec<u8>,
+    pub type_: NnapiDataType,
+}
+
+/// NNAPI device info
+#[derive(Debug, Clone)]
+pub struct NnapiDeviceInfo {
+    pub name: String,
+    pub type_: NnapiDeviceType,
+    pub version: String,
+    pub max_input_dimensions: (u32, u32, u32, u32),
+    pub supports_fp16: bool,
+    pub supports_int8: bool,
+    pub supports_fp32: bool,
+}
+
+/// NNAPI model handle (opaque)
+#[derive(Debug, Clone, Copy)]
+pub struct NnapiModel(*mut c_void);
+
+/// NNAPI execution handle (opaque)
+#[derive(Debug, Clone, Copy)]
+pub struct NnapiExecution(*mut c_void);
+
 /// Check if NNAPI is available
 pub fn nnapi_is_available() -> bool {
-    // NNAPI is available on Android 8.0+
     #[cfg(target_os = "android")]
     {
-        // Check Android version
         unsafe {
-            // Try to load libandroid_runtime.so
+            // Check for libneuralnetworks.so
             let handle = libc::dlopen(
-                b"libandroid_runtime.so\0".as_ptr() as *const i8,
+                b"libneuralnetworks.so\0".as_ptr() as *const i8,
                 libc::RTLD_NOW,
             );
             
@@ -146,12 +132,8 @@ pub fn nnapi_is_available() -> bool {
                 // Check for ANeuralNetworks_getDeviceCount
                 let sym = libc::dlsym(handle, b"ANeuralNetworks_getDeviceCount\0".as_ptr() as *const i8);
                 if !sym.is_null() {
-                    true
-                } else {
-                    false
+                    return true;
                 }
-            } else {
-                false
             }
         }
     }
@@ -167,7 +149,6 @@ pub fn nnapi_get_devices() -> Result<Vec<NnapiDeviceInfo>, NnapiError> {
     #[cfg(target_os = "android")]
     {
         unsafe {
-            // Load NNAPI library
             let handle = libc::dlopen(
                 b"libneuralnetworks.so\0".as_ptr() as *const i8,
                 libc::RTLD_NOW,
@@ -205,11 +186,26 @@ pub fn nnapi_get_devices() -> Result<Vec<NnapiDeviceInfo>, NnapiError> {
                 let mut device: *mut c_void = std::ptr::null_mut();
                 let result = get_device(i, &mut device);
                 if result == 0 && !device.is_null() {
-                    // Query device properties
-                    // (In real implementation, call ANeuralNetworksDevice_getType, etc.)
+                    // Query device type
+                    type GetDeviceTypeFn = unsafe extern "C" fn(*const c_void, *mut u32) -> i32;
+                    let get_type: GetDeviceTypeFn = std::mem::transmute(
+                        libc::dlsym(handle, b"ANeuralNetworksDevice_getType\0".as_ptr() as *const i8)
+                    );
+                    
+                    let mut type_: u32 = 0;
+                    let _ = get_type(device, &mut type_);
+                    
+                    let device_type = match type_ {
+                        0 => NnapiDeviceType::Cpu,
+                        1 => NnapiDeviceType::Gpu,
+                        2 => NnapiDeviceType::Npu,
+                        3 => NnapiDeviceType::APU,
+                        _ => NnapiDeviceType::Other,
+                    };
+                    
                     devices.push(NnapiDeviceInfo {
                         name: format!("NNAPI Device {}", i),
-                        type_: NnapiDeviceType::Npu,
+                        type_: device_type,
                         version: "1.2".to_string(),
                         max_input_dimensions: (1, 224, 224, 3),
                         supports_fp16: true,
@@ -231,7 +227,7 @@ pub fn nnapi_get_devices() -> Result<Vec<NnapiDeviceInfo>, NnapiError> {
     }
 }
 
-/// Load a neural network model
+/// Load a neural network model (TFLite or ONNX)
 pub fn nnapi_load_model(data: &[u8], model_type: NnapiModelType) -> Result<NnapiModel, NnapiError> {
     #[cfg(target_os = "android")]
     {
@@ -404,8 +400,7 @@ pub fn nnapi_compute(
                 ));
             }
             
-            // Get outputs
-            // (In real implementation, query output sizes and copy data)
+            // Get outputs (simplified - in real implementation, query output sizes)
             Ok(vec![])
         }
     }
