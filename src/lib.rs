@@ -1,5 +1,5 @@
-// Litt Engine Library
-// Re-export key types for the GUI
+//! Litt Engine Library
+//! Re-exports all engine crates and modules for the GUI and tests.
 
 pub use litt_math::*;
 pub use litt_platform::*;
@@ -9,6 +9,14 @@ pub use litt_pathtracer::*;
 pub use litt_fidelityfx::*;
 pub use litt_dx12::*;
 pub use litt_physics::*;
+pub use litt_ai::*;
+pub use litt_asset::*;
+pub use litt_input::*;
+pub use litt_audio::*;
+pub use litt_ui::*;
+pub use litt_profiler::*;
+pub use litt_scene::*;
+pub use litt_config::*;
 
 pub use config::*;
 
@@ -16,12 +24,12 @@ pub use config::*;
 pub mod graphics;
 pub use graphics::{GraphicsBackend, select_backend, get_gpu_info};
 
+// Config module (re-exported from config crate)
 pub mod config {
     pub use crate::math::{Vec3, Vec4, Mat4, Ray, BoundingBox, Triangle};
     pub use crate::pathtracer::{Scene, Camera, Material, HitInfo};
     pub use crate::renderer::{Renderer, Swapchain};
     pub use crate::vulkan::{VulkanDevice, Instance, PhysicalDevice};
     pub use crate::physics::{PhysicsBody, ColliderShape, PhysicsSystem, PhysicsBackend};
-
     pub use crate::graphics::{GraphicsFeatures, Dx12Features, FeatureLevel};
 }

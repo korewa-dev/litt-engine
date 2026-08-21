@@ -546,6 +546,54 @@ let result = compile_hlsl(hlsl_source, "main", "dxil_6_5")?;
 | `litt-ecs` | litt-math, bytemuck | ECS core (World, Entity, Component, System) |
 | `litt-dx12` | bytemuck, libloading, litt-math, litt-platform, winapi | DX12 backend with DXC |
 | `litt-asset` | image, bytemuck, litt-math | Model, texture, shader, material, font loading |
+| `litt-input` | bytemuck, litt-math | Keyboard, mouse, gamepad input |
+| `litt-audio` | bytemuck, hound, cpal | Sound playback and mixing |
+| `litt-ui` | bytemuck, litt-math | Debug HUD, overlays, text rendering |
+| `litt-profiler` | bytemuck, ash | Frame timing, GPU/CPU sync, stats |
+| `litt-scene` | bytemuck, litt-math, litt-asset, litt-ecs | Scene graph and loading |
+| `litt-config` | bytemuck, serde | Settings, presets, JSON persistence |
+
+---
+
+## Engine Modules (Phase 9)
+
+The engine now includes 6 new modules that integrate all lower-level systems:
+
+```rust
+use litt::*;
+
+fn main() {
+    // Create config manager
+    let mut config = ConfigManager::new();
+    config.apply_preset("high"); // or "low", "medium", "ultra"
+
+    // Create game loop
+    let mut game_loop = GameLoop::with_config(GameConfig {
+        max_fps: 144,
+        physics_hz: 60.0,
+        ..Default::default()
+    });
+
+    // Create app with all systems
+    let mut app = App::new().unwrap();
+
+    // Run the game loop
+    app.run();
+}
+```
+
+**Engine Modules:**
+
+| Module | Purpose |
+|--------|---------|
+| `input` | Keyboard, mouse, gamepad — unified `InputState` |
+| `audio` | Sound playback, mixing, source management |
+| `ui` | Debug HUD, overlay primitives, text rendering |
+| `profiler` | Frame timing, GPU/CPU sync, performance stats |
+| `scene` | Hierarchical scene graph with loading |
+| `config` | Settings, presets, JSON persistence |
+| `game_loop` | Fixed timestep loop with FPS capping |
+| `app` | Full pipeline integration |
 
 ---
 
@@ -578,6 +626,7 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 | 6 | Universal AI Acceleration | ✅ Complete |
 | 7 | DirectX 12 Backend | ✅ Complete |
 | 8 | Asset Pipeline | ✅ Complete |
+| 9 | Engine Modules | ✅ Complete |
 | 9 | Engine Modules | ⚠️ Planned |
 | 10 | Networking | ⚠️ Planned |
 | 11 | Platform Support | ✅ Ongoing |

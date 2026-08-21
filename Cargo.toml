@@ -6,7 +6,7 @@ description = "Ultra-lightweight Vulkan path tracing engine for AMD, Intel Arc, 
 license = "MIT"
 
 [workspace]
-members = [".", "crates/math", "crates/platform", "crates/vulkan", "crates/renderer", "crates/pathtracer", "crates/fidelityfx", "crates/ecs", "crates/dx12", "crates/ags", "crates/physics", "crates/ai", "crates/asset"]
+members = [".", "crates/math", "crates/platform", "crates/vulkan", "crates/renderer", "crates/pathtracer", "crates/fidelityfx", "crates/ecs", "crates/dx12", "crates/ags", "crates/physics", "crates/ai", "crates/asset", "crates/input", "crates/audio", "crates/ui", "crates/profiler", "crates/scene", "crates/config"]
 
 [workspace.package]
 rust-version = "1.75"
@@ -44,6 +44,12 @@ litt-ags = { path = "crates/ags" }
 litt-physics = { path = "crates/physics" }
 litt-ai = { path = "crates/ai" }
 litt-asset = { path = "crates/asset" }
+litt-input = { path = "crates/input" }
+litt-audio = { path = "crates/audio" }
+litt-ui = { path = "crates/ui" }
+litt-profiler = { path = "crates/profiler" }
+litt-scene = { path = "crates/scene" }
+litt-config = { path = "crates/config" }
 ash = { workspace = true }
 bytemuck = { workspace = true }
 bitflags = { workspace = true }

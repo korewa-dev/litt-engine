@@ -3,6 +3,7 @@
 //! Simple triangle mesh with bounding box.
 
 use litt_math::{Vec3, Bbox};
+use litt_math::Vec2;
 
 #[derive(Clone, Debug)]
 pub struct Vertex {
@@ -10,8 +11,6 @@ pub struct Vertex {
     pub normal: Vec3,
     pub texcoord: Vec2,
 }
-
-use litt_math::Vec2;
 
 #[derive(Clone, Debug, Default)]
 pub struct Mesh {

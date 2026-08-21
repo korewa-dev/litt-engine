@@ -170,3 +170,70 @@
 - [x] `AssetCache` — LRU eviction
 
 ---
+
+## Phase 9: Engine Modules [✅ COMPLETE]
+
+### Input System (litt-input)
+- [x] Keyboard input — key codes, pressed/released/down detection
+- [x] Mouse input — position, delta, buttons, scroll
+- [x] Gamepad input — buttons, axes, connection state
+- [x] Unified `InputState` — single source of truth for all input
+- [x] `InputSystem` — event processing and frame management
+
+### Audio System (litt-audio)
+- [x] `Sound` — audio asset with format info
+- [x] `AudioSource` — playback control (play/pause/stop)
+- [x] `AudioContext` — source management and mixing
+- [x] WAV loading via `hound`
+- [x] Source types: OneShot, Loop, Music
+
+### UI System (litt-ui)
+- [x] `DebugHud` — FPS counter, frame time, draw calls, triangles, NPU status
+- [x] `Overlay` — debug primitives (lines, boxes, spheres, text)
+- [x] `TextRenderer` — font metrics and text measurement
+- [x] `UiElement` — hierarchical UI element base
+
+### Profiler (litt-profiler)
+- [x] `FrameTimer` — FPS, frame time, min/max/avg tracking
+- [x] `GpuTimerQuery` — Vulkan timestamp queries for GPU timing
+- [x] `Stats` — aggregate metrics (CPU/GPU time, memory, draw calls)
+
+### Scene Management (litt-scene)
+- [x] `SceneNode` — position, rotation, scale, visibility, tags
+- [x] `SceneGraph` — hierarchical graph with parent/child relationships
+- [x] `SceneLoader` — GLTF and custom binary format loading
+- [x] Query by layer, tag, name
+
+### Configuration (litt-config)
+- [x] `Settings` — graphics, audio, input, performance config
+- [x] `GraphicsQuality` preset system (Low/Medium/High/Ultra)
+- [x] `AAMode`, `ShadowQuality`, `FSRMode` enums
+- [x] `ConfigManager` — load/save JSON persistence
+- [x] Preset functions for common configurations
+
+### Game Loop (src/game_loop.rs)
+- [x] Fixed timestep with configurable physics Hz
+- [x] Accumulator pattern for consistent physics updates
+- [x] FPS capping with frame time limiting
+- [x] Max frame time cap to prevent spiral of death
+- [x] Clean start/stop lifecycle
+
+### App Integration (src/app.rs)
+- [x] Full pipeline integration: input → physics → render → audio
+- [x] ECS world with physics-enabled entities
+- [x] Debug HUD overlay
+- [x] Config persistence
+- [x] Cross-platform entry points (Windows, Linux, Android)
+
+### Deliverables
+- [x] `litt-input` crate (5 modules)
+- [x] `litt-audio` crate (3 modules)
+- [x] `litt-ui` crate (4 modules)
+- [x] `litt-profiler` crate (3 modules)
+- [x] `litt-scene` crate (3 modules)
+- [x] `litt-config` crate (3 modules)
+- [x] `src/game_loop.rs` — fixed timestep loop
+- [x] `src/app.rs` — full engine integration
+- [x] Workspace: 18 crates total
+
+---

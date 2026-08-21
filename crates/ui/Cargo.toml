@@ -1,0 +1,17 @@
+[package]
+name = "litt-ui"
+version = "0.1.0"
+edition = "2021"
+description = "UI/HUD system for Litt Engine — debug overlays and menus"
+
+[dependencies]
+litt-math = { path = "../math" }
+bytemuck = { workspace = true }
+log = { workspace = true }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

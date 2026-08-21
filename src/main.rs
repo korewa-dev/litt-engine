@@ -2,7 +2,9 @@
 //!
 //! Targets: Windows, Linux, Android
 //! GPU Focus: AMD (RDNA2/RDNA3/RRNA4), Intel Arc, Samsung Exynos
-//! Features: VMA Memory Management, BLAS/TLAS Pipeline, FSR 3.1.5
+//! Features: VMA Memory Management, BLAS/TLAS Pipeline, FSR 3.1.5, NPU acceleration
+//!
+//! Engine Modules: input, audio, ui, profiler, scene, config
 
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
@@ -14,23 +16,41 @@ extern crate alloc;
 use alloc::vec::Vec;
 use alloc::string::String;
 
-// Re-export crates
+// =============================================================================
+// Re-export all crates
+// =============================================================================
 pub mod version;
 pub use litt_math::*;
 pub use litt_platform::*;
 pub use litt_vulkan::*;
 pub use litt_renderer::*;
 pub use litt_pathtracer::*;
-pub use litt_ecs::*;
 pub use litt_fidelityfx::*;
+pub use litt_ecs::*;
+pub use litt_physics::*;
+pub use litt_ai::*;
+pub use litt_asset::*;
+pub use litt_input::*;
+pub use litt_audio::*;
+pub use litt_ui::*;
+pub use litt_profiler::*;
+pub use litt_scene::*;
+pub use litt_config::*;
 
+// =============================================================================
+// Internal modules
+// =============================================================================
 pub mod ecs;
+pub mod graphics;
+pub mod template;
 mod app;
 mod debug;
 mod logging;
+mod game_loop;
 
 use app::*;
 use logging::*;
+use game_loop::*;
 
 /// Main entry point
 fn print_version() {
@@ -91,194 +111,4 @@ pub extern "C" fn android_main(app: *mut android_activity::AndroidApp) {
     };
 
     _app.run();
-}
-
-/// Application module with full pipeline integration
-mod app {
-    use super::*;
-    use litt_platform::Window;
-    use litt_vulkan::*;
-    use litt_renderer::*;
-    use litt_pathtracer::*;
-
-    pub struct App {
-        window: Window,
-        renderer: Option<Renderer>,
-        scene: Scene,
-        camera: Camera,
-        should_quit: bool,
-    }
-
-    impl App {
-        #[cfg(target_os = "windows")]
-        pub fn new(hInstance: *mut std::ffi::c_void, nCmdShow: i32) -> Result<Self, String> {
-            let window = Window::new("Litt Engine", WindowSize { width: 1280, height: 720 })
-                .ok_or("Failed to create window")?;
-
-            Ok(Self {
-                window,
-                renderer: None,
-                scene: Scene::default_test_scene(),
-                camera: Camera {
-                    position: Vec3::new(0.0, 2.0, 5.0),
-                    rotation: Vec2::new(0.0, 0.0),
-                    fov: core::f32::consts::PI / 3.0,
-                    near_plane: 0.1,
-                    far_plane: 100.0,
-                    aspect: 16.0 / 9.0,
-                    exposure: 1.0,
-                    _pad: [0.0; 3],
-                },
-                should_quit: false,
-            })
-        }
-
-        #[cfg(target_os = "linux")]
-        pub fn new() -> Result<Self, String> {
-            let window = Window::new("Litt Engine", WindowSize { width: 1280, height: 720 })
-                .ok_or("Failed to create window")?;
-
-            Ok(Self {
-                window,
-                renderer: None,
-                scene: Scene::default_test_scene(),
-                camera: Camera {
-                    position: Vec3::new(0.0, 2.0, 5.0),
-                    rotation: Vec2::new(0.0, 0.0),
-                    fov: core::f32::consts::PI / 3.0,
-                    near_plane: 0.1,
-                    far_plane: 100.0,
-                    aspect: 16.0 / 9.0,
-                    exposure: 1.0,
-                    _pad: [0.0; 3],
-                },
-                should_quit: false,
-            })
-        }
-
-        #[cfg(target_os = "android")]
-        pub fn from_android(_app: *mut android_activity::AndroidApp) -> Result<Self, String> {
-            Ok(Self {
-                window: Window::new(WindowSize { width: 1280, height: 720 }).ok_or("Failed")?,
-                renderer: None,
-                scene: Scene::default_test_scene(),
-                camera: Camera {
-                    position: Vec3::new(0.0, 2.0, 5.0),
-                    rotation: Vec2::new(0.0, 0.0),
-                    fov: core::f32::consts::PI / 3.0,
-                    near_plane: 0.1,
-                    far_plane: 100.0,
-                    aspect: 16.0 / 9.0,
-                    exposure: 1.0,
-                    _pad: [0.0; 3],
-                },
-                should_quit: false,
-            })
-        }
-
-        pub fn run(mut self) -> i32 {
-            // Initialize Vulkan and render pipeline
-            match unsafe { self.initialize_vulkan() } {
-                Ok(_) => {},
-                Err(e) => {
-                    debug::log(&format!("Vulkan init failed: {}", e));
-                    return 1;
-                }
-            }
-
-            // Initialize render pipeline
-            if let Some(ref mut renderer) = self.renderer {
-                match renderer.initialize_pipeline(self.scene.clone(), self.camera.clone()) {
-                    Ok(_) => {},
-                    Err(e) => {
-                        debug::log(&format!("Pipeline init failed: {}", e));
-                        return 1;
-                    }
-                }
-            }
-
-            // Main loop
-            while !self.should_quit && !self.window.should_close() {
-                self.window.pump_messages();
-
-                if let Some(ref mut renderer) = self.renderer {
-                    match unsafe { renderer.render_frame(&self.scene, &self.camera) } {
-                        Ok(_) => {},
-                        Err(e) => {
-                            debug::log(&format!("Render error: {}", e));
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if let Some(ref mut renderer) = self.renderer {
-                unsafe {
-                    renderer.device.device.wait_idle().ok();
-                }
-            }
-
-            0
-        }
-
-        unsafe fn initialize_vulkan(&mut self) -> Result<(), String> {
-            let instance = create_vulkan_instance()?;
-            let physical_device = *instance.enumerate_physical_devices()?.first().ok_or("No GPU")?;
-            let surface = create_surface(&instance, &physical_device, &self.window)?;
-
-            let queue_families = find_queue_families(&instance, physical_device)?;
-            let mut device = VulkanDevice::new(&instance, physical_device, surface, &queue_families)?;
-
-            let swapchain = create_swapchain(
-                &device.device,
-                device.physical_device,
-                surface,
-                &queue_families,
-                &device.surface_loader,
-                &device.swapchain_loader,
-                self.window.size.width,
-                self.window.size.height,
-            )?;
-
-            let command_pool = CommandPool::new(&device.device, device.graphics_family)?;
-            let render_pass = RenderPass::new(&device.device, swapchain.format)?;
-            let descriptor_pool = DescriptorPool::new(&device.device, 256)?;
-
-            self.renderer = Some(Renderer {
-                device,
-                swapchain,
-                command_pool,
-                render_pass,
-                frame_in_flight: 2,
-                fences: Vec::new(),
-                semaphores: Vec::new(),
-                descriptor_pool,
-                current_frame: 0,
-                render_pipeline: None,
-            });
-
-            Ok(())
-        }
-    }
-}
-
-mod debug {
-    #[cfg(target_os = "windows")]
-    pub fn log(msg: &str) {
-        unsafe {
-            use windows_sys::Win32::Foundation::HWND;
-            use windows_sys::Win32::UI::WindowsAndMessaging::OutputDebugStringW;
-            let s: Vec<u16> = msg.encode_utf16().collect();
-            OutputDebugStringW(s.as_ptr() as *const _);
-        }
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    pub fn log(msg: &str) {
-        eprintln!("{}", msg);
-    }
-}
-
-mod logging {
-    pub fn init() {}
 }
