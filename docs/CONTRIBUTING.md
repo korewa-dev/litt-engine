@@ -5,7 +5,7 @@ Thank you for wanting to contribute. Litt Engine is a small, focused project —
 ## Before You Start
 
 1. **Read ROADMAP.md.** Your feature may already be planned, or it may conflict with an existing direction.
-2. **Check open issues.** Don''''t duplicate work.
+2. **Check open issues.** Don't duplicate work.
 3. **Open an issue first** for non-trivial changes. Small fixes (typos, one-line corrections) can go straight to PR.
 
 ## Development Setup
@@ -48,7 +48,7 @@ Examples:
 
 ## What Gets Rejected
 
-- Features without a roadmap entry (unless it''''s a bug fix)
+- Features without a roadmap entry (unless it's a bug fix)
 - New GPU/CPU fallback paths for NPU inference (existing fallbacks are deprecated, not removed)
 - Bloat that pushes binary size over target
 - Undocumented subsystems
