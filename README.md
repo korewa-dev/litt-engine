@@ -87,7 +87,7 @@ Multi-tier GPU-accelerated physics per platform:
 
 | Tier | GPU | Optimization |
 |------|-----|--------------|
-| RDNA | AMD RX 6000/7000/8000 | GPU broadphase, SIMD narrowphase, wave32, async compute |
+| RDNA | AMD RX 6000 - 9000 | GPU broadphase, SIMD narrowphase, wave32, async compute |
 | ARM | Adreno, Mali | NEON physics, fixed-step simulation |
 | Samsung RDNA | Exynos 2200+ | RDNA compute physics |
 | Kirin | Mali + Da Vinci NPU | Mali compute + NEON fallback |
