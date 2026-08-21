@@ -163,16 +163,30 @@ println!("Using: {}", backend.name());
 
 ---
 
-## Graphics API Status
+## Backend Status
+
+### Graphics APIs (Rendering)
 
 | API | Tier | Status | Notes |
 |-----|------|--------|-------|
 | **Vulkan 1.3** | Higher | ✅ **Implemented** | Full backend in `crates/vulkan/` — VMA, RT pipeline, BLAS/TLAS, swapchain, command pools |
 | **DX12** | Higher | ✅ **Implemented** | DXGI, DXR, descriptor heaps, PSOs, root signatures, acceleration structures, DXC shader compilation |
-| **AMD AGS** | Higher | ✅ **Implemented** | Real AMD AGS library with power management, fan control, performance profiling, thermal monitoring |
-| **MUSA** | Higher | ✅ **Implemented** | Moore Threads GPU support via Vulkan-based compute backend |
-| **NNAPI** | Higher | ✅ **Implemented** | Android NPU support via Android Neural Networks API |
-| **DirectML** | Lower | ⚠️ **Stub** | Listed for NVIDIA Tensor Cores and Windows AI inference; no implementation yet |
+
+### AI Acceleration (NPU/DSP Inference)
+
+| API | Tier | Status | Notes |
+|-----|------|--------|-------|
+| **NNAPI** | Mobile | ✅ **Implemented** | Android NPU inference via `libneuralnetworks.so` — runs TFLite/ONNX models on mobile NPUs (Qualcomm Hexagon, MediaTek APU, Kirin NPU) |
+| **DirectML** | Windows | ⚠️ **Stub** | Not yet implemented |
+
+### GPU Management
+
+| API | Tier | Status | Notes |
+|-----|------|--------|-------|
+| **AMD AGS** | Desktop | ✅ **Implemented** | Power management, fan control, performance profiling, thermal monitoring (requires `amd_ags_x64.dll` / `libamd_ags.so`) |
+| **MUSA** | Desktop | ⚠️ **Partial** | Moore Threads GPU detection via Vulkan (compute backend; MUSA SDK is proprietary, no public API) |
+
+**Note:** NNAPI is an AI inference API, not a graphics API. It runs neural network models on NPUs for tasks like denoising, frame generation, and upscaling — NOT for rendering graphics pipelines.
 
 **Implemented crates:**
 
@@ -183,7 +197,7 @@ println!("Using: {}", backend.name());
 | `litt-dx12` | `crates/dx12/src/` | DX12 + DXR + DXC shader compilation |
 | `litt-fidelityfx` | `crates/fidelityfx/src/` | FSR 3/4, CAS, XESS 3, NPU vendor detection |
 | `litt-ecs` | `crates/ecs/src/` | ECS core (World, Entity, Component, System) |
-| `litt-platform` | `crates/platform/src/` | Windows (Win32), Linux (X11), Android (AAPI), MUSA, NNAPI |
+| `litt-platform` | `crates/platform/src/` | Windows (Win32), Linux (X11), Android (AAPI), MUSA detection, NNAPI inference |
 
 See [docs/ROADMAP.md](./docs/ROADMAP.md) for detailed phase tracking.
 
