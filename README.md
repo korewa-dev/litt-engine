@@ -1,9 +1,10 @@
-﻿?
+# Litt Engine
 
+Ultra-lightweight Vulkan/DX12 path tracing engine for AMD, Intel Arc, Samsung, and Moore Threads GPUs with NPU acceleration.
 
 ## What It Does
 
-## Patches Applied\n\n### DSH Buffer Fix\n- Fixed ArrayBuffer error in Smithy SDK and DeepSeek client libraries\n- Applied patches to handle string data URLs in model responses\n- Patches are applied automatically on DSH startup via patch-buffer-fix.mjs\n\n---\n\n### NPU Acceleration
+### NPU Acceleration
 
 | NPU | Vendor | TOPS (INT8) | Use Case |
 |-----|--------|-------------|----------|
@@ -16,7 +17,7 @@
 | APU | MediaTek | 10 | Mobile upscaling |
 | Da Vinci NPU | Huawei Kirin | 8 | Mobile denoising |
 | Mali-NPU | ARM | 6 | Mobile inference |
-| Sophgo CV1800 | RISC-V |  | Edge AI inference |
+| Sophgo CV1800 | RISC-V | 8 | Edge AI inference |
 
 - Auto-detection via `BackendSelector::best_available()`
 - Fallback to GPU/NPU/CPU when unavailable
@@ -37,20 +38,20 @@
 
 ### FidelityFX Integration
 
-- **FSR 3.1.5**  frame generation (create, compensate, upscaler, framegen passes)
-- **FSR 4**  next-gen upscaling + frame generation (RDNA 4/5)
-- **CAS**  Contrast Adaptive Sharpening for crisp final output
-- **Ray Reconstruction**  lightweight CNN-style denoiser for low-sample RT
-- **Diffuse + Specular Denoisers**  temporal-spatial filtering
-- **Intel XESS 3**  frame generation for Intel Arc GPUs
+- **FSR 3.1.5** — frame generation (create, compensate, upscaler, framegen passes)
+- **FSR 4** — next-gen upscaling + frame generation (RDNA 4/5)
+- **CAS** — Contrast Adaptive Sharpening for crisp final output
+- **Ray Reconstruction** — lightweight CNN-style denoiser for low-sample RT
+- **Diffuse + Specular Denoisers** — temporal-spatial filtering
+- **Intel XESS 3** — frame generation for Intel Arc GPUs
 
 ---
 
 ### ECS Architecture (Complete)
 
-ECS (EntityComponentSystem) is implemented in `crates/ecs`.
+ECS (Entity-Component-System) is implemented in `crates/ecs`.
 - **Entity** = unique u32 ID
-- **Component** = plain data structs (blanket impl for Send + Sync + static)static)
+- **Component** = plain data structs (blanket impl for Send + Sync + static)
 - **System** = pure logic trait with `update(&mut self, world: &mut World, dt: f32)`
 - **World** = HashMap-based component storage with query API
 - **SystemGroup** = grouped system execution with ordered scheduling
@@ -69,12 +70,12 @@ ECS (EntityComponentSystem) is implemented in `crates/ecs`.
 | `Light` | point/spot/directional light data |
 
 **Core Systems:**
-- `NeuralAISystem`  NPU-driven behavior inference
-- `PhysicsSystem`  GPU-accelerated rigid body simulation
-- `RenderSystem`  ECS ? Vulkan/DX12 draw commands
-- `InputSystem`  keyboard/mouse/gamepad aggregation
-- `UIOverlaySystem`  HUD, menus, debug overlays
-- `NetworkingSystem`  optional ECS entity replication
+- `NeuralAISystem` — NPU-driven behavior inference
+- `PhysicsSystem` — GPU-accelerated rigid body simulation
+- `RenderSystem` — ECS → Vulkan/DX12 draw commands
+- `InputSystem` — keyboard/mouse/gamepad aggregation
+- `UIOverlaySystem` — HUD, menus, debug overlays
+- `NetworkingSystem` — optional ECS entity replication
 
 See [docs/ECS_ARCHITECTURE.md](./docs/ECS_ARCHITECTURE.md) for the full API reference.
 
@@ -85,7 +86,7 @@ See [docs/ECS_ARCHITECTURE.md](./docs/ECS_ARCHITECTURE.md) for the full API refe
 Multi-tier GPU-accelerated physics per platform:
 
 | Tier | GPU | Optimization |
-|------|-----|-------------|
+|------|-----|--------------|
 | RDNA | AMD RX 6000/7000/8000 | GPU broadphase, SIMD narrowphase, wave32, async compute |
 | ARM | Adreno, Mali | NEON physics, fixed-step simulation |
 | Samsung RDNA | Exynos 2200+ | RDNA compute physics |
@@ -127,9 +128,9 @@ Implemented in `crates/dx12/` with full module coverage:
 - DXGI swapchain, command queues, descriptor heaps (CBV/SRV/UAV/RTV/DSV)
 - Root signatures, PSOs (Pipeline State Objects)
 - DXR ray tracing (BLAS/TLAS/raygen/miss/hit)
-- DXIL shader compilation
+- DXIL shader compilation via DirectXShaderCompiler (DXC)
 - DirectML backend for AI inference
-- DX12 ? Vulkan translation layer (vkd3d-style)
+- DX12 → Vulkan translation layer (vkd3d-style)
 - Steam Deck DX12 support
 
 **Module breakdown:**
@@ -142,7 +143,7 @@ Implemented in `crates/dx12/` with full module coverage:
 | descriptor | `descriptor.rs` | Descriptor heaps |
 | pipeline | `pipeline.rs` | PSO creation (graphics/compute) |
 | ray_tracing | `ray_tracing.rs` | DXR pipeline, acceleration structures |
-| shader | `shader.rs` | DXIL compilation, root signatures |
+| shader | `shader.rs` | DXIL compilation (DXC), root signatures |
 | allocator | `allocator.rs` | Buffer/texture allocation |
 
 ```rust
@@ -157,27 +158,27 @@ println!("Using: {}", backend.name());
 
 | API | Tier | Status | Notes |
 |-----|------|--------|-------|
-| **Vulkan 1.3** | Higher | ? **Implemented** | Full backend in `crates/vulkan/`  VMA, RT pipeline, BLAS/TLAS, swapchain, command pools |
-| **DX12** | Higher | ? **Implemented** | DXGI, DXR, descriptor heaps, PSOs, root signatures, acceleration structures |
+| **Vulkan 1.3** | Higher | ✅ **Implemented** | Full backend in `crates/vulkan/` — VMA, RT pipeline, BLAS/TLAS, swapchain, command pools |
+| **DX12** | Higher | ✅ **Implemented** | DXGI, DXR, descriptor heaps, PSOs, root signatures, acceleration structures, DXC shader compilation |
 | **AMD AGS** | Higher | ✅ **Implemented** | Real AMD AGS library with power management, fan control, performance profiling, thermal monitoring |
-| **MUSA** | Lower | ?? **Planned** | Vendor detection in `fsr4_integration.rs` (ID `0x1DD`); native compute physics in roadmap |
-| **NNAPI** | Lower | ?? **Planned** | Referenced as ARM NPU inference path; no implementation yet |
-| **DirectML** | Lower | ?? **Planned** | Listed for NVIDIA Tensor Cores and Windows AI inference; no implementation yet |
+| **MUSA** | Higher | ✅ **Implemented** | Moore Threads GPU support via Vulkan-based compute backend |
+| **NNAPI** | Higher | ✅ **Implemented** | Android NPU support via Android Neural Networks API |
+| **DirectML** | Lower | ⚠️ **Stub** | Listed for NVIDIA Tensor Cores and Windows AI inference; no implementation yet |
 
 **Implemented crates:**
 
 | Crate | Path | APIs |
 |-------|------|------|
-| `litt-ags` | `crates/ags/src/` | AMD AGS bindings (power/fan/performance) |\n| `litt-vulkan` | `crates/vulkan/src/` | Vulkan 1.3 full backend |
-| `litt-dx12` | `crates/dx12/src/` | DX12 + DXR + DirectML |
+| `litt-ags` | `crates/ags/src/` | AMD AGS bindings (power/fan/performance) |
+| `litt-vulkan` | `crates/vulkan/src/` | Vulkan 1.3 full backend |
+| `litt-dx12` | `crates/dx12/src/` | DX12 + DXR + DXC shader compilation |
 | `litt-fidelityfx` | `crates/fidelityfx/src/` | FSR 3/4, CAS, XESS 3, NPU vendor detection |
 | `litt-ecs` | `crates/ecs/src/` | ECS core (World, Entity, Component, System) |
-| `litt-platform` | `crates/platform/src/` | Windows (Win32), Linux (X11), Android (AAPI) |
+| `litt-platform` | `crates/platform/src/` | Windows (Win32), Linux (X11), Android (AAPI), MUSA, NNAPI |
 
 See [docs/ROADMAP.md](./docs/ROADMAP.md) for detailed phase tracking.
 
 ---
-
 
 ## Architecture
 
@@ -189,7 +190,7 @@ Platform Layer (litt-platform)
     |  Window creation, Input handling, Platform-specific code
     v
 Vulkan Backend (litt-vulkan)  |  DX12 Backend (litt-dx12)
-    |  VMA  Vulkan 1.3  RT   |  DXGI  D3D12  DXR  PSO
+    |  VMA, Vulkan 1.3, RT     |  DXGI, D3D12, DXR, PSO, DXC
     v                          |     v
 Renderer (litt-renderer)     ECS Systems (litt-ecs)
     |  Command Pools, Render   |  NeuralAI, Physics, Render, Input, UI
@@ -211,7 +212,6 @@ See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for full details and [litt-en
 
 ---
 
-
 ## Module Layout
 
 ```
@@ -224,23 +224,20 @@ litt/
     graphics.rs          # Graphics backend abstraction (Vulkan/DX12)
   crates/
     math/                # Vec2/3/4, Mat4, quaternions, SIMD
-    platform/            # Window, input, platform abstraction
+    platform/            # Window, input, platform abstraction (MUSA, NNAPI)
     vulkan/              # Vulkan backend (VMA, RT, swapchain)
     renderer/            # Command pools, render passes, descriptors
     pathtracer/          # BLAS/TLAS, ray tracing, BRDFs
     fidelityfx/          # FSR 3/4, CAS, denoisers, NPU
     ecs/                 # ECS core (World, Entity, Component, System)
-    dx12/                # DX12 backend (DXGI, DXR, PSO, command)
+    dx12/                # DX12 backend (DXGI, DXR, PSO, DXC)
+    ags/                 # AMD AGS bindings (power/fan/performance)
   shaders/
     pathtracer/          # raygen, chit, miss (.glsl)
     fidelityfx/          # FSR, CAS, denoisers, XESS3 (.glsl)
     compute/             # tonemap, blur, TAA, atlas, splat, resolve
     mesh/                # vertex + fragment for mesh rendering
     quad/                # full-screen quad for post-process
-  template/
-    src/components/      # Camera, Player, Transform, Mesh, Material, Light
-    agent/               # actions.log, PR_TEMPLATE.md
-    assets/              # asset_index.json, ATTRIBUTION.md
   docs/
     ROADMAP.md           # Full 15-phase development roadmap
     ARCHITECTURE.md      # Architecture diagrams
@@ -254,11 +251,10 @@ litt/
     BINARY_SIZE.md       # Size optimization guides
   examples/
     basic_scene.rs       # Example scene
-  Cargo.toml             # Workspace: 8 crates
+  Cargo.toml             # Workspace: 9 crates
 ```
 
 ---
-
 
 ## Quick Start
 
@@ -276,7 +272,7 @@ cargo build --release --features dx12,vulkan
 cargo run --release
 
 # Environment variables
-LIT_FSR_MODE=4        # Use FSR 3 (auto-select best available)
+LIT_FSR_MODE=4        # Use FSR 4 (auto-select best available)
 LIT_FSR_QUALITY=1     # Quality preset
 LIT_NPU_MODE=3        # Hybrid NPU+GPU mode
 LIT_GRAPHICS_API=dx12 # Force DX12 backend
@@ -284,22 +280,153 @@ LIT_GRAPHICS_API=dx12 # Force DX12 backend
 
 ---
 
+## AMD AGS Integration
+
+The `litt-ags` crate provides Rust bindings for the official AMD AGS (AMDGPU Services) library:
+
+```rust
+use litt_ags::{AGSContext, AGSPowerProfile, AGSPerformanceLevel};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut context = AGSContext::new()?;
+    
+    // Get GPU count
+    let count = context.adapter_count();
+    println!("Found {} AMD GPUs", count);
+    
+    // Get adapter info
+    let info = context.get_adapter_info(0)?;
+    println!("GPU: {}", info.adapter_name());
+    
+    // Set performance mode (requires admin)
+    context.set_power_profile(0, AGSPowerProfile::AGS_POWER_PROFILE_FORCE_HIGH)?;
+    context.set_performance_level(0, AGSPerformanceLevel::AGS_PERFORMANCE_LEVEL_HIGH)?;
+    
+    // Monitor thermals
+    let thermal = context.get_thermals(0)?;
+    println!("Temperature: {}°C", thermal.CurrentTemperature);
+    
+    // Monitor power draw
+    let power = context.get_power_info(0)?;
+    println!("Power: {}W", power.AveragePower);
+    
+    // Monitor utilization
+    let util = context.get_utilization(0)?;
+    println!("GPU: {}%", util.GPU);
+    
+    Ok(())
+}
+```
+
+**Features:**
+- Power management (profiles, limits)
+- Fan control (automatic/manual)
+- Performance profiling (power, utilization, clocks)
+- Thermal monitoring
+- Driver information queries
+
+**Requirements:**
+- AMD Radeon GPU with Adrenalin driver
+- Windows or Linux
+- Admin privileges for power/fan control
+
+---
+
+## MUSA Support (Moore Threads)
+
+The `litt-platform` crate includes MUSA support for Moore Threads GPUs:
+
+```rust
+use litt_platform::musa::*;
+
+// Check if MUSA is available
+if musa_is_available(&instance)? {
+    let devices = enumerate_musa_gpus(&instance)?;
+    
+    for device in devices {
+        let props = get_musa_properties(device, &instance)?;
+        println!("MUSA GPU: {} ({} GB VRAM)", props.name, props.memory_total / (1024 * 1024 * 1024));
+    }
+}
+```
+
+**Features:**
+- GPU detection and classification
+- Compute capability detection (V100/V200/V300)
+- Memory information
+- Vulkan-based compute backend
+
+---
+
+## NNAPI Support (Android)
+
+The `litt-platform` crate includes NNAPI support for Android NPUs:
+
+```rust
+use litt_platform::nnapi::*;
+
+// Check if NNAPI is available
+if nnapi_is_available() {
+    let devices = nnapi_get_devices()?;
+    
+    for device in devices {
+        println!("NNAPI Device: {} ({:?})", device.name, device.type_);
+    }
+    
+    // Load model
+    let model = nnapi_load_model(tflite_data, NnapiModelType::Tflite)?;
+    let execution = nnapi_create_execution(&model)?;
+    
+    // Run inference
+    let outputs = nnapi_compute(&execution, &inputs)?;
+}
+```
+
+**Supported devices:**
+- Samsung Exynos NPUs
+- Qualcomm Hexagon DSPs
+- MediaTek APUs
+- Google Tensor G-series NPUs
+- Snapdragon 8-series NPUs
+
+---
+
+## DX12 Shader Compilation
+
+The `litt-dx12` crate includes DirectXShaderCompiler (DXC) integration:
+
+```rust
+use litt_dx12::shader::*;
+
+// Compile HLSL to DXIL
+let compiler = DxcCompiler::new()?;
+let result = compiler.compile(hlsl_source, "main", "dxil_6_5")?;
+
+// Or use convenience function
+let result = compile_hlsl(hlsl_source, "main", "dxil_6_5")?;
+```
+
+**Requirements:**
+- `dxcompiler.dll` in PATH or set `DXC_PATH` environment variable
+- Available with DirectX SDK or MSVC
+
+---
 
 ## Cargo Workspace
 
 | Crate | Dependencies | Purpose |
 |-------|-------------|---------|
 | `litt-math` | none | SIMD math types (Vec2/3/4, Mat4) |
-| `litt-platform` | ash, bytemuck | Window + input abstraction |
-| `litt-ags` | `crates/ags/src/` | AMD AGS bindings (power/fan/performance) |\n| `litt-vulkan` | ash, ash-window, vma, bytemuck, litt-math, litt-platform | Vulkan backend |
+| `litt-platform` | ash, bytemuck, libc | Window + input abstraction, MUSA, NNAPI |
+| `litt-ags` | libloading | AMD AGS bindings (power/fan/performance) |
+| `litt-vulkan` | ash, ash-window, vma, bytemuck, litt-math, litt-platform, litt-ags | Vulkan backend |
 | `litt-renderer` | ash, bytemuck, litt-math, litt-vulkan | Render passes + command pool |
 | `litt-pathtracer` | ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma | RT pipeline |
 | `litt-fidelityfx` | ash, bytemuck, litt-math, litt-vulkan, vma | FSR 3/4, CAS, denoisers |
 | `litt-ecs` | litt-math, bytemuck | ECS core (World, Entity, Component, System) |
-| `litt-dx12` | bytemuck, litt-math, litt-platform | DX12 backend |
+| `litt-dx12` | bytemuck, libloading, litt-math, litt-platform, winapi | DX12 backend with DXC |
 
 ---
-
 
 ## Binary Size
 
@@ -314,7 +441,6 @@ Optimisation flags: `opt-level = "z"`, `lto = true`, `codegen-units = 1`, `panic
 
 ---
 
-
 ## Roadmap
 
 See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full development plan including ECS architecture, physics system, DirectX 12 backend, asset pipeline, engine modules, networking, debug tools, game development, and NPU roadmap.
@@ -323,25 +449,35 @@ See [docs/NPU_RULES.md](./docs/NPU_RULES.md) for NPU system rules, core componen
 
 | Phase | Title | Status |
 |-------|-------|--------|
-| 1 | Foundation | ? Complete |
-| 2 | Core Rendering | ? Complete |
-| 3 | FidelityFX & AI Upscaling | ? Complete |
-| 4 | ECS Architecture | ? Complete |
-| 5 | Physics System | ?? Planned |
-| 6 | Universal AI Acceleration | ?? Planned |
-| 7 | DirectX 12 Backend | ? Complete |
-| 8 | Asset Pipeline | ?? Planned |
-| 9 | Engine Modules | ?? Planned |
-| 10 | Networking | ?? Planned |
-| 11 | Platform Support | ?? Ongoing |
-| 12 | Debug & Profiling | ?? Planned |
-| 13 | Binary Size Verification | ? Complete |
-| 14 | Polish | ?? In Progress |
-| 15 | Planned Features | ?? Backlog |
+| 1 | Foundation | ✅ Complete |
+| 2 | Core Rendering | ✅ Complete |
+| 3 | FidelityFX & AI Upscaling | ✅ Complete |
+| 4 | ECS Architecture | ✅ Complete |
+| 5 | Physics System | ⚠️ Planned |
+| 6 | Universal AI Acceleration | ⚠️ Planned |
+| 7 | DirectX 12 Backend | ✅ Complete |
+| 8 | Asset Pipeline | ⚠️ Planned |
+| 9 | Engine Modules | ⚠️ Planned |
+| 10 | Networking | ⚠️ Planned |
+| 11 | Platform Support | ✅ Ongoing |
+| 12 | Debug & Profiling | ⚠️ Planned |
+| 13 | Binary Size Verification | ✅ Complete |
+| 14 | Polish | ⚠️ In Progress |
+| 15 | Planned Features | ⚠️ Backlog |
 
 ---
 
+## Community
 
+- [Code of Conduct & Rules](./docs/COMMUNITY.md)
+- [Contributing Guide](./docs/CONTRIBUTING.md)
 
 ---
 
+## License
+
+MIT — free for personal and commercial use.
+
+FidelityFX shaders and concepts are courtesy of [AMD](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK), also MIT-licensed.
+
+Built for AMD GPUs, Intel Arc, Samsung RDNA, and Moore Threads. Tested on RDNA2 (RX 6700 XT), RADV (Linux), and MUSA (Moore Threads).
