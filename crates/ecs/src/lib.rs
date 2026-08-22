@@ -352,8 +352,12 @@ pub use bytemuck;
 pub mod neural;
 pub mod neural_system;
 
+// Memory allocators
+pub mod allocator;
+
 pub use neural::*;
 pub use neural_system::*;
+pub use allocator::*;
 
 // =============================================================================
 // Tests

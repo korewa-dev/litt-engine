@@ -131,10 +131,6 @@ Rendering exists to provide visual feedback to the AI agent. It consumes the ECS
 
 The engine is built around AI-first workflows. Every system is designed to be manipulable by autonomous agents.
 
-### AI Systems (`litt-ai`, `litt-ecs`)
-
-The engine is built around AI-first workflows. Every system is designed to be manipulable by autonomous agents.
-
 **Core Components:**
 - `NeuralBrain` — AI model reference + state, confidence, latency
 - `MovementIntent` — desired velocity/direction
@@ -161,12 +157,16 @@ let result = context.run_auto(&model, &[input])?;
 
 | API | Status | Notes |
 |-----|--------|-------|
-| **Vulkan 1.3** | ✅ Implemented | Full backend in `crates/vulkan/` |
-| **DX12** | ✅ Implemented | DXGI, DXR, descriptor heaps, PSOs |
-| **AMD AGS** | ✅ Implemented | GPU power management, fan control |
-| **NNAPI** | ✅ Implemented | Android NPU inference |
-| **MUSA** | ✅ Complete | Full compute pipeline, GPU detection, memory management |
-| **RDNA Tier** | ✅ Complete | Wave32, subgroup, BVH reuse, RT ray-query broadphase |
+| **Vulkan 1.3** | ✅ Complete | Full backend with BLAS/TLAS, FSR, path tracer |
+| **DX12** | ✅ Complete | DXGI, DXR, descriptor heaps, PSOs, ray tracing |
+| **AMD AGS** | ✅ Complete | GPU power management, fan control, thermal stats |
+| **NNAPI** | ✅ Complete | Android NPU inference via Vulkan compute |
+| **MUSA** | ✅ Complete | Moore Threads compute pipeline, GPU detection |
+| **RDNA Tier** | ✅ Complete | Wave32, subgroup, BVH reuse, RT broadphase |
+| **Particle System** | ✅ Complete | CPU + GPU instancing, emitter system |
+| **Spatial Partitioning** | ✅ Complete | Octree, BVH, Spatial Hash for culling |
+| **Custom Allocators** | ✅ Complete | Arena, Pool, Bump allocators |
+| **Audio Decoders** | ✅ Complete | WAV (hound), MP3 (minimp3) |
 | **DirectML** | 📋 Planned | NVIDIA Tensor Cores |
 
 ---
@@ -180,7 +180,7 @@ let result = context.run_auto(&model, &[input])?;
 | `litt-platform` | `crates/platform/src/` | Window, input, MUSA/AMD/Intel detection |
 | `litt-vulkan` | `crates/vulkan/src/` | Vulkan 1.3 backend |
 | `litt-dx12` | `crates/dx12/src/` | DX12 backend |
-| `litt-renderer` | `crates/renderer/src/` | Command pools, render passes |
+| `litt-renderer` | `crates/renderer/src/` | Vulkan/DX12 renderer, particles, spatial partitioning |
 | `litt-pathtracer` | `crates/pathtracer/src/` | GPU ray tracer |
 | `litt-fidelityfx` | `crates/fidelityfx/src/` | FSR 3/4, CAS, denoisers |
 | `litt-physics` | `crates/physics/src/` | GPU/CPU physics, RDNA tier |
@@ -190,7 +190,7 @@ let result = context.run_auto(&model, &[input])?;
 | `litt-profiler` | `crates/profiler/src/` | Frame timing, GPU profiling |
 | `litt-scene` | `crates/scene/src/` | Scene graph, entity management |
 | `litt-input` | `crates/input/src/` | Keyboard/mouse/gamepad |
-| `litt-audio` | `crates/audio/src/` | Audio playback |
+| `litt-audio` | `crates/audio/src/` | WAV/MP3 playback, cpal backend |
 | `litt-config` | `crates/config/src/` | Engine configuration |
 | `litt-asset` | `crates/asset/src/` | Asset pipeline |
 
@@ -279,7 +279,8 @@ See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
 | 13 | Binary Size Verification | ✅ Complete |
 | 14 | MUSA Complete Pipeline | ✅ Complete |
 | 15 | RDNA Tier | ✅ Complete |
-| 16 | Networking | 📋 Planned |
+| 16 | Game Engine Foundation | ✅ Complete |
+| 17 | Networking | 📋 Planned |
 
 ---
 

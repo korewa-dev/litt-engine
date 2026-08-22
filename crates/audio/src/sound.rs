@@ -1,5 +1,5 @@
 //! Sound asset — loaded audio data.
-//! Supports WAV, Ogg Vorbis, and future formats.
+//! Supports WAV, MP3, and future formats.
 
 #[derive(Debug)]
 pub struct Sound {
@@ -38,5 +38,40 @@ impl Sound {
         let duration_sec = samples.len() as f32 / spec.sample_rate as f32;
         let byte_data: Vec<u8> = samples.iter().flat_map(|&s| s.to_le_bytes()).collect();
         Ok(Self::new(path, byte_data, spec.sample_rate, spec.channels, spec.bits_per_sample))
+    }
+
+    /// Load an MP3 file
+    pub fn load_mp3(path: &str) -> Result<Self, String> {
+        let data = std::fs::read(path)
+            .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
+
+        // Use minimp3 to decode MP3
+        let mut decoder = minimp3::Decoder::new(std::io::Cursor::new(data));
+        let mut samples: Vec<f32> = Vec::new();
+        let mut sample_rate = 44100u32;
+        let mut channels = 2u16;
+
+        loop {
+            match decoder.decode() {
+                Ok((frames, info)) => {
+                    sample_rate = info.sample_rate;
+                    channels = info.channels as u16;
+                    // Convert i16 samples to f32
+                    for frame in frames {
+                        for &sample in &frame {
+                            samples.push(sample as f32 / 32768.0);
+                        }
+                    }
+                    if info.is_last_frame {
+                        break;
+                    }
+                }
+                Err(minimp3::Error::Eof) => break,
+                Err(e) => return Err(format!("MP3 decode error: {}", e)),
+            }
+        }
+
+        let byte_data: Vec<u8> = samples.iter().flat_map(|&s| s.to_le_bytes()).collect();
+        Ok(Self::new(path, byte_data, sample_rate, channels, 16))
     }
 }
