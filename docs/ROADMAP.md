@@ -595,7 +595,7 @@
 ### Asset & Resource Management (`litt-asset`)
 - [x] Model loader: GLTF/GLB, OBJ
 - [x] Texture loader: PNG, JPEG, KTX2
-- [x] Shader compiler: GLSL→SPIR-V, HLSL→DXIL
+- [x] Shader compiler: GLSL->SPIR-V, HLSL->DXIL
 - [x] Material system: PBR parameters
 - [x] Asset manager with LRU cache
 - [x] Type-safe asset handles
@@ -683,4 +683,6 @@
 
 ---
 
-*Last updated: 2025-07-18*
+*Last updated: 22-08-2026*
+
+

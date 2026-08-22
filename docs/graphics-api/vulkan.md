@@ -17,11 +17,11 @@
 
 ```
 Scene Data (CPU)
-  → upload_scene() → GPU Buffers
-  → build_blas_from_triangles() → BLAS
-  → build_scene_acceleration() → TLAS
-  → Shader Binding Table (SBT)
-  → Ray Tracing Pipeline Execution
+  -> upload_scene() -> GPU Buffers
+  -> build_blas_from_triangles() -> BLAS
+  -> build_scene_acceleration() -> TLAS
+  -> Shader Binding Table (SBT)
+  -> Ray Tracing Pipeline Execution
 ```
 
 ## Memory Management (VMA)
