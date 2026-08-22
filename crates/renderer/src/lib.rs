@@ -1,4 +1,4 @@
-//! Main renderer — orchestrates vulkan, pathtracer, and fidelityfx.
+//! Main renderer -- orchestrates vulkan, pathtracer, and fidelityfx.
 //! Complete pipeline with VMA, BLAS/TLAS, FSR 3.1.5 upscaler, and CAS sharpening.
 
 pub mod renderer;

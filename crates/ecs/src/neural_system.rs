@@ -1,4 +1,4 @@
-//! NeuralAISystem — NPU/GPU/CPU-driven AI behavior inference.
+//! NeuralAISystem -- NPU/GPU/CPU-driven AI behavior inference.
 //! Uses the litt-ai backend to run inference on entities with NeuralBrain.
 
 use litt_ecs::{World, Entity, System};
@@ -6,7 +6,7 @@ use crate::neural::{NeuralBrain, MovementIntent, CombatIntent};
 use litt_math::Vec3;
 use litt_ai::{AIContext, Model};
 
-/// NeuralAI system — runs AI inference to drive entity behavior
+/// NeuralAI system -- runs AI inference to drive entity behavior
 pub struct NeuralAISystem {
     /// AI context for backend selection
     pub context: AIContext,
@@ -70,7 +70,7 @@ impl NeuralAISystem {
                         }
                     }
                 } else {
-                    // No model — use simple behavior
+                    // No model -- use simple behavior
                     movement.speed = 1.0;
                 }
             }
@@ -90,7 +90,7 @@ impl System for NeuralAISystem {
     }
 }
 
-/// CombatAISystem — NPU-driven combat behavior
+/// CombatAISystem -- NPU-driven combat behavior
 pub struct CombatAISystem {
     pub context: AIContext,
 }

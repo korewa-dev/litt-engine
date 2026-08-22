@@ -1,4 +1,4 @@
-//! Graphics backend abstraction — Vulkan or DX12
+//! Graphics backend abstraction -- Vulkan or DX12
 //!
 //! Selects the appropriate graphics backend at runtime based on platform
 //! and availability. Vulkan is primary; DX12 is the Windows-native path.

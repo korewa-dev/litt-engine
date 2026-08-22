@@ -1,4 +1,4 @@
-//! Overlay renderer — renders debug overlays on top of the scene.
+//! Overlay renderer -- renders debug overlays on top of the scene.
 //! Bounding boxes, gizmos, wireframes.
 
 use litt_math::{Vec3, Vec2, Mat4};

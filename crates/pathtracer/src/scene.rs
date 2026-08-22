@@ -1,5 +1,5 @@
 //! Scene data structures for the path tracer.
-//! Simple struct-based scene — no ECS, no asset pipeline.
+//! Simple struct-based scene -- no ECS, no asset pipeline.
 
 use litt_math::*;
 use bytemuck::{Pod, Zeroable};

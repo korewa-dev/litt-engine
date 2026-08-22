@@ -1,4 +1,4 @@
-//! DX12 resource allocation — heaps, buffers, textures
+//! DX12 resource allocation -- heaps, buffers, textures
 
 use super::*;
 

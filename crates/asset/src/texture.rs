@@ -1,4 +1,4 @@
-//! Texture loading — PNG, JPEG, KTX2, DDS support.
+//! Texture loading -- PNG, JPEG, KTX2, DDS support.
 //! GPU-friendly texture formats with MIP maps and compression.
 
 use litt_math::Vec3;
@@ -126,7 +126,7 @@ impl Texture {
     }
 }
 
-/// Image loader — loads from bytes
+/// Image loader -- loads from bytes
 pub struct ImageLoader;
 
 impl ImageLoader {
@@ -175,7 +175,7 @@ impl ImageLoader {
             return Err("KTX2 data too small".to_string());
         }
 
-        // KTX2 magic: '´kTx 23\r\n\x1A\n'
+        // KTX2 magic: 'kTx 23\r\n\x1A\n'
         let magic = &data[0..12];
         if magic != b"\xED\x3K\xBC\x93\x01\x00\x00\x00\x1A\x02\x00\x00" {
             return Err("Invalid KTX2 magic".to_string());

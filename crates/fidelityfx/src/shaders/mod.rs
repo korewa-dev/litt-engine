@@ -1,4 +1,4 @@
-//! AMD FidelityFX Super Resolution 3.1.5 — GLSL shader sources.
+//! AMD FidelityFX Super Resolution 3.1.5 -- GLSL shader sources.
 //!
 //! These shaders are compiled to SPIR-V by build.rs at build time.
 //! If glslc/glslangValidator is not on PATH, fallback no-op shaders are used.
@@ -11,28 +11,28 @@
 //!   glslc src/shaders/cas.comp          -o out/cas.spv
 //!   glslc src/shaders/ray_recon.comp    -o out/ray_recon.spv
 
-/// FSR 3.1.5 spatial upscaler — takes low-res input + history, outputs high-res
+/// FSR 3.1.5 spatial upscaler -- takes low-res input + history, outputs high-res
 pub const FSR3_UPSCALER_GLSL: &str = include_str!("fsr3_upscaler.comp");
 
-/// FSR 3.1.5 compensate — normalizes history by exposure
+/// FSR 3.1.5 compensate -- normalizes history by exposure
 pub const FSR3_COMPENSATE_GLSL: &str = include_str!("fsr3_compensate.comp");
 
-/// FSR 3.1.5 create (reprojection) — copies prev frame to history
+/// FSR 3.1.5 create (reprojection) -- copies prev frame to history
 pub const FSR3_CREATE_GLSL: &str = include_str!("fsr3_create.comp");
 
-/// FSR 3.1.5 frame generation — synthesizes intermediate frame
+/// FSR 3.1.5 frame generation -- synthesizes intermediate frame
 pub const FSR3_FRAMEGEN_GLSL: &str = include_str!("fsr3_framegen.comp");
 
-/// CAS (Contrast Adaptive Sharpening) — final image sharpen
+/// CAS (Contrast Adaptive Sharpening) -- final image sharpen
 pub const CAS_GLSL: &str = include_str!("cas.comp");
 
-/// Ray Reconstruction denoiser — CNN-based path tracer denoising
+/// Ray Reconstruction denoiser -- CNN-based path tracer denoising
 pub const RAY_RECON_GLSL: &str = include_str!("ray_recon.comp");
 
-/// GPU path tracer — full raster+trace compute shader with BRDF
+/// GPU path tracer -- full raster+trace compute shader with BRDF
 pub const PATH_TRACE_GLSL: &str = include_str!("path_trace.comp");
 
-/// Display/copy shader — tone maps accumulation buffer to swapchain image
+/// Display/copy shader -- tone maps accumulation buffer to swapchain image
 pub const DISPLAY_GLSL: &str = include_str!("display.comp");
 
 /// Compiled SPIR-V bytecode (populated by build.rs)

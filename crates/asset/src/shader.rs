@@ -1,5 +1,5 @@
 //! Shader compilation and management.
-//! GLSL → SPIR-V (Vulkan), HLSL → DXIL (DX12).
+//! GLSL -> SPIR-V (Vulkan), HLSL -> DXIL (DX12).
 
 use std::path::{Path, PathBuf};
 use super::handle::{AssetHandle, AssetType, AssetState};
@@ -208,7 +208,7 @@ impl Shader {
     }
 }
 
-/// Shader compiler — manages shader compilation and caching
+/// Shader compiler -- manages shader compilation and caching
 #[derive(Debug)]
 pub struct ShaderCompiler {
     pub cache_dir: PathBuf,

@@ -1,4 +1,4 @@
-//! PhysicsSystem — complete GPU-accelerated + CPU fallback implementation
+//! PhysicsSystem -- complete GPU-accelerated + CPU fallback implementation
 //!
 //! Full pipeline:
 //! 1. Read PhysicsBody + position/rotation/scale from ECS world
@@ -24,7 +24,7 @@ use super::{
 };
 
 // =============================================================================
-// Simple transform struct — the physics crate is independent of template components
+// Simple transform struct -- the physics crate is independent of template components
 // =============================================================================
 
 /// Minimal transform used by the physics system.
@@ -94,14 +94,14 @@ impl AsyncComputeContext {
 }
 
 // =============================================================================
-// PhysicsSystem — the main ECS system
+// PhysicsSystem -- the main ECS system
 // =============================================================================
 
 /// Main physics system with GPU compute + CPU fallback
 pub struct PhysicsSystem {
     /// Physics backend selector
     pub backend: PhysicsBackend,
-    /// Gravity vector (world space, m/s²)
+    /// Gravity vector (world space, m/s^2)
     pub gravity: Vec3,
     /// Fixed timestep in seconds
     pub fixed_dt: f32,
@@ -124,7 +124,7 @@ pub struct PhysicsSystem {
 }
 
 impl PhysicsSystem {
-    /// Create a new physics system — CPU fallback by default
+    /// Create a new physics system -- CPU fallback by default
     pub fn new() -> Self {
         Self {
             backend: PhysicsBackend::default(),
@@ -227,9 +227,9 @@ impl PhysicsSystem {
 
     /// Initialize the RDNA-tier physics shaders and pipelines.
     ///
-    /// `instance` — the Vulkan instance (used for GPU property queries).
-    /// `physical_device` — the GPU to initialize for.
-    /// `body_count` — number of physics bodies in the scene.
+    /// `instance` -- the Vulkan instance (used for GPU property queries).
+    /// `physical_device` -- the GPU to initialize for.
+    /// `body_count` -- number of physics bodies in the scene.
     pub fn init_rdna_tier(
         &mut self,
         device: &Device,
@@ -347,7 +347,7 @@ impl PhysicsSystem {
 
     /// Run a single physics substep on the CPU
     fn cpu_step(&mut self, world: &mut World, dt: f32) {
-        // ── Phase 1: Collect all physics entities ──
+        //  Phase 1: Collect all physics entities 
         let mut entities: Vec<Entity> = Vec::new();
         for entity in world.query_entities_with::<PhysicsBodyECS, PhysicsTransform>() {
             entities.push(entity);
@@ -357,7 +357,7 @@ impl PhysicsSystem {
             return;
         }
 
-        // ── Phase 2: Read components into working arrays ──
+        //  Phase 2: Read components into working arrays 
         let mut bodies: Vec<PhysicsBody> = Vec::with_capacity(entities.len());
         let mut transforms: Vec<PhysicsTransform> = Vec::with_capacity(entities.len());
 
@@ -371,14 +371,14 @@ impl PhysicsSystem {
             }
         }
 
-        // ── Phase 3: Compute AABBs for broadphase ──
+        //  Phase 3: Compute AABBs for broadphase 
         let aabbs: Vec<(Vec3, Vec3)> = bodies
             .iter()
             .zip(transforms.iter())
             .map(|(body, tr)| body.shape().compute_aabb(tr.position))
             .collect();
 
-        // ── Phase 4: Broadphase — BVH for overlap queries ──
+        //  Phase 4: Broadphase -- BVH for overlap queries 
         self.bvh.build(&aabbs);
         let mut collision_pairs: Vec<(usize, usize)> = Vec::new();
 
@@ -393,7 +393,7 @@ impl PhysicsSystem {
             }
         }
 
-        // ── Phase 5: Narrowphase — resolve actual collisions ──
+        //  Phase 5: Narrowphase -- resolve actual collisions 
         let mut contacts: Vec<Contact> = Vec::new();
         for &(i, j) in &collision_pairs {
             if i >= bodies.len() || j >= bodies.len() { continue; }
@@ -418,7 +418,7 @@ impl PhysicsSystem {
             }
         }
 
-        // ── Phase 6: Solve constraints (iterate for stability) ──
+        //  Phase 6: Solve constraints (iterate for stability) 
         for _iter in 0..self.solver.max_iterations {
             for contact in &contacts {
                 let mut body_a = bodies[contact.a].clone();
@@ -434,7 +434,7 @@ impl PhysicsSystem {
             }
         }
 
-        // ── Phase 7: Apply gravity and integrate positions ──
+        //  Phase 7: Apply gravity and integrate positions 
         for idx in 0..bodies.len() {
             let body = &mut bodies[idx];
             let transform = &mut transforms[idx];
@@ -462,7 +462,7 @@ impl PhysicsSystem {
             }
         }
 
-        // ── Phase 8: Write back to ECS world ──
+        //  Phase 8: Write back to ECS world 
         for (i, &entity) in entities.iter().enumerate() {
             world.add_component(entity, PhysicsTransform {
                 position: transforms[i].position,
@@ -478,7 +478,7 @@ impl PhysicsSystem {
             });
         }
 
-        // ── Phase 9: Emit collision events ──
+        //  Phase 9: Emit collision events 
         self.collisions.clear();
         for contact in &contacts {
             if contact.a < entities.len() && contact.b < entities.len() {
@@ -521,7 +521,7 @@ impl System for PhysicsSystem {
 // GPU Compute Pipeline
 // =============================================================================
 
-/// GPU compute pipeline for physics — created once, reused every frame
+/// GPU compute pipeline for physics -- created once, reused every frame
 #[derive(Debug)]
 pub struct GPUPhysicsPipeline {
     /// Broadphase compute pipeline
@@ -671,7 +671,7 @@ impl Velocity {
 }
 
 // =============================================================================
-// CollisionEvent — emitted after each physics tick
+// CollisionEvent -- emitted after each physics tick
 // =============================================================================
 
 /// Collision event emitted by the physics system

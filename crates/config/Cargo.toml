@@ -2,7 +2,7 @@
 name = "litt-config"
 version = "0.1.0"
 edition = "2021"
-description = "Configuration system for Litt Engine — settings, presets, and persistence"
+description = "Configuration system for Litt Engine -- settings, presets, and persistence"
 
 [dependencies]
 litt-math = { path = "../math" }

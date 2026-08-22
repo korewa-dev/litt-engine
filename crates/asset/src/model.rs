@@ -1,4 +1,4 @@
-//! Model loading — GLTF and OBJ format support.
+//! Model loading -- GLTF and OBJ format support.
 //! Outputs GPU-friendly mesh data (vertex buffers, index buffers, UVs, normals).
 
 use litt_math::{Vec3, Mat4};
@@ -154,7 +154,7 @@ pub struct GltfLoader;
 impl GltfLoader {
     /// Load a GLTF model from bytes
     pub fn load_from_bytes(data: &[u8]) -> Result<Model, String> {
-        // Simplified GLTF parser — real implementation would use a proper parser
+        // Simplified GLTF parser -- real implementation would use a proper parser
         // This creates a default cube model as placeholder
         let mut model = Model::new("gltf_model");
 

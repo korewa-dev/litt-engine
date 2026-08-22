@@ -1,4 +1,4 @@
-//! Asset pipeline — entry point for all asset loading.
+//! Asset pipeline -- entry point for all asset loading.
 
 pub mod handle;
 pub mod model;

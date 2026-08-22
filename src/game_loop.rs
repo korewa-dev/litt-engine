@@ -1,4 +1,4 @@
-//! Game loop — fixed timestep with sub-stepping, input processing, and frame timing.
+//! Game loop -- fixed timestep with sub-stepping, input processing, and frame timing.
 //! Integrates ECS, physics, rendering, audio, and profiler into a single update loop.
 
 use std::time::Instant;
@@ -128,7 +128,7 @@ impl GameLoop {
         }
     }
 
-    /// Poll input (stub — implemented by platform)
+    /// Poll input (stub -- implemented by platform)
     pub fn poll_input(&mut self) -> bool {
         // Platform-specific input polling
         // Returns true if should quit

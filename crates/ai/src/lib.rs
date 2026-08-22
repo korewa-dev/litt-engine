@@ -1,15 +1,15 @@
 //! Universal AI Acceleration Layer for Litt Engine
 //!
 //! Provides a unified inference interface across multiple hardware backends:
-//! - **AMD XDNA** — Ryzen AI NPU via Vulkan compute shaders
-//! - **Intel AI Boost** — Movidius/VPU via OpenVINO or DirectML
-//! - **Qualcomm Hexagon** — DSP via NNAPI (Android) or Hexagon SDK
-//! - **Apple Neural Engine** — Core ML (macOS/iOS)
-//! - **MediaTek APU** — Vendor SDK
-//! - **Kirin NPU** — Huawei Da Vinci architecture
-//! - **Samsung Exynos NPU** — ARM Mali + NPU
-//! - **RISC-V AI** — Custom vector accelerators
-//! - **CPU** — Fallback with SIMD (AVX2/NEON/RVV)
+//! - **AMD XDNA** -- Ryzen AI NPU via Vulkan compute shaders
+//! - **Intel AI Boost** -- Movidius/VPU via OpenVINO or DirectML
+//! - **Qualcomm Hexagon** -- DSP via NNAPI (Android) or Hexagon SDK
+//! - **Apple Neural Engine** -- Core ML (macOS/iOS)
+//! - **MediaTek APU** -- Vendor SDK
+//! - **Kirin NPU** -- Huawei Da Vinci architecture
+//! - **Samsung Exynos NPU** -- ARM Mali + NPU
+//! - **RISC-V AI** -- Custom vector accelerators
+//! - **CPU** -- Fallback with SIMD (AVX2/NEON/RVV)
 //!
 //! # Usage
 //! ```rust

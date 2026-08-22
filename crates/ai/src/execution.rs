@@ -1,4 +1,4 @@
-//! Execution context — manages model loading, tensor allocation, and inference dispatch.
+//! Execution context -- manages model loading, tensor allocation, and inference dispatch.
 
 use super::model::Model;
 use super::tensor::{InferenceResult, Tensor};

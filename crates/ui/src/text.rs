@@ -1,4 +1,4 @@
-//! Text rendering — font atlas and text drawing.
+//! Text rendering -- font atlas and text drawing.
 //! Uses stb_truetype for font rasterization.
 
 #[cfg(feature = "stb_truetype")]

@@ -1,15 +1,15 @@
 //! RDNA-tier compute shaders for physics broadphase.
 //!
 //! Four GLSL shaders targeting RDNA3-specific features:
-//! - `rdna_wave32_broadphase.comp` — wavefront-parallel AABB overlap detection
-//! - `rdna_subgroup_ballot.comp` — subgroup ballot-based collision detection
-//! - `rdna_bvh_reuse.comp` — BVH reuse detection via AABB hash comparison
-//! - `rdna_rt_rayquery.comp` — ray-query broadphase via VK_KHR_ray_query
+//! - `rdna_wave32_broadphase.comp` -- wavefront-parallel AABB overlap detection
+//! - `rdna_subgroup_ballot.comp` -- subgroup ballot-based collision detection
+//! - `rdna_bvh_reuse.comp` -- BVH reuse detection via AABB hash comparison
+//! - `rdna_rt_rayquery.comp` -- ray-query broadphase via VK_KHR_ray_query
 //!
 //! Shaders are compiled to SPIR-V by build.rs when glslangValidator is available.
 //! Fallback: GLSL source strings embedded for runtime compilation.
 
-/// RDNA Wave32 broadphase — processes 32 bodies per wave
+/// RDNA Wave32 broadphase -- processes 32 bodies per wave
 pub const RDNA_WAVE32_BROADPHASE_GLSL: &str = include_str!("shaders/rdna_wave32_broadphase.comp");
 
 /// RDNA Subgroup ballot broadphase

@@ -1,4 +1,4 @@
-//! Audio player — plays sounds with volume, pitch, and spatial positioning.
+//! Audio player -- plays sounds with volume, pitch, and spatial positioning.
 
 use super::sound::Sound;
 

@@ -1,4 +1,4 @@
-//! Sound asset — loaded audio data.
+//! Sound asset -- loaded audio data.
 //! Supports WAV, MP3, and future formats.
 
 #[derive(Debug)]

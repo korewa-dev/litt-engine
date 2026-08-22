@@ -2,7 +2,7 @@
 name = "litt-profiler"
 version = "0.1.0"
 edition = "2021"
-description = "Profiler for Litt Engine — performance monitoring and debugging"
+description = "Profiler for Litt Engine -- performance monitoring and debugging"
 
 [dependencies]
 litt-math = { path = "../math" }

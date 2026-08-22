@@ -1,4 +1,4 @@
-//! Engine settings — graphics, audio, input, and performance configuration.
+//! Engine settings -- graphics, audio, input, and performance configuration.
 
 use litt_math::Vec2;
 

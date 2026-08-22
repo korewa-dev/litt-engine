@@ -1,4 +1,4 @@
-//! Debug HUD — FPS counter, render stats, NPU status.
+//! Debug HUD -- FPS counter, render stats, NPU status.
 //! Renders engine telemetry on screen.
 
 use litt_math::Vec2;

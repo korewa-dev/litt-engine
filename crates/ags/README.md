@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     // Monitor thermals
     let thermal = context.get_thermals(0)?;
-    println!("Temperature: {}°C", thermal.CurrentTemperature);
+    println!("Temperature: {} degC", thermal.CurrentTemperature);
     
     Ok(())
 }

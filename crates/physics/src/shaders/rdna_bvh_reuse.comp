@@ -2,7 +2,7 @@
 #extension GL_EXT_scalar_block_layout: require
 
 // =============================================================================
-// RDNA BVH Reuse — Detect whether bounds changed, skip rebuild
+// RDNA BVH Reuse -- Detect whether bounds changed, skip rebuild
 // =============================================================================
 //
 // Computes a hash of all AABB corners. If the hash matches the previous
@@ -43,7 +43,7 @@ uint hash_vec3(vec3 v) {
 void main() {
     uint gid = gl_GlobalInvocationID.x;
     if (gid >= body_count) {
-        // All threads done — compute final hash
+        // All threads done -- compute final hash
         return;
     }
 
@@ -62,7 +62,7 @@ void main() {
 
     // Thread 0 of each wave writes partial result
     if (gl_LocalInvocationID.x < 16) {
-        // Write to scratch — simplified: just use atomic
+        // Write to scratch -- simplified: just use atomic
         // In a real implementation, use an atomic accumulation buffer
     }
 

@@ -1,4 +1,4 @@
-//! DX12 command system — queues, allocators, and command lists
+//! DX12 command system -- queues, allocators, and command lists
 
 use super::*;
 

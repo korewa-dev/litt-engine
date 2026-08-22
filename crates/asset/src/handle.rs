@@ -1,4 +1,4 @@
-//! Asset handle — unique identifier for loaded assets.
+//! Asset handle -- unique identifier for loaded assets.
 //! Provides type-safe referencing across the engine.
 
 use std::hash::{Hash, Hasher};

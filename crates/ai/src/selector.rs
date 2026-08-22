@@ -1,4 +1,4 @@
-//! Backend selection — chooses the optimal AI acceleration backend.
+//! Backend selection -- chooses the optimal AI acceleration backend.
 //!
 //! The selector checks hardware availability in priority order:
 //! 1. Dedicated NPU (AMD XDNA, Intel AI Boost, etc.)
@@ -29,7 +29,7 @@ impl BackendKind {
     }
 }
 
-/// The AI backend selector — picks the best available backend
+/// The AI backend selector -- picks the best available backend
 pub struct BackendSelector {
     detected_backends: Vec<NpuInfo>,
 }
@@ -175,7 +175,7 @@ impl BackendSelector {
     }
 }
 
-/// The unified AI backend — wraps any backend behind a common interface
+/// The unified AI backend -- wraps any backend behind a common interface
 pub struct Backend {
     kind: BackendKind,
     initialized: bool,

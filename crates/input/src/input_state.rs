@@ -1,4 +1,4 @@
-//! Unified input state — combines keyboard, mouse, and gamepad.
+//! Unified input state -- combines keyboard, mouse, and gamepad.
 
 use super::keyboard::{Key, KeyboardState};
 use super::mouse::{MouseState, MouseButton, CursorMode};

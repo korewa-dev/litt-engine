@@ -1,4 +1,4 @@
-//! Debug renderer — renders debug overlays like wireframes, normals, and AABBs.
+//! Debug renderer -- renders debug overlays like wireframes, normals, and AABBs.
 //! Provides GPU-compatible debug primitives for visualization.
 
 use litt_math::{Vec3, Vec2, Mat4};

@@ -1,4 +1,4 @@
-//! Graphics presets — pre-configured settings for different hardware tiers.
+//! Graphics presets -- pre-configured settings for different hardware tiers.
 
 use super::settings::*;
 

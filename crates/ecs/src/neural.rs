@@ -1,4 +1,4 @@
-//! NeuralBrain component — AI model reference and state for entities.
+//! NeuralBrain component -- AI model reference and state for entities.
 //! Used by NeuralAISystem for NPU/GPU/CPU-driven behavior inference.
 
 use litt_math::Vec3;
@@ -26,7 +26,7 @@ impl NeuralBrain {
     }
 }
 
-/// Movement intent — desired velocity/direction
+/// Movement intent -- desired velocity/direction
 #[derive(Clone, Copy, Debug, Default, Pod, Zeroable)]
 #[repr(C)]
 pub struct MovementIntent {
@@ -36,7 +36,7 @@ pub struct MovementIntent {
     pub padding: f32,
 }
 
-/// Combat intent — target + action queue
+/// Combat intent -- target + action queue
 #[derive(Clone, Copy, Debug, Default, Pod, Zeroable)]
 #[repr(C)]
 pub struct CombatIntent {

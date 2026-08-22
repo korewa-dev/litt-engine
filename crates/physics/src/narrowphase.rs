@@ -28,7 +28,7 @@ pub struct Contact {
 }
 
 // =============================================================================
-// AABB vs AABB — SAT
+// AABB vs AABB -- SAT
 // =============================================================================
 
 pub fn resolve_aabb_aabb(
@@ -194,7 +194,7 @@ fn segment_segment_closest(p1: Vec3, p2: Vec3, p3: Vec3, p4: Vec3) -> (Vec3, Vec
 }
 
 // =============================================================================
-// CollisionPair — routes to correct narrowphase algorithm
+// CollisionPair -- routes to correct narrowphase algorithm
 // =============================================================================
 
 /// Prepared collision pair with all data needed for narrowphase resolution
@@ -211,7 +211,7 @@ pub struct CollisionPair {
 }
 
 impl CollisionPair {
-    /// Resolve the collision — returns Some(Contact) if colliding
+    /// Resolve the collision -- returns Some(Contact) if colliding
     pub fn resolve(&self) -> Option<Contact> {
         match (self.shape_type_a, self.shape_type_b) {
             (0, 0) => {
@@ -347,9 +347,9 @@ mod tests {
             shape_data_a: [0.5, 0.5, 0.5, 0.0],
             shape_data_b: [0.5, 0.5, 0.5, 0.0],
         };
-        // AABBs: [-0.5,0.5] and [0.5,1.5] — touching at x=0.5, no overlap
+        // AABBs: [-0.5,0.5] and [0.5,1.5] -- touching at x=0.5, no overlap
         let result = pair.resolve();
-        // They touch but don't overlap — this is a borderline case
+        // They touch but don't overlap -- this is a borderline case
         // With our SAT, overlap_x = (0.5 - 0.5).min(1.5 - (-0.5)) = 0.0
         // 0.0 is NOT < 0.0, so it returns Some with penetration=0
         // Actually let me check: overlap_x = min(0.5-0.5, 1.5-(-0.5)) = min(0.0, 2.0) = 0.0

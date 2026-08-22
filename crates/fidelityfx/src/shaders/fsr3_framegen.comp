@@ -1,7 +1,7 @@
 #version 450
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-// FSR 3.1.5 Frame Generation Pass — synthesizes an interpolated frame
+// FSR 3.1.5 Frame Generation Pass -- synthesizes an interpolated frame
 // between two consecutive frames using optical flow estimation
 
 layout(set = 0, binding = 0) uniform sampler2D sPrev;

@@ -1,5 +1,5 @@
 //! Ultra-lightweight math types for the path tracer.
-//! No external math library â€” hand-rolled SIMD-friendly types.
+//! No external math library -- hand-rolled SIMD-friendly types.
 //!
 //! Zero-cost abstractions, no heap allocation, no trait objects.
 

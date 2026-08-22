@@ -1,4 +1,4 @@
-//! Physics backend selector — GPU compute vs CPU fallback
+//! Physics backend selector -- GPU compute vs CPU fallback
 //!
 //! Selects the optimal physics backend based on available hardware:
 //! - **GPU**: Vulkan compute shaders for RDNA/AMD, MUSA for Moore Threads
@@ -7,7 +7,7 @@
 /// Available physics backends
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PhysicsBackend {
-    /// GPU compute (Vulkan compute shaders) — RDNA, Intel Arc, Moore Threads
+    /// GPU compute (Vulkan compute shaders) -- RDNA, Intel Arc, Moore Threads
     GPU,
     /// CPU fallback with platform-specific SIMD (AVX2/NEON/RVV)
     CPU,

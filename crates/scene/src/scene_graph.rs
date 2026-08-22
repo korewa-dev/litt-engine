@@ -1,4 +1,4 @@
-//! Scene graph — hierarchical collection of nodes.
+//! Scene graph -- hierarchical collection of nodes.
 
 use super::scene_node::SceneNode;
 

@@ -2,14 +2,14 @@
 
 ## Current State Assessment
 
-### ✅ Implemented (Functional)
+###  Implemented (Functional)
 - **Vulkan Backend**: Basic device creation, swapchain, VMA allocator
 - **Math Library**: Vec2/3/4, Mat4, basic operations
 - **Platform Layer**: Window creation (Win32, X11, Android stubs)
 - **Path Tracer**: Scene data structures, material system, basic tracer
 - **FidelityFX**: FSR 3.1.5 constants, CAS constants (structs only, no shader execution)
 
-### ⚠️ Partially Implemented (Stubs/Incomplete)
+###  Partially Implemented (Stubs/Incomplete)
 - **DX12 Backend**: Raw winapi pointers, basic device creation, but:
   - Ray tracing is a STUB (creates dummy PSO, no DXR implementation)
   - Acceleration structures not implemented
@@ -19,7 +19,7 @@
 - **FSR 3.1.5**: Constants defined, but no actual shader dispatch
 - **ECS**: Basic structure, no real systems
 
-### ❌ Not Implemented
+###  Not Implemented
 - **Real AMD AGS**: Power management, fan control, performance profiling
 - **MUSA**: Moore Threads GPU support
 - **NNAPI**: Android Neural Networks API

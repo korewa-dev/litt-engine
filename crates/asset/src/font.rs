@@ -1,4 +1,4 @@
-//! Font loading — TTF, OTF support.
+//! Font loading -- TTF, OTF support.
 //! Uses stb_truetype for rasterization.
 
 use super::handle::AssetHandle;
@@ -24,7 +24,7 @@ impl Font {
             .map_err(|e| format!("Failed to read font file '{}': {}", path, e))?;
 
         // Parse basic font metrics from TTF/OTF
-        // This is a simplified parser — real implementation would use a proper font library
+        // This is a simplified parser -- real implementation would use a proper font library
         let mut font = Self {
             handle: AssetHandle::from_path(path, super::handle::AssetType::Font),
             name: path.to_string(),

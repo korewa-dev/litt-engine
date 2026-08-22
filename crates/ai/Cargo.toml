@@ -2,7 +2,7 @@
 name = "litt-ai"
 version = "0.1.0"
 edition = "2021"
-description = "Universal AI acceleration layer for Litt Engine — NPU, GPU, and CPU inference backends"
+description = "Universal AI acceleration layer for Litt Engine -- NPU, GPU, and CPU inference backends"
 
 [dependencies]
 litt-math = { path = "../math" }

@@ -1,4 +1,4 @@
-//! Memory profiler — tracks GPU memory allocations and usage.
+//! Memory profiler -- tracks GPU memory allocations and usage.
 //! Integrates with VMA (Vulkan Memory Allocator) for GPU memory monitoring.
 
 use std::collections::HashMap;

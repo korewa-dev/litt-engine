@@ -31,7 +31,7 @@ fn main() {
         }
     } else {
         println!(
-            "cargo:warning=[RDNA] glslangValidator not found — shaders use runtime GLSL source"
+            "cargo:warning=[RDNA] glslangValidator not found -- shaders use runtime GLSL source"
         );
     }
 }

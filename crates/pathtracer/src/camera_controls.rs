@@ -1,4 +1,4 @@
-//! Camera control system — WASD movement + mouse-look for the path tracer.
+//! Camera control system -- WASD movement + mouse-look for the path tracer.
 //!
 //! Uses locked-cursor mode for FPS-style camera rotation.
 //! Keyboard movement uses world-space axes derived from camera yaw.

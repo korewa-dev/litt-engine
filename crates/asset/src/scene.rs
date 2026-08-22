@@ -1,4 +1,4 @@
-//! Scene asset — collection of models, textures, and materials.
+//! Scene asset -- collection of models, textures, and materials.
 //! Represents a complete scene or level.
 
 use super::handle::AssetHandle;

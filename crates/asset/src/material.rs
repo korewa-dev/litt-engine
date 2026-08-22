@@ -1,4 +1,4 @@
-//! Material system — PBR (Physically Based Rendering) materials.
+//! Material system -- PBR (Physically Based Rendering) materials.
 //! Supports diffuse, specular, metallic, roughness, emission, and normal mapping.
 
 use litt_math::Vec3;
@@ -168,7 +168,7 @@ impl Material {
     }
 }
 
-/// Material factory — creates common materials
+/// Material factory -- creates common materials
 pub struct MaterialFactory;
 
 impl MaterialFactory {

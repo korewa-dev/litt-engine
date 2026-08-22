@@ -2,7 +2,7 @@
 name = "litt-asset"
 version = "0.1.0"
 edition = "2021"
-description = "Asset pipeline for Litt Engine — model, texture, shader, and material loading"
+description = "Asset pipeline for Litt Engine -- model, texture, shader, and material loading"
 
 [dependencies]
 litt-math = { path = "../math" }

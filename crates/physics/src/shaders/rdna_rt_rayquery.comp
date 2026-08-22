@@ -3,12 +3,12 @@
 #extension GL_EXT_ray_query: require
 
 // =============================================================================
-// RDNA RT Ray Query Broadphase — GPU ray-trace through BVH for collisions
+// RDNA RT Ray Query Broadphase -- GPU ray-trace through BVH for collisions
 // =============================================================================
 //
 // Uses VK_KHR_ray_query to trace rays from each body's center in its
 // velocity direction, intersecting the BVH to find potential collisions.
-// This is much faster than O(N²) for sparse scenes.
+// This is much faster than O(N^2) for sparse scenes.
 //
 // @location(0) readonly  rayQueryEXT  buffer RayData  { Ray r[]; } buf_ray;
 // @location(1) writeonly buffer Collisions { uint c[]; } buf_coll;

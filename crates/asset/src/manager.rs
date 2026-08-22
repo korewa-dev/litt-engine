@@ -1,4 +1,4 @@
-//! Asset manager — central hub for loading and managing assets.
+//! Asset manager -- central hub for loading and managing assets.
 //! Provides type-safe asset loading with caching and referencing.
 
 use std::collections::HashMap;

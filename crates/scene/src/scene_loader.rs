@@ -1,4 +1,4 @@
-//! Scene loader — loads scenes from files (GLTF, custom format).
+//! Scene loader -- loads scenes from files (GLTF, custom format).
 
 use super::scene_graph::SceneGraph;
 use super::scene_node::SceneNode;
@@ -10,7 +10,7 @@ impl SceneLoader {
     /// Load a scene from a GLTF file
     pub fn load_gltf(path: &str) -> Result<SceneGraph, String> {
         // Parse GLTF and create scene graph
-        // This is a simplified loader — real implementation would parse GLTF properly
+        // This is a simplified loader -- real implementation would parse GLTF properly
         let data = std::fs::read(path)
             .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
 

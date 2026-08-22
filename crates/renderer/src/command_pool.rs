@@ -66,11 +66,11 @@ impl CommandPool {
 
     /// Issue an image layout transition barrier.
     ///
-    /// `src_layout` / `dst_layout` — the layouts to transition between.
-    /// `image` — the image to transition.
-    /// `aspect_mask` — typically `vk::ImageAspectFlags::COLOR`.
-    /// `src_stage` / `dst_stage` — pipeline stages for the barrier.
-    /// `src_access` / `dst_access` — access flags for the barrier.
+    /// `src_layout` / `dst_layout` -- the layouts to transition between.
+    /// `image` -- the image to transition.
+    /// `aspect_mask` -- typically `vk::ImageAspectFlags::COLOR`.
+    /// `src_stage` / `dst_stage` -- pipeline stages for the barrier.
+    /// `src_access` / `dst_access` -- access flags for the barrier.
     pub fn transition_image_layout(
         &self,
         cmd: vk::CommandBuffer,

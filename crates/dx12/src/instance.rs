@@ -1,4 +1,4 @@
-//! DXGI instance — adapter enumeration and GPU selection
+//! DXGI instance -- adapter enumeration and GPU selection
 
 use super::*;
 

@@ -5,7 +5,7 @@
 #extension GL_EXT_ray_query: require
 
 // =============================================================================
-// Litt Engine Path Tracer — Compute Shader
+// Litt Engine Path Tracer -- Compute Shader
 // =============================================================================
 // Traces rays through a triangle scene, accumulating color into an image.
 // Supports Lambertian diffuse and GGX metallic materials.
@@ -24,9 +24,9 @@
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // Data structures (match Rust #[repr(C)] structs)
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 struct Vec3 { float x, y, z; };
 struct Vec4 { float x, y, z, w; };
 
@@ -71,9 +71,9 @@ struct CameraParams {
     uint  _pad[3];
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // PCG RNG (GPU-friendly)
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 uint pcg_state;
 
 uint pcg_next() {
@@ -86,9 +86,9 @@ float pcg_float() {
     return float(pcg_next() >> 8u) / 8388608.0;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // Math helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 Vec3  v3(float x, float y, float z)  { return Vec3(x, y, z); }
 Vec3  v3add(Vec3 a, Vec3 b)          { return v3(a.x+b.x, a.y+b.y, a.z+b.z); }
 Vec3  v3sub(Vec3 a, Vec3 b)          { return v3(a.x-b.x, a.y-b.y, a.z-b.z); }
@@ -101,9 +101,9 @@ Vec3  v3norm(Vec3 a)                 { return v3mul(a, 1.0/v3len(a)); }
 
 float rand_range(float a, float b)   { return a + pcg_float() * (b - a); }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Triangle intersection (Möller-Trumbore)
-// ─────────────────────────────────────────────────────────────────────────────
+// 
+// Triangle intersection (Mller-Trumbore)
+// 
 // Returns true if ray (orig, dir) hits triangle, writes t, u, v, normal_out
 bool intersect_tri(Vec3 orig, Vec3 dir, Triangle t,
                    out float t_out, out float u_out, out float v_out,
@@ -126,9 +126,9 @@ bool intersect_tri(Vec3 orig, Vec3 dir, Triangle t,
     return true;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // Sphere intersection
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 bool intersect_sphere(Vec3 orig, Vec3 dir, Sphere s,
                       out float t_out, out Vec3 hit_out, out Vec3 n_out) {
     Vec3 oc = v3sub(orig, s.center);
@@ -149,9 +149,9 @@ bool intersect_sphere(Vec3 orig, Vec3 dir, Sphere s,
     return true;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // Camera ray generation
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 Vec3 trace_camera_ray(CameraParams cam, ivec2 pix, uint spp) {
     float px = float(pix.x) + pcg_float();
     float py = float(pix.y) + pcg_float();
@@ -186,9 +186,9 @@ Vec3 trace_camera_ray(CameraParams cam, ivec2 pix, uint spp) {
     return v3norm(ray_dir);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // BRDF: Lambertian + GGX specular
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 Vec3 sample_lambertian(Vec3 normal, out Vec3 dir_out) {
     // Random point on hemisphere
     float u1 = pcg_float();
@@ -203,22 +203,22 @@ Vec3 sample_lambertian(Vec3 normal, out Vec3 dir_out) {
     Vec3 T = v3norm(v3cross(normal, any));
     Vec3 B = v3cross(normal, T);
     dir_out = v3norm(v3add(v3mul(T, local.x), v3add(v3mul(B, local.y), v3mul(normal, local.z))));
-    return normal; // PDF = 1/(2π), but we compute it below
+    return normal; // PDF = 1/(2), but we compute it below
 }
 
 float pdf_lambertian(Vec3 wo, Vec3 normal) {
     return max(0.0, v3dot(wo, normal)) / 3.14159265;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // Path trace
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 Vec3 path_trace(CameraParams cam, uint max_bounces) {
     Vec3 throughput = v3(1.0, 1.0, 1.0);
     Vec3 radiance   = v3(0.0, 0.0, 0.0);
     Vec3 orig       = cam.camera_pos;
     Vec3 dir        = trace_camera_ray(cam, ivec2(0), 0); // primary ray
-    // We trace one ray per pixel — the full spp loop is outside
+    // We trace one ray per pixel -- the full spp loop is outside
 
     for (uint bounce = 0u; bounce < max_bounces; bounce++) {
         // Find closest hit
@@ -258,7 +258,7 @@ Vec3 path_trace(CameraParams cam, uint max_bounces) {
         }
 
         if (hit_tri < 0 && hit_sph < 0) {
-            // Sky — simple gradient
+            // Sky -- simple gradient
             float t = 0.5 * (dir.y + 1.0);
             radiance = v3add(v3mul(v3(0.5, 0.7, 1.0), 1.0-t),
                              v3mul(v3(1.0, 1.0, 1.0), t));
@@ -268,7 +268,7 @@ Vec3 path_trace(CameraParams cam, uint max_bounces) {
         // Sample light / material
         MatEntry mat = scene_materials.mat[nonuniformEXT(mat_id)];
         if (mat.light_intensity > 0.0) {
-            // Emissive — add to radiance
+            // Emissive -- add to radiance
             radiance = v3add(radiance, v3mul(throughput, mat.emissive * mat.light_intensity));
             break;
         }
@@ -327,9 +327,9 @@ Vec3 path_trace(CameraParams cam, uint max_bounces) {
     return radiance;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // Push constants
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 layout(push_constant) uniform PushConstants {
     uint  resolution_x;
     uint  resolution_y;
@@ -342,9 +342,9 @@ layout(push_constant) uniform PushConstants {
     uint  _pad[3];
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // Bindings
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 layout(set = 0, binding = 0) readonly buffer SceneTriangles {
     Triangle tri[];
 } scene_triangles;
@@ -363,9 +363,9 @@ layout(set = 0, binding = 3) readonly buffer SceneMaterials {
 
 layout(set = 0, binding = 4) writeonly image2D accumulation;
 
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 // Main
-// ─────────────────────────────────────────────────────────────────────────────
+// 
 void main() {
     ivec2 size = ivec2(resolution_x, resolution_y);
     ivec2 px   = ivec2(gl_GlobalInvocationID.xy);

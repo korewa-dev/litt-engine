@@ -2,7 +2,7 @@
 name = "litt-audio"
 version = "0.1.0"
 edition = "2021"
-description = "Audio system for Litt Engine — sound playback and mixing"
+description = "Audio system for Litt Engine -- sound playback and mixing"
 
 [dependencies]
 litt-math = { path = "../math" }

@@ -25,7 +25,7 @@ fn main() {
         }
     } else {
         println!(
-            "cargo:warning=[MUSA] glslangValidator not found — shaders use runtime GLSL source"
+            "cargo:warning=[MUSA] glslangValidator not found -- shaders use runtime GLSL source"
         );
     }
 }

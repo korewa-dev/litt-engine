@@ -2,7 +2,7 @@
 name = "litt-scene"
 version = "0.1.0"
 edition = "2021"
-description = "Scene management for Litt Engine — hierarchy, loading, and traversal"
+description = "Scene management for Litt Engine -- hierarchy, loading, and traversal"
 
 [dependencies]
 litt-math = { path = "../math" }

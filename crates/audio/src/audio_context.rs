@@ -1,4 +1,4 @@
-//! Audio context — manages audio devices and plays sources.
+//! Audio context -- manages audio devices and plays sources.
 //! Uses cpal for cross-platform audio output.
 
 use super::audio_player::AudioSource;

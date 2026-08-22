@@ -1,4 +1,4 @@
-//! GLSL shaders for FSR 3.1.5 — compiled to SPIR-V for Vulkan compute pipelines.
+//! GLSL shaders for FSR 3.1.5 -- compiled to SPIR-V for Vulkan compute pipelines.
 //!
 //! Shaders are embedded as raw bytes via the `include_bytes!` macro at compile time.
 //! Build the SPIR-V with glslc or glslangValidator before using:

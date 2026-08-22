@@ -1,4 +1,4 @@
-//! Model abstraction — represents a loaded neural network.
+//! Model abstraction -- represents a loaded neural network.
 //! Supports ONNX, TFLite, and custom binary formats.
 
 use super::tensor::{DataType, Shape};
@@ -59,7 +59,7 @@ impl Model {
     /// Load a TFLite model from bytes
     pub fn from_tflite(data: Vec<u8>) -> Result<Self, String> {
         // Parse TFLite flatbuffer to extract input/output specs
-        // This is a simplified implementation — real TFLite parsing requires flatc
+        // This is a simplified implementation -- real TFLite parsing requires flatc
         let inputs = vec![InputSpec {
             name: "input".to_string(),
             shape: Shape::new(&[1, 224, 224, 3]),

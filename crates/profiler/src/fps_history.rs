@@ -1,4 +1,4 @@
-//! FPS history — tracks and visualizes FPS over time.
+//! FPS history -- tracks and visualizes FPS over time.
 //! Used for generating FPS graphs and detecting stuttering.
 
 use std::collections::VecDeque;
@@ -58,7 +58,7 @@ impl FpsHistory {
                 let end = (col + 1) * step;
                 let slice = &self.samples[start.min(self.samples.len())..end.min(self.samples.len())];
                 let avg = slice.iter().map(|(_, fps)| fps).sum::<f32>() / slice.len() as f32;
-                line.push(if avg >= threshold { '█' } else { ' ' });
+                line.push(if avg >= threshold { '#' } else { ' ' });
                 col += 1;
             }
             graph.push_str(&line);

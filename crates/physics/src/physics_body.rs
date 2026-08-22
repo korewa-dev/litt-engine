@@ -1,4 +1,4 @@
-//! PhysicsBody component — the core data type for GPU/CPU physics simulation
+//! PhysicsBody component -- the core data type for GPU/CPU physics simulation
 //!
 //! Matches the spec in docs/physics/physics-system.md exactly.
 
@@ -6,7 +6,7 @@ use litt_math::Vec3;
 use bytemuck::{Pod, Zeroable};
 
 // =============================================================================
-// ColliderShape — matches the spec from docs/physics/physics-system.md
+// ColliderShape -- matches the spec from docs/physics/physics-system.md
 // =============================================================================
 
 /// Collider shape types supported by the physics system.

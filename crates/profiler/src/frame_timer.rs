@@ -1,4 +1,4 @@
-//! Frame timing — measures frame duration and FPS.
+//! Frame timing -- measures frame duration and FPS.
 
 use std::time::Instant;
 

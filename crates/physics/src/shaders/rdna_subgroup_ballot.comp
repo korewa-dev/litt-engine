@@ -5,7 +5,7 @@
 #extension GL_KHR_shader_subgroup_arithmetic: require
 
 // =============================================================================
-// RDNA Subgroup Ballot Broadphase — O(N²/W) via ballot
+// RDNA Subgroup Ballot Broadphase -- O(N^2/W) via ballot
 // =============================================================================
 //
 // For each body, use subgroup ballot to find all overlapping bodies

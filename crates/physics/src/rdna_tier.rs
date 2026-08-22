@@ -1,4 +1,4 @@
-//! RDNA-tier physics — GPU compute shaders optimized for AMD RDNA3 architecture.
+//! RDNA-tier physics -- GPU compute shaders optimized for AMD RDNA3 architecture.
 //!
 //! Provides wave32, subgroup ballot, BVH reuse, and ray-query broadphase
 //! pipelines, each with full descriptor set management and dispatch.
@@ -13,7 +13,7 @@
 //! The `RDNAPhysicsTier` struct auto-selects the best shader based on:
 //! 1. GPU vendor (AMD/Intel)
 //! 2. Available Vulkan extensions (ray_query, subgroup)
-//! 3. Body count (small → wave32, large → rt_rayquery)
+//! 3. Body count (small -> wave32, large -> rt_rayquery)
 //!
 //! # Usage
 //! ```rust
@@ -100,7 +100,7 @@ impl RdnaBroadphaseMode {
 }
 
 // =============================================================================
-// RDNAComputePipeline — wraps a single compute shader pipeline
+// RDNAComputePipeline -- wraps a single compute shader pipeline
 // =============================================================================
 
 /// Push constants for the Wave32 broadphase shader
@@ -305,10 +305,10 @@ fn create_minimal_compute_spv() -> Vec<u32> {
 }
 
 // =============================================================================
-// RDNAPhysicsTier — the main RDNA physics acceleration tier
+// RDNAPhysicsTier -- the main RDNA physics acceleration tier
 // =============================================================================
 
-/// RDNA-tier physics — combines wave32, subgroup, BVH reuse, and RT broadphase
+/// RDNA-tier physics -- combines wave32, subgroup, BVH reuse, and RT broadphase
 #[derive(Debug)]
 pub struct RDNAPhysicsTier {
     /// Whether this GPU supports RDNA features
@@ -350,9 +350,9 @@ impl Default for RDNAPhysicsTier {
 impl RDNAPhysicsTier {
     /// Create a new RDNA physics tier.
     ///
-    /// `device` — the Vulkan logical device.
-    /// `has_ray_query` — whether VK_KHR_ray_query is available.
-    /// `has_subgroup` — whether subgroup extensions are available.
+    /// `device` -- the Vulkan logical device.
+    /// `has_ray_query` -- whether VK_KHR_ray_query is available.
+    /// `has_subgroup` -- whether subgroup extensions are available.
     pub fn new(device: &Device, has_ray_query: bool, has_subgroup: bool) -> Self {
         Self {
             enabled: true,
@@ -426,8 +426,8 @@ impl RDNAPhysicsTier {
 
     /// Dispatch the wave32 broadphase compute shader.
     ///
-    /// `command_buffer` — the command buffer to record into.
-    /// `desc_set` — descriptor set with bindings:
+    /// `command_buffer` -- the command buffer to record into.
+    /// `desc_set` -- descriptor set with bindings:
     ///   0 = AABB buffer (read)
     ///   1 = Overlap output buffer (write)
     ///   2 = Body count buffer (read)

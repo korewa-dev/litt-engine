@@ -1,4 +1,4 @@
-//! UI system — debug overlays, HUD, and text rendering.
+//! UI system -- debug overlays, HUD, and text rendering.
 //! Renders overlay information on top of the graphics output.
 
 pub mod hud;

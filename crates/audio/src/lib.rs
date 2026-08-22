@@ -1,5 +1,5 @@
 //! Audio system for Litt Engine.
-//! Placeholder — integrates with cpal for playback on supported platforms.
+//! Placeholder -- integrates with cpal for playback on supported platforms.
 
 pub mod sound;
 pub mod audio_player;

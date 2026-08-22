@@ -1,7 +1,7 @@
 //! BVH (Bounding Volume Hierarchy) builder for GPU physics broadphase.
 //!
 //! Provides a hierarchical bounding volume structure for O(log n) collision
-//! queries instead of O(n²) brute force. This is essential for large scenes
+//! queries instead of O(n^2) brute force. This is essential for large scenes
 //! with many physics bodies.
 
 use litt_math::Vec3;

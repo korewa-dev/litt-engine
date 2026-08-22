@@ -43,7 +43,7 @@ fn main() {
         }
     } else {
         println!(
-            "cargo:warning=glslangValidator not found — shaders will use runtime GLSL source (no SPIR-V)"
+            "cargo:warning=glslangValidator not found -- shaders will use runtime GLSL source (no SPIR-V)"
         );
     }
 }

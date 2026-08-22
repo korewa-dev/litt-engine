@@ -83,7 +83,7 @@ pub enum TensorLayout {
     NHWC, // Channels last (TensorFlow/ML typical)
 }
 
-/// A tensor — unified representation for all backends
+/// A tensor -- unified representation for all backends
 #[derive(Debug)]
 pub struct Tensor {
     pub shape: Shape,

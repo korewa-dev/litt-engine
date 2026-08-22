@@ -1,4 +1,4 @@
-//! Main renderer struct — single render loop with full pipeline integration.
+//! Main renderer struct -- single render loop with full pipeline integration.
 
 use ash::{vk, Device};
 use litt_vulkan::*;
@@ -122,7 +122,7 @@ impl Renderer {
         Ok(())
     }
 
-    /// Render a single frame — path trace → FSR upscaler → CAS sharpen → present
+    /// Render a single frame -- path trace -> FSR upscaler -> CAS sharpen -> present
     pub unsafe fn render_frame(
         &mut self,
         scene: &Scene,
@@ -151,7 +151,7 @@ impl Renderer {
             pipeline.update(camera, scene, self.swapchain.extents[0], self.swapchain.extents[1]);
         }
 
-        // ── Image Layout Transitions ──────────────────────────────────────
+        //  Image Layout Transitions 
         // Transition accumulation buffer to GENERAL (storage image write)
         if let Some(ref pipeline) = self.render_pipeline {
             let acc_image = pipeline.path_tracer_buffers.accumulation_buffer.handle;
@@ -170,7 +170,7 @@ impl Renderer {
             }
         }
 
-        // ── GPU Path Trace (compute) ──────────────────────────────────────
+        //  GPU Path Trace (compute) 
         if let Some(ref pipeline) = self.render_pipeline {
             if pipeline.path_trace_enabled && pipeline.path_tracer.is_initialized {
                 let acc_view = pipeline.path_tracer_buffers.accumulation_buffer.view;
@@ -263,14 +263,14 @@ impl Renderer {
             }
         }
 
-        // ── FSR 3.1.5 Upscale + CAS Sharpen ─────────────────────────────
+        //  FSR 3.1.5 Upscale + CAS Sharpen 
         if let Some(ref pipeline) = self.render_pipeline {
             if pipeline.fsr_enabled && pipeline.fsr_pipeline.is_initialized {
                 let acc_view = pipeline.path_tracer_buffers.accumulation_buffer.view;
                 let swap_view = self.swapchain.views[image_index as usize];
 
                 if acc_view != vk::ImageView::null() {
-                    // FSR upscaler: low-res path trace → high-res swapchain
+                    // FSR upscaler: low-res path trace -> high-res swapchain
                     let fsr_consts = Fsr3UpscalerConstants {
                         input_width: pipeline.path_tracer_buffers.accumulation_buffer.extent[0],
                         input_height: pipeline.path_tracer_buffers.accumulation_buffer.extent[1],
@@ -302,7 +302,7 @@ impl Renderer {
             }
         }
 
-        // ── Display / Tone-Map Pass ───────────────────────────────────────
+        //  Display / Tone-Map Pass 
         if let Some(ref pipeline) = self.render_pipeline {
             if pipeline.display_pipeline.is_initialized {
                 let acc_view = pipeline.path_tracer_buffers.accumulation_buffer.view;

@@ -2,7 +2,7 @@
 name = "litt-input"
 version = "0.1.0"
 edition = "2021"
-description = "Input system for Litt Engine — keyboard, mouse, gamepad"
+description = "Input system for Litt Engine -- keyboard, mouse, gamepad"
 
 [dependencies]
 litt-math = { path = "../math" }
@@ -11,7 +11,7 @@ bytemuck = { workspace = true }
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Graphics", "Win32_UI_Input_KeyboardAndMouse"] }
 
-# No Linux-specific dependencies needed — input is pure Rust with virtual key codes.
+# No Linux-specific dependencies needed -- input is pure Rust with virtual key codes.
 
 [profile.release]
 opt-level = "z"

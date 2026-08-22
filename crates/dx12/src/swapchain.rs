@@ -1,4 +1,4 @@
-//! DXGI swapchain — frame presentation
+//! DXGI swapchain -- frame presentation
 
 use super::*;
 

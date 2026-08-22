@@ -1,4 +1,4 @@
-//! Performance stats — aggregate metrics for debugging.
+//! Performance stats -- aggregate metrics for debugging.
 
 #[derive(Debug, Default)]
 pub struct Stats {

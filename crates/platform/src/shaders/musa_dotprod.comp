@@ -2,7 +2,7 @@
 #extension GL_EXT_scalar_block_layout: require
 
 // =============================================================================
-// MUSA Compute Kernel — Vector Dot Product (GPU-parallel)
+// MUSA Compute Kernel -- Vector Dot Product (GPU-parallel)
 // =============================================================================
 // Dispatches a dot product of two float3 vectors across a 256-thread workgroup.
 // Demonstrates MUSA compute capability via Vulkan.

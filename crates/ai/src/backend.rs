@@ -1,4 +1,4 @@
-//! Backend trait — unified interface for all AI acceleration backends.
+//! Backend trait -- unified interface for all AI acceleration backends.
 //! Each backend implements this trait to provide inference capabilities.
 
 use super::model::Model;

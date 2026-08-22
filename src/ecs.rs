@@ -11,7 +11,7 @@ use litt_physics::*;
 // ECS Systems for Litt Engine
 // =============================================================================
 
-/// Movement system — updates transforms based on velocity (legacy compat)
+/// Movement system -- updates transforms based on velocity (legacy compat)
 pub struct MovementSystem {
     pub dt: f32,
 }
@@ -35,7 +35,7 @@ impl litt_ecs::System for MovementSystem {
     }
 }
 
-/// Camera system — follows player entity
+/// Camera system -- follows player entity
 pub struct CameraSystem {
     pub dt: f32,
 }
@@ -65,7 +65,7 @@ impl litt_ecs::System for CameraSystem {
     }
 }
 
-/// Light system — animates light direction
+/// Light system -- animates light direction
 pub struct LightSystem;
 
 impl litt_ecs::System for LightSystem {
@@ -89,7 +89,7 @@ impl litt_ecs::System for LightSystem {
 }
 
 // =============================================================================
-// ECS World Builder — bridges template Transform with physics PhysicsTransform
+// ECS World Builder -- bridges template Transform with physics PhysicsTransform
 // =============================================================================
 
 /// Build an ECS world with physics-enabled entities.
@@ -100,7 +100,7 @@ impl litt_ecs::System for LightSystem {
 pub fn build_world() -> World {
     let mut world = World::new();
 
-    // Player — dynamic sphere body, starts above ground
+    // Player -- dynamic sphere body, starts above ground
     let player = world.create_entity();
     world.add_component(player, Transform {
         position: Vec3::new(0.0, 3.0, 0.0),
@@ -140,7 +140,7 @@ pub fn build_world() -> World {
         _pad: [0.0; 2],
     });
 
-    // Ground plane — static AABB body (immovable)
+    // Ground plane -- static AABB body (immovable)
     let ground = world.create_entity();
     world.add_component(ground, Transform {
         position: Vec3::new(0.0, 0.0, 0.0),
@@ -162,7 +162,7 @@ pub fn build_world() -> World {
         ..Default::default()
     });
 
-    // Falling cubes — staggered heights, dynamic AABB bodies
+    // Falling cubes -- staggered heights, dynamic AABB bodies
     for i in 0..5 {
         let cube = world.create_entity();
         let start_y = 3.0 + i as f32 * 1.5;
@@ -189,7 +189,7 @@ pub fn build_world() -> World {
         });
     }
 
-    // Rolling sphere — starts with horizontal velocity
+    // Rolling sphere -- starts with horizontal velocity
     let sphere = world.create_entity();
     let sphere_pos = Vec3::new(3.0, 1.0, 2.0);
     world.add_component(sphere, Transform {
@@ -216,7 +216,7 @@ pub fn build_world() -> World {
     world
 }
 
-/// Sync system — copies PhysicsTransform positions back to Transform for rendering.
+/// Sync system -- copies PhysicsTransform positions back to Transform for rendering.
 /// Run this AFTER PhysicsSystem.update() each frame.
 pub struct PhysicsTransformSyncSystem;
 

@@ -1,4 +1,4 @@
-//! Frame timing breakdown — measures time spent in each rendering stage.
+//! Frame timing breakdown -- measures time spent in each rendering stage.
 //! Provides detailed per-stage timing for bottleneck analysis.
 
 use std::time::Instant;

@@ -1,4 +1,4 @@
-//! MUSA (Moore Threads Unified Shader Architecture) — Complete Compute Pipeline
+//! MUSA (Moore Threads Unified Shader Architecture) -- Complete Compute Pipeline
 //!
 //! Moore Threads GPUs (vendor ID 0x1DD) use the MUSA compute architecture.
 //! Since the official MUSA SDK is proprietary, this module provides a
@@ -13,8 +13,8 @@
 //!
 //! # Shader Sources
 //! Two GLSL compute shaders are embedded:
-//! - `musa_dotprod.comp` — element-wise float3 multiplication (256-thread WG)
-//! - `musa_vectoradd.comp` — element-wise float3 addition (256-thread WG)
+//! - `musa_dotprod.comp` -- element-wise float3 multiplication (256-thread WG)
+//! - `musa_vectoradd.comp` -- element-wise float3 addition (256-thread WG)
 //!
 //! If glslangValidator is on PATH, shaders are compiled to SPIR-V at build time.
 //! Otherwise, the GLSL source is embedded and used as a fallback.
@@ -106,14 +106,14 @@ impl std::error::Error for MusaError {}
 // MUSA device classification
 // =============================================================================
 
-/// MUSA compute capability — maps to specific MTT GPU generations
+/// MUSA compute capability -- maps to specific MTT GPU generations
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MusaComputeCapability {
-    /// MTT S2000 — first-gen MUSA (compute capability 1.0)
+    /// MTT S2000 -- first-gen MUSA (compute capability 1.0)
     V100,
-    /// MTT S3000 — second-gen MUSA (compute capability 2.0)
+    /// MTT S3000 -- second-gen MUSA (compute capability 2.0)
     V200,
-    /// MTT S4000 — third-gen MUSA (compute capability 3.0)
+    /// MTT S4000 -- third-gen MUSA (compute capability 3.0)
     V300,
     /// Unknown or unrecognized MUSA device
     Unknown,
@@ -214,7 +214,7 @@ impl MusaGpuInfo {
 
             // Check shader features
             let features12 = instance.physical_device_properties2(physical_device);
-            // We check features via p_next chain — simplified check
+            // We check features via p_next chain -- simplified check
             let supports_fp64 = props.shader_float64;
             let supports_fp16 = props.shader_float16_int8;
             let supports_int8 = props.shader_int8;
@@ -283,7 +283,7 @@ pub fn musa_get_version(instance: &Instance, physical_device: vk::PhysicalDevice
 // MUSA Compute Pipeline
 // =============================================================================
 
-/// A MUSA compute pipeline — wraps a single compute shader with its
+/// A MUSA compute pipeline -- wraps a single compute shader with its
 /// descriptor layout, pipeline layout, pipeline, and descriptor pool.
 #[derive(Debug)]
 pub struct MusaComputePipeline {
@@ -450,7 +450,7 @@ fn create_minimal_compute_spv() -> Vec<u32> {
         // Name: "main"
         0x0002_000B,
         0x0000_0003,
-        0x6E_69_61_6D, // "niaN" reversed → "Nain" → actually... let's use simpler approach
+        0x6E_69_61_6D, // "niaN" reversed -> "Nain" -> actually... let's use simpler approach
         0x0000_0000,
         // OpTypeVoid id=1
         0x0001_0006,
@@ -478,7 +478,7 @@ fn create_minimal_compute_spv() -> Vec<u32> {
 // MUSA Context
 // =============================================================================
 
-/// A MUSA compute context — owns a Vulkan device, compute queue, and
+/// A MUSA compute context -- owns a Vulkan device, compute queue, and
 /// can allocate buffers/images and dispatch compute workloads.
 ///
 /// This is the main entry point for MUSA GPU programming.
@@ -630,9 +630,9 @@ impl MusaContext {
 
     /// Create a new compute pipeline from GLSL source.
     ///
-    /// `num_buffers` — number of storage buffer bindings.
-    /// `num_images` — number of storage image bindings.
-    /// `push_constant_size` — size of push constant block in bytes (must be ≤ 128).
+    /// `num_buffers` -- number of storage buffer bindings.
+    /// `num_images` -- number of storage image bindings.
+    /// `push_constant_size` -- size of push constant block in bytes (must be  128).
     pub fn create_compute_pipeline(
         &self,
         glsl_source: &str,
@@ -651,7 +651,7 @@ impl MusaContext {
         }
     }
 
-    // ── Buffer allocation ──────────────────────────────────────────────
+    //  Buffer allocation 
 
     /// Allocate a storage buffer on the MUSA GPU.
     ///
@@ -696,7 +696,7 @@ impl MusaContext {
         }
     }
 
-    // ── Descriptor set allocation ──────────────────────────────────────
+    //  Descriptor set allocation 
 
     /// Allocate a descriptor set from the context's descriptor pool.
     pub fn allocate_descriptor_set(
@@ -717,7 +717,7 @@ impl MusaContext {
         }
     }
 
-    // ── Compute dispatch ───────────────────────────────────────────────
+    //  Compute dispatch 
 
     /// Dispatch a compute workload on the MUSA GPU.
     ///
@@ -802,7 +802,7 @@ impl MusaContext {
         }
     }
 
-    // ── Cleanup ────────────────────────────────────────────────────────
+    //  Cleanup 
 
     /// Destroy the context and all associated Vulkan resources.
     /// Called automatically by Drop.

@@ -1,4 +1,4 @@
-//! Engine Modules — Phase 9 Implementation
+//! Engine Modules -- Phase 9 Implementation
 //!
 //! Core engine systems that integrate all lower-level crates:
 //! - Input (litt-input): keyboard, mouse, gamepad
@@ -11,7 +11,7 @@
 //! - App (src/app.rs): integration of all systems
 
 // =============================================================================
-// Phase 9: Engine Modules [✅ IMPLEMENTED]
+// Phase 9: Engine Modules [ IMPLEMENTED]
 // =============================================================================
 
 // All modules are exported from lib.rs and main.rs

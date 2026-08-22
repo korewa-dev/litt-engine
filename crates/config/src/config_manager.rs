@@ -1,4 +1,4 @@
-//! Config manager — loads, saves, and applies settings.
+//! Config manager -- loads, saves, and applies settings.
 
 use super::settings::Settings;
 use super::presets::get_preset;

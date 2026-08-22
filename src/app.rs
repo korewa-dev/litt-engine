@@ -1,4 +1,4 @@
-//! Application module — full pipeline integration with all engine systems.
+//! Application module -- full pipeline integration with all engine systems.
 
 use super::game_loop::*;
 use crate::version;
@@ -19,7 +19,7 @@ use litt_pathtracer::{CameraControls, default_scene, default_camera};
 use litt_platform::Window;
 use litt_math::*;
 
-/// The main application — integrates all engine systems
+/// The main application -- integrates all engine systems
 pub struct App {
     pub window: Window,
     pub game_loop: GameLoop,

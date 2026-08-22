@@ -1,4 +1,4 @@
-//! DX12 descriptor heaps — CBV, SRV, UAV, RTV, DSV, sampler
+//! DX12 descriptor heaps -- CBV, SRV, UAV, RTV, DSV, sampler
 
 use super::*;
 

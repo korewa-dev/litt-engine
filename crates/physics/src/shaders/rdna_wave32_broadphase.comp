@@ -5,7 +5,7 @@
 #extension GL_KHR_shader_subgroup_arithmetic: require
 
 // =============================================================================
-// RDNA Wave32 Broadphase — O(N²/32) via wavefront parallelism
+// RDNA Wave32 Broadphase -- O(N^2/32) via wavefront parallelism
 // =============================================================================
 //
 // Each wave (32 threads) processes one body against all others.

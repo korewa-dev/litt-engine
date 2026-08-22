@@ -2,7 +2,7 @@
 #extension GL_EXT_scalar_block_layout: require
 
 // =============================================================================
-// MUSA Compute Kernel — Vector Add (GPU-parallel)
+// MUSA Compute Kernel -- Vector Add (GPU-parallel)
 // =============================================================================
 // Computes C[i] = A[i] + B[i] for i in [0, n).
 //

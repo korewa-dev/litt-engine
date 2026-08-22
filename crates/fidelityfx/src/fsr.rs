@@ -1,4 +1,4 @@
-//! AMD FidelityFX Super Resolution 3.1.5 — real Vulkan compute pipeline.
+//! AMD FidelityFX Super Resolution 3.1.5 -- real Vulkan compute pipeline.
 //!
 //! Builds compute pipelines from embedded GLSL shaders (compiled at build time).
 //! Supports: Create (reprojection), Compensate, Upscaler, Frame Generation.
@@ -10,7 +10,7 @@ use litt_math::*;
 use crate::vulkan::{VmaAllocator, Allocation, AllocFlags, create_compute_pipeline, PipelineCache};
 
 // =============================================================================
-// Shader source (GLSL) — compiled by build.rs or pre-compiled to SPIR-V
+// Shader source (GLSL) -- compiled by build.rs or pre-compiled to SPIR-V
 // =============================================================================
 
 pub use crate::shaders::{
@@ -1388,7 +1388,7 @@ pub fn create_fsrs_pipeline(
 // GPU Path Tracer Pipeline (Phase 12)
 // =============================================================================
 
-/// Path tracer push constants — matches the GLSL PushConstants struct
+/// Path tracer push constants -- matches the GLSL PushConstants struct
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
 #[repr(C, packed)]
 pub struct PathTracePushConstants {
@@ -1427,7 +1427,7 @@ impl Default for PathTracePushConstants {
     }
 }
 
-/// GPU path tracing pipeline — full compute shader with triangle + sphere tracing
+/// GPU path tracing pipeline -- full compute shader with triangle + sphere tracing
 #[derive(Debug)]
 pub struct PathTracerPipeline {
     pub device: ash::Device,
@@ -1534,11 +1534,11 @@ impl PathTracerPipeline {
     /// Dispatch the path trace compute shader.
     ///
     /// Expects the following descriptors to be bound in order:
-    ///   0 — scene_triangles buffer
-    ///   1 — scene_spheres    buffer
-    ///   2 — scene_lights     buffer
-    ///   3 — scene_materials  buffer
-    ///   4 — accumulation     image (R32G32B32A32_SFLOAT)
+    ///   0 -- scene_triangles buffer
+    ///   1 -- scene_spheres    buffer
+    ///   2 -- scene_lights     buffer
+    ///   3 -- scene_materials  buffer
+    ///   4 -- accumulation     image (R32G32B32A32_SFLOAT)
     pub fn dispatch(
         &self,
         command_buffer: vk::CommandBuffer,
@@ -1636,7 +1636,7 @@ impl Default for DisplayPushConstants {
     }
 }
 
-/// Display pipeline — copies and tone-maps accumulation buffer to swapchain image
+/// Display pipeline -- copies and tone-maps accumulation buffer to swapchain image
 #[derive(Debug)]
 pub struct DisplayPipeline {
     pub device: ash::Device,
@@ -1669,8 +1669,8 @@ impl DisplayPipeline {
 
     /// Initialize the display pipeline.
     ///
-    /// `accum_width/height` — resolution of the accumulation (path-traced) image.
-    /// `output_width/height` — resolution of the swapchain image.
+    /// `accum_width/height` -- resolution of the accumulation (path-traced) image.
+    /// `output_width/height` -- resolution of the swapchain image.
     ///
     /// Descriptor bindings:
     ///   0 = accumulation (read-only image)

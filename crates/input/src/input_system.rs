@@ -1,11 +1,11 @@
-//! Input system — handles platform input events and updates InputState.
+//! Input system -- handles platform input events and updates InputState.
 
 use super::input_state::InputState;
 use super::keyboard::Key;
 use super::mouse::{MouseState, MouseButton};
 use super::gamepad::GamepadState;
 
-/// Input system — bridges platform events to logical input
+/// Input system -- bridges platform events to logical input
 pub struct InputSystem {
     pub state: InputState,
     pub sensitivity: f32,
@@ -113,7 +113,7 @@ impl InputSystem {
         self.state.gamepad.axes[idx] = value;
     }
 
-    /// End of frame — clear frame-specific state
+    /// End of frame -- clear frame-specific state
     pub fn end_frame(&mut self) {
         self.state.clear_frame();
     }

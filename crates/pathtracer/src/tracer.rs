@@ -318,7 +318,7 @@ pub fn upload_scene(
         vk::MemoryPropertyFlags::DEVICE_LOCAL,
     )?;
 
-    // Create accumulation buffer (device local) — R32G32B32A32_SFLOAT HDR
+    // Create accumulation buffer (device local) -- R32G32B32A32_SFLOAT HDR
     let (accum_image, accum_view, accum_alloc) = allocator.allocate_image(
         [640, 360, 1],
         vk::Format::R32G32B32A32_SFLOAT,
@@ -330,7 +330,7 @@ pub fn upload_scene(
         1,
     )?;
 
-    // Velocity buffer (R16G16_SFLOAT) — motion vectors for reprojection
+    // Velocity buffer (R16G16_SFLOAT) -- motion vectors for reprojection
     let (velocity_image, velocity_view, vel_alloc) = allocator.allocate_image(
         [640, 360, 1],
         vk::Format::R16G16_SFLOAT,
@@ -342,7 +342,7 @@ pub fn upload_scene(
         1,
     )?;
 
-    // Output buffer (R8G8B8A8_UNORM) — final display image
+    // Output buffer (R8G8B8A8_UNORM) -- final display image
     let (output_image, output_view, out_alloc) = allocator.allocate_image(
         [640, 360, 1],
         vk::Format::R8G8B8A8_UNORM,

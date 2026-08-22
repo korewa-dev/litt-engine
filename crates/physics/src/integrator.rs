@@ -5,7 +5,7 @@
 use litt_math::Vec3;
 use super::physics_body::PhysicsBody;
 
-/// Semi-implicit Euler integrator — stable for rigid body simulation
+/// Semi-implicit Euler integrator -- stable for rigid body simulation
 pub struct SemiImplicitEulerIntegrator;
 
 impl SemiImplicitEulerIntegrator {

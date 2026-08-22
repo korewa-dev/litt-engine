@@ -1,4 +1,4 @@
-//! Performance report — generates a text report of performance data.
+//! Performance report -- generates a text report of performance data.
 //! Used for logging and debugging.
 
 use super::frame_timer::FrameTimer;
@@ -35,7 +35,7 @@ impl PerfReport {
     ) -> Self {
         let mut report = Self::new();
 
-        report.title = format!("Litt Engine Performance Report — {}", timer.frame_count);
+        report.title = format!("Litt Engine Performance Report -- {}", timer.frame_count);
 
         report.lines.push("=".repeat(60));
         report.lines.push(report.title.clone());
@@ -78,7 +78,7 @@ impl PerfReport {
         report.lines.push("-".repeat(40));
         for (name, pct) in bottleneck.timing.percentages() {
             let bar_len = (pct / 10.0) as usize;
-            let bar = "█".repeat(bar_len);
+            let bar = "#".repeat(bar_len);
             report.lines.push(format!("  {:12} {:>6.1}%  {}", name, pct, bar));
         }
         report.lines.push(String::new());

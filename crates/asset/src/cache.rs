@@ -1,4 +1,4 @@
-//! Asset cache — LRU cache for loaded assets.
+//! Asset cache -- LRU cache for loaded assets.
 //! Prevents duplicate loading and manages memory.
 
 use std::collections::HashMap;
@@ -12,7 +12,7 @@ struct CacheEntry {
     pub size_bytes: usize,
 }
 
-/// Asset cache — LRU eviction policy
+/// Asset cache -- LRU eviction policy
 #[derive(Debug)]
 pub struct AssetCache {
     entries: HashMap<AssetHandle, CacheEntry>,

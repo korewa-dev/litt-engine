@@ -1,4 +1,4 @@
-//! GPU profiler — measures GPU execution time using Vulkan timestamps.
+//! GPU profiler -- measures GPU execution time using Vulkan timestamps.
 
 use ash::{vk, Device};
 

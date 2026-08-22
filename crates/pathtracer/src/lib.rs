@@ -29,7 +29,7 @@ pub fn default_camera() -> Camera {
     }
 }
 
-/// Default path tracer scene — a room with an emissive light sphere
+/// Default path tracer scene -- a room with an emissive light sphere
 pub fn default_scene() -> Scene {
     Scene::default_test_scene()
 }

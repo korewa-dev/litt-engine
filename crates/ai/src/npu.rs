@@ -1,4 +1,4 @@
-//! NPU backend types — abstract representation for all NPU backends.
+//! NPU backend types -- abstract representation for all NPU backends.
 //! Each variant corresponds to a specific hardware NPU.
 
 use super::tensor::DataType;

@@ -1,5 +1,5 @@
 //! Minimal Vulkan backend using ash with VMA and AMD AGS.
-//! No abstraction layer — explicit Vulkan calls only.
+//! No abstraction layer -- explicit Vulkan calls only.
 
 pub mod instance;
 pub mod device;

@@ -2,7 +2,7 @@
 #extension GL_EXT_scalar_block_layout: require
 
 // =============================================================================
-// Litt Engine — Display / Copy Shader (Phase 12)
+// Litt Engine -- Display / Copy Shader (Phase 12)
 // =============================================================================
 // Copies the accumulation buffer (R32G32B32A32_SFLOAT) to a swapchain image
 // (typically B8G8R8A8_UNORM or R8G8B8A8_UNORM) with basic tone mapping.
