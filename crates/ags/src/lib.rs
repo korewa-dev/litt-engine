@@ -281,17 +281,17 @@ pub struct AGSContext {
 }
 
 type AGSInitFn = unsafe extern "C" fn(*mut AGSContext) -> AGSResult;
-type AGSGetAdapterCountFn = unsafe extern "C" fn(*const AGSContext) -> AGSInt;
-type AGSGetAdapterInfoFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSAdapterInfo) -> AGSResult;
-type AGSGetDriverInfoFn = unsafe extern "C" fn(*const AGSContext, *mut AGSDriverInfo) -> AGSResult;
-type AGSGetPowerStateTypeFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSPowerStateType) -> AGSResult;
-type AGSSetPowerProfileFn = unsafe extern "C" fn(*const AGSContext, AGSInt, AGSPowerProfile) -> AGSResult;
-type AGSGetPowerProfileFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSPowerProfile) -> AGSResult;
-type AGSGetFanInfoFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSFanInfo) -> AGSResult;
-type AGSSetFanSpeedFn = unsafe extern "C" fn(*const AGSContext, AGSInt, AGSInt) -> AGSResult;
-type AGSGetPowerInfoFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSPowerInfo) -> AGSResult;
-type AGSGetThermalsFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSThermals) -> AGSResult;
-type AGSGetUtilizationFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSUtilization) -> AGSResult;
+#[allow(dead_code)] type AGSGetAdapterCountFn = unsafe extern "C" fn(*const AGSContext) -> AGSInt;
+#[allow(dead_code)] type AGSGetAdapterInfoFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSAdapterInfo) -> AGSResult;
+#[allow(dead_code)] type AGSGetDriverInfoFn = unsafe extern "C" fn(*const AGSContext, *mut AGSDriverInfo) -> AGSResult;
+#[allow(dead_code)] type AGSGetPowerStateTypeFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSPowerStateType) -> AGSResult;
+#[allow(dead_code)] type AGSSetPowerProfileFn = unsafe extern "C" fn(*const AGSContext, AGSInt, AGSPowerProfile) -> AGSResult;
+#[allow(dead_code)] type AGSGetPowerProfileFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSPowerProfile) -> AGSResult;
+#[allow(dead_code)] type AGSGetFanInfoFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSFanInfo) -> AGSResult;
+#[allow(dead_code)] type AGSSetFanSpeedFn = unsafe extern "C" fn(*const AGSContext, AGSInt, AGSInt) -> AGSResult;
+#[allow(dead_code)] type AGSGetPowerInfoFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSPowerInfo) -> AGSResult;
+#[allow(dead_code)] type AGSGetThermalsFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSThermals) -> AGSResult;
+#[allow(dead_code)] type AGSGetUtilizationFn = unsafe extern "C" fn(*const AGSContext, AGSInt, *mut AGSUtilization) -> AGSResult;
 
 impl AGSContext {
     /// Create a new AMD AGS context
