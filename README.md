@@ -32,24 +32,24 @@ These are the foundational systems that AI agents interact with directly. Everyt
 | `Rng` | PCG random number generator |
 | `HitInfo` | Ray intersection result (t, normal, material) |
 
-### Physics Primitives
+### Physics System (`litt-physics`)
 
-- **Sphere-sphere collision** — implemented in `src/template/components/physics.rs`
-- **Ground collision** — basic floor detection at y=0
-- **Impulse response** — conservation of momentum with restitution
-- **Fixed timestep** — configurable physics rate (default 60 Hz)
-- **Substeps** — multiple physics steps per frame for stability
+- **GPU-accelerated** — RDNA compute shaders for broadphase, narrowphase
+- **Multi-tier** — RDNA (GPU), ARM/NEON, RISC-V/RVV, x86_64/AVX2 fallbacks
+- **BVH broadphase** — SAH-based BVH builder/rebuilder
+- **SAT narrowphase** — AABB-AABB, sphere-sphere, capsule-capsule
+- **Impulse solver** — friction, restitution, positional correction
+- **Async compute** — separate compute queue for physics
 
 ```rust
-let mut world = World::new();
-let player = world.create_entity();
-world.add_component(player, Transform::new(Vec3::new(0.0, 1.0, 0.0)));
-world.add_component(player, PhysBody::new(1.0)); // mass
-world.add_component(player, Velocity::default());
-world.add_component(player, Collider::sphere(0.5));
+use litt_physics::*;
 
 let mut physics = PhysicsSystem::new();
-physics.update(&mut world, 1.0 / 60.0);
+physics.set_fixed_timestep(1.0 / 60.0);
+physics.set_substeps(2);
+
+// Each frame:
+physics.update(&mut world, dt);
 ```
 
 ### Scene Graph & Entity Hierarchy
@@ -131,29 +131,28 @@ Rendering exists to provide visual feedback to the AI agent. It consumes the ECS
 
 The engine is built around AI-first workflows. Every system is designed to be manipulable by autonomous agents.
 
-### Agent Architecture
+### AI Systems (`litt-ai`, `litt-ecs`)
 
-- **Action logs** — `template/agent/actions.log` tracks all agent decisions
-- **PR templates** — standardized workflow for AI agent contributions
-- **Asset ingestion** — `template/assets/asset_index.json` for AI-driven content
+The engine is built around AI-first workflows. Every system is designed to be manipulable by autonomous agents.
 
-### NPU Acceleration
+**Core Components:**
+- `NeuralBrain` — AI model reference + state, confidence, latency
+- `MovementIntent` — desired velocity/direction
+- `CombatIntent` — target, action, aggression level
 
-| NPU | Vendor | TOPS | Use Case |
-|-----|--------|------|----------|
-| Ryzen AI XDNA 2 | AMD | 50 | Denoising, frame gen |
-| Ryzen AI (1st gen) | AMD | 25 | AI upscaling |
-| Intel AI Boost | Intel | 48 | Neural reconstruction |
-| Hexagon | Qualcomm | 15 | Mobile frame gen |
-| Da Vinci NPU | Huawei Kirin | 8 | Mobile denoising |
+**Core Systems:**
+- `NeuralAISystem` — NPU/GPU/CPU-driven behavior inference
+- `CombatAISystem` — NPU-driven combat AI
 
-### Backend Selection
-
+**Backend Selection:**
 ```rust
-use litt::graphics::{select_backend, GraphicsBackend};
+use litt_ai::{AIContext, BackendSelector};
 
-let backend = select_backend()?;
-println!("Using: {} on {}", backend.name(), backend.adapter_info());
+let selector = BackendSelector::new();
+let backend = selector.best_available(); // NPU → GPU → CPU
+
+let context = AIContext::new();
+let result = context.run_auto(&model, &[input])?;
 ```
 
 ---

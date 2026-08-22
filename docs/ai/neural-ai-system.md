@@ -1,8 +1,8 @@
-﻿﻿# NeuralAISystem
+﻿# NeuralAISystem
 
 > NPU-driven behavior inference for NPCs, player prediction, and procedural generation.
 
-**Status:** 📋 Designed — integration with `litt-ecs` planned. See [ROADMAP.md](./ROADMAP.md#phase-6) (Phase 6).
+**Status:** ✅ Complete (Phase 6)
 
 ---
 
