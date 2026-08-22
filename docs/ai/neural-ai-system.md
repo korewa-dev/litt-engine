@@ -1,8 +1,8 @@
-﻿# NeuralAISystem
+# NeuralAISystem
 
 > NPU-driven behavior inference for NPCs, player prediction, and procedural generation.
 
-**Status:** ✅ Complete (Phase 6)
+**Status:**  Complete (Phase 6)
 
 ---
 
@@ -10,7 +10,7 @@
 
 The `NeuralAISystem` is the ECS system that drives all NPU-based AI inference. It reads observation data from entity components, submits inference requests to the NPU via the `NpuContext`, and writes the results back into entity components (`MovementIntent`, `CombatIntent`, `BehaviorState`, etc.).
 
-All inference runs exclusively on the NPU — no GPU or CPU fallback is permitted per [NPU_RULES.md](./NPU_RULES.md).
+All inference runs exclusively on the NPU -- no GPU or CPU fallback is permitted per [NPU_RULES.md](./NPU_RULES.md).
 
 ---
 
@@ -193,30 +193,31 @@ The `NeuralAISystem` uses `NpuContext::select_backend()` to choose the appropria
 
 ## Roadmap
 
-### Short-term (1–3 months)
-- [ ] Implement `NpuContext` with async inference queue
-- [ ] Add `NeuralBrain` component to template entities
-- [ ] Build observation vector construction helper
-- [ ] Implement batched NPU dispatch
+### Short-term (1-3 months)
+- [] Implement `NpuContext` with async inference queue
+- [] Add `NeuralBrain` component to template entities
+- [] Build observation vector construction helper
+- [] Implement batched NPU dispatch
 
-### Mid-term (3–12 months)
-- [ ] Add `PlayerPredictionSystem` with pattern tracking
-- [ ] Implement `NpcMemory` component for long-term adaptation
-- [ ] Add RL policy update loop (`RlTrainingSystem`)
-- [ ] Integrate with `DialogueSystem` for personality-driven NPC responses
+### Mid-term (3-12 months)
+- [] Add `PlayerPredictionSystem` with pattern tracking
+- [] Implement `NpcMemory` component for long-term adaptation
+- [] Add RL policy update loop (`RlTrainingSystem`)
+- [] Integrate with `DialogueSystem` for personality-driven NPC responses
 
-### Long-term (1–3 years)
-- [ ] Online model fine-tuning via federated learning
-- [ ] Cross-entity emotional contagion (NPCs influence each other)
-- [ ] Procedural narrative generation driven by NPU
+### Long-term (1-3 years)
+- [] Online model fine-tuning via federated learning
+- [] Cross-entity emotional contagion (NPCs influence each other)
+- [] Procedural narrative generation driven by NPU
 
 ### Experimental
-- 💡 Real-time NPC personality evolution across sessions
-- 💡 Emergent faction dynamics from individual NPC decisions
-- 💡 NPU-driven procedural level generation for entire dungeons
+-  Real-time NPC personality evolution across sessions
+-  Emergent faction dynamics from individual NPC decisions
+-  NPU-driven procedural level generation for entire dungeons
 
 ### Hardware-Specific
 - **RDNA / AMD:** Leverage X DNA 2 NPU (50 TOPS) for batched multi-NPC inference
 - **Moore Threads:** MUSA NPU inference with Vulkan memory sharing
 - **ARM / Mobile:** Hexagon DSP + Mali-NPU hybrid for mobile NPCs
 - **RISC-V:** RVV vectorized inference for edge NPC simulation
+

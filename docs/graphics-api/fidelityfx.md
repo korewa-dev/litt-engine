@@ -1,4 +1,4 @@
-﻿# FidelityFX Integration
+# FidelityFX Integration
 
 Litt Engine integrates the [AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) for upscaling and frame generation.
 
@@ -83,13 +83,14 @@ export LIT_FSR_FRAMEGEN=1      # Enable frame generation
 Path Trace (Compute Shader)
   -> FidelityFX Ray Reconstruction (Denoiser)
   -> FidelityFX FSR 3.1.5
-      ├─ Create Pass (temporal accumulation)
-      ├─ Compensate Pass (motion vectors)
-      ├─ Upscaler Pass (upscaling)
-      └─ Frame Gen Pass (frame generation)
+       Create Pass (temporal accumulation)
+       Compensate Pass (motion vectors)
+       Upscaler Pass (upscaling)
+       Frame Gen Pass (frame generation)
   -> FidelityFX CAS (sharpening)
   -> Tonemap
   -> Present
 ```
 
 See [../rendering/frame-graph.md](../rendering/frame-graph.md) for the full frame graph.
+

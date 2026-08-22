@@ -1,4 +1,4 @@
-﻿# Litt Engine ECS Architecture
+# Litt Engine ECS Architecture
 
 ## Overview
 
@@ -8,12 +8,12 @@ The ECS (Entity Component System) architecture for Litt Engine provides a data-o
 
 ```
 crates/ecs/
-├── Cargo.toml
-├── README.md
-├── src/
-│   └── lib.rs      # Core ECS implementation
-└── examples/
-    └── basic.rs    # Usage example
+ Cargo.toml
+ README.md
+ src/
+    lib.rs      # Core ECS implementation
+ examples/
+     basic.rs    # Usage example
 ```
 
 ## Core Components
@@ -74,3 +74,4 @@ camera.update(&mut world, 0.016);
 ```bash
 cargo test -p litt-ecs
 ```
+

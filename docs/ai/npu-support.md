@@ -1,4 +1,4 @@
-﻿# NPU (Neural Processing Unit) Support
+# NPU (Neural Processing Unit) Support
 
 Litt Engine supports NPU acceleration for AI-powered rendering tasks including denoising, upscaling, and frame generation.
 
@@ -82,7 +82,8 @@ export LIT_NPU_MODE=0
 
 ## Performance Notes
 
-1. **First frame overhead** — NPU compilation can add 1-3s to first frame
-2. **Transfer overhead** — Copying data to/from NPU has latency (~0.5ms)
-3. **Best use case** — NPU excels at batch denoising (multiple frames)
-4. **Fallback** — Always fall back to GPU if NPU is unavailable or slow
+1. **First frame overhead** -- NPU compilation can add 1-3s to first frame
+2. **Transfer overhead** -- Copying data to/from NPU has latency (~0.5ms)
+3. **Best use case** -- NPU excels at batch denoising (multiple frames)
+4. **Fallback** -- Always fall back to GPU if NPU is unavailable or slow
+

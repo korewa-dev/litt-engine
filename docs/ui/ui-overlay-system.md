@@ -1,8 +1,8 @@
-﻿﻿# UIOverlaySystem
+# UIOverlaySystem
 
-> HUD, menus, debug overlays, and in-game console — all driven by ECS components.
+> HUD, menus, debug overlays, and in-game console -- all driven by ECS components.
 
-**Status:** 📋 Planned — Phase 9 of [ROADMAP.md](./ROADMAP.md).
+**Status:**  Planned -- Phase 9 of [ROADMAP.md](./ROADMAP.md).
 
 ---
 
@@ -209,32 +209,33 @@ sequenceDiagram
 
 ## Roadmap
 
-### Short-term (1–3 months)
-- [ ] Implement `UIOverlay` component base
-- [ ] Build text rendering with font atlas
-- [ ] Add debug overlay (FPS, entity count, backend name)
-- [ ] Implement basic panel layout (stack)
+### Short-term (1-3 months)
+- [] Implement `UIOverlay` component base
+- [] Build text rendering with font atlas
+- [] Add debug overlay (FPS, entity count, backend name)
+- [] Implement basic panel layout (stack)
 
-### Mid-term (3–12 months)
-- [ ] Add button, slider, and toggle widgets
-- [ ] Implement grid and flex layouts
-- [ ] Build pause menu and settings screen
-- [ ] Add HUD elements (health, ammo, minimap)
-- [ ] UI click routing through InputSystem
+### Mid-term (3-12 months)
+- [] Add button, slider, and toggle widgets
+- [] Implement grid and flex layouts
+- [] Build pause menu and settings screen
+- [] Add HUD elements (health, ammo, minimap)
+- [] UI click routing through InputSystem
 
-### Long-term (1–3 years)
-- [ ] Full settings screen with all engine options
-- [ ] In-game console with command history
-- [ ] Cinematic subtitle system
-- [ ] Localization / multi-language UI
+### Long-term (1-3 years)
+- [] Full settings screen with all engine options
+- [] In-game console with command history
+- [] Cinematic subtitle system
+- [] Localization / multi-language UI
 
 ### Experimental
-- 💡 Neural UI generation from natural language
-- 💡 Dynamic UI based on NPU-detected player skill
-- 💡 Voice-commanded menus
+-  Neural UI generation from natural language
+-  Dynamic UI based on NPU-detected player skill
+-  Voice-commanded menus
 
 ### Hardware-Specific
 - **RDNA / AMD:** GPU-accelerated text rendering via compute shader
 - **Moore Threads:** Vulkan text atlas upload optimization
 - **ARM / Mobile:** Reduced UI complexity for battery life
 - **RISC-V:** CPU-only UI rendering (no GPU text shaders)
+

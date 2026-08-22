@@ -1,6 +1,6 @@
-﻿Title: NPU System Rules
+Title: NPU System Rules
 
-> **Core Rule:** The NPU is the ideal path for maximum neural intelligence and performance. However, the engine gracefully degrades to GPU/CPU when NPU is unavailable. This isn''t a bug — it''s by design.
+> **Core Rule:** The NPU is the ideal path for maximum neural intelligence and performance. However, the engine gracefully degrades to GPU/CPU when NPU is unavailable. This isn''t a bug -- it''s by design.
 
 ---
 
@@ -12,17 +12,17 @@ When an NPU is present, neural inference runs there exclusively for optimal perf
 
 | # | Domain | Description | Priority |
 |---|--------|-------------|----------|
-| 1 | NPC Thinking & Behavior | Dynamic behavior, strategy adaptation, emotional states, learning, prediction, coordination, memory, RL, emergent behavior | 🔴 Core |
-| 2 | Player Behavior Prediction | Movement patterns, combat habits, puzzle-solving style, exploration, aggression vs stealth, timing | 🔴 Core |
-| 3 | Procedural Generation | Levels, dungeons, quests, puzzles, loot, enemy waves, terrain, weather | 🟡 High |
-| 4 | Dialogue & Personality | LLM-like models for NPC dialogue, personality shifts, emotional reactions, memory, social behavior | 🟡 High |
-| 5 | Animation & Movement | Neural animation blending, locomotion, IK, ragdolls, gesture prediction, facial animation | 🟡 High |
-| 6 | Combat Decision Making | Attack selection, dodge prediction, defense timing, weapon choice, target prioritization, group tactics, flanking | 🟡 High |
-| 7 | World Simulation | Crowd behavior, ecosystems, weather logic, faction AI, traffic AI, wildlife AI, economy | 🟢 Medium |
-| 8 | Audio AI | Voice synthesis, modulation, classification, vocal reactions, environmental audio prediction | 🟢 Medium |
-| 9 | Graphics-Adjacent AI | Neural upscaling (mobile), denoising, texture generation, material prediction, lighting estimation | 🟢 Medium |
-| 10 | Compression & Streaming | Asset decompression, neural texture/mesh compression, streaming prediction, bandwidth reduction | 🟢 Medium |
-| 11 | Anti-Cheat & Security | Cheat detection, anomaly detection, input pattern analysis, bot detection, exploit prediction | 🔴 Core |
+| 1 | NPC Thinking & Behavior | Dynamic behavior, strategy adaptation, emotional states, learning, prediction, coordination, memory, RL, emergent behavior |  Core |
+| 2 | Player Behavior Prediction | Movement patterns, combat habits, puzzle-solving style, exploration, aggression vs stealth, timing |  Core |
+| 3 | Procedural Generation | Levels, dungeons, quests, puzzles, loot, enemy waves, terrain, weather |  High |
+| 4 | Dialogue & Personality | LLM-like models for NPC dialogue, personality shifts, emotional reactions, memory, social behavior |  High |
+| 5 | Animation & Movement | Neural animation blending, locomotion, IK, ragdolls, gesture prediction, facial animation |  High |
+| 6 | Combat Decision Making | Attack selection, dodge prediction, defense timing, weapon choice, target prioritization, group tactics, flanking |  High |
+| 7 | World Simulation | Crowd behavior, ecosystems, weather logic, faction AI, traffic AI, wildlife AI, economy |  Medium |
+| 8 | Audio AI | Voice synthesis, modulation, classification, vocal reactions, environmental audio prediction |  Medium |
+| 9 | Graphics-Adjacent AI | Neural upscaling (mobile), denoising, texture generation, material prediction, lighting estimation |  Medium |
+| 10 | Compression & Streaming | Asset decompression, neural texture/mesh compression, streaming prediction, bandwidth reduction |  Medium |
+| 11 | Anti-Cheat & Security | Cheat detection, anomaly detection, input pattern analysis, bot detection, exploit prediction |  Core |
 
 ---
 
@@ -55,12 +55,12 @@ pub enum NpuDetection {
 
 | NPU Present | AI Domain | Hardware Path | Intelligence Level |
 |-------------|-----------|---------------|-------------------|
-| ✅ AMD XDNA | All 11 domains | XDNA 50-50 TOPS | Maximum |
-| ✅ Intel AI Boost | All 11 domains | Intel 48 TOPS | Maximum |
-| ✅ ARM NPU | All 11 domains | Hexagon 15-12 TOPS | Maximum |
-| ❌ NPU absent | 1-6 domains | GPU SIMD (AVX2/AVX-512/NEON) | Medium |
-| ❌ NPU absent | 7-11 domains | CPU scalar | Low |
-| ❌ NPU absent | All domains | No AI | Basic behavior |
+|  AMD XDNA | All 11 domains | XDNA 50-50 TOPS | Maximum |
+|  Intel AI Boost | All 11 domains | Intel 48 TOPS | Maximum |
+|  ARM NPU | All 11 domains | Hexagon 15-12 TOPS | Maximum |
+|  NPU absent | 1-6 domains | GPU SIMD (AVX2/AVX-512/NEON) | Medium |
+|  NPU absent | 7-11 domains | CPU scalar | Low |
+|  NPU absent | All domains | No AI | Basic behavior |
 
 ### Adaptation Strategies
 
@@ -94,12 +94,12 @@ The entire project is optimized for AI consumption:
 
 | Hardware | NPU | GPU | CPU | Intelligence |
 |----------|-----|-----|-----|-------------|
-| **Modern**: Ryzen AI + RDNA 4 | ✅ AMD XDNA 2 (50 TOPS) | ✅ RDNA 4 ML | ✅ AVX-512 | Maximum |
-| **Intel**: Arc + XeSS | ✅ Intel AI Boost (48 TOPS) | ✅ Arc iGPU | ✅ AVX2 | Maximum |
-| **Mobile**: Snapdragon + Adreno | ✅ Hexagon (15 TOPS) | ✅ Adreno | ✅ NEON | High |
-| **ARM**: Kirin + Mali | ✅ DaVinci (8 TOPS) | ✅ Mali GPU ML | ✅ NEON | Medium |
-| **Embedded**: RISC-V | ✅ NPU optional | ✅ Vortex GPU | ✅ RVV | Low |
-| **Generic**: No AI silicon | ❌ NPU absent | ✅ Integrated (RDNA/Vulkan) | ✅ AVX2/NEON | Medium |
+| **Modern**: Ryzen AI + RDNA 4 |  AMD XDNA 2 (50 TOPS) |  RDNA 4 ML |  AVX-512 | Maximum |
+| **Intel**: Arc + XeSS |  Intel AI Boost (48 TOPS) |  Arc iGPU |  AVX2 | Maximum |
+| **Mobile**: Snapdragon + Adreno |  Hexagon (15 TOPS) |  Adreno |  NEON | High |
+| **ARM**: Kirin + Mali |  DaVinci (8 TOPS) |  Mali GPU ML |  NEON | Medium |
+| **Embedded**: RISC-V |  NPU optional |  Vortex GPU |  RVV | Low |
+| **Generic**: No AI silicon |  NPU absent |  Integrated (RDNA/Vulkan) |  AVX2/NEON | Medium |
 
 ### Ultra-Lightweight Constraint
 
@@ -187,4 +187,5 @@ pub fn update_neural_ai(&mut self, dt: f32) {
 
 ---
 
-> **Core Principle:** The NPU represents the optimal path for AI intelligence, but Litt Engine''s strength lies in its graceful adaptation to any hardware configuration. The same code runs at maximum capability on ideal hardware, and at reduced but functional capability on minimal hardware. This makes Litt Engine truly universal — it will always run, always provide value, and scale with the available hardware.
+> **Core Principle:** The NPU represents the optimal path for AI intelligence, but Litt Engine''s strength lies in its graceful adaptation to any hardware configuration. The same code runs at maximum capability on ideal hardware, and at reduced but functional capability on minimal hardware. This makes Litt Engine truly universal -- it will always run, always provide value, and scale with the available hardware.
+

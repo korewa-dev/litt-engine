@@ -1,8 +1,8 @@
-﻿﻿# RenderSystem
+# RenderSystem
 
 > ECS-driven rendering pipeline bridging entity components to GPU command buffers.
 
-**Status:** 📋 Designed — integration with `litt-renderer` and `litt-pathtracer` planned. See [ROADMAP.md](./ROADMAP.md#phase-4).
+**Status:**  Designed -- integration with `litt-renderer` and `litt-pathtracer` planned. See [ROADMAP.md](./ROADMAP.md#phase-4).
 
 ---
 
@@ -55,13 +55,13 @@ flowchart LR
 
 | Pass | Description | ECS Components Read |
 |------|-------------|-------------------|
-| Clear | Clear color, depth, stencil | — |
+| Clear | Clear color, depth, stencil | -- |
 | Depth Prepass | Depth-only pass for OCclusion Culling | `Transform`, `Mesh` |
 | Opaque Render | Main scene rendering | `Renderable`, `Transform`, `Mesh`, `Material` |
 | Transparent Render | Translucent materials, particles | `Renderable`, `Transform`, `Mesh`, `Material` |
 | UI Overlay | HUD, menus, debug overlays | `UIOverlay`, `UIText`, `UIButton` |
-| Post-Process | FidelityFX (FSR, CAS, denoise) | — |
-| Present | Swapchain present | — |
+| Post-Process | FidelityFX (FSR, CAS, denoise) | -- |
+| Present | Swapchain present | -- |
 
 ---
 
@@ -162,31 +162,32 @@ The `RenderSystem` abstracts these differences via the `GraphicsBackend` trait (
 
 ## Roadmap
 
-### Short-term (1–3 months)
-- [ ] Implement `RenderSystem` with `litt-renderer` backend
-- [ ] Add `Renderable` component to template entities
-- [ ] Build per-entity CBV allocation
-- [ ] Implement depth prepass + opaque pass
+### Short-term (1-3 months)
+- [] Implement `RenderSystem` with `litt-renderer` backend
+- [] Add `Renderable` component to template entities
+- [] Build per-entity CBV allocation
+- [] Implement depth prepass + opaque pass
 
-### Mid-term (3–12 months)
-- [ ] Add transparent render pass
-- [ ] Integrate UI overlay rendering
-- [ ] Add FidelityFX post-process chain
-- [ ] Implement DX12 command recording path
+### Mid-term (3-12 months)
+- [] Add transparent render pass
+- [] Integrate UI overlay rendering
+- [] Add FidelityFX post-process chain
+- [] Implement DX12 command recording path
 
-### Long-term (1–3 years)
-- [ ] Mesh shaders for GPU-driven tessellation
-- [ ] Variable rate shading (VRS)
-- [ ] Ray tracing pipeline with FSR 4 reconstruction
+### Long-term (1-3 years)
+- [] Mesh shaders for GPU-driven tessellation
+- [] Variable rate shading (VRS)
+- [] Ray tracing pipeline with FSR 4 reconstruction
 
 ### Experimental
-- 💡 GPU-driven procedural mesh generation
-- 💡 Neural shadow approximation via NPU
-- 💡 RTX-like denoising on mobile NPUs
+-  GPU-driven procedural mesh generation
+-  Neural shadow approximation via NPU
+-  RTX-like denoising on mobile NPUs
 
 ### Hardware-Specific
 - **RDNA / AMD:** Wave32 compute shaders, async compute for post-process, RGP markers
 - **Moore Threads:** MUSA compute shaders, Vulkan 1.3 features
 - **ARM / Mobile:** Reduced shader complexity, NEON-optimized post-process
 - **RISC-V:** Software rasterizer fallback via SwiftShader
+
 

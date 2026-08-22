@@ -1,4 +1,4 @@
-﻿# Graphics API Documentation
+# Graphics API Documentation
 
 Subsystems covering rendering backends, ray tracing, and upscaling.
 
@@ -10,7 +10,7 @@ Subsystems covering rendering backends, ray tracing, and upscaling.
 | [dx12.md](./dx12.md) | DirectX 12 backend (from DX12_SUPPORT.md) |
 | [ray-tracing.md](./ray-tracing.md) | Path tracer deep-dive: BLAS/TLAS, shaders, BRDFs |
 | [fidelityfx.md](./fidelityfx.md) | FSR 3/4, CAS, denoisers, XESS 3 integration |
-| [amd-agp.md](./amd-agp.md) | AMD AGS — planned power/performance control |
+| [amd-agp.md](./amd-agp.md) | AMD AGS -- planned power/performance control |
 | [graphics-api-status.md](./graphics-api-status.md) | API status table (from root README) |
 
 ## Architecture

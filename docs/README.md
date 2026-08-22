@@ -1,4 +1,4 @@
-﻿# Litt Engine — Documentation
+# Litt Engine -- Documentation
 
 Navigation index for the Litt Engine subsystem documentation.
 
@@ -26,5 +26,6 @@ Navigation index for the Litt Engine subsystem documentation.
 
 ## Cross-References
 
-- Root [README.md](../README.md) — High-level engine overview
-- [litt-engine-architecture.html](../litt-engine-architecture.html) — Interactive diagram
+- Root [README.md](../README.md) -- High-level engine overview
+- [litt-engine-architecture.html](../litt-engine-architecture.html) -- Interactive diagram
+

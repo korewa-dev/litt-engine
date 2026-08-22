@@ -1,4 +1,4 @@
-﻿# Windows Platform Notes
+# Windows Platform Notes
 
 > Windows-specific configuration, DX12, and registry settings.
 
@@ -36,9 +36,10 @@ pub fn select_backend() -> Result<Box<dyn GraphicsBackend>> {
 ## Roadmap
 
 ### Short-term
-- [ ] Steam Deck Proton compatibility testing
-- [ ] DX12 debug layer integration
+- [] Steam Deck Proton compatibility testing
+- [] DX12 debug layer integration
 
 ### Hardware-Specific
 - **Windows + DX12:** Preferred path for ray tracing
 - **Windows + Vulkan:** Fallback path, good for AMD/Intel
+

@@ -1,4 +1,4 @@
-﻿# Path Tracer
+# Path Tracer
 
 > Deep dive into the `litt-pathtracer` crate internals.
 
@@ -45,10 +45,10 @@ Frame Start
   -> Path Trace (Compute Shader)
   -> FidelityFX Ray Reconstruction (Denoiser)
   -> FidelityFX FSR 3.1.5
-      ├─ Create Pass (temporal accumulation)
-      ├─ Compensate Pass (motion vectors)
-      ├─ Upscaler Pass (upscaling)
-      └─ Frame Gen Pass (frame generation)
+       Create Pass (temporal accumulation)
+       Compensate Pass (motion vectors)
+       Upscaler Pass (upscaling)
+       Frame Gen Pass (frame generation)
   -> FidelityFX CAS (sharpening)
   -> Tonemap
   -> Present
@@ -74,11 +74,12 @@ Progressive rendering accumulates samples across frames using motion vectors.
 ## Roadmap
 
 ### Short-term
-- [ ] Optimize BLAS rebuild for dynamic scenes
-- [ ] Add instance buffer invalidation tracking
+- [] Optimize BLAS rebuild for dynamic scenes
+- [] Add instance buffer invalidation tracking
 
 ### Hardware-Specific
 - **RDNA / AMD:** Wave64 for ray tracing, async compute for BLAS rebuild
 - **Moore Threads:** MUSA ray tracing acceleration
 - **ARM / Mobile:** Reduced bounce count, spatial upscaling
 - **RISC-V:** Software ray-triangle intersection fallback
+

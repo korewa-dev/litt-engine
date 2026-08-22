@@ -1,7 +1,7 @@
-﻿# Moore Threads GPU Support
+# Moore Threads GPU Support
 
 ## Overview
-Moore Threads (摩尔线程) is a Chinese GPU manufacturer with Vulkan 1.2/1.3 support via their MUSA driver.
+Moore Threads () is a Chinese GPU manufacturer with Vulkan 1.2/1.3 support via their MUSA driver.
 
 ## Supported Cards
 - MTT S80 (consumer)
@@ -36,3 +36,4 @@ export MUSA_SHADER_CACHE=1     # Enable shader caching
 2. Minimize push constant usage (MTT has limited push constant space)
 3. Use VK_EXT_robustness2 for safer buffer access
 4. Enable pipeline cache to avoid recompilation
+

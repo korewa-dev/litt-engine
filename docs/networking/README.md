@@ -1,4 +1,4 @@
-﻿# Networking Documentation
+# Networking Documentation
 
 Networking for multiplayer and synchronization.
 
@@ -20,3 +20,4 @@ Networking for multiplayer and synchronization.
 ## Degradation
 
 When advanced networking features (compression, prediction) are unavailable, basic UDP/raw socket communication is used.
+

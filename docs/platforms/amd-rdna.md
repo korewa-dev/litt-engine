@@ -1,4 +1,4 @@
-﻿# AMD GPU Optimization Notes
+# AMD GPU Optimization Notes
 
 ## Target Architectures
 - RDNA 2 (RX 6000 series): Wave32/Wave64, 64 CU
@@ -44,3 +44,4 @@ rgp.exe --target=litt.exe --capture=1
 - FSR 2: Temporal upscaling with hardware RT acceleration
 - CAS: Lightweight sharpening pass
 - Ray Reconstruction: CNN-based denoiser
+

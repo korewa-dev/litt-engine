@@ -1,4 +1,4 @@
-﻿# ECS Documentation
+# ECS Documentation
 
 Entity Component System architecture and reference.
 
@@ -28,3 +28,4 @@ for e in world.query_entities_with::<Transform, Velocity>() {
 ```
 
 See [reference.md](./reference.md) for the complete component and system table.
+

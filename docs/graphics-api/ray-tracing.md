@@ -1,4 +1,4 @@
-﻿# Ray Tracing (Path Tracer)
+# Ray Tracing (Path Tracer)
 
 > Deep-dive into the path tracing implementation in `crates/pathtracer/`.
 
@@ -14,17 +14,17 @@
 
 ```
 BLAS Builder
-  ├─ Add geometries (triangles)
-  ├─ Query build sizes
-  ├─ Allocate BLAS buffer (VMA)
-  └─ Build acceleration structure
+   Add geometries (triangles)
+   Query build sizes
+   Allocate BLAS buffer (VMA)
+   Build acceleration structure
 
 TLAS Builder
-  ├─ Add instances (BLAS handles + transforms)
-  ├─ Create instance buffer
-  ├─ Query build sizes
-  ├─ Allocate TLAS buffer (VMA)
-  └─ Build acceleration structure
+   Add instances (BLAS handles + transforms)
+   Create instance buffer
+   Query build sizes
+   Allocate TLAS buffer (VMA)
+   Build acceleration structure
 ```
 
 ## BRDFs
@@ -47,3 +47,4 @@ Progressive rendering accumulates samples across frames using motion vectors.
 ## ReSTIR (Planned)
 
 Support for ReSTIR-style reservoir sampling is architecture-ready. See [../../ROADMAP.md](../../ROADMAP.md#phase-14).
+

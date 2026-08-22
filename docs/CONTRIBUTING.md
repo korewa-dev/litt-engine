@@ -1,6 +1,6 @@
-﻿﻿# Contributing to Litt Engine
+# Contributing to Litt Engine
 
-Thank you for wanting to contribute. Litt Engine is a small, focused project — every PR is expected to earn its place.
+Thank you for wanting to contribute. Litt Engine is a small, focused project  every PR is expected to earn its place.
 
 ## Before You Start
 
@@ -38,13 +38,13 @@ Examples:
 
 ## PR Checklist
 
-- [ ] Branch is up to date with main
-- [ ] cargo fmt and cargo clippy pass
-- [ ] Tests pass (cargo test)
-- [ ] Binary size target respected (< 1 MB dev build)
-- [ ] Documentation updated (README, subsystem docs, ROADMAP)
-- [ ] New subsystem gets its own docs/<folder>/README.md
-- [ ] Changelog entry (if user-facing change)
+- [] Branch is up to date with main
+- [] cargo fmt and cargo clippy pass
+- [] Tests pass (cargo test)
+- [] Binary size target respected (< 1 MB dev build)
+- [] Documentation updated (README, subsystem docs, ROADMAP)
+- [] New subsystem gets its own docs/<folder>/README.md
+- [] Changelog entry (if user-facing change)
 
 ## What Gets Rejected
 
@@ -57,7 +57,7 @@ Examples:
 ## Subsystem Documentation
 
 Every new subsystem must have:
-1. docs/<folder>/README.md — overview and file index
+1. docs/<folder>/README.md  overview and file index
 2. Subsystem-specific .md files for deep dives
 3. Entry in docs/README.md navigation hub
 4. Roadmap entry in ROADMAP.md
@@ -65,23 +65,25 @@ Every new subsystem must have:
 ## Architecture
 
 The engine structure:
-- crates/math/ — SIMD types (zero deps)
-- crates/platform/ — Window + input abstraction
-- crates/vulkan/ — Vulkan 1.3 backend
-- crates/dx12/ — DirectX 12 backend
-- crates/renderer/ — Command pools, render passes
-- crates/pathtracer/ — Ray tracing pipeline
-- crates/fidelityfx/ — FSR 3/4, CAS, denoisers
-- crates/ecs/ — Entity Component System
-- shaders/ — GLSL/HLSL shader source
-- src/ — Main crate
-- docs/ — Documentation
-- template/ — Example components + agent templates
+- crates/math/  SIMD types (zero deps)
+- crates/platform/  Window + input abstraction
+- crates/vulkan/  Vulkan 1.3 backend
+- crates/dx12/  DirectX 12 backend
+- crates/renderer/  Command pools, render passes
+- crates/pathtracer/  Ray tracing pipeline
+- crates/fidelityfx/  FSR 3/4, CAS, denoisers
+- crates/ecs/  Entity Component System
+- shaders/  GLSL/HLSL shader source
+- src/  Main crate
+- docs/  Documentation
+- template/  Example components + agent templates
 
 ## Questions?
 
-Open an issue with the question label. No private DMs — keep it public.
+Open an issue with the question label. No private DMs  keep it public.
 
 ---
 
 *Last updated: 2026*
+
+

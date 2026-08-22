@@ -1,8 +1,8 @@
-﻿﻿# NetworkingSystem
+# NetworkingSystem
 
 > UDP client/server, WebSocket, and ECS entity replication for multiplayer.
 
-**Status:** 📋 Planned — Phase 10 of [ROADMAP.md](./ROADMAP.md).
+**Status:**  Planned -- Phase 10 of [ROADMAP.md](./ROADMAP.md).
 
 ---
 
@@ -15,12 +15,12 @@ The `NetworkingSystem` provides multiplayer networking for the Litt Engine. It s
 ## Packet Structure
 
 ```rust
-/// Network packet header — sent with every message.
+/// Network packet header -- sent with every message.
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
 #[repr(C)]
 pub struct PacketHeader {
     pub seq: u32,           // Sequence number
-    pub timestamp: u64,     // Server timestamp (μs)
+    pub timestamp: u64,     // Server timestamp (s)
     pub msg_type: u8,       // Packet type
     pub payload_len: u16,   // Payload length
 }
@@ -151,33 +151,34 @@ mod websocket {
 
 ## Roadmap
 
-### Short-term (1–3 months)
-- [ ] Implement `Packet` struct and serialization
-- [ ] Build UDP client with sequence/ack
-- [ ] Add snapshot buffer for interpolation
-- [ ] Basic entity spawn/destroy replication
+### Short-term (1-3 months)
+- [] Implement `Packet` struct and serialization
+- [] Build UDP client with sequence/ack
+- [] Add snapshot buffer for interpolation
+- [] Basic entity spawn/destroy replication
 
-### Mid-term (3–12 months)
-- [ ] WebSocket backend for browser target
-- [ ] SteamNetworkingSockets integration
-- [ ] Full component replication mask system
-- [ ] Lag compensation and dead reckoning
-- [ ] Matchmaking and room management
+### Mid-term (3-12 months)
+- [] WebSocket backend for browser target
+- [] SteamNetworkingSockets integration
+- [] Full component replication mask system
+- [] Lag compensation and dead reckoning
+- [] Matchmaking and room management
 
-### Long-term (1–3 years)
-- [ ] Server-authoritative physics reconciliation
-- [ ] Anti-cheat anomaly detection (via NPU)
-- [ ] Dynamic bandwidth adaptation
-- [ ] Partial snapshot compression
+### Long-term (1-3 years)
+- [] Server-authoritative physics reconciliation
+- [] Anti-cheat anomaly detection (via NPU)
+- [] Dynamic bandwidth adaptation
+- [] Partial snapshot compression
 
 ### Experimental
-- 💡 NPU-accelerated prediction (NPC behavior prediction over network)
-- 💡 Procedural level sync via NPU-generated seeds
-- 💡 Federated learning for multiplayer balance
+-  NPU-accelerated prediction (NPC behavior prediction over network)
+-  Procedural level sync via NPU-generated seeds
+-  Federated learning for multiplayer balance
 
 ### Hardware-Specific
 - **RDNA / AMD:** No specific networking requirements
 - **Moore Threads:** Standard UDP via Vulkan-compatible socket layer
 - **ARM / Mobile:** Battery-aware polling rate, WebSocket fallback
 - **RISC-V:** Minimal networking stack, UDP only
+
 

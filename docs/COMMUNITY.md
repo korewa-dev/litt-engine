@@ -1,4 +1,4 @@
-﻿﻿# Litt Engine — Community Rules
+# Litt Engine  Community Rules
 
 ## Code of Conduct
 
@@ -17,13 +17,13 @@
 ## Feature Requests
 
 - Explain the use case, not just the feature.
-- Check ROADMAP.md — the feature may already be planned.
+- Check ROADMAP.md  the feature may already be planned.
 - Label your issue enhancement.
 
 ## Chat
 
 - Keep questions in public channels.
-- No asking for private help — the issue tracker is the record.
+- No asking for private help  the issue tracker is the record.
 - No advertising other projects without maintainer approval.
 
 ## NPU Inference Policy
@@ -35,3 +35,5 @@ Pull requests that introduce new fallback paths for neural inference will be rej
 ---
 
 *Last updated: 2026*
+
+

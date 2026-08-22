@@ -1,10 +1,10 @@
-﻿# Litt Engine â€” Subsystem Documentation Prompt
+# Litt Engine  Subsystem Documentation Prompt
 
-You are documenting the **Litt Engine**, a Rust ECS-based game engine targeting AMD RDNA, Intel Arc, Moore Threads, ARM mobile, and RISC-V platforms. Your job is to fill documentation gaps â€” not rewrite what already exists.
+You are documenting the **Litt Engine**, a Rust ECS-based game engine targeting AMD RDNA, Intel Arc, Moore Threads, ARM mobile, and RISC-V platforms. Your job is to fill documentation gaps  not rewrite what already exists.
 
 ---
 
-## Step 1 â€” Audit Existing Docs
+## Step 1  Audit Existing Docs
 
 Read every file under `docs/` and the root `README.md`. Here is what you will find:
 
@@ -27,13 +27,13 @@ Read every file under `docs/` and the root `README.md`. Here is what you will fi
 
 ---
 
-## Step 2 â€” Create `docs/README.md` (Central Hub)
+## Step 2  Create `docs/README.md` (Central Hub)
 
 This is a **navigation index**, not a duplicate of the root `README.md`.
 
 Structure:
 ```markdown
-# Litt Engine â€” Documentation Hub
+# Litt Engine  Documentation Hub
 
 One-paragraph purpose: this directory contains subsystem-level documentation. For the high-level engine overview, see the root [README.md](../README.md). For the development timeline, see [ROADMAP.md](ROADMAP.md).
 
@@ -41,14 +41,14 @@ One-paragraph purpose: this directory contains subsystem-level documentation. Fo
 
 | Subsystem | Doc | Status | Summary |
 |-----------|-----|--------|---------|
-| ECS Core | [ECS Architecture](ECS_ARCHITECTURE.md) | âœ… Complete | Core types, World API, query patterns |
-| ECS Reference | [ECS Reference](ECSReference.md) | ðŸ”² New | Full component + system API table |
-| Neural AI | [NeuralAISystem](NeuralAISystem.md) | ðŸ”² New | NPU inference pipeline, NPC behavior, model formats |
-| Physics | [PhysicsSystem](PhysicsSystem.md) | ðŸ”² New | GPU compute physics, RDNA/ARM/RISC-V backends |
-| Render | [RenderSystem](RenderSystem.md) | ðŸ”² New | ECSâ†’GPU draw pipeline, frame graph, shader compilation |
-| Input | [InputSystem](InputSystem.md) | ðŸ”² New | Aggregation, mapping, action/state resolution |
-| UI Overlay | [UIOverlaySystem](UIOverlaySystem.md) | ðŸ”² New | HUD, menus, debug overlays, text rendering |
-| Networking | [NetworkingSystem](NetworkingSystem.md) | ðŸ”² New | UDP/WS backend, snapshot interpolation, replication |
+| ECS Core | [ECS Architecture](ECS_ARCHITECTURE.md) |  Complete | Core types, World API, query patterns |
+| ECS Reference | [ECS Reference](ECSReference.md) |  New | Full component + system API table |
+| Neural AI | [NeuralAISystem](NeuralAISystem.md) |  New | NPU inference pipeline, NPC behavior, model formats |
+| Physics | [PhysicsSystem](PhysicsSystem.md) |  New | GPU compute physics, RDNA/ARM/RISC-V backends |
+| Render | [RenderSystem](RenderSystem.md) |  New | ECSGPU draw pipeline, frame graph, shader compilation |
+| Input | [InputSystem](InputSystem.md) |  New | Aggregation, mapping, action/state resolution |
+| UI Overlay | [UIOverlaySystem](UIOverlaySystem.md) |  New | HUD, menus, debug overlays, text rendering |
+| Networking | [NetworkingSystem](NetworkingSystem.md) |  New | UDP/WS backend, snapshot interpolation, replication |
 
 ## Deep-Dive Docs
 
@@ -68,16 +68,16 @@ One-paragraph purpose: this directory contains subsystem-level documentation. Fo
 ## Cross-Subsystem Dependencies
 
 ```
-InputSystem  â”€â”€â†’  NeuralAISystem  â”€â”€â†’  PhysicsSystem
-     â”‚               â”‚                    â”‚
-     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                     â”‚
+InputSystem    NeuralAISystem    PhysicsSystem
+                                        
+     
+                     
               Transform component
-                     â”‚
-                     â–¼
-              RenderSystem  â”€â”€â†’  UIOverlaySystem
-                     â”‚
-                     â–¼
+                     
+                     
+              RenderSystem    UIOverlaySystem
+                     
+                     
               NetworkingSystem  (replication)
 ```
 
@@ -90,14 +90,14 @@ InputSystem  â”€â”€â†’  NeuralAISystem  â”€â”€â†’ 
 
 ---
 
-## Step 3 â€” Create Missing Subsystem Docs
+## Step 3  Create Missing Subsystem Docs
 
 ### `docs/NeuralAISystem.md`
 
 The engine has `NeuralBrain` and `BehaviorState` components defined in `template/agent/` and referenced in `NPU_RULES.md`, but **no document explains the ECS integration pipeline**. Write one.
 
 Must cover:
-- The inference pipeline: input observation â†’ NPU dispatch â†’ output component update
+- The inference pipeline: input observation  NPU dispatch  output component update
 - How `NeuralBrain` holds model reference (ONNX/GGUF path), inference state, and config
 - How `BehaviorState` tracks current behavior (idle, patrol, combat, flee) and transitions
 - How `MovementIntent` and `CombatIntent` are written by the AI system and consumed by PhysicsSystem / CombatSystem
@@ -110,8 +110,8 @@ Include:
 - Pseudocode of the system update loop
 - Roadmap (see Step 5)
 
-**Do NOT** re-list NPU hardware specs â€” those are in `NPU_SUPPORT.md`.
-**Do NOT** re-explain inference rules â€” those are in `NPU_RULES.md`.
+**Do NOT** re-list NPU hardware specs  those are in `NPU_SUPPORT.md`.
+**Do NOT** re-explain inference rules  those are in `NPU_RULES.md`.
 
 ---
 
@@ -121,7 +121,7 @@ Roadmap Phase 5 marks this as PLANNED. No implementation exists yet, but the com
 
 Must cover:
 - `PhysicsBody` component fields: collider shape enum (AABB/sphere/capsule), mass, velocity, angular damping, friction, restitution
-- Broadphase: Spatial Hash or SAP (Sort and Prune) â€” GPU vs CPU paths
+- Broadphase: Spatial Hash or SAP (Sort and Prune)  GPU vs CPU paths
 - Narrowphase: SAT for AABB, GJK-EPA for convex shapes
 - Rigid body integrator: semi-implicit Euler, impulse-based resolution
 - ECS integration: how PhysicsSystem reads `PhysicsBody`, writes `Transform`, and emits collision events
@@ -140,9 +140,9 @@ Include:
 The engine has `litt-renderer`, `litt-pathtracer`, and `litt-fidelityfx` crates, plus Vulkan and DX12 backends. No single doc explains **how the ECS drives rendering**. Write one.
 
 Must cover:
-- The ECSâ†’GPU pipeline: `Renderable` component â†’ command buffer recording â†’ draw dispatch
-- Frame graph: how passes are ordered (clear â†’ depth â†’ opaque â†’ transparent â†’ UI â†’ post-process)
-- Shader compilation: GLSL â†’ SPIR-V (Vulkan) and HLSL â†’ DXIL (DX12), handled at build time via `build.rs`
+- The ECSGPU pipeline: `Renderable` component  command buffer recording  draw dispatch
+- Frame graph: how passes are ordered (clear  depth  opaque  transparent  UI  post-process)
+- Shader compilation: GLSL  SPIR-V (Vulkan) and HLSL  DXIL (DX12), handled at build time via `build.rs`
 - How `Transform` + `Mesh` + `Material` components combine into a draw call
 - Render pass architecture: what passes exist and in what order
 - FidelityFX integration point: where denoising, upscaling, and frame generation fit in the frame graph
@@ -153,9 +153,9 @@ Include:
 - Pseudocode of the render system update loop
 - Roadmap (see Step 5)
 
-**Do NOT** repeat FSR details â€” those are in `FSR_SUPPORT.md`.
-**Do NOT** repeat RDNA optimizations â€” those are in `AMD_OPTIMIZATION.md`.
-**Do NOT** repeat DX12 backend details â€” those are in `DX12_SUPPORT.md`.
+**Do NOT** repeat FSR details  those are in `FSR_SUPPORT.md`.
+**Do NOT** repeat RDNA optimizations  those are in `AMD_OPTIMIZATION.md`.
+**Do NOT** repeat DX12 backend details  those are in `DX12_SUPPORT.md`.
 
 ---
 
@@ -164,8 +164,8 @@ Include:
 The roadmap lists `InputSystem` as complete but no doc exists. The component `InputState` is referenced but not defined in code yet. Write a design doc.
 
 Must cover:
-- Input aggregation: keyboard, mouse, gamepad â€” how raw HID events are collected
-- Input mapping: action â†’ input binding table (configurable via TOML/JSON)
+- Input aggregation: keyboard, mouse, gamepad  how raw HID events are collected
+- Input mapping: action  input binding table (configurable via TOML/JSON)
 - Action vs state distinction: actions are discrete (jump, shoot), states are continuous (move, sprint)
 - `InputState` component: what fields it holds, how it's queried by other systems
 - Platform abstraction: how `litt-platform` hides OS-specific input
@@ -184,12 +184,12 @@ Include:
 Roadmap Phase 9 lists UI as PLANNED. No implementation exists. Write a design doc.
 
 Must cover:
-- HUD layer: health bar, ammo, minimap â€” rendered as overlay on top of scene
-- Menu layer: pause menu, settings, main menu â€” full-screen overlay with navigation
+- HUD layer: health bar, ammo, minimap  rendered as overlay on top of scene
+- Menu layer: pause menu, settings, main menu  full-screen overlay with navigation
 - Debug overlay: FPS counter, entity count, draw calls, GPU timer, backend name
 - ECS UI components: `UIOverlay`, `UIText`, `UIButton`, `UIPanel`
 - Text rendering: font atlas approach, atlas rebuilding on font change
-- Layout system: stack, grid, flex â€” how UI elements are positioned
+- Layout system: stack, grid, flex  how UI elements are positioned
 - Interaction: how UI clicks route through InputSystem to game actions
 - Debug overlay integration with `GraphicsBackend` profiling hooks
 
@@ -264,28 +264,28 @@ Must cover:
 
 ---
 
-## Step 4 â€” Roadmap Format (Strict)
+## Step 4  Roadmap Format (Strict)
 
 Every subsystem file must end with this exact structure:
 
 ````markdown
 ## Roadmap
 
-### Short-term (1â€“3 months)
-- [ ] Goal 1
-- [ ] Goal 2
+### Short-term (13 months)
+- [] Goal 1
+- [] Goal 2
 
-### Mid-term (3â€“12 months)
-- [ ] Goal 1
-- [ ] Goal 2
+### Mid-term (312 months)
+- [] Goal 1
+- [] Goal 2
 
-### Long-term (1â€“3 years)
-- [ ] Goal 1
-- [ ] Goal 2
+### Long-term (13 years)
+- [] Goal 1
+- [] Goal 2
 
 ### Experimental
-- ðŸ’¡ Idea 1
-- ðŸ’¡ Idea 2
+-  Idea 1
+-  Idea 2
 
 ### Hardware-Specific
 - **RDNA / AMD:** ...
@@ -296,7 +296,7 @@ Every subsystem file must end with this exact structure:
 
 ---
 
-## Step 5 â€” Quality Rules
+## Step 5  Quality Rules
 
 1. **Tone:** Technical, concise, code-oriented. Match the style of `NPU_RULES.md` and `ARCHITECTURE.md`.
 2. **No fluff:** Every paragraph must convey information. No introductory filler.
@@ -308,14 +308,16 @@ Every subsystem file must end with this exact structure:
 
 ---
 
-## Step 6 â€” Output Checklist
+## Step 6  Output Checklist
 
 Before you finish, verify:
-- [ ] `docs/README.md` exists as a navigation hub
-- [ ] Every new subsystem file has: summary, ECS integration, cross-subsystem notes, diagram, pseudocode, roadmap
-- [ ] No content duplicates `ARCHITECTURE.md`, `NPU_SUPPORT.md`, `NPU_RULES.md`, `FSR_SUPPORT.md`, `AMD_OPTIMIZATION.md`, `DX12_SUPPORT.md`, `MOORE_THREADS.md`, `INTEL_XESS3.md`, or `ROADMAP.md`
-- [ ] All cross-references use `[see FILE.md]` format
-- [ ] Roadmap uses the exact format from Step 4
-- [ ] `ECSReference.md` covers every component and system listed in Step 3
-- [ ] Final folder: `docs/README.md` + 6 new subsystem files + existing docs unchanged
+- [] `docs/README.md` exists as a navigation hub
+- [] Every new subsystem file has: summary, ECS integration, cross-subsystem notes, diagram, pseudocode, roadmap
+- [] No content duplicates `ARCHITECTURE.md`, `NPU_SUPPORT.md`, `NPU_RULES.md`, `FSR_SUPPORT.md`, `AMD_OPTIMIZATION.md`, `DX12_SUPPORT.md`, `MOORE_THREADS.md`, `INTEL_XESS3.md`, or `ROADMAP.md`
+- [] All cross-references use `[see FILE.md]` format
+- [] Roadmap uses the exact format from Step 4
+- [] `ECSReference.md` covers every component and system listed in Step 3
+- [] Final folder: `docs/README.md` + 6 new subsystem files + existing docs unchanged
+
+
 

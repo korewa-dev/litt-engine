@@ -1,8 +1,8 @@
-﻿﻿# ECS Reference
+# ECS Reference
 
 > Complete reference for all ECS components and systems in the Litt Engine.
 
-**Status:** 📋 Reference doc — covers all known components and systems across implemented and planned subsystems.
+**Status:**  Reference doc -- covers all known components and systems across implemented and planned subsystems.
 
 ---
 
@@ -66,33 +66,33 @@
 
 | System | Reads | Writes | Execution Order | Status |
 |--------|-------|--------|----------------|--------|
-| `MovementSystem` | `Transform`, `Velocity` | `Transform` | 1 | ✅ |
-| `CameraSystem` | `Player`, `Transform`, `Camera` | `Camera` | 2 | ✅ |
-| `LightSystem` | `Light` | `Light` | 3 | ✅ |
+| `MovementSystem` | `Transform`, `Velocity` | `Transform` | 1 |  |
+| `CameraSystem` | `Player`, `Transform`, `Camera` | `Camera` | 2 |  |
+| `LightSystem` | `Light` | `Light` | 3 |  |
 
 ### Planned Systems
 
 | System | Reads | Writes | Execution Order | Status |
 |--------|-------|--------|----------------|--------|
-| `InputSystem` | Raw HID (platform) | `InputState` | 0 | 📋 |
-| `NeuralAISystem` | `NeuralBrain`, `BehaviorState`, `Transform`, `InputState` | `MovementIntent`, `CombatIntent`, `BehaviorState`, `EmotionalState` | 1 | 📋 |
-| `PlayerSystem` | `Player`, `InputState`, `Transform` | `Player`, `Transform` | 2 | 📋 |
-| `PhysicsSystem` | `PhysicsBody`, `Transform`, `MovementIntent` | `Transform`, `CollisionEvent` | 3 | 📋 |
-| `RenderSystem` | `Renderable`, `Transform`, `Mesh`, `Material`, `Light`, `Camera` | Command buffers | 4 | 📋 |
-| `UIOverlaySystem` | `UIOverlay`, `UIText`, `UIButton`, `InputState` | `UIOverlay`, debug stats | 5 | 📋 |
-| `NetworkingSystem` | `NetworkEntity`, `InputState` | `NetworkEntity`, `Transform` (replicated) | 6 | 📋 |
+| `InputSystem` | Raw HID (platform) | `InputState` | 0 |  |
+| `NeuralAISystem` | `NeuralBrain`, `BehaviorState`, `Transform`, `InputState` | `MovementIntent`, `CombatIntent`, `BehaviorState`, `EmotionalState` | 1 |  |
+| `PlayerSystem` | `Player`, `InputState`, `Transform` | `Player`, `Transform` | 2 |  |
+| `PhysicsSystem` | `PhysicsBody`, `Transform`, `MovementIntent` | `Transform`, `CollisionEvent` | 3 |  |
+| `RenderSystem` | `Renderable`, `Transform`, `Mesh`, `Material`, `Light`, `Camera` | Command buffers | 4 |  |
+| `UIOverlaySystem` | `UIOverlay`, `UIText`, `UIButton`, `InputState` | `UIOverlay`, debug stats | 5 |  |
+| `NetworkingSystem` | `NetworkEntity`, `InputState` | `NetworkEntity`, `Transform` (replicated) | 6 |  |
 
 ### Full Execution Order
 
 ```
-0. InputSystem        — Read HID, write InputState
-1. NeuralAISystem     — NPU inference, write MovementIntent/CombatIntent
-2. PlayerSystem       — Process input, update Player/Transform
-3. PhysicsSystem      — Simulate physics, write Transform, emit CollisionEvent
-4. CameraSystem       — Follow player, update Camera
-5. RenderSystem       — ECS -> GPU, record command buffers
-6. UIOverlaySystem    — Render HUD, menus, debug overlay
-7. NetworkingSystem   — Replicate entities, handle snapshots
+0. InputSystem        -- Read HID, write InputState
+1. NeuralAISystem     -- NPU inference, write MovementIntent/CombatIntent
+2. PlayerSystem       -- Process input, update Player/Transform
+3. PhysicsSystem      -- Simulate physics, write Transform, emit CollisionEvent
+4. CameraSystem       -- Follow player, update Camera
+5. RenderSystem       -- ECS -> GPU, record command buffers
+6. UIOverlaySystem    -- Render HUD, menus, debug overlay
+7. NetworkingSystem   -- Replicate entities, handle snapshots
 ```
 
 ---
@@ -121,7 +121,7 @@ for entity in world.query_entities_with::<Player, Transform>() {
 // Entities with Transform but NOT PhysicsBody (static objects)
 for entity in world.query_entities::<Transform>() {
     if !world.has_component::<PhysicsBody>(entity) {
-        // Static object — skip physics
+        // Static object -- skip physics
     }
 }
 ```
@@ -139,30 +139,31 @@ for entity in world.query_entities_with::<Transform, Velocity>() {
 
 ## Roadmap
 
-### Short-term (1–3 months)
-- [ ] Add `InputState` component and `InputSystem`
-- [ ] Add `Renderable` component (mesh + material handle)
-- [ ] Wire `RenderSystem` to `litt-renderer`
+### Short-term (1-3 months)
+- [] Add `InputState` component and `InputSystem`
+- [] Add `Renderable` component (mesh + material handle)
+- [] Wire `RenderSystem` to `litt-renderer`
 
-### Mid-term (3–12 months)
-- [ ] Add all AI components (`NeuralBrain`, `BehaviorState`, etc.)
-- [ ] Add `PhysicsBody` component and `PhysicsSystem`
-- [ ] Add UI components and `UIOverlaySystem`
-- [ ] Add `NetworkEntity` component and `NetworkingSystem`
+### Mid-term (3-12 months)
+- [] Add all AI components (`NeuralBrain`, `BehaviorState`, etc.)
+- [] Add `PhysicsBody` component and `PhysicsSystem`
+- [] Add UI components and `UIOverlaySystem`
+- [] Add `NetworkEntity` component and `NetworkingSystem`
 
-### Long-term (1–3 years)
-- [ ] Component serialization for save/load
-- [ ] Component versioning for hot-reload
-- [ ] Multi-world support (separate ECS worlds per scene)
+### Long-term (1-3 years)
+- [] Component serialization for save/load
+- [] Component versioning for hot-reload
+- [] Multi-world support (separate ECS worlds per scene)
 
 ### Experimental
-- 💡 Dynamic component addition/removal at runtime
-- 💡 Component-level change detection (dirty tracking)
-- 💡 Cross-world component queries
+-  Dynamic component addition/removal at runtime
+-  Component-level change detection (dirty tracking)
+-  Cross-world component queries
 
 ### Hardware-Specific
 - **RDNA / AMD:** No specific ECS requirements
 - **Moore Threads:** Minimal ECS overhead for MUSA compatibility
 - **ARM / Mobile:** Compact component layout for cache efficiency
-- **RISC-V:** Minimal memory footprint, no虚 dispatch
+- **RISC-V:** Minimal memory footprint, no dispatch
+
 

@@ -2,7 +2,7 @@
 
 > A game engine designed exclusively for autonomous AI agents to build, control, and run fully-optimized games.
 >
-> **Mission:** Litt Engine exists so that AI agents (like you) can easily build fully-optimized games with access to every subsystem A–Z.
+> **Mission:** Litt Engine exists so that AI agents (like you) can easily build fully-optimized games with access to every subsystem A-Z.
 
 ---
 
@@ -26,7 +26,7 @@ These are the foundational systems that AI agents interact with directly. Everyt
 | Type | Description |
 |------|-------------|
 | `Vec2`, `Vec3`, `Vec4` | SIMD-friendly vector types |
-| `Mat4` | Column-major 4×4 matrix |
+| `Mat4` | Column-major 44 matrix |
 | `Bbox` | Axis-aligned bounding box |
 | `Ray` | Ray with origin, direction, t-min/max |
 | `Rng` | PCG random number generator |
@@ -34,12 +34,12 @@ These are the foundational systems that AI agents interact with directly. Everyt
 
 ### Physics System (`litt-physics`)
 
-- **GPU-accelerated** — RDNA compute shaders for broadphase, narrowphase
-- **Multi-tier** — RDNA (GPU), ARM/NEON, RISC-V/RVV, x86_64/AVX2 fallbacks
-- **BVH broadphase** — SAH-based BVH builder/rebuilder
-- **SAT narrowphase** — AABB-AABB, sphere-sphere, capsule-capsule
-- **Impulse solver** — friction, restitution, positional correction
-- **Async compute** — separate compute queue for physics
+- **GPU-accelerated**  RDNA compute shaders for broadphase, narrowphase
+- **Multi-tier**  RDNA (GPU), ARM/NEON, RISC-V/RVV, x86_64/AVX2 fallbacks
+- **BVH broadphase**  SAH-based BVH builder/rebuilder
+- **SAT narrowphase**  AABB-AABB, sphere-sphere, capsule-capsule
+- **Impulse solver**  friction, restitution, positional correction
+- **Async compute**  separate compute queue for physics
 
 ```rust
 use litt_physics::*;
@@ -70,10 +70,10 @@ for entity in world.query_entities_with::<Player, Transform>() {
 
 ### Controller & Camera
 
-- **PlayerController** — WASD movement, Space/Shift for jump, mouse look
-- **CameraSystem** — follows player with configurable offset
-- **FPS mode** — pointer lock, yaw/pitch rotation
-- **Free-fly mode** — no ground constraint
+- **PlayerController**  WASD movement, Space/Shift for jump, mouse look
+- **CameraSystem**  follows player with configurable offset
+- **FPS mode**  pointer lock, yaw/pitch rotation
+- **Free-fly mode**  no ground constraint
 
 ### Platform Layer (`litt-platform`)
 
@@ -132,20 +132,20 @@ Rendering exists to provide visual feedback to the AI agent. It consumes the ECS
 The engine is built around AI-first workflows. Every system is designed to be manipulable by autonomous agents.
 
 **Core Components:**
-- `NeuralBrain` — AI model reference + state, confidence, latency
-- `MovementIntent` — desired velocity/direction
-- `CombatIntent` — target, action, aggression level
+- `NeuralBrain`  AI model reference + state, confidence, latency
+- `MovementIntent`  desired velocity/direction
+- `CombatIntent`  target, action, aggression level
 
 **Core Systems:**
-- `NeuralAISystem` — NPU/GPU/CPU-driven behavior inference
-- `CombatAISystem` — NPU-driven combat AI
+- `NeuralAISystem`  NPU/GPU/CPU-driven behavior inference
+- `CombatAISystem`  NPU-driven combat AI
 
 **Backend Selection:**
 ```rust
 use litt_ai::{AIContext, BackendSelector};
 
 let selector = BackendSelector::new();
-let backend = selector.best_available(); // NPU → GPU → CPU
+let backend = selector.best_available(); // NPU  GPU  CPU
 
 let context = AIContext::new();
 let result = context.run_auto(&model, &[input])?;
@@ -157,17 +157,17 @@ let result = context.run_auto(&model, &[input])?;
 
 | API | Status | Notes |
 |-----|--------|-------|
-| **Vulkan 1.3** | ✅ Complete | Full backend with BLAS/TLAS, FSR, path tracer |
-| **DX12** | ✅ Complete | DXGI, DXR, descriptor heaps, PSOs, ray tracing |
-| **AMD AGS** | ✅ Complete | GPU power management, fan control, thermal stats |
-| **NNAPI** | ✅ Complete | Android NPU inference via Vulkan compute |
-| **MUSA** | ✅ Complete | Moore Threads compute pipeline, GPU detection |
-| **RDNA Tier** | ✅ Complete | Wave32, subgroup, BVH reuse, RT broadphase |
-| **Particle System** | ✅ Complete | CPU + GPU instancing, emitter system |
-| **Spatial Partitioning** | ✅ Complete | Octree, BVH, Spatial Hash for culling |
-| **Custom Allocators** | ✅ Complete | Arena, Pool, Bump allocators |
-| **Audio Decoders** | ✅ Complete | WAV (hound), MP3 (minimp3) |
-| **DirectML** | 📋 Planned | NVIDIA Tensor Cores |
+| **Vulkan 1.3** |  Complete | Full backend with BLAS/TLAS, FSR, path tracer |
+| **DX12** |  Complete | DXGI, DXR, descriptor heaps, PSOs, ray tracing |
+| **AMD AGS** |  Complete | GPU power management, fan control, thermal stats |
+| **NNAPI** |  Complete | Android NPU inference via Vulkan compute |
+| **MUSA** |  Complete | Moore Threads compute pipeline, GPU detection |
+| **RDNA Tier** |  Complete | Wave32, subgroup, BVH reuse, RT broadphase |
+| **Particle System** |  Complete | CPU + GPU instancing, emitter system |
+| **Spatial Partitioning** |  Complete | Octree, BVH, Spatial Hash for culling |
+| **Custom Allocators** |  Complete | Arena, Pool, Bump allocators |
+| **Audio Decoders** |  Complete | WAV (hound), MP3 (minimp3) |
+| **DirectML** |  Planned | NVIDIA Tensor Cores |
 
 ---
 
@@ -232,28 +232,28 @@ Application Layer (main.rs)
 Platform Layer (litt-platform)
     |  Window creation, Input handling, Platform-specific code
     v
-┌─────────────────┬───────────────────────────┐
-│ Vulkan Backend  │     DX12 Backend          │
-│ (litt-vulkan)   │   (litt-dx12)             │
-│ VMA, RT, BLAS   │  DXGI, DXR, PSO, DXC      │
-└────────┬────────┴────────────┬──────────────┘
-         │                     │
+
+ Vulkan Backend       DX12 Backend          
+ (litt-vulkan)      (litt-dx12)             
+ VMA, RT, BLAS     DXGI, DXR, PSO, DXC      
+
+                              
          v                     v
     Renderer (litt-renderer)  ECS Systems (litt-ecs)
     |  Command Pools, Render  |  Physics, Render, Input, UI
     |  Passes, Swapchain      |
-         │                     │
-         v                     │
+                              
+         v                     
     Path Tracer (litt-pathtracer)
-    |  Raygen, CHIT, Miss      │
-    |  Russian Roulette        │
-         │                     │
-         v                     │
-    FidelityFX (litt-fidelityfx)│
-    |  FSR 3/4, CAS, NPU       │
-         │                     │
-         v                     │
-    Display (Present) <─────────┘
+    |  Raygen, CHIT, Miss      
+    |  Russian Roulette        
+                              
+         v                     
+    FidelityFX (litt-fidelityfx)
+    |  FSR 3/4, CAS, NPU       
+                              
+         v                     
+    Display (Present) <
 ```
 
 ---
@@ -264,23 +264,23 @@ See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
 
 | Phase | Title | Status |
 |-------|-------|--------|
-| 1 | Foundation | ✅ Complete |
-| 2 | Core Rendering | ✅ Complete |
-| 3 | FidelityFX & AI Upscaling | ✅ Complete |
-| 4 | ECS Architecture | ✅ Complete |
-| 5 | Physics System | ✅ Complete |
-| 6 | Universal AI Acceleration | ✅ Complete |
-| 7 | DirectX 12 Backend | ✅ Complete |
-| 8 | Asset Pipeline | ✅ Complete |
-| 9 | Engine Modules | ✅ Complete |
-| 10 | Debug & Profiling | ✅ Complete |
-| 11 | FSR 3.1.5 Real Pipeline | ✅ Complete |
-| 12 | GPU Path Tracer | ✅ Complete |
-| 13 | Binary Size Verification | ✅ Complete |
-| 14 | MUSA Complete Pipeline | ✅ Complete |
-| 15 | RDNA Tier | ✅ Complete |
-| 16 | Game Engine Foundation | ✅ Complete |
-| 17 | Networking | 📋 Planned |
+| 1 | Foundation |  Complete |
+| 2 | Core Rendering |  Complete |
+| 3 | FidelityFX & AI Upscaling |  Complete |
+| 4 | ECS Architecture |  Complete |
+| 5 | Physics System |  Complete |
+| 6 | Universal AI Acceleration |  Complete |
+| 7 | DirectX 12 Backend |  Complete |
+| 8 | Asset Pipeline |  Complete |
+| 9 | Engine Modules |  Complete |
+| 10 | Debug & Profiling |  Complete |
+| 11 | FSR 3.1.5 Real Pipeline |  Complete |
+| 12 | GPU Path Tracer |  Complete |
+| 13 | Binary Size Verification |  Complete |
+| 14 | MUSA Complete Pipeline |  Complete |
+| 15 | RDNA Tier |  Complete |
+| 16 | Game Engine Foundation |  Complete |
+| 17 | Networking |  Planned |
 
 ---
 
@@ -293,8 +293,10 @@ See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
 
 ## License
 
-MIT — free for personal and commercial use.
+MIT  free for personal and commercial use.
 
 FidelityFX shaders and concepts are courtesy of [AMD](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK), also MIT-licensed.
 
 Built for AMD GPUs, Intel Arc, Samsung RDNA, and Moore Threads. Tested on RDNA2 (RX 6700 XT), RADV (Linux), and MUSA (Moore Threads).
+
+

@@ -1,4 +1,4 @@
-﻿# ECS Components Reference
+# ECS Components Reference
 
 > Component definitions from `template/src/components/` and planned subsystems.
 
@@ -106,3 +106,4 @@ pub struct Light {
 ## Planned Components
 
 See [reference.md](./reference.md) for the complete component table including AI, physics, input, UI, and network components.
+

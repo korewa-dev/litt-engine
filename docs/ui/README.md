@@ -1,4 +1,4 @@
-﻿# UI Documentation
+# UI Documentation
 
 HUD overlays, menus, and debug tools.
 
@@ -19,3 +19,4 @@ HUD overlays, menus, and debug tools.
 ## Degradation
 
 When GPU rendering is unavailable, UI falls back to software rendering with basic scaling.
+

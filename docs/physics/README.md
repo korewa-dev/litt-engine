@@ -1,4 +1,4 @@
-﻿# Physics Documentation
+# Physics Documentation
 
 GPU-accelerated rigid body physics with multi-tier hardware support.
 
@@ -21,3 +21,4 @@ GPU-accelerated rigid body physics with multi-tier hardware support.
 ## Degradation
 
 When GPU acceleration is unavailable, physics falls back to CPU simulation with fixed-step integration.
+

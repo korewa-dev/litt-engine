@@ -1,4 +1,4 @@
-﻿# AI Documentation
+# AI Documentation
 
 NPU acceleration, inference rules, and the NeuralAISystem.
 
@@ -38,3 +38,4 @@ Output Components
 > All neural inference must run on the NPU only. No GPU inference. No CPU inference. No fallback paths.
 
 See [npu-rules.md](./npu-rules.md) for the full rule set.
+

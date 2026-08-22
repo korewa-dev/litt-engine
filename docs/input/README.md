@@ -1,4 +1,4 @@
-﻿# Input Documentation
+# Input Documentation
 
 Input aggregation, mapping, and platform abstraction.
 
@@ -20,3 +20,4 @@ Input aggregation, mapping, and platform abstraction.
 ## Degradation
 
 When advanced input features (gyro, haptic) are unavailable, the system degrades to basic keyboard/gamepad input.
+

@@ -1,4 +1,4 @@
-﻿# Platform Documentation
+# Platform Documentation
 
 Platform-specific optimizations and support matrices.
 
@@ -23,3 +23,4 @@ The engine embraces hardware differences rather than abstracting them away:
 - **GPU:** RDNA wave32, ARM Bifrost, NVIDIA CUDA, Intel Xe, Moore Threads MUSA
 - **NPU:** AMD XDNA, Intel AI Boost, Qualcomm Hexagon, Huawei DaVinci, Samsung Exynos
 - **OS:** Windows, Linux (Wayland/X11), Android, RISC-V Linux
+

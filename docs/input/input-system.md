@@ -1,8 +1,8 @@
-﻿﻿# InputSystem
+# InputSystem
 
 > Input aggregation, mapping, and ECS integration for keyboard, mouse, and gamepad.
 
-**Status:** 📋 Designed — `litt-platform` provides raw input; `InputSystem` ECS integration planned. See [ROADMAP.md](./ROADMAP.md#phase-4).
+**Status:**  Designed -- `litt-platform` provides raw input; `InputSystem` ECS integration planned. See [ROADMAP.md](./ROADMAP.md#phase-4).
 
 ---
 
@@ -85,7 +85,7 @@ pub struct InputState {
     pub held: Vec<Action>,
     /// Analog inputs (gamepad sticks, triggers, mouse delta)
     pub analog: Vec<(AnalogInput, f32)>,
-    /// Mouse position in screen space (0.0–1.0)
+    /// Mouse position in screen space (0.0-1.0)
     pub mouse_position: Vec2,
     /// Mouse delta since last frame
     pub mouse_delta: Vec2,
@@ -184,30 +184,31 @@ impl System for InputSystem {
 
 ## Roadmap
 
-### Short-term (1–3 months)
-- [ ] Implement `InputState` component
-- [ ] Build TOML input mapping parser
-- [ ] Wire `litt-platform` raw input to `InputSystem`
-- [ ] Add discrete/continuous/analog classification
+### Short-term (1-3 months)
+- [] Implement `InputState` component
+- [] Build TOML input mapping parser
+- [] Wire `litt-platform` raw input to `InputSystem`
+- [] Add discrete/continuous/analog classification
 
-### Mid-term (3–12 months)
-- [ ] Steam Deck gyro + trackpad profile
-- [ ] Input rebinding UI (via UIOverlaySystem)
-- [ ] Input recording/playback for debugging
-- [ ] Controller vibration / haptic feedback
+### Mid-term (3-12 months)
+- [] Steam Deck gyro + trackpad profile
+- [] Input rebinding UI (via UIOverlaySystem)
+- [] Input recording/playback for debugging
+- [] Controller vibration / haptic feedback
 
-### Long-term (1–3 years)
-- [ ] Cloud-synced input profiles
-- [ ] Input prediction for networking
-- [ ] Adaptive input (accessibility profiles)
+### Long-term (1-3 years)
+- [] Cloud-synced input profiles
+- [] Input prediction for networking
+- [] Adaptive input (accessibility profiles)
 
 ### Experimental
-- 💡 Voice command input via NPU
-- 💡 Eye-tracking camera control
-- 💡 Gesture recognition via NPU
+-  Voice command input via NPU
+-  Eye-tracking camera control
+-  Gesture recognition via NPU
 
 ### Hardware-Specific
-- **RDNA / AMD:** None specific — input is CPU-bound
+- **RDNA / AMD:** None specific -- input is CPU-bound
 - **Moore Threads:** Standard HID via Vulkan-compatible input layer
 - **ARM / Mobile:** Touch input, gyroscope, accelerometer
 - **RISC-V:** Standard HID, no gyro/accelerometer on most boards
+

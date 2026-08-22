@@ -1,4 +1,4 @@
-﻿# Vulkan Backend
+# Vulkan Backend
 
 > Full Vulkan 1.3 backend in `crates/vulkan/`.
 
@@ -28,11 +28,12 @@ Scene Data (CPU)
 
 ```
 VMA Allocator
-  ├─ allocate_buffer()
-  ├─ allocate_image()
-  ├─ map_memory()
-  ├─ flush_allocation()
-  └─ free_*()
+   allocate_buffer()
+   allocate_image()
+   map_memory()
+   flush_allocation()
+   free_*()
 ```
 
 See [../platforms/amd-rdna.md](../platforms/amd-rdna.md) for RDNA-specific Vulkan tuning.
+

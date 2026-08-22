@@ -1,4 +1,4 @@
-﻿# Linux Platform Notes
+# Linux Platform Notes
 
 > Wayland/X11 support, RADV driver, and Vulkan configuration.
 
@@ -6,9 +6,9 @@
 
 | Backend | Status | Notes |
 |---------|--------|-------|
-| X11 | ✅ Implemented | `litt-platform` X11 module |
-| Wayland | 📋 Planned | Required for modern desktops |
-| XCB | ✅ Implemented | Alternative X11 backend |
+| X11 |  Implemented | `litt-platform` X11 module |
+| Wayland |  Planned | Required for modern desktops |
+| XCB |  Implemented | Alternative X11 backend |
 
 ## RADV Driver
 
@@ -33,10 +33,11 @@ export RADV_PERFTEST=rt
 ## Roadmap
 
 ### Short-term
-- [ ] Wayland backend implementation
-- [ ] RADV performance benchmarking
+- [] Wayland backend implementation
+- [] RADV performance benchmarking
 
 ### Hardware-Specific
 - **AMD (RADV):** Best Vulkan RT performance, wave32 optimization
 - **Intel Arc:** Vulkan 1.3 native on Battlemage
 - **NVIDIA:** Proprietary driver, good DX12 via VKD3D-Proton
+

@@ -1,4 +1,4 @@
-﻿# Steam Deck Support
+# Steam Deck Support
 
 > Steam Deck-specific configuration, controller mapping, and Proton compatibility.
 
@@ -50,10 +50,11 @@ PROTON_ENABLE_NVAPI=1
 ## Roadmap
 
 ### Short-term
-- [ ] Steam Deck controller overlay integration
-- [ ] Power profile aware FSR quality selection
+- [] Steam Deck controller overlay integration
+- [] Power profile aware FSR quality selection
 
 ### Hardware-Specific
 - **RDNA 2:** Wave64 for RT, wave32 for compute
 - **AMD NPU (X DNA 2):** 50 TOPS for NPC behavior inference
 - **RADV:** Open-source Vulkan driver, excellent RT support
+

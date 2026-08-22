@@ -1,8 +1,8 @@
-﻿# AMD AGS (AMD GPU Services)
+# AMD AGS (AMD GPU Services)
 
 > AMD AGS provides runtime control over GPU power, performance, and monitoring.
 
-**Status:** Not implemented — no references in codebase.
+**Status:** Not implemented -- no references in codebase.
 
 ## What is AMD AGS?
 
@@ -33,20 +33,21 @@ pub enum AmdPowerProfile {
 
 ## Use Cases
 
-1. **Thermal management** — Reduce ray tracer samples when GPU exceeds thermal threshold
-2. **Battery optimization** — Auto-switch to lower FSR quality on laptop battery
-3. **Performance monitoring** — Report GPU metrics to debug overlay
+1. **Thermal management** -- Reduce ray tracer samples when GPU exceeds thermal threshold
+2. **Battery optimization** -- Auto-switch to lower FSR quality on laptop battery
+3. **Performance monitoring** -- Report GPU metrics to debug overlay
 
 ## Roadmap
 
 ### Short-term
-- [ ] Add AMD AGS dependency detection (check for ags.lib / libags.so)
-- [ ] Wrap AGS queries in `GraphicsBackend` trait
+- [] Add AMD AGS dependency detection (check for ags.lib / libags.so)
+- [] Wrap AGS queries in `GraphicsBackend` trait
 
 ### Mid-term
-- [ ] Integrate thermal throttling into render loop
-- [ ] Add power-profile-aware FSR quality selection
+- [] Integrate thermal throttling into render loop
+- [] Add power-profile-aware FSR quality selection
 
 ### Hardware-Specific
 - **RDNA / AMD:** Full AGS support on Windows and Linux (RADV)
 - **Other vendors:** Skip AGS initialization, use fallback metrics
+

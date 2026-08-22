@@ -1,4 +1,4 @@
-﻿# Litt Engine Architecture
+# Litt Engine Architecture
 
 ## High-Level Overview
 Application Layer -> Platform Layer -> Vulkan Backend (VMA + AMD AGS) -> Renderer -> Path Tracer -> FidelityFX -> Display
@@ -6,12 +6,12 @@ Application Layer -> Platform Layer -> Vulkan Backend (VMA + AMD AGS) -> Rendere
 ## Crate Dependencies
 ```
 litt (root)
-â”œâ”€â”€ litt-math           (no dependencies)
-â”œâ”€â”€ litt-platform       (ash, bytemuck, platform-specific)
-â”œâ”€â”€ litt-vulkan         (ash, ash-window, vma, bytemuck, litt-math, litt-platform, ags)
-â”œâ”€â”€ litt-renderer       (ash, bytemuck, litt-math, litt-vulkan)
-â”œâ”€â”€ litt-pathtracer     (ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma)
-â””â”€â”€ litt-fidelityfx     (ash, bytemuck, litt-math, litt-vulkan, vma)
+ litt-math           (no dependencies)
+ litt-platform       (ash, bytemuck, platform-specific)
+ litt-vulkan         (ash, ash-window, vma, bytemuck, litt-math, litt-platform, ags)
+ litt-renderer       (ash, bytemuck, litt-math, litt-vulkan)
+ litt-pathtracer     (ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma)
+ litt-fidelityfx     (ash, bytemuck, litt-math, litt-vulkan, vma)
 ```
 
 ## Render Pipeline
@@ -21,10 +21,10 @@ Frame Start
   -> Path Trace (Compute Shader)
   -> FidelityFX Ray Reconstruction (Denoiser)
   -> FidelityFX FSR 3.1.5
-      â”œâ”€ Create Pass (temporal accumulation)
-      â”œâ”€ Compensate Pass (motion vectors)
-      â”œâ”€ Upscaler Pass (upscaling)
-      â””â”€ Frame Gen Pass (frame generation)
+       Create Pass (temporal accumulation)
+       Compensate Pass (motion vectors)
+       Upscaler Pass (upscaling)
+       Frame Gen Pass (frame generation)
   -> FidelityFX CAS (sharpening)
   -> Tonemap
   -> Present
@@ -33,23 +33,23 @@ Frame Start
 ## AMD AGS (Adaptive Graphics Selection)
 ```
 GpuManager
-  â”œâ”€ enumerate_adapters() - Find all GPUs
-  â”œâ”€ add_gpu() - Add physical device
-  â”œâ”€ select_best() - Score and select optimal GPU
-  â””â”€ get_selected() - Get selected GPU properties
+   enumerate_adapters() - Find all GPUs
+   add_gpu() - Add physical device
+   select_best() - Score and select optimal GPU
+   get_selected() - Get selected GPU properties
 
 GpuProperties
-  â”œâ”€ vendor: GpuVendor (AMD, Intel, Samsung, Moore Threads)
-  â”œâ”€ rdna_gen: u32 (2, 3, or 4)
-  â”œâ”€ npu_support: bool
-  â”œâ”€ fsr4_support: bool
-  â””â”€ npu_tops: f32
+   vendor: GpuVendor (AMD, Intel, Samsung, Moore Threads)
+   rdna_gen: u32 (2, 3, or 4)
+   npu_support: bool
+   fsr4_support: bool
+   npu_tops: f32
 
 AgsHints
-  â”œâ”€ wave32_enabled: bool (RDNA 2/3 optimization)
-  â”œâ”€ sustained_encoding: bool (RDNA 3+ optimization)
-  â”œâ”€ pipeline_cache: bool
-  â””â”€ shader_core_hints: bool
+   wave32_enabled: bool (RDNA 2/3 optimization)
+   sustained_encoding: bool (RDNA 3+ optimization)
+   pipeline_cache: bool
+   shader_core_hints: bool
 ```
 
 ---
@@ -57,39 +57,41 @@ AgsHints
 ## Memory Management (VMA)
 ```
 VMA Allocator
-  â”œâ”€ allocate_buffer() - GPU buffer allocation
-  â”œâ”€ allocate_image()  - GPU image allocation
-  â”œâ”€ map_memory()      - Host-visible mapping
-  â”œâ”€ flush_allocation() - Cache flush
-  â””â”€ free_*()          - Cleanup
+   allocate_buffer() - GPU buffer allocation
+   allocate_image()  - GPU image allocation
+   map_memory()      - Host-visible mapping
+   flush_allocation() - Cache flush
+   free_*()          - Cleanup
 ```
 
 ## Data Flow
 ```
 Scene Data (CPU)
-  â†’ upload_scene() â†’ GPU Buffers (Triangles, Spheres, Lights, Materials)
-  â†’ build_blas_from_triangles() â†’ BLAS (Bottom-Level AS)
-  â†’ build_scene_acceleration() â†’ TLAS (Top-Level AS)
-  â†’ Shader Binding Table (SBT)
-  â†’ Ray Tracing Pipeline Execution
+   upload_scene()  GPU Buffers (Triangles, Spheres, Lights, Materials)
+   build_blas_from_triangles()  BLAS (Bottom-Level AS)
+   build_scene_acceleration()  TLAS (Top-Level AS)
+   Shader Binding Table (SBT)
+   Ray Tracing Pipeline Execution
 ```
 
 ## Acceleration Structure Pipeline
 ```
 BLAS Builder
-  â”œâ”€ Add geometries (triangles)
-  â”œâ”€ Query build sizes
-  â”œâ”€ Allocate BLAS buffer (VMA)
-  â””â”€ Build acceleration structure
+   Add geometries (triangles)
+   Query build sizes
+   Allocate BLAS buffer (VMA)
+   Build acceleration structure
 
 TLAS Builder
-  â”œâ”€ Add instances (BLAS handles + transforms)
-  â”œâ”€ Create instance buffer
-  â”œâ”€ Query build sizes
-  â”œâ”€ Allocate TLAS buffer (VMA)
-  â””â”€ Build acceleration structure
+   Add instances (BLAS handles + transforms)
+   Create instance buffer
+   Query build sizes
+   Allocate TLAS buffer (VMA)
+   Build acceleration structure
 ```
 
 ## Interactive Diagram
 See [litt-engine-architecture.html](../litt-engine-architecture.html) for a full interactive visualization.
+
+
 

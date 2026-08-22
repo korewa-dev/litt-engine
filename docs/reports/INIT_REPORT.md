@@ -1,5 +1,5 @@
-﻿
-# Litt Engine â€” Initialization Report
+
+# Litt Engine  Initialization Report
 
 **Timestamp:** 2026-07-17T12-00-00
 **Branch:** agent/init-2026-07-17T12-00-00
@@ -30,8 +30,10 @@
 - Test on AMD GPU (RDNA2/RDNA3)
 
 ## Pending Items from Updated Prompt
-- [ASSET_STORE_URL]: Not provided â€” scan ./assets/ only
-- [CI_URL]: Not provided â€” no CI pipeline configured
-- [HUMAN_APPROVER]: Not provided â€” need name/contact for approval gates
+- [ASSET_STORE_URL]: Not provided  scan ./assets/ only
+- [CI_URL]: Not provided  no CI pipeline configured
+- [HUMAN_APPROVER]: Not provided  need name/contact for approval gates
 - Browser tabs: None provided (edge_all_open_tabs not available)
+
+
 

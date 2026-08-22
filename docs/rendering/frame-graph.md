@@ -1,4 +1,4 @@
-﻿# Frame Graph
+# Frame Graph
 
 > Complete frame graph with pass ordering and shader compilation details.
 
@@ -16,13 +16,13 @@ flowchart TD
 
 | Pass | Description | ECS Components Read |
 |------|-------------|-------------------|
-| Clear | Clear color, depth, stencil | — |
+| Clear | Clear color, depth, stencil | -- |
 | Depth Prepass | Depth-only for occlusion culling | `Transform`, `Mesh` |
 | Opaque Render | Main scene rendering | `Renderable`, `Transform`, `Mesh`, `Material`, `Light`, `Camera` |
 | Transparent Render | Translucent materials, particles | `Renderable`, `Transform`, `Mesh`, `Material` |
 | UI Overlay | HUD, menus, debug overlays | `UIOverlay`, `UIText`, `UIButton` |
-| Post-Process | FidelityFX (FSR, CAS, denoise) | — |
-| Present | Swapchain present | — |
+| Post-Process | FidelityFX (FSR, CAS, denoise) | -- |
+| Present | Swapchain present | -- |
 
 ## Shader Compilation
 
@@ -59,11 +59,12 @@ All shaders are compiled at build time via `build.rs`:
 ## Roadmap
 
 ### Short-term
-- [ ] Add occlusion culling to depth prepass
-- [ ] Add VRS (variable rate shading) support
+- [] Add occlusion culling to depth prepass
+- [] Add VRS (variable rate shading) support
 
 ### Hardware-Specific
 - **RDNA / AMD:** Wave32 compute for post-process, async compute for FidelityFX
 - **Moore Threads:** Vulkan 1.3 compute shader optimization
 - **ARM / Mobile:** Reduced post-process passes for battery
 - **RISC-V:** CPU software fallback for post-process
+

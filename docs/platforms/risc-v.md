@@ -1,8 +1,8 @@
-﻿# RISC-V Platform Support
+# RISC-V Platform Support
 
 > RISC-V Linux with RVV vectorization and Vortex GPU support.
 
-**Status:** 📋 Planned — Phase 11 of [../../ROADMAP.md](../../ROADMAP.md).
+**Status:**  Planned -- Phase 11 of [../../ROADMAP.md](../../ROADMAP.md).
 
 ## Supported Processors
 
@@ -40,8 +40,9 @@ unsafe fn broadphase_rvv(bodies: &mut [PhysicsBody]) {
 ## Roadmap
 
 ### Short-term
-- [ ] MESA Vulkan 1.3 validation
-- [ ] RVV math library integration
+- [] MESA Vulkan 1.3 validation
+- [] RVV math library integration
 
 ### Hardware-Specific
 - **RISC-V:** RVV vectorized spatial hash, software ray-cast fallback, CPU-only UI rendering
+

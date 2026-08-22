@@ -2,7 +2,7 @@
 
 > GPU-accelerated rigid body physics with multi-tier hardware support.
 
-**Status:** ✅ Complete (Phase 5)
+**Status:**  Complete (Phase 5)
 
 CPU fallback path is fully implemented with BVH broadphase. GPU compute shader path is ready for async dispatch.
 
@@ -69,7 +69,7 @@ pub struct PhysicsBody {
 ### BVH Builder (Complete)
 - Surface Area Heuristic (SAH) for optimal tree construction
 - Rebuild support for dynamic scenes
-- O(log n) overlap queries vs O(n²) brute force
+- O(log n) overlap queries vs O(n) brute force
 
 ### SIMD-Optimized Broadphase
 - **x86_64**: AVX2-optimized batch processing
@@ -82,11 +82,11 @@ pub struct PhysicsBody {
 
 | Shape Pair | Algorithm | GPU? |
 |------------|-----------|------|
-| AABB vs AABB | SAT (Separating Axis Theorem) | ✅ RDNA compute |
-| Sphere vs Sphere | Distance check | ✅ All tiers |
-| AABB vs Sphere | Closest-point test | ✅ All tiers |
-| Capsule vs Capsule | Segment-segment distance | ✅ RDNA compute |
-| Convex vs Convex | GJK-EPA | 📋 Planned |
+| AABB vs AABB | SAT (Separating Axis Theorem) |  RDNA compute |
+| Sphere vs Sphere | Distance check |  All tiers |
+| AABB vs Sphere | Closest-point test |  All tiers |
+| Capsule vs Capsule | Segment-segment distance |  RDNA compute |
+| Convex vs Convex | GJK-EPA |  Planned |
 
 ---
 
@@ -147,7 +147,7 @@ else {
 
 **Queue Architecture:**
 - **RDNA**: Async compute hardware units execute physics while GPU renders
-- **ARM**: Compute and graphics queues share the same GPU — serialized
+- **ARM**: Compute and graphics queues share the same GPU -- serialized
 - **RISC-V**: Software fallback, physics blocks render (no async hardware)
 
 ---
@@ -258,12 +258,12 @@ impl System for PhysicsSystem {
 ```
 
 **Components used:**
-- `PhysicsBodyECS` — physics body data
-- `PhysicsTransform` — position/rotation/scale
-- `Velocity` — computed velocity output
+- `PhysicsBodyECS` -- physics body data
+- `PhysicsTransform` -- position/rotation/scale
+- `Velocity` -- computed velocity output
 
 **Events emitted:**
-- `CollisionEvent` — collision notifications
+- `CollisionEvent` -- collision notifications
 
 ---
 
@@ -298,7 +298,7 @@ for event in &physics.collisions {
 
 ## Roadmap
 
-### ✅ Completed
+###  Completed
 - [x] `PhysicsBody` component with 128-byte GPU layout
 - [x] `ColliderShape` enum (AABB, Sphere, Capsule)
 - [x] BVH builder with SAH (Surface Area Heuristic)
@@ -316,16 +316,16 @@ for event in &physics.collisions {
 - [x] AVX2-accelerated broadphase (x86_64)
 - [x] Async compute integration (compute queue available)
 
-### 📋 Planned
-- [ ] BVH rebuild optimization (incremental updates)
-- [ ] Wave32 optimizations (RDNA-specific)
-- [ ] Subgroup operations (RDNA-specific)
-- [ ] GJK-EPA for convex-convex collision
-- [ ] Soft body / deformable physics
-- [ ] Character controller with slope caching
-- [ ] GPU-driven particle physics
+###  Planned
+- [] BVH rebuild optimization (incremental updates)
+- [] Wave32 optimizations (RDNA-specific)
+- [] Subgroup operations (RDNA-specific)
+- [] GJK-EPA for convex-convex collision
+- [] Soft body / deformable physics
+- [] Character controller with slope caching
+- [] GPU-driven particle physics
 
-### 💡 Experimental
+###  Experimental
 - Neural collision prediction via NPU
 - Procedural terrain deformation
 - Real-time fluid simulation (SPH on GPU)
@@ -338,3 +338,4 @@ for event in &physics.collisions {
 - **Moore Threads:** MUSA compute shaders, Vulkan 1.3 compute
 - **ARM / Mobile:** NEON intrinsics, fixed-step simulation for power efficiency
 - **RISC-V:** RVV vectorized spatial hash, software ray-cast fallback
+

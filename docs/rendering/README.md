@@ -1,4 +1,4 @@
-﻿# Rendering Documentation
+# Rendering Documentation
 
 The rendering subsystem includes the path tracer, frame graph, and FidelityFX integration.
 
@@ -37,3 +37,4 @@ GPU command buffers -> Present
 | RISC-V | Vulkan | RVV vectorization |
 
 See [../graphics-api/graphics-api-status.md](../graphics-api/graphics-api-status.md) for full status.
+

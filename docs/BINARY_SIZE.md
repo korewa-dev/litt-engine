@@ -30,3 +30,4 @@ ls -la target/release/litt
 | Windows | < 1 MB | Includes Win32 runtime |
 | Linux | < 800 KB | Shared vulkan-1 |
 | Android | < 500 KB | ARM64, stripped |
+
