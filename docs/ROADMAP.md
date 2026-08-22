@@ -473,3 +473,214 @@
 - [x] Workspace: 19 crates, 0 Rust compilation errors
 
 ---
+
+---
+
+## Phase 16: Comprehensive Engine Architecture [🔄 In Progress]
+
+### Core Architecture
+
+#### Entity/Component System (ECS)
+- [x] **Entities:** IDs representing things in the world
+- [x] **Components:** data blobs (Transform, Mesh, Material, Light, Camera, Player, PhysicsBody)
+- [x] **Systems:** logic that iterates over entities with specific components
+- [x] World query API (`query_entities_with`, `get_component`, `add_component`)
+- [x] SystemGroup for ordered scheduling
+
+#### Scene Graph / World Management
+- [x] Hierarchy: parent/child transforms (in Transform component)
+- [ ] Scenes/Levels: load/unload, streaming, prefabs (planned)
+- [ ] Serialization: save/load scenes (JSON, binary, custom format)
+
+#### Math Library (`litt-math`)
+- [x] Vectors, matrices, quaternions
+- [x] Bounding boxes, rays, planes
+- [x] Random number generation (PCG)
+- [x] Interpolation, transforms, projections
+
+---
+
+### Rendering
+
+#### Rendering Backend
+- [x] **Vulkan 1.3** — device, swapchain, command buffers, VMA memory allocator
+- [x] **DX12** — DXGI, DXR, descriptor heaps, PSOs
+- [ ] Metal (macOS/iOS) — planned
+- [ ] WebGPU — planned
+
+#### Pipeline Management
+- [x] Graphics pipelines: rasterization, shading
+- [x] Ray tracing pipelines: BLAS/TLAS, raygen/chit/miss
+- [x] Material system: shaders, textures, parameters
+
+#### Lighting & Shading
+- [x] BRDFs: Lambertian diffuse + GGX specular
+- [x] PBR materials (albedo, roughness, metallic, IOR)
+- [x] Path tracing with Russian roulette
+- [ ] Shadow mapping / RT shadows — planned
+- [ ] Global illumination / probes — planned
+
+#### Post-processing
+- [x] FSR 3.1.5: temporal upscaling + frame generation
+- [x] FSR 4: next-gen upscaling (RDNA 4/5)
+- [x] CAS: Contrast Adaptive Sharpening
+- [x] Ray Reconstruction: CNN-style denoiser
+- [x] Intel XESS 3: frame generation
+- [ ] Bloom, DOF, motion blur — planned
+
+#### UI / HUD Rendering
+- [x] Debug HUD: FPS, frame time, draw calls, GPU timer
+- [x] Debug overlay: lines, boxes, spheres, text
+- [ ] In-game UI (menus, HUD) — planned
+
+---
+
+### Physics
+
+#### Collision & Rigid Body
+- [x] Shapes: sphere, AABB, capsule
+- [x] Broadphase: BVH (GPU-ready) + Spatial Hash (CPU fallback)
+- [x] Narrowphase: SAT, sphere-sphere, capsule-capsule
+- [x] Impulse-based constraint solver
+- [ ] Mesh collision — planned
+- [ ] Joints, constraints — planned
+- [ ] Ragdolls — planned
+
+#### Character Controller
+- [x] Basic ground detection
+- [ ] Capsule controller with slope handling — planned
+
+#### Raycasts & Queries
+- [x] Ray-Bbox intersection
+- [ ] Layer/mask support — partial
+
+---
+
+### Animation
+- [ ] Skeletal Animation — bones, skinning, animation clips
+- [ ] IK, procedural animation — planned
+- [ ] State machines — planned
+
+---
+
+### Audio (`litt-audio`)
+- [x] WAV loading via `hound`
+- [x] `Sound` and `AudioSource` components
+- [x] `AudioContext` for playback control
+- [ ] 3D positional audio — planned
+- [ ] Mixing, buses, effects — planned
+
+---
+
+### Input & Platform
+
+#### Input System (`litt-input`)
+- [x] Keyboard input (key codes, pressed/released/down)
+- [x] Mouse input (position, delta, buttons, scroll)
+- [x] Gamepad input (buttons, axes, connection)
+- [x] Unified `InputState` component
+- [ ] Touch input — planned
+- [ ] Action mapping (named actions) — planned
+
+#### Platform Layer (`litt-platform`)
+- [x] **Windows** — Win32 native
+- [x] **Linux** — X11
+- [ ] **Wayland** — planned
+- [x] **Android** — Native Activity
+- [ ] macOS — planned
+- [x] File system, timers, threads (via std)
+
+---
+
+### Asset & Resource Management (`litt-asset`)
+- [x] Model loader: GLTF/GLB, OBJ
+- [x] Texture loader: PNG, JPEG, KTX2
+- [x] Shader compiler: GLSL→SPIR-V, HLSL→DXIL
+- [x] Material system: PBR parameters
+- [x] Asset manager with LRU cache
+- [x] Type-safe asset handles
+- [ ] Animation loading — planned
+- [ ] Audio loading — planned
+
+---
+
+### Gameplay & Logic
+- [ ] Scripting layer (Lua, Rust API) — planned
+- [ ] Event system — planned
+- [ ] State machines for game states — planned
+
+---
+
+### AI & Navigation
+
+#### Agent Interface
+- [x] `NeuralBrain` component
+- [x] `NeuralAISystem` for NPU/GPU/CPU inference
+- [x] `CombatAISystem` for combat AI
+- [x] Action logs (`template/agent/actions.log`)
+- [x] PR templates for AI agents
+
+#### Navigation
+- [ ] Navmesh generation — planned
+- [ ] Pathfinding (A*) — planned
+- [ ] Dynamic obstacles — planned
+
+#### Decision Systems
+- [ ] Behavior trees — planned
+- [ ] Utility AI — planned
+- [ ] Blackboards, perception — planned
+
+---
+
+### Tools & Editor
+- [x] Debug HUD (FPS, draw calls, GPU timer)
+- [ ] Scene inspector — planned
+- [ ] Entity/component viewer — planned
+- [ ] Profiler integration (RGP) — partial
+- [ ] Console/logging — planned
+
+---
+
+### Networking
+- [ ] Client/server netcode — planned
+- [ ] Replication, lag compensation — planned
+- [ ] Matchmaking — planned
+
+---
+
+### Build, Deployment & Runtime
+
+#### Build System
+- [x] Modular crates (19 crates)
+- [x] Configurable features (vulkan, dx12)
+- [x] Shader compilation via build.rs
+
+#### Runtime Modes
+- [x] Debug vs release
+- [ ] Headless (no rendering, AI only) — planned
+- [ ] Deterministic mode — planned
+
+---
+
+### AI-Only Engine Essentials
+
+#### Agent Interface
+- [x] Observation via ECS components
+- [x] Action via component manipulation
+- [x] Logging via actions.log
+- [ ] Reward/metrics system — planned
+
+#### Automation & Templates
+- [x] Asset ingestion templates (`template/assets/`)
+- [x] PR templates (`template/agent/`)
+- [ ] Scene templates — planned
+
+#### Introspection & Logging
+- [x] Action logs
+- [ ] Episode logs — planned
+- [x] Debug HUD with metrics
+- [ ] Performance traces — partial
+
+---
+
+*Last updated: 2025-07-18*
