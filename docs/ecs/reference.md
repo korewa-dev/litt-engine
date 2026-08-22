@@ -90,7 +90,7 @@
 2. PlayerSystem       — Process input, update Player/Transform
 3. PhysicsSystem      — Simulate physics, write Transform, emit CollisionEvent
 4. CameraSystem       — Follow player, update Camera
-5. RenderSystem       — ECS → GPU, record command buffers
+5. RenderSystem       — ECS -> GPU, record command buffers
 6. UIOverlaySystem    — Render HUD, menus, debug overlay
 7. NetworkingSystem   — Replicate entities, handle snapshots
 ```
@@ -165,3 +165,4 @@ for entity in world.query_entities_with::<Transform, Velocity>() {
 - **Moore Threads:** Minimal ECS overhead for MUSA compatibility
 - **ARM / Mobile:** Compact component layout for cache efficiency
 - **RISC-V:** Minimal memory footprint, no虚 dispatch
+

@@ -102,9 +102,9 @@ pub struct ReplicationMask {
 
 | Entity Type | Authority | Replicates To |
 |-------------|-----------|---------------|
-| Player | Client predicts, server authorizes | Server → All clients |
-| NPC | Server | Server → All clients |
-| World objects | Server | Server → All clients (on spawn) |
+| Player | Client predicts, server authorizes | Server -> All clients |
+| NPC | Server | Server -> All clients |
+| World objects | Server | Server -> All clients (on spawn) |
 | UI elements | Client | N/A (local only) |
 
 ---
@@ -180,3 +180,4 @@ mod websocket {
 - **Moore Threads:** Standard UDP via Vulkan-compatible socket layer
 - **ARM / Mobile:** Battery-aware polling rate, WebSocket fallback
 - **RISC-V:** Minimal networking stack, UDP only
+

@@ -77,11 +77,11 @@ Shader compilation is handled by `build.rs` at compile time:
 ```rust
 // In build.rs
 fn compile_shaders() {
-    // Vulkan / GLSL → SPIR-V
+    // Vulkan / GLSL -> SPIR-V
     for shader in glob("shaders/**/*.glsl") {
         compile_glsl_to_spirv(shader.path(), shader.out_path());
     }
-    // DX12 / HLSL → DXIL
+    // DX12 / HLSL -> DXIL
     #[cfg(feature = "dx12")]
     for shader in glob("shaders/**/*.hlsl") {
         compile_hlsl_to_dxil(shader.path(), shader.out_path());
@@ -91,7 +91,7 @@ fn compile_shaders() {
 
 ---
 
-## Transform + Mesh + Material → Draw Call
+## Transform + Mesh + Material -> Draw Call
 
 ```rust
 impl System for RenderSystem {
@@ -189,3 +189,4 @@ The `RenderSystem` abstracts these differences via the `GraphicsBackend` trait (
 - **Moore Threads:** MUSA compute shaders, Vulkan 1.3 features
 - **ARM / Mobile:** Reduced shader complexity, NEON-optimized post-process
 - **RISC-V:** Software rasterizer fallback via SwiftShader
+
