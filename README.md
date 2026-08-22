@@ -177,14 +177,23 @@ println!("Using: {} on {}", backend.name(), backend.adapter_info());
 | Crate | Path | Purpose |
 |-------|------|---------|
 | `litt-math` | `crates/math/src/` | Vec2/3/4, Mat4, Bbox, Ray, RNG |
-| `litt-platform` | `crates/platform/src/` | Window, input, platform abstraction |
 | `litt-ecs` | `crates/ecs/src/` | ECS core (World, Entity, Component, System) |
+| `litt-platform` | `crates/platform/src/` | Window, input, MUSA/AMD/Intel detection |
 | `litt-vulkan` | `crates/vulkan/src/` | Vulkan 1.3 backend |
 | `litt-dx12` | `crates/dx12/src/` | DX12 backend |
 | `litt-renderer` | `crates/renderer/src/` | Command pools, render passes |
 | `litt-pathtracer` | `crates/pathtracer/src/` | GPU ray tracer |
 | `litt-fidelityfx` | `crates/fidelityfx/src/` | FSR 3/4, CAS, denoisers |
-| `litt-ags` | `crates/ags/src/` | AMD AGS bindings |
+| `litt-physics` | `crates/physics/src/` | GPU/CPU physics, RDNA tier |
+| `litt-ags` | `crates/ags/src/` | AMD AGS power/fan control |
+| `litt-ai` | `crates/ai/src/` | Neural brain, behavior inference |
+| `litt-ui` | `crates/ui/src/` | HUD, debug overlays |
+| `litt-profiler` | `crates/profiler/src/` | Frame timing, GPU profiling |
+| `litt-scene` | `crates/scene/src/` | Scene graph, entity management |
+| `litt-input` | `crates/input/src/` | Keyboard/mouse/gamepad |
+| `litt-audio` | `crates/audio/src/` | Audio playback |
+| `litt-config` | `crates/config/src/` | Engine configuration |
+| `litt-asset` | `crates/asset/src/` | Asset pipeline |
 
 ---
 
@@ -269,7 +278,7 @@ See [docs/ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
 | 11 | FSR 3.1.5 Real Pipeline | ✅ Complete |
 | 12 | GPU Path Tracer | ✅ Complete |
 | 13 | Binary Size Verification | ✅ Complete |
-| 14 | Polish | 🔄 In Progress |
+| 14 | MUSA Complete Pipeline | ✅ Complete |
 | 15 | RDNA Tier | ✅ Complete |
 | 16 | Networking | 📋 Planned |
 
