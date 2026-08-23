@@ -1,0 +1,157 @@
+{
+  "format": "litt-asset-index",
+  "version": 1,
+  "description": "example-village-style manifest for the live world",
+  "assets": [
+    {
+      "id": "chunk_-2_-2",
+      "type": "model",
+      "path": "models/chunk_-2_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_-1",
+      "type": "model",
+      "path": "models/chunk_-2_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_0",
+      "type": "model",
+      "path": "models/chunk_-2_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_1",
+      "type": "model",
+      "path": "models/chunk_-2_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_2",
+      "type": "model",
+      "path": "models/chunk_-2_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-2",
+      "type": "model",
+      "path": "models/chunk_-1_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-1",
+      "type": "model",
+      "path": "models/chunk_-1_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_0",
+      "type": "model",
+      "path": "models/chunk_-1_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_1",
+      "type": "model",
+      "path": "models/chunk_-1_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_2",
+      "type": "model",
+      "path": "models/chunk_-1_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-2",
+      "type": "model",
+      "path": "models/chunk_0_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-1",
+      "type": "model",
+      "path": "models/chunk_0_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_0",
+      "type": "model",
+      "path": "models/chunk_0_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_1",
+      "type": "model",
+      "path": "models/chunk_0_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_2",
+      "type": "model",
+      "path": "models/chunk_0_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-2",
+      "type": "model",
+      "path": "models/chunk_1_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-1",
+      "type": "model",
+      "path": "models/chunk_1_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_0",
+      "type": "model",
+      "path": "models/chunk_1_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_1",
+      "type": "model",
+      "path": "models/chunk_1_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_2",
+      "type": "model",
+      "path": "models/chunk_1_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-2",
+      "type": "model",
+      "path": "models/chunk_2_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-1",
+      "type": "model",
+      "path": "models/chunk_2_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_0",
+      "type": "model",
+      "path": "models/chunk_2_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_1",
+      "type": "model",
+      "path": "models/chunk_2_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_2",
+      "type": "model",
+      "path": "models/chunk_2_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    }
+  ]
+}

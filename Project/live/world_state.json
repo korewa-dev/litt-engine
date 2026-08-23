@@ -1,0 +1,261 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "updated": "2026-08-23T01:46:57",
+  "seed": 1337,
+  "chunk_size": 16.0,
+  "radius": 2,
+  "camera": {
+    "target": [
+      0,
+      0,
+      0
+    ],
+    "distance": 46
+  },
+  "chunks": [
+    {
+      "id": "chunk_-2_-2",
+      "path": "assets/models/chunk_-2_-2.obj",
+      "position": [
+        -32.0,
+        0,
+        -32.0
+      ]
+    },
+    {
+      "id": "chunk_-2_-1",
+      "path": "assets/models/chunk_-2_-1.obj",
+      "position": [
+        -32.0,
+        0,
+        -16.0
+      ]
+    },
+    {
+      "id": "chunk_-2_0",
+      "path": "assets/models/chunk_-2_0.obj",
+      "position": [
+        -32.0,
+        0,
+        0.0
+      ]
+    },
+    {
+      "id": "chunk_-2_1",
+      "path": "assets/models/chunk_-2_1.obj",
+      "position": [
+        -32.0,
+        0,
+        16.0
+      ]
+    },
+    {
+      "id": "chunk_-2_2",
+      "path": "assets/models/chunk_-2_2.obj",
+      "position": [
+        -32.0,
+        0,
+        32.0
+      ]
+    },
+    {
+      "id": "chunk_-1_-2",
+      "path": "assets/models/chunk_-1_-2.obj",
+      "position": [
+        -16.0,
+        0,
+        -32.0
+      ]
+    },
+    {
+      "id": "chunk_-1_-1",
+      "path": "assets/models/chunk_-1_-1.obj",
+      "position": [
+        -16.0,
+        0,
+        -16.0
+      ]
+    },
+    {
+      "id": "chunk_-1_0",
+      "path": "assets/models/chunk_-1_0.obj",
+      "position": [
+        -16.0,
+        0,
+        0.0
+      ]
+    },
+    {
+      "id": "chunk_-1_1",
+      "path": "assets/models/chunk_-1_1.obj",
+      "position": [
+        -16.0,
+        0,
+        16.0
+      ]
+    },
+    {
+      "id": "chunk_-1_2",
+      "path": "assets/models/chunk_-1_2.obj",
+      "position": [
+        -16.0,
+        0,
+        32.0
+      ]
+    },
+    {
+      "id": "chunk_0_-2",
+      "path": "assets/models/chunk_0_-2.obj",
+      "position": [
+        0.0,
+        0,
+        -32.0
+      ]
+    },
+    {
+      "id": "chunk_0_-1",
+      "path": "assets/models/chunk_0_-1.obj",
+      "position": [
+        0.0,
+        0,
+        -16.0
+      ]
+    },
+    {
+      "id": "chunk_0_0",
+      "path": "assets/models/chunk_0_0.obj",
+      "position": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
+      "id": "chunk_0_1",
+      "path": "assets/models/chunk_0_1.obj",
+      "position": [
+        0.0,
+        0,
+        16.0
+      ]
+    },
+    {
+      "id": "chunk_0_2",
+      "path": "assets/models/chunk_0_2.obj",
+      "position": [
+        0.0,
+        0,
+        32.0
+      ]
+    },
+    {
+      "id": "chunk_1_-2",
+      "path": "assets/models/chunk_1_-2.obj",
+      "position": [
+        16.0,
+        0,
+        -32.0
+      ]
+    },
+    {
+      "id": "chunk_1_-1",
+      "path": "assets/models/chunk_1_-1.obj",
+      "position": [
+        16.0,
+        0,
+        -16.0
+      ]
+    },
+    {
+      "id": "chunk_1_0",
+      "path": "assets/models/chunk_1_0.obj",
+      "position": [
+        16.0,
+        0,
+        0.0
+      ]
+    },
+    {
+      "id": "chunk_1_1",
+      "path": "assets/models/chunk_1_1.obj",
+      "position": [
+        16.0,
+        0,
+        16.0
+      ]
+    },
+    {
+      "id": "chunk_1_2",
+      "path": "assets/models/chunk_1_2.obj",
+      "position": [
+        16.0,
+        0,
+        32.0
+      ]
+    },
+    {
+      "id": "chunk_2_-2",
+      "path": "assets/models/chunk_2_-2.obj",
+      "position": [
+        32.0,
+        0,
+        -32.0
+      ]
+    },
+    {
+      "id": "chunk_2_-1",
+      "path": "assets/models/chunk_2_-1.obj",
+      "position": [
+        32.0,
+        0,
+        -16.0
+      ]
+    },
+    {
+      "id": "chunk_2_0",
+      "path": "assets/models/chunk_2_0.obj",
+      "position": [
+        32.0,
+        0,
+        0.0
+      ]
+    },
+    {
+      "id": "chunk_2_1",
+      "path": "assets/models/chunk_2_1.obj",
+      "position": [
+        32.0,
+        0,
+        16.0
+      ]
+    },
+    {
+      "id": "chunk_2_2",
+      "path": "assets/models/chunk_2_2.obj",
+      "position": [
+        32.0,
+        0,
+        32.0
+      ]
+    }
+  ],
+  "palette": {
+    "grass_a": [
+      0.435,
+      0.627,
+      0.329
+    ],
+    "grass_b": [
+      0.525,
+      0.725,
+      0.42
+    ],
+    "dirt": [
+      0.541,
+      0.435,
+      0.278
+    ]
+  }
+}

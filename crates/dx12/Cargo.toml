@@ -1,0 +1,18 @@
+[package]
+name = "litt-dx12"
+version = "0.1.0"
+edition = "2021"
+description = "DirectX 12 backend for Litt Engine (interface-complete stub; COM backend via the windows crate pending)"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+log = { workspace = true }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

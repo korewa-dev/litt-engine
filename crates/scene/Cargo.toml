@@ -1,0 +1,21 @@
+[package]
+name = "litt-scene"
+version = "0.1.0"
+edition = "2021"
+description = "Scene management for Litt Engine -- hierarchy, loading, and traversal"
+
+[dependencies]
+litt-math = { path = "../math" }
+litt-asset = { path = "../asset" }
+litt-ecs = { path = "../ecs" }
+bytemuck = { workspace = true }
+log = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

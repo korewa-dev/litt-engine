@@ -1,0 +1,30 @@
+#version 450
+#extension GL_EXT_scalar_block_layout: require
+
+// =============================================================================
+// MUSA Compute Kernel -- Vector Add (GPU-parallel)
+// =============================================================================
+// Computes C[i] = A[i] + B[i] for i in [0, n).
+//
+// @location(0) readonly  buffer A { float a[]; } buf_a;
+// @location(1) readonly  buffer B { float b[]; } buf_b;
+// @location(2) writeonly buffer C { float c[]; } buf_c;
+//
+// Push constants: n
+
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+layout(set = 0, binding = 0) readonly  buffer buf_a { float a[]; };
+layout(set = 0, binding = 1) readonly  buffer buf_b { float b[]; };
+layout(set = 0, binding = 2) writeonly buffer buf_c { float c[]; };
+
+layout(push_constant) uniform PushConstants {
+    uint n;
+    uint _pad[3];
+};
+
+void main() {
+    uint gid = gl_GlobalInvocationID.x;
+    if (gid >= n) return;
+    buf_c.c[gid] = buf_a.a[gid] + buf_b.b[gid];
+}

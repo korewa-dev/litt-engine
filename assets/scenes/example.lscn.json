@@ -1,0 +1,32 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "next_id": 3,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [1],
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0],
+      "visible": true,
+      "layer": 0,
+      "tags": []
+    },
+    {
+      "name": "ExampleCube",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [0.0, 1.0, -5.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0],
+      "visible": true,
+      "layer": 0,
+      "tags": ["example"]
+    }
+  ]
+}

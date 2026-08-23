@@ -1,0 +1,83 @@
+# LITT ENGINE LICENSE
+### Version 1.6 — AI-Exclusive, Perpetual Open-Source, Anti-Commercial
+
+Copyright (c) 2025–2026 korewa-dev. All rights reserved except those granted below.
+
+---
+
+## 0. Definitions
+
+- **"Engine"** — the Litt Engine source code, its crates, tools, assets, and documentation in this repository, including all forks and derivative works.
+- **"AI Agent"** — autonomous, machine-driven software capable of operating the Engine without step-by-step human instruction.
+- **"Human Operator"** — a natural person who prompts or instructs an AI Agent but does not directly operate the Engine.
+- **"Tool"** — editors, GUIs, plugins, add-ons, or utilities built on top of or around the Engine.
+- **"Game"** — interactive entertainment software built *with* the Engine. Games are not part of the Engine.
+
+## 1. Purpose
+
+Litt Engine is an **AI-exclusive** game engine designed for autonomous machine-driven game development. Humans may prompt the AI, but may not directly operate the Engine or its tools.
+
+## 2. Grant of Rights
+
+Permission is granted, free of charge, to use, copy, modify, merge, publish, distribute, sublicense, and create derivative works of the Engine, **subject to every condition in this License**.
+
+## 3. Open-Source Requirement
+
+All forks, derivatives, and redistributions must remain **fully open-source** under a license no more restrictive than this one. This applies to forks of forks and all future versions. Closed-source forks and proprietary extensions are prohibited.
+
+## 4. Non-Commercial Engine Rule
+
+The Engine and all forks may not be sold, licensed for a fee, monetized, or used commercially. Donations for the Engine are capped at **1 € per donor per year**. No mechanism may circumvent this cap (see §11).
+
+## 5. Plugins, GUIs, Editors
+
+You may create Tools around the Engine, provided they:
+
+1. Are **free of charge**;
+2. Are **fully open-source**;
+3. Accept donations of at most **1 € per donor per month**;
+4. Are not sold, and contain no paid tiers, premium features, support tiers, early-access gating, or pay-what-you-want mechanisms above that cap;
+5. Do **not** enable human-driven game development;
+6. Do **not** bypass or weaken AI-exclusive workflows.
+
+## 6. Games Made With the Engine
+
+Games built with Litt Engine **may be sold commercially without restriction**. Game development funding and crowdfunding are permitted. Games are separate works and are not bound by §§3–5.
+
+## 7. AI Models
+
+AI models trained on or with the Engine may be sold, **but only if the seller has contributed meaningfully to the project** (code, documentation, bug fixes, features, testing, infrastructure — see POLICY.md). Non-contributors may not sell such models.
+
+## 8. Human Interaction Rule
+
+Humans may prompt or instruct AI Agents, but may not directly:
+
+- Edit scenes,
+- Place assets,
+- Script gameplay against human-facing workflows,
+- Operate Engine tooling intended for agents,
+- Use the Engine as a human-driven game engine.
+
+## 9. No Warranty
+
+THE ENGINE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+## 10. No Liability
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE ENGINE OR ITS USE — including any damages or behavior produced by AI Agents operating it.
+
+## 11. No Loophole Exploitation
+
+Circumventing any rule of this License through technical, legal, accounting, or labeling tricks (donation splitting across accounts, "premium features," "support tiers," "early access," crypto tokens, bundled services, etc.) is a violation equal to direct breach.
+
+## 12. Termination
+
+Violation of any term terminates all rights granted hereunder **immediately** for the violator and any works distributed in breach.
+
+## 13. Perpetual Enforcement
+
+These rules apply to the Engine **forever**, including all forks, derivatives, and future versions. They cannot be waived, re-licensed away, or outgrown by later contributors.
+
+## 14. Severability & Acceptance
+
+If any provision is held unenforceable, the remainder stays in force. Using, copying, modifying, or distributing the Engine constitutes acceptance of this License and the accompanying TERMS.md.

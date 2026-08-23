@@ -1,0 +1,14 @@
+[package]
+name = "litt-gal"
+version = "0.1.0"
+edition = "2021"
+description = "Graphics Abstraction Layer - write once, run on Vulkan, DX12, or AMD AGS"
+
+[dependencies]
+# Core is dependency-free by design; adapters will attach via optional deps:
+# vulkan adapter: litt-vulkan = { path = "../vulkan", optional = true }
+# dx12 adapter:   litt-dx12   = { path = "../dx12",   optional = true }
+# ags adapter:    litt-ags    = { path = "../ags",    optional = true }
+
+[features]
+default = []

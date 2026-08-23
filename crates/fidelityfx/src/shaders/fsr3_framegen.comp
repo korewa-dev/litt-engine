@@ -1,0 +1,45 @@
+#version 450
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+// FSR 3.1.5 Frame Generation Pass -- synthesizes an interpolated frame
+// between two consecutive frames using optical flow estimation
+
+layout(set = 0, binding = 0) uniform sampler2D sPrev;
+layout(set = 0, binding = 1) uniform sampler2D sCurr;
+layout(set = 0, binding = 2) uniform usampler2D sVelocity;
+layout(set = 0, binding = 3) writeonly uniform image2D imgOutput;
+
+layout(push_constant) uniform Push {
+    uint inputSizeX;
+    uint inputSizeY;
+    uint outputSizeX;
+    uint outputSizeY;
+    float motionScale;
+    float temporalStability;
+    float flowScale;
+    float flowRange;
+    float _pad[2];
+} PC;
+
+void main() {
+    ivec2 dstPx = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 dstSize = ivec2(PC.outputSizeX, PC.outputSizeY);
+    vec2 uv = vec2(dstPx) / vec2(float(dstSize));
+
+    // Flow vector (normalized to [-1, 1])
+    vec4 velRaw = vec4(texelFetch(sVelocity, dstPx, 0));
+    vec2 flow = (velRaw.xy / 65535.0) * 2.0 - 1.0;
+
+    // Sample previous frame at flow-displaced position
+    vec2 prevUv = uv - flow * PC.motionScale * 0.5;
+    prevUv = clamp(prevUv, vec2(0.0), vec2(1.0) - 1.0 / vec2(float(dstSize)));
+
+    vec4 prev = texture(sPrev, prevUv);
+    vec4 curr = texture(sCurr, uv);
+
+    // Blend current with flow-warped previous
+    float stability = PC.temporalStability;
+    vec4 result = mix(curr, prev, stability);
+
+    imageStore(imgOutput, dstPx, result);
+}

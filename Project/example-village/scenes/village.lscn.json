@@ -1,0 +1,230 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "next_id": 8,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": []
+    },
+    {
+      "name": "ValleyFloor",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "example-village"
+      ]
+    },
+    {
+      "name": "FarmHouse",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -7,
+        0,
+        -6
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "example-village"
+      ]
+    },
+    {
+      "name": "Cottage01",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7,
+        0,
+        -5
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "example-village"
+      ]
+    },
+    {
+      "name": "Pine01",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -12,
+        0,
+        4
+      ],
+      "rotation": [
+        0,
+        0.25881904510252074,
+        0,
+        0.9659258262890683
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "example-village"
+      ]
+    },
+    {
+      "name": "Pine02",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [
+        13,
+        0,
+        -10
+      ],
+      "rotation": [
+        0,
+        -0.3826834323650898,
+        0,
+        0.9238795325112867
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "example-village"
+      ]
+    },
+    {
+      "name": "Pine03",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [
+        2,
+        0,
+        9
+      ],
+      "rotation": [
+        0,
+        0.49999999999999994,
+        0,
+        0.8660254037844387
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "example-village"
+      ]
+    },
+    {
+      "name": "SupplyCrate",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -5.6,
+        0,
+        -4.6
+      ],
+      "rotation": [
+        0,
+        0.13052619222005157,
+        0,
+        0.9914448613738104
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "example-village"
+      ]
+    }
+  ]
+}

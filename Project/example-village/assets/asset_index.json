@@ -1,0 +1,49 @@
+{
+  "format": "litt-asset-index",
+  "version": 1,
+  "description": "Machine-readable asset manifest. Agents: read this file to discover assets instead of scanning the tree.",
+  "assets": [
+    {
+      "id": "farm_house",
+      "type": "model",
+      "path": "models/farm_house.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "cottage_01",
+      "type": "model",
+      "path": "models/cottage_01.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "pine_01",
+      "type": "model",
+      "path": "models/pine_01.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "pine_02",
+      "type": "model",
+      "path": "models/pine_02.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "pine_03",
+      "type": "model",
+      "path": "models/pine_03.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "supply_crate",
+      "type": "model",
+      "path": "models/supply_crate.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "valley_floor",
+      "type": "model",
+      "path": "models/valley_floor.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    }
+  ]
+}

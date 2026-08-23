@@ -1,0 +1,22 @@
+[package]
+name = "litt-audio"
+version = "0.1.0"
+edition = "2021"
+description = "Audio system for Litt Engine -- sound playback and mixing"
+
+[dependencies]
+litt-math = { path = "../math" }
+bytemuck = { workspace = true }
+cpal = { version = "0.15", optional = true }
+hound = "3"
+minimp3 = "0.5"
+
+[target.'cfg(target_os = "android")'.dependencies]
+android-activity = "0.5"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

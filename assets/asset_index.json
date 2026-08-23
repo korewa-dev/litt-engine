@@ -1,0 +1,43 @@
+{
+  "format": "litt-asset-index",
+  "version": 1,
+  "description": "Machine-readable asset manifest. Agents: read this file to discover assets instead of scanning the tree.",
+  "assets": [
+    {
+      "id": "example_scene",
+      "type": "scene",
+      "path": "scenes/example.lscn.json",
+      "loader": "litt_scene::serialization::load_graph_file"
+    },
+    {
+      "id": "example_model",
+      "type": "model",
+      "path": "models/cube.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "demo_house",
+      "type": "model",
+      "path": "models/demo_house.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "demo_cottage",
+      "type": "model",
+      "path": "models/demo_cottage.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "example_texture",
+      "type": "texture",
+      "path": "textures/placeholder.png",
+      "loader": "litt_asset::texture"
+    },
+    {
+      "id": "example_audio",
+      "type": "audio",
+      "path": "audio/blip.wav",
+      "loader": "litt_audio::sound::SoundData::load_wav / load_mp3"
+    }
+  ]
+}

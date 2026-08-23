@@ -1,0 +1,23 @@
+[package]
+name = "litt-ags"
+version = "0.1.0"
+edition = "2021"
+description = "AMD AGS (AMDGPU Services) Rust bindings for power management and performance control"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+libloading = "0.8"
+
+[features]
+default = []
+# Enable debug logging
+debug = []
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
