@@ -21,3 +21,6 @@
 .idea/
 build/
 out/
+
+# nested cargo build dirs (any depth)
+target/

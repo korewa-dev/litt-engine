@@ -3,7 +3,7 @@
   "diagram_type": "architecture",
   "meta": {
     "title": "Litt Engine Architecture v2",
-    "subtitle": "Ultra-lightweight Vulkan path tracing engine with VMA and complete RT pipeline",
+    "subtitle": "A tiny feature-rich game engine with DX12/Vulkan support for AMD, Intel Arc, and Moore Threads GPUs",
     "quality_profile": "showcase",
     "views": [
       {

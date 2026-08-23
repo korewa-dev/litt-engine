@@ -14,7 +14,7 @@ Litt Engine is an ultra-lightweight, AI-native game engine with:
 - Path tracing (crates/pathtracer/)
 - FidelityFX integration (crates/fidelityfx/)
 - NPU acceleration for AI inference
-- Target: < 1 MB binary, cross-platform
+- Small optimized binary target, cross-platform
 
 ---
 

@@ -1,7 +1,7 @@
 # Litt Engine -- Roadmap
 
-Ultra-lightweight Vulkan path tracing engine for AMD RDNA, Intel Arc,
-Moore Threads MUSA, and NPU-equipped devices.
+A tiny feature-rich game engine with DX12/Vulkan support for AMD RDNA,
+Intel Arc, Moore Threads MUSA, and NPU-equipped devices.
 
 ## Status Snapshot
 
