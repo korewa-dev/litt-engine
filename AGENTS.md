@@ -64,7 +64,9 @@ inside that one folder (its own `assets/asset_index.json`, `ATTRIBUTION.md`,
 
 **Genre generators - run, do not rewrite:** `template/tools/worldgen/` ships
 gen_soulslike.py, gen_space.py, gen_tabletop.py, gen_platformer25d.py,
-live_landscape.py, plus gen_custom.py as the scaffold for anything else.
+live_landscape.py. For ANY named game type use **gen_archetype.py
+--archetype <name>** (76 archetypes x 6 layout patterns x 26 themes, plus
+--time-of-day/--weather). gen_custom.py is the raw scaffold for anything else.
 Identity lookups: design_types.json + design_rules.json there; themes:
 themes.json; the math per genre: `template/docs/genre_algorithms.md`.
 
