@@ -24,6 +24,11 @@ idempotent, budget-checked, and write index/scene/state/log automatically.
 | python live_landscape.py --out-dir Project/live | perpetual grass meadow (original) | ambient/open world |
 | python gen_archetype.py --archetype <any> [--pattern P] [--theme T] [--time-of-day D] [--weather W] | ANY of the 76 archetypes via 6 parametric layout patterns; identity from design_rules.json, palette from themes.json, environment block (sky/fog/wind/light) in world_state.json | every archetype in design_rules.json |
 
+**genre_index.csv** - the human-facing index: classic genre > subgenre >
+archetype_key (exact design_rules key) > pattern/generator to run > suggested
+theme > example games. When a human says "like <game>", look it up here first,
+then run the listed command. All keys/themes verified against the datasets.
+
 Common flags: --out-dir (default .), --agent <name>, --prompt "<human request>".
 Genre-specific flags exist per generator (--radius, --stars, --asteroids, --seed...).
 

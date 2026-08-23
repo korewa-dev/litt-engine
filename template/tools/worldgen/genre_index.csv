@@ -1,0 +1,77 @@
+Genre,Subgenre,Archetype_Key,Pattern_Or_Generator,Suggested_Theme,Example_Games
+Action,Precision Platformer,precision_action,corridor_run,minimalist_abstract,"Celeste, Super Meat Boy"
+Action,Metroidvania,metroidvania,hub_spoke,underground_caves,Hollow Knight
+Action,Character Action,character_action,arena_ring,dark_fantasy,"Devil May Cry 5, Bayonetta"
+Action,Beat Em Up,beat_em_up,corridor_run,modern_city_night,Streets of Rage 4
+Action,Cinematic Action,cinematic_action,corridor_run,medieval_realism,Uncharted 4
+Action,Bullet Hell Arena,bullet_hell,arena_ring,space_station_core,Touhou
+Action,Fighting Versus,fighting_versus,arena_ring,high_fantasy,"Street Fighter 6, Tekken 8"
+Action,Rhythm Music,rhythm_music,corridor_run,cyberpunk_neon,"osu!, Beat Saber"
+Action,Dance Game,dance_game,grid_board,cyberpunk_neon,Just Dance
+Action,Time Manipulation,time_manipulation,room_graph,minimalist_abstract,Braid
+Shooter,Hero Shooter,hero_shooter,arena_ring,retro_scifi,"Overwatch, Valorant"
+Shooter,Tactical Shooter,tactical_shooter,hub_spoke,military_outpost,Rainbow Six Siege
+Shooter,Extraction Shooter,extraction_shooter,hub_spoke,post_apocalypse,Escape from Tarkov
+Shooter,Looter Shooter,looter_shooter,hub_spoke,retro_scifi,"Destiny 2, Borderlands 3"
+Shooter,Battle Royale,battle_royale,hub_spoke,tropical_island,"PUBG, Apex Legends"
+Shooter,Vertical Shmup,shmup_vertical,corridor_run,space_station_core,Ikaruga
+RPG,Soulslike,soulslike,gen_soulslike.py,dark_fantasy,"Dark Souls, Lies of P"
+RPG,Soulslite,soulslite,arena_ring,dark_fantasy,Jedi: Fallen Order
+RPG,JRPG Turn-Based,jrpg_turn_based,hub_spoke,high_fantasy,"Persona 5, Dragon Quest XI"
+RPG,Open World RPG,open_world_rpg,hub_spoke,high_fantasy,"Elden Ring, Witcher 3"
+RPG,Open World Western,open_world_western,hub_spoke,wild_west_frontier,Red Dead Redemption 2
+RPG,Open World Realistic,open_world_realistic,hub_spoke,modern_city_day,GTA V
+RPG,Open World Survival,open_world_survival,hub_spoke,arctic_expanse,"Valheim, Rust"
+RPG,Monster Taming,monster_taming,hub_spoke,tropical_island,"Pokemon, Palworld"
+RPG,Deckbuilder,deckbuilder,grid_board,dark_fantasy,Slay the Spire
+RPG,Auto Battler,auto_battler,grid_board,high_fantasy,Teamfight Tactics
+Strategy,RTS,rts_strategy,grid_board,desert_dunes,StarCraft II
+Strategy,Grid Tactics,grid_tactics,grid_board,military_outpost,"XCOM 2, Into the Breach"
+Strategy,Tower Defense,tower_defense,spline_track,toy_voxel_playground,Bloons TD 6
+Strategy,MOBA,moba_arena,arena_ring,high_fantasy,"League of Legends, Dota 2"
+Strategy,God Game,god_game,hub_spoke,greek_mythology,Black & White
+Strategy,Colony Sim,colony_sim,room_graph,arctic_expanse,"RimWorld, Dwarf Fortress"
+Simulation,Life Sim,life_sim,hub_spoke,modern_city_day,The Sims 4
+Simulation,Farming Sim,farming_sim,grid_board,deep_forest,Stardew Valley
+Simulation,City Builder,city_builder,grid_board,modern_city_day,Cities: Skylines
+Simulation,Tycoon Management,tycoon_management,grid_board,steampunk_brass,RollerCoaster Tycoon 2
+Simulation,Flight Simulator,flight_sim_aviation,spline_track,sky_islands,Microsoft Flight Simulator
+Simulation,Immersive Sim,immersive_sim,room_graph,haunted_estate,"Dishonored, Prey"
+Adventure,Visual Novel,visual_novel,grid_board,haunted_estate,"Phoenix Wright, Danganronpa"
+Adventure,Point and Click,point_and_click,room_graph,greek_mythology,Monkey Island
+Adventure,Narrative Adventure,narrative_adventure,hub_spoke,modern_city_day,Life is Strange
+Adventure,Walking Simulator,walking_simulator,corridor_run,deep_forest,"Firewatch, Edith Finch"
+Adventure,Text Adventure,text_adventure,room_graph,underground_caves,"Zork, 80 Days"
+Adventure,Detective Mystery,detective_mystery,room_graph,modern_city_night,"Obra Dinn, L.A. Noire"
+Adventure,Naval Pirate,naval_pirate,spline_track,tropical_island,Sea of Thieves
+Puzzle,Physics Puzzle,physics_puzzle,arena_ring,toy_voxel_playground,"World of Goo, Poly Bridge"
+Puzzle,Spatial Portal Puzzle,spatial_portal_puzzle,room_graph,minimalist_abstract,Portal 2
+Puzzle,Match 3,match3_puzzle,grid_board,candy_land,"Bejeweled, Candy Crush"
+Puzzle,Word Puzzle,word_puzzle,grid_board,minimalist_abstract,"Wordle, Bookworm Adventures"
+Puzzle,Trivia Quiz,trivia_quiz,grid_board,retro_scifi,You Don't Know Jack
+Puzzle,Educational Serious,educational_serious,hub_spoke,toy_voxel_playground,Zoombinis
+Puzzle,Idle Incremental,idle_incremental,grid_board,minimalist_abstract,"Cookie Clicker, Melvor Idle"
+Sandbox,Creative Sandbox,sandbox_builder,hub_spoke,toy_voxel_playground,"Minecraft, Terraria"
+Sandbox,Physics Sandbox,physics_sandbox,arena_ring,toy_voxel_playground,"Garry's Mod, Besiege"
+Sandbox,Collectathon 3D,collectathon_3d,hub_spoke,candy_land,"Super Mario 64, Banjo-Kazooie"
+Sandbox,Survival Crafting,survival_crafting,hub_spoke,swamplands,"Subnautica, The Forest"
+Racing,Arcade Racing,arcade_racing,spline_track,cyberpunk_neon,Burnout Paradise
+Racing,Kart Racing,kart_racer,spline_track,candy_land,Mario Kart 8 Deluxe
+Racing,Sim Racing,sim_racing,spline_track,minimalist_abstract,"Assetto Corsa, iRacing"
+Racing,Vehicle Combat,vehicle_combat,arena_ring,post_apocalypse,Twisted Metal
+Racing,Endless Runner,endless_runner,corridor_run,modern_city_day,"Temple Run, Subway Surfers"
+Racing,Auto Runner,auto_runner,corridor_run,minimalist_abstract,Canabalt
+Sports,Football,sports_football,arena_ring,modern_city_day,"EA FC 24, Rocket League"
+Sports,Basketball,sports_basketball,arena_ring,modern_city_day,NBA 2K24
+Sports,Tennis,sports_tennis,arena_ring,minimalist_abstract,Mario Tennis Aces
+Sports,Golf,sports_golf,hub_spoke,tropical_island,Golf With Your Friends
+Horror,Survival Horror,survival_horror,room_graph,haunted_estate,"Resident Evil 4, Alien Isolation"
+Horror,Psychological Horror,psychological_horror,corridor_run,haunted_estate,Silent Hill 2
+Horror,Asymmetric Multiplayer,asymmetric_horror,arena_ring,deep_forest,Dead by Daylight
+Horror,Pure Stealth,stealth_pure,room_graph,egyptian_desert,"MGS V, Thief"
+Party,Party Minigames,party_minigames,grid_board,candy_land,Mario Party Superstars
+Party,Coop Heist,coop_heist,room_graph,modern_city_night,Payday 2
+Party,Base Defense Build,base_defense_build,arena_ring,medieval_realism,Orcs Must Die
+Party,Dungeon Crawler,dungeon_crawler,room_graph,underground_caves,Gauntlet
+Party,Roguelike,roguelike,room_graph,underground_caves,"NetHack, Brogue"
+Party,Roguelite,roguelite,arena_ring,greek_mythology,"Hades, Dead Cells"
