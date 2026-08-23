@@ -40,8 +40,9 @@ Follow this exact sequence, in order, no skips:
 cd Project/live
 read AI_RULES.md            # mandatory - it binds your whole session
 
-# 2. start the observer so humans can watch you work (run in background)
-python tools/serve_live.py          # -> http://127.0.0.1:8088/viewer/
+# 2. start the observer + player so humans can watch AND play your work
+python tools/serve_live.py          # watch: http://127.0.0.1:8088/viewer/
+                                    # play:  http://127.0.0.1:8088/viewer/play.html
 
 # 3. orient: current world extent, recent actions, existing assets
 read world_state.json               # chunks, seed, camera
@@ -61,6 +62,12 @@ read assets/asset_index.json
 Read `Project/README.md`, copy the `example-village/` structure, keep everything
 inside that one folder (its own `assets/asset_index.json`, `ATTRIBUTION.md`,
 `NOTES.md`).
+
+**Runtime bridge:** `template/tools/runtime/` holds play.html + runtime.js - a
+playable client that consumes any generated world as-is (movement mode from
+state.identity, physics constants from state.gameplay.physics verbatim,
+pickups/goals/hazards/enemies from node tags). Copy both into the project
+viewer folder to make it playable. Keep them in sync when you upgrade one.
 
 **Genre generators - run, do not rewrite:** `template/tools/worldgen/` ships
 gen_soulslike.py, gen_space.py, gen_tabletop.py, gen_platformer25d.py,

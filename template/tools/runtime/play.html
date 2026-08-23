@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Litt Play - playable generated world</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#111;font-family:Consolas,monospace}
+  #hud{position:fixed;top:12px;left:12px;z-index:10;background:rgba(8,14,20,.8);color:#bfe3f2;
+       padding:10px 14px;border-radius:8px;border:1px solid #2e4a5c;font-size:12px;line-height:1.55}
+  #hud b{color:#ffd97a}
+  #toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:10;color:#bfe3f2;
+         font-size:15px;opacity:0;transition:opacity .4s;text-shadow:0 1px 3px #000}
+  #win{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:20;
+       background:rgba(0,0,0,.72);color:#ffd97a;font-size:34px;letter-spacing:3px;flex-direction:column}
+  #win small{color:#bfe3f2;font-size:13px;margin-top:10px;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div id="hud">loading world...</div>
+<div id="toast"></div>
+<div id="win"><div>GOAL REACHED</div><small>refresh to play again</small></div>
+<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
+<script src="runtime.js"></script>
+<script>window.addEventListener("load", function(){ LittPlay.init(); });</script>
+</body>
+</html>
