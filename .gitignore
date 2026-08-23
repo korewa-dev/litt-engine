@@ -11,12 +11,14 @@
 *.a
 *.lib
 *.pdb
-*.obj
+# NOTE: no global *.obj here - Wavefront OBJ models are shipped game assets
+# (build intermediates live under /target/ which is already ignored)
 *.ilk
 *.exp
 *.dmp
 *.crash
 *.log
+!template/agent/actions.log
 .vscode/
 .idea/
 build/

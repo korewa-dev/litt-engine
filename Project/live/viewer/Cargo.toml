@@ -1,0 +1,23 @@
+[package]
+name = "live-viewer"
+version = "0.1.0"
+edition = "2021"
+description = "Litt Engine live-mode observer: standalone read-only server hosting the world viewer. Intentionally dependency-free so GUI developers can adopt and extend it."
+
+[[bin]]
+name = "live"
+path = "src/main.rs"
+
+[dependencies]
+# intentionally EMPTY - std only. See GUI_INSTRUCTIONS.md before adding crates.
+
+# Standalone project: deliberately NOT part of the engine workspace.
+# This empty [workspace] table detaches it so it builds with its own lockfile.
+[workspace]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
