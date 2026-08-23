@@ -157,8 +157,10 @@
 
     // player
     var spawn = new THREE.Vector3(0, 1.2, 4);
-    var playerMesh = new THREE.Mesh(
-      new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.45, 0.9, 4, 8) : new THREE.CylinderGeometry(0.45, 0.45, 1.6, 10),
+    var playerGeo = (typeof THREE.CapsuleGeometry === "function")
+      ? new THREE.CapsuleGeometry(0.45, 0.9, 4, 8)
+      : new THREE.CylinderGeometry(0.45, 0.45, 1.6, 10);
+    var playerMesh = new THREE.Mesh(playerGeo,
       new THREE.MeshLambertMaterial({ color: 0xffd97a }));
     sc.add(playerMesh);
     var vel = new THREE.Vector3(); var pos = spawn.clone();
