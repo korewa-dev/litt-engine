@@ -27,7 +27,10 @@ class ReadOnlyHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=str(LIVE_DIR), **kwargs)
 
     def do_GET(self):
-        if self.path.startswith("/viewer") or self.path == "/":
+        # Only the bare viewer roots map to index.html - every other file
+        # (play.html, runtime.js, assets...) must be served as requested.
+        bare = self.path.split("?")[0].rstrip("/")
+        if bare in ("", "/viewer"):
             self.path = "/viewer/index.html"
         super().do_GET()   # SimpleHTTPRequestHandler emits the full 200 itself
 
