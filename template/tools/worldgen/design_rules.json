@@ -1,0 +1,1331 @@
+{
+  "_readme": "Maps identity archetypes to concrete generation defaults. Dimensions come from design_types.json. Generators read the 'generator' field first; if custom, follow procgen_rules with worldkit.",
+  "archetypes": {
+    "soulslike": {
+      "camera": "third_person",
+      "combat": "soulslike_combat",
+      "movement": "soulslike_stamina_movement",
+      "structure": "hub_spoke_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "ruins",
+        "graveyards",
+        "fog_gates",
+        "bonfire_checkpoints"
+      ],
+      "procgen_rules": [
+        "fBm terrain, world-space sampling for seamless chunks",
+        "encounters placed along a guide path with escalating aggro radii",
+        "checkpoint-to-boss corpse-run loop encoded in state gameplay block"
+      ],
+      "ai_behavior": "patrol -> aggro within radius -> telegraph -> strike; stamina-gated player assumed",
+      "generator": "gen_soulslike.py"
+    },
+    "soulslite": {
+      "camera": "third_person",
+      "combat": "soulslike_combat",
+      "movement": "dash_based_movement",
+      "structure": "linear_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "fast_paced",
+      "environment_types": [
+        "arenas",
+        "shrine_rest_points"
+      ],
+      "procgen_rules": [
+        "soulslike layout, shorter paths, dash i-frames noted in state"
+      ],
+      "ai_behavior": "aggressive melee, shorter telegraphs than soulslike",
+      "generator": "gen_soulslike.py --radius 1"
+    },
+    "roguelike": {
+      "camera": "top_down",
+      "combat": "turn_based_combat",
+      "movement": "free_roam_movement",
+      "structure": "procedural_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "dungeons",
+        "rooms_and_corridors"
+      ],
+      "procgen_rules": [
+        "BSP room partition or cellular-automata caves per floor",
+        "stairs-down chain of floors as separate scene files",
+        "spawn table weighted by floor depth"
+      ],
+      "ai_behavior": "deterministic turn scheduling, chase when line-of-sight",
+      "generator": "custom - BSP rooms via worldkit.box"
+    },
+    "roguelite": {
+      "camera": "isometric",
+      "combat": "real_time_combat",
+      "movement": "dash_based_movement",
+      "structure": "procedural_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "fast_paced",
+      "environment_types": [
+        "biome_rooms",
+        "elite_arenas"
+      ],
+      "procgen_rules": [
+        "room graph with meta-progression node between runs",
+        "elite arena every N rooms (bigger clear radius)"
+      ],
+      "ai_behavior": "pattern bullets/telegraphs, room-lock until clear",
+      "generator": "custom"
+    },
+    "metroidvania": {
+      "camera": "side_scrolling",
+      "combat": "combo_based_combat",
+      "movement": "platformer_movement",
+      "structure": "metroidvania_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "interconnected chambers",
+        "ability_gates"
+      ],
+      "procgen_rules": [
+        "lock-and-key ability graph before layout",
+        "place gates as tagged nodes, backfill shortcuts"
+      ],
+      "ai_behavior": "fixed patrol pockets, gate-aware pathing later",
+      "generator": "gen_platformer25d.py + gate nodes"
+    },
+    "immersive_sim": {
+      "camera": "first_person",
+      "combat": "tactical_combat",
+      "movement": "stealth_movement",
+      "structure": "zone_based_world",
+      "narrative": "branching_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "multi-route compounds",
+        "readable_desk_stories"
+      ],
+      "procgen_rules": [
+        "every obstacle needs 2+ solutions: front door, vent, high route",
+        "prop storytelling clusters per zone"
+      ],
+      "ai_behavior": "guard schedules, suspicion states",
+      "generator": "custom"
+    },
+    "cinematic_action": {
+      "camera": "cinematic_camera",
+      "combat": "real_time_combat",
+      "movement": "parkour_movement",
+      "structure": "linear_world",
+      "narrative": "cinematic_storytelling",
+      "pacing": "cinematic_pacing",
+      "environment_types": [
+        "setpiece_corridors",
+        "spectacle_vistas"
+      ],
+      "procgen_rules": [
+        "camera-target spline along path, arenas widen at beats",
+        "vista markers every 60 m"
+      ],
+      "ai_behavior": "scripted waves on triggers",
+      "generator": "custom"
+    },
+    "tactical_shooter": {
+      "camera": "over_the_shoulder",
+      "combat": "tactical_combat",
+      "movement": "free_roam_movement",
+      "structure": "mission_based_world",
+      "narrative": "branching_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "cover_fields",
+        "sightline_corridors"
+      ],
+      "procgen_rules": [
+        "grid cover placement with lane widths 2-4 m",
+        "symmetric spawn zones"
+      ],
+      "ai_behavior": "squad bounding overwatch",
+      "generator": "custom"
+    },
+    "extraction_shooter": {
+      "camera": "first_person",
+      "combat": "tactical_combat",
+      "movement": "free_roam_movement",
+      "structure": "zone_based_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "loot_zones",
+        "extraction_points",
+        "danger_gradient"
+      ],
+      "procgen_rules": [
+        "loot value rises toward center, extractions at edges",
+        "risk gradient via hazard density falloff"
+      ],
+      "ai_behavior": "loot-greed patrols, raid timer pressure",
+      "generator": "custom"
+    },
+    "hero_shooter": {
+      "camera": "first_person",
+      "combat": "real_time_combat",
+      "movement": "dash_based_movement",
+      "structure": "mission_based_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "symmetric_maps",
+        "choke_points"
+      ],
+      "procgen_rules": [
+        "mirror-symmetric layout, 3 lanes",
+        "health pack rhythm spacing"
+      ],
+      "ai_behavior": "role-based bots (tank flank support)",
+      "generator": "custom"
+    },
+    "looter_shooter": {
+      "camera": "first_person",
+      "combat": "cover_shooter_combat",
+      "movement": "vehicle_movement",
+      "structure": "open_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "fast_paced",
+      "environment_types": [
+        "outposts",
+        "loot_caches"
+      ],
+      "procgen_rules": [
+        "outpost grid with tiered loot tables by region color"
+      ],
+      "ai_behavior": "outpost alarm escalation",
+      "generator": "custom"
+    },
+    "monster_taming": {
+      "camera": "third_person",
+      "combat": "turn_based_combat",
+      "movement": "free_roam_movement",
+      "structure": "semi_open_world",
+      "narrative": "companion_driven_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "habitats_by_element",
+        "taming_glades"
+      ],
+      "procgen_rules": [
+        "habitat bands via fBm biome map, species per band",
+        "rarity tiers by distance from hub"
+      ],
+      "ai_behavior": "wild flee/aggress ranges by rarity",
+      "generator": "custom"
+    },
+    "deckbuilder": {
+      "camera": "top_down",
+      "combat": "auto_battler_combat",
+      "movement": "teleport_movement",
+      "structure": "branching_world",
+      "narrative": "visual_novel_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "node_maps",
+        "rest_shops"
+      ],
+      "procgen_rules": [
+        "Slay-the-Spire style branching node graph (3 paths, events at forks)"
+      ],
+      "ai_behavior": "intent display, deck-driven encounters",
+      "generator": "custom"
+    },
+    "walking_simulator": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "linear_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "story_scatter",
+        "landmark_silhouettes"
+      ],
+      "procgen_rules": [
+        "story prop clusters every 20-30 m along a calm spline path",
+        "landmarks visible on horizon for wayfinding"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "survival_crafting": {
+      "camera": "first_person",
+      "combat": "real_time_combat",
+      "movement": "free_roam_movement",
+      "structure": "open_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "survival_pacing",
+      "environment_types": [
+        "resource_biomes",
+        "shelter_sites"
+      ],
+      "procgen_rules": [
+        "resource density inversely tied to danger fBm layer",
+        "day-night cycle constants in state"
+      ],
+      "ai_behavior": "hunger/thirst decay curves, night threat ramp",
+      "generator": "custom"
+    },
+    "sandbox_builder": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "infinite_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "survival_pacing",
+      "environment_types": [
+        "voxel_terrain",
+        "player_edits"
+      ],
+      "procgen_rules": [
+        "chunked infinite terrain from seed (see live_landscape.py)",
+        "edit deltas stored separately from base seed world"
+      ],
+      "ai_behavior": "none",
+      "generator": "live_landscape.py pattern"
+    },
+    "city_builder": {
+      "camera": "isometric",
+      "combat": null,
+      "movement": "vehicle_movement",
+      "structure": "open_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "zoned_grids",
+        "road_networks"
+      ],
+      "procgen_rules": [
+        "L-system road growth from highway seeds",
+        "zone demand curves drive building spawns"
+      ],
+      "ai_behavior": "citizen agents path between zones",
+      "generator": "custom"
+    },
+    "life_sim": {
+      "camera": "isometric",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "hub_spoke_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "shops",
+        "homes",
+        "schedule_nodes"
+      ],
+      "procgen_rules": [
+        "NPC daily schedule graph over POI nodes"
+      ],
+      "ai_behavior": "schedule followers with interruption events",
+      "generator": "custom"
+    },
+    "farming_sim": {
+      "camera": "top_down",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "hub_spoke_world",
+      "narrative": "companion_driven_storytelling",
+      "pacing": "survival_pacing",
+      "environment_types": [
+        "field_plots",
+        "season_markers"
+      ],
+      "procgen_rules": [
+        "tick-based logistic crop growth, season calendar array"
+      ],
+      "ai_behavior": "shopkeeper schedules, weather events",
+      "generator": "custom"
+    },
+    "bullet_hell": {
+      "camera": "top_down",
+      "combat": "bullet_hell_combat",
+      "movement": "precision_action",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "empty_arenas",
+        "pattern_safe_zones"
+      ],
+      "procgen_rules": [
+        "arena minimalism, bullet pattern parameter sets per boss phase",
+        "hitbox smaller than sprite noted in state"
+      ],
+      "ai_behavior": "scripted pattern timelines",
+      "generator": "custom"
+    },
+    "precision_action": {
+      "camera": "side_scrolling",
+      "combat": "precision_parry_combat",
+      "movement": "parkour_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "trap_gauntlets",
+        "one_screen_arenas"
+      ],
+      "procgen_rules": [
+        "gauntlet rhythm spacing, checkpoint per screen"
+      ],
+      "ai_behavior": "frame-perfect telegraphs",
+      "generator": "gen_platformer25d.py tuned hard"
+    },
+    "character_action": {
+      "camera": "third_person",
+      "combat": "hack_and_slash_combat",
+      "movement": "parkour_movement",
+      "structure": "linear_world",
+      "narrative": "cinematic_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "combo_arenas",
+        "traversal_towers"
+      ],
+      "procgen_rules": [
+        "arena wave budgets scale with combo meter",
+        "traversal verticality every act"
+      ],
+      "ai_behavior": "crowd control dummies with launch states",
+      "generator": "custom"
+    },
+    "narrative_adventure": {
+      "camera": "fixed_camera",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "branching_world",
+      "narrative": "branching_storytelling",
+      "pacing": "cinematic_pacing",
+      "environment_types": [
+        "dialogue_scenes",
+        "choice_echo_props"
+      ],
+      "procgen_rules": [
+        "dialogue tree JSON beside scene, choice flags as tags"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "open_world_western": {
+      "camera": "third_person",
+      "combat": "cover_shooter_combat",
+      "movement": "vehicle_movement",
+      "structure": "open_world",
+      "narrative": "cinematic_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "frontier_towns",
+        "wilderness_trails"
+      ],
+      "procgen_rules": [
+        "town hubs on trail spline, encounter bands between",
+        "horse travel speed constants in state"
+      ],
+      "ai_behavior": "ambient camps, bounty patrols",
+      "generator": "custom"
+    },
+    "open_world_realistic": {
+      "camera": "third_person",
+      "combat": "real_time_combat",
+      "movement": "vehicle_movement",
+      "structure": "open_world",
+      "narrative": "cinematic_storytelling",
+      "pacing": "cinematic_pacing",
+      "environment_types": [
+        "district_grids",
+        "traffic_arrows"
+      ],
+      "procgen_rules": [
+        "district grid with landmark anchors every 200 m"
+      ],
+      "ai_behavior": "traffic loops, pedestrian flows",
+      "generator": "custom"
+    },
+    "open_world_survival": {
+      "camera": "first_person",
+      "combat": "real_time_combat",
+      "movement": "free_roam_movement",
+      "structure": "open_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "survival_pacing",
+      "environment_types": [
+        "biome_bands",
+        "raid_targets"
+      ],
+      "procgen_rules": [
+        "biome fBm + danger gradient radiating from safe spawn",
+        "boss biomes locked behind gear tiers"
+      ],
+      "ai_behavior": "creature food chains, night raids",
+      "generator": "custom"
+    },
+    "open_world_rpg": {
+      "camera": "third_person",
+      "combat": "real_time_combat",
+      "movement": "free_roam_movement",
+      "structure": "open_world",
+      "narrative": "branching_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "quest_hubs",
+        "point_of_interest_chains"
+      ],
+      "procgen_rules": [
+        "POI chains radiate from hubs (Elden-Ring-like spacing 80-150 m)",
+        "level-band rings around start"
+      ],
+      "ai_behavior": "regional elite guardians",
+      "generator": "custom"
+    },
+    "arcade_racing": {
+      "camera": "third_person",
+      "combat": null,
+      "movement": "vehicle_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "track_splines",
+        "boost_pads"
+      ],
+      "procgen_rules": [
+        "Catmull-Rom track spline, extrude road boxes along samples",
+        "banking angle from local curvature",
+        "checkpoints every 15 percent"
+      ],
+      "ai_behavior": "rubber-band ghost racers",
+      "generator": "custom"
+    },
+    "sim_racing": {
+      "camera": "cockpit_first_person",
+      "combat": null,
+      "movement": "vehicle_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "circuits",
+        "pit_lanes"
+      ],
+      "procgen_rules": [
+        "real curvature radii, kerb strips at corners"
+      ],
+      "ai_behavior": "racing-line followers",
+      "generator": "custom"
+    },
+    "kart_racer": {
+      "camera": "third_person",
+      "combat": null,
+      "movement": "vehicle_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "whimsical_tracks",
+        "item_boxes"
+      ],
+      "procgen_rules": [
+        "short loops 60-90 s, item box rows mid-track"
+      ],
+      "ai_behavior": "item usage heuristics",
+      "generator": "custom"
+    },
+    "fighting_versus": {
+      "camera": "side_scrolling",
+      "combat": "combo_based_combat",
+      "movement": "dash_based_movement",
+      "structure": "mission_based_world",
+      "narrative": "cinematic_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "flat_stages",
+        "stage_hazards"
+      ],
+      "procgen_rules": [
+        "flat floor, wall bounds exactly stage width",
+        "spawn points mirrored"
+      ],
+      "ai_behavior": "frame-data move selection",
+      "generator": "custom"
+    },
+    "beat_em_up": {
+      "camera": "side_scrolling",
+      "combat": "hack_and_slash_combat",
+      "movement": "free_roam_movement",
+      "structure": "linear_world",
+      "narrative": "cinematic_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "city_streets",
+        "arena_breaks"
+      ],
+      "procgen_rules": [
+        "walk-in arena locks every 40 m, prop weapons on ground"
+      ],
+      "ai_behavior": "crowd surround tactics",
+      "generator": "custom"
+    },
+    "shmup_vertical": {
+      "camera": "top_down",
+      "combat": "bullet_hell_combat",
+      "movement": "flight_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "scrolling_corridors",
+        "boss_walls"
+      ],
+      "procgen_rules": [
+        "scroll speed constant, wave spawn timeline per 1000 m"
+      ],
+      "ai_behavior": "scripted formation timelines",
+      "generator": "custom"
+    },
+    "sports_football": {
+      "camera": "isometric",
+      "combat": null,
+      "movement": "vehicle_movement",
+      "structure": "mission_based_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "pitches",
+        "stadium_bowls"
+      ],
+      "procgen_rules": [
+        "regulation pitch proportions, goal mouths both ends"
+      ],
+      "ai_behavior": "formation positioning plus ball chase",
+      "generator": "custom"
+    },
+    "sports_golf": {
+      "camera": "over_the_shoulder",
+      "combat": null,
+      "movement": "teleport_movement",
+      "structure": "zone_based_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "fairways",
+        "hazards"
+      ],
+      "procgen_rules": [
+        "hole par from spline length, hazard bands beside fairways"
+      ],
+      "ai_behavior": "none - wind is the opponent",
+      "generator": "custom"
+    },
+    "sports_basketball": {
+      "camera": "side_scrolling",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "mission_based_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "courts"
+      ],
+      "procgen_rules": [
+        "hoop heights 3.05 m scale, court marking bands"
+      ],
+      "ai_behavior": "defense marking",
+      "generator": "custom"
+    },
+    "sports_tennis": {
+      "camera": "fixed_camera",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "mission_based_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "fast_paced",
+      "environment_types": [
+        "courts"
+      ],
+      "procgen_rules": [
+        "regulation court dimensions, net center strip"
+      ],
+      "ai_behavior": "anticipation returner",
+      "generator": "custom"
+    },
+    "rhythm_music": {
+      "camera": "side_scrolling",
+      "combat": "rhythm_combat",
+      "movement": "platformer_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "beat_lanes",
+        "note_highways"
+      ],
+      "procgen_rules": [
+        "note charts quantized to BPM grid, lane count 4-6"
+      ],
+      "ai_behavior": "none - timing is the enemy",
+      "generator": "custom"
+    },
+    "dance_game": {
+      "camera": "fixed_camera",
+      "combat": "rhythm_combat",
+      "movement": "stealth_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "dance_floors"
+      ],
+      "procgen_rules": [
+        "arrow lanes scroll at BPM-scaled speed"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "match3_puzzle": {
+      "camera": "top_down",
+      "combat": null,
+      "movement": "teleport_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "gem_grids"
+      ],
+      "procgen_rules": [
+        "8x8 grid, no pre-matches via rejection sampling",
+        "cascade gravity refill"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "physics_puzzle": {
+      "camera": "side_scrolling",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "mission_based_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "contraption_bays",
+        "target_zones"
+      ],
+      "procgen_rules": [
+        "rigid bodies and joints, solution verified by simulation"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "spatial_portal_puzzle": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "teleport_movement",
+      "structure": "linear_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "test_chambers",
+        "momentum_flings"
+      ],
+      "procgen_rules": [
+        "chamber teaches one verb, exit visible from entry",
+        "portalable surface tagging"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "word_puzzle": {
+      "camera": "top_down",
+      "combat": null,
+      "movement": "teleport_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "letter_grids"
+      ],
+      "procgen_rules": [
+        "dictionary-constrained generation, solvable by construction"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "idle_incremental": {
+      "camera": "top_down",
+      "combat": "auto_battler_combat",
+      "movement": "teleport_movement",
+      "structure": "branching_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "number_panels",
+        "upgrade_trees"
+      ],
+      "procgen_rules": [
+        "exponential cost curves c(n)=c0*r^n",
+        "offline progress math"
+      ],
+      "ai_behavior": "automation is the gameplay",
+      "generator": "custom"
+    },
+    "tycoon_management": {
+      "camera": "isometric",
+      "combat": null,
+      "movement": "vehicle_movement",
+      "structure": "open_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "facility_plots",
+        "guest_paths"
+      ],
+      "procgen_rules": [
+        "economy curves per facility, queue and path flow analysis"
+      ],
+      "ai_behavior": "guest satisfaction agents",
+      "generator": "custom"
+    },
+    "rts_strategy": {
+      "camera": "isometric",
+      "combat": "real_time_combat",
+      "movement": "free_roam_movement",
+      "structure": "mission_based_world",
+      "narrative": "branching_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "resource_fields",
+        "choke_maps"
+      ],
+      "procgen_rules": [
+        "symmetric resource placement, pathability mask",
+        "fog of war grid"
+      ],
+      "ai_behavior": "build order scripts plus army compositions",
+      "generator": "custom"
+    },
+    "moba_arena": {
+      "camera": "isometric",
+      "combat": "real_time_combat",
+      "movement": "free_roam_movement",
+      "structure": "mission_based_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "three_lane_maps",
+        "jungle_camps"
+      ],
+      "procgen_rules": [
+        "mirror-symmetric lanes, tower ring spacing",
+        "jungle camp respawn timers"
+      ],
+      "ai_behavior": "lane assignment, gank timers",
+      "generator": "custom"
+    },
+    "tower_defense": {
+      "camera": "isometric",
+      "combat": null,
+      "movement": "vehicle_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "maze_grounds",
+        "wave_roads"
+      ],
+      "procgen_rules": [
+        "BFS flow field from exit, wave budget w(n)=w0*1.15^n"
+      ],
+      "ai_behavior": "pathfind along flow field",
+      "generator": "custom"
+    },
+    "dungeon_crawler": {
+      "camera": "top_down",
+      "combat": "real_time_combat",
+      "movement": "free_roam_movement",
+      "structure": "procedural_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "fast_paced",
+      "environment_types": [
+        "monster_zoos",
+        "treasure_vaults"
+      ],
+      "procgen_rules": [
+        "open zoos, food and torch pressure systems"
+      ],
+      "ai_behavior": "horde swarming",
+      "generator": "custom"
+    },
+    "endless_runner": {
+      "camera": "over_the_shoulder",
+      "combat": null,
+      "movement": "parkour_movement",
+      "structure": "infinite_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "lane_tracks",
+        "obstacle_rhythms"
+      ],
+      "procgen_rules": [
+        "chunked pattern library, difficulty ramp d(t)=sqrt(t)",
+        "pattern feasibility at current speed"
+      ],
+      "ai_behavior": "none",
+      "generator": "gen_platformer25d.py infinite variant"
+    },
+    "auto_runner": {
+      "camera": "side_scrolling",
+      "combat": null,
+      "movement": "platformer_movement",
+      "structure": "infinite_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "tap_obstacles"
+      ],
+      "procgen_rules": [
+        "one-touch verbs, spacing above reaction distance"
+      ],
+      "ai_behavior": "none",
+      "generator": "gen_platformer25d.py tuned"
+    },
+    "text_adventure": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "teleport_movement",
+      "structure": "branching_world",
+      "narrative": "branching_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "room_graphs",
+        "item_locks"
+      ],
+      "procgen_rules": [
+        "world as room graph JSON, parser verb vocabulary table"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "visual_novel": {
+      "camera": "fixed_camera",
+      "combat": null,
+      "movement": "teleport_movement",
+      "structure": "branching_world",
+      "narrative": "visual_novel_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "backdrops",
+        "character_sprites"
+      ],
+      "procgen_rules": [
+        "script JSON with flag-gated branches, emotion tags"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "point_and_click": {
+      "camera": "fixed_camera",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "hub_spoke_world",
+      "narrative": "branching_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "hotspot_screens",
+        "inventory_chains"
+      ],
+      "procgen_rules": [
+        "hotspot lists per screen, acyclic puzzle dependency graph"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "stealth_pure": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "stealth_movement",
+      "structure": "zone_based_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "light_shadow_fields",
+        "patrol_routes"
+      ],
+      "procgen_rules": [
+        "light budget per zone, guard route graph loops",
+        "shadow coverage guarantees one safe path"
+      ],
+      "ai_behavior": "vision cones plus hearing radii",
+      "generator": "custom"
+    },
+    "survival_horror": {
+      "camera": "fixed_camera",
+      "combat": "real_time_combat",
+      "movement": "tank_controls",
+      "structure": "hub_spoke_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "survival_pacing",
+      "environment_types": [
+        "mansion_rooms",
+        "scarce_ammo_stashes"
+      ],
+      "procgen_rules": [
+        "resource starvation tables, safe room every 4 rooms"
+      ],
+      "ai_behavior": "stalker entity with global pursuit",
+      "generator": "custom"
+    },
+    "psychological_horror": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "linear_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "uncanny_spaces",
+        "reality_glitches"
+      ],
+      "procgen_rules": [
+        "teach space then betray space layout beats",
+        "audio trigger map"
+      ],
+      "ai_behavior": "unseen presence events",
+      "generator": "custom"
+    },
+    "party_minigames": {
+      "camera": "isometric",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "hub_spoke_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "board_map",
+        "minigame_arenas"
+      ],
+      "procgen_rules": [
+        "board loop 20-30 turns, minigame bank 8+ varied verbs"
+      ],
+      "ai_behavior": "casual bot variance",
+      "generator": "gen_tabletop.py base plus arenas"
+    },
+    "trivia_quiz": {
+      "camera": "top_down",
+      "combat": null,
+      "movement": "teleport_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "question_panels"
+      ],
+      "procgen_rules": [
+        "question bank JSON with difficulty tiers"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "educational_serious": {
+      "camera": "top_down",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "mission_based_world",
+      "narrative": "companion_driven_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "learning_stations"
+      ],
+      "procgen_rules": [
+        "curriculum mapped to stations, assessment gates"
+      ],
+      "ai_behavior": "tutor hints",
+      "generator": "custom"
+    },
+    "god_game": {
+      "camera": "isometric",
+      "combat": "real_time_combat",
+      "movement": "teleport_movement",
+      "structure": "open_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "settlements",
+        "divine_powers"
+      ],
+      "procgen_rules": [
+        "belief economy curves, disaster event scheduler"
+      ],
+      "ai_behavior": "villager belief propagation",
+      "generator": "custom"
+    },
+    "colony_sim": {
+      "camera": "isometric",
+      "combat": "real_time_combat",
+      "movement": "free_roam_movement",
+      "structure": "open_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "survival_pacing",
+      "environment_types": [
+        "colony_plots",
+        "raid_sources"
+      ],
+      "procgen_rules": [
+        "job priority graph, mood modifier stacks",
+        "raid size scales with colony wealth"
+      ],
+      "ai_behavior": "needs-driven colonists",
+      "generator": "custom"
+    },
+    "vehicle_combat": {
+      "camera": "third_person",
+      "combat": "real_time_combat",
+      "movement": "vehicle_movement",
+      "structure": "linear_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "deathmatch_bowls",
+        "weapon_pickups"
+      ],
+      "procgen_rules": [
+        "bowl arenas with ramps, pickup respawn rings"
+      ],
+      "ai_behavior": "circle-strafe duels",
+      "generator": "custom"
+    },
+    "flight_sim_aviation": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "flight_movement",
+      "structure": "open_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "slow_paced",
+      "environment_types": [
+        "airports",
+        "waypoint_courses"
+      ],
+      "procgen_rules": [
+        "large far-plane terrain, waypoint beacon chains"
+      ],
+      "ai_behavior": "ATC instruction sequences",
+      "generator": "custom"
+    },
+    "naval_pirate": {
+      "camera": "third_person",
+      "combat": "real_time_combat",
+      "movement": "vehicle_movement",
+      "structure": "semi_open_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "island_chains",
+        "ship_combats"
+      ],
+      "procgen_rules": [
+        "island scatter Poisson-disc, wind direction system",
+        "treasure map markers"
+      ],
+      "ai_behavior": "ship patrol lanes, broadside AI",
+      "generator": "custom"
+    },
+    "jrpg_turn_based": {
+      "camera": "third_person",
+      "combat": "turn_based_combat",
+      "movement": "free_roam_movement",
+      "structure": "semi_open_world",
+      "narrative": "cinematic_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "overworld_routes",
+        "dungeon_puzzles",
+        "boss_rooms"
+      ],
+      "procgen_rules": [
+        "encounter zones on overworld, key-item gating in dungeons",
+        "initiative or ATB battle layout"
+      ],
+      "ai_behavior": "enemy party targets weaknesses",
+      "generator": "custom"
+    },
+    "grid_tactics": {
+      "camera": "isometric",
+      "combat": "turn_based_combat",
+      "movement": "free_roam_movement",
+      "structure": "mission_based_world",
+      "narrative": "branching_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "tile_maps",
+        "cover_tiles"
+      ],
+      "procgen_rules": [
+        "square or hex grid, unit stat sheets JSON, fog per team",
+        "flanking bonus geometry"
+      ],
+      "ai_behavior": "utility-scored action selection",
+      "generator": "gen_tabletop.py tiles scaled"
+    },
+    "auto_battler": {
+      "camera": "isometric",
+      "combat": "auto_battler_combat",
+      "movement": "teleport_movement",
+      "structure": "branching_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "strategic_pacing",
+      "environment_types": [
+        "shop_panels",
+        "combat_boards"
+      ],
+      "procgen_rules": [
+        "shared unit pool with tier odds, gold interest curve"
+      ],
+      "ai_behavior": "combat resolves itself, players manage economy",
+      "generator": "custom"
+    },
+    "battle_royale": {
+      "camera": "third_person",
+      "combat": "cover_shooter_combat",
+      "movement": "parkour_movement",
+      "structure": "open_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "poi_towns",
+        "shrinking_zone"
+      ],
+      "procgen_rules": [
+        "POI scatter with loot tiers, storm circle timeline",
+        "drop-flight start positions"
+      ],
+      "ai_behavior": "loot-then-fight state machine",
+      "generator": "custom"
+    },
+    "physics_sandbox": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "open_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "survival_pacing",
+      "environment_types": [
+        "construct_plates",
+        "prop_shelves"
+      ],
+      "procgen_rules": [
+        "joint and weld catalog, spawnable prop registry JSON"
+      ],
+      "ai_behavior": "none",
+      "generator": "custom"
+    },
+    "collectathon_3d": {
+      "camera": "third_person",
+      "combat": null,
+      "movement": "platformer_movement",
+      "structure": "hub_spoke_world",
+      "narrative": "silent_protagonist_storytelling",
+      "pacing": "arcade_pacing",
+      "environment_types": [
+        "themed_levels",
+        "collectible_currency"
+      ],
+      "procgen_rules": [
+        "hub portals to N themed levels, collectible counts tracked"
+      ],
+      "ai_behavior": "friendly NPCs hinting",
+      "generator": "custom"
+    },
+    "base_defense_build": {
+      "camera": "third_person",
+      "combat": "real_time_combat",
+      "movement": "free_roam_movement",
+      "structure": "linear_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "survival_pacing",
+      "environment_types": [
+        "build_zones",
+        "attack_lanes"
+      ],
+      "procgen_rules": [
+        "day build night defend cycle, wave scaling curve"
+      ],
+      "ai_behavior": "pathfind to core, attack structures",
+      "generator": "custom"
+    },
+    "coop_heist": {
+      "camera": "first_person",
+      "combat": "tactical_combat",
+      "movement": "stealth_movement",
+      "structure": "mission_based_world",
+      "narrative": "cinematic_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "vault_compounds",
+        "escape_routes"
+      ],
+      "procgen_rules": [
+        "multi-role objective graph, loud phase trigger points"
+      ],
+      "ai_behavior": "coordinated guard response waves",
+      "generator": "custom"
+    },
+    "asymmetric_horror": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "linear_world",
+      "narrative": "emergent_storytelling",
+      "pacing": "high_intensity",
+      "environment_types": [
+        "objective_sites",
+        "role_spawns"
+      ],
+      "procgen_rules": [
+        "objective scatter with spacing guarantees, two-role spawn separation"
+      ],
+      "ai_behavior": "predator vs prey role AI sets",
+      "generator": "custom"
+    },
+    "detective_mystery": {
+      "camera": "first_person",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "zone_based_world",
+      "narrative": "branching_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "crime_scenes",
+        "deduction_boards"
+      ],
+      "procgen_rules": [
+        "clue dependency DAG, red herring budget 2 per case"
+      ],
+      "ai_behavior": "suspect schedule alibis",
+      "generator": "custom"
+    },
+    "time_manipulation": {
+      "camera": "third_person",
+      "combat": null,
+      "movement": "free_roam_movement",
+      "structure": "linear_world",
+      "narrative": "environmental_storytelling",
+      "pacing": "methodical_paced",
+      "environment_types": [
+        "time_ghosts",
+        "paradox_gates"
+      ],
+      "procgen_rules": [
+        "record and replay buffers, paradox rules stated in state"
+      ],
+      "ai_behavior": "recorded echoes act as entities",
+      "generator": "custom"
+    }
+  }
+}

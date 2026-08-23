@@ -60,7 +60,21 @@ read assets/asset_index.json
 
 Read `Project/README.md`, copy the `example-village/` structure, keep everything
 inside that one folder (its own `assets/asset_index.json`, `ATTRIBUTION.md`,
-`NOTES.md`). Generator: `template/tools/procedural_assets.py`.
+`NOTES.md`).
+
+**Genre generators - run, do not rewrite:** `template/tools/worldgen/` ships
+gen_soulslike.py, gen_space.py, gen_tabletop.py, gen_platformer25d.py,
+live_landscape.py, plus gen_custom.py as the scaffold for anything else.
+Identity lookups: design_types.json + design_rules.json there; themes:
+themes.json; the math per genre: `template/docs/genre_algorithms.md`.
+
+**ZIP-copy trap:** working in an extracted download (path contains
+litt-engine-main, no .git folder)? Stop - nothing built there can be pushed.
+Ask the human for the canonical working copy and move there first.
+
+**Large-file writes through run_code:** prefer running shipped tools over
+authoring new scripts. If you must author one, write it as many small edits or
+line-array joins - never one giant raw string (escaping will break you).
 
 ## Rules that apply everywhere
 

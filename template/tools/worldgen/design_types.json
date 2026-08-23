@@ -1,0 +1,51 @@
+{
+  "game_design_types": {
+    "camera_styles": [
+      "first_person", "third_person", "isometric", "top_down", "side_scrolling",
+      "fixed_camera", "over_the_shoulder", "cinematic_camera", "vr_camera", "ar_camera"
+    ],
+    "combat_styles": [
+      "soulslike_combat", "hack_and_slash_combat", "turn_based_combat", "real_time_combat",
+      "tactical_combat", "cover_shooter_combat", "bullet_hell_combat", "precision_parry_combat",
+      "combo_based_combat", "auto_battler_combat", "rhythm_combat"
+    ],
+    "movement_styles": [
+      "parkour_movement", "platformer_movement", "tank_controls", "free_roam_movement",
+      "flight_movement", "vehicle_movement", "stealth_movement", "dash_based_movement",
+      "teleport_movement", "soulslike_stamina_movement"
+    ],
+    "interaction_models": [
+      "immersive_sim", "sandbox_interaction", "scripted_interaction", "physics_driven_interaction",
+      "automation_interaction", "choice_driven_interaction", "dialogue_tree_interaction",
+      "quick_time_event_interaction", "inventory_based_interaction"
+    ],
+    "world_structure": [
+      "open_world", "semi_open_world", "hub_spoke_world", "linear_world", "branching_world",
+      "metroidvania_world", "procedural_world", "infinite_world", "zone_based_world", "mission_based_world"
+    ],
+    "narrative_styles": [
+      "cinematic_storytelling", "environmental_storytelling", "branching_storytelling",
+      "emergent_storytelling", "visual_novel_storytelling", "silent_protagonist_storytelling",
+      "companion_driven_storytelling"
+    ],
+    "game_identity_archetypes": [
+      "soulslike", "roguelike", "roguelite", "metroidvania", "immersive_sim", "cinematic_action",
+      "tactical_shooter", "extraction_shooter", "hero_shooter", "looter_shooter", "monster_taming",
+      "deckbuilder", "walking_simulator", "survival_crafting", "sandbox_builder", "city_builder",
+      "life_sim", "farming_sim", "bullet_hell", "soulslite", "precision_action", "character_action",
+      "narrative_adventure", "open_world_western", "open_world_realistic", "open_world_survival",
+      "open_world_rpg"
+    ],
+    "tone_and_pacing": [
+      "slow_paced", "methodical_paced", "fast_paced", "high_intensity", "cinematic_pacing",
+      "arcade_pacing", "strategic_pacing", "survival_pacing"
+    ],
+    "special_design_signatures": [
+      "transistor_like", "bastion_like", "hades_like", "soulslike", "bloodborne_like",
+      "elden_ring_like", "red_dead_like", "gta_like", "minecraft_like", "zelda_like",
+      "metroid_like", "castlevania_like", "doom_like", "half_life_like", "portal_like",
+      "monster_hunter_like", "pokemon_like", "escape_from_tarkov_like", "valorant_like",
+      "overwatch_like", "darkest_dungeon_like", "slay_the_spire_like"
+    ]
+  }
+}

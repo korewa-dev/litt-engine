@@ -48,8 +48,16 @@ def main():
     ap.add_argument("--port", type=int, default=8088)
     ap.add_argument("--bind", default="127.0.0.1")
     a = ap.parse_args()
-    srv = http.server.ThreadingHTTPServer((a.bind, a.port), ReadOnlyHandler)
+    try:
+        srv = http.server.ThreadingHTTPServer((a.bind, a.port), ReadOnlyHandler)
+    except OSError as e:
+        raise SystemExit(
+            "PORT %d BUSY (%s). Another serve_live may already run - possibly\n"
+            "from a DIFFERENT checkout (e.g. a Downloads zip copy). Find it:\n"
+            "  Get-CimInstance Win32_Process -Filter \"Name='python.exe'\" | Select ProcessId, CommandLine\n"
+            "then stop it before starting here." % (a.port, e))
     print("LITT LIVE - read-only observer server")
+    print("  serving directory: %s" % LIVE_DIR)
     print("  local:   http://127.0.0.1:%d/viewer/" % a.port)
     if a.bind == "0.0.0.0":
         print("  network: http://<this-pc>:%d/viewer/   (share at your own risk)" % a.port)

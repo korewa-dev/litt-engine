@@ -1,17 +1,95 @@
-newmtl grass_a
+newmtl ash_drift
 Ka 1.000 1.000 1.000
-Kd 0.435 0.627 0.329
+Kd 0.500 0.510 0.470
 Ks 0.050 0.050 0.050
 Ns 8.0
 
-newmtl grass_b
+newmtl ash_field
 Ka 1.000 1.000 1.000
-Kd 0.525 0.725 0.420
+Kd 0.420 0.430 0.400
 Ks 0.050 0.050 0.050
 Ns 8.0
 
-newmtl dirt
+newmtl ash_mound
 Ka 1.000 1.000 1.000
-Kd 0.541 0.435 0.278
+Kd 0.480 0.460 0.420
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl bloodstain_green
+Ka 1.000 1.000 1.000
+Kd 0.350 0.700 0.400
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl bonfire_steel
+Ka 1.000 1.000 1.000
+Kd 0.250 0.260 0.280
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl deadwood
+Ka 1.000 1.000 1.000
+Kd 0.280 0.230 0.190
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl ember
+Ka 1.000 1.000 1.000
+Kd 0.950 0.450 0.100
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl fog_veil
+Ka 1.000 1.000 1.000
+Kd 0.880 0.900 0.920
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl grave_stone
+Ka 1.000 1.000 1.000
+Kd 0.470 0.480 0.500
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl hollow_rag
+Ka 1.000 1.000 1.000
+Kd 0.330 0.300 0.260
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl hollow_skin
+Ka 1.000 1.000 1.000
+Kd 0.550 0.530 0.470
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl knight_cape
+Ka 1.000 1.000 1.000
+Kd 0.300 0.100 0.100
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl knight_steel
+Ka 1.000 1.000 1.000
+Kd 0.360 0.380 0.420
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl ruin_stone
+Ka 1.000 1.000 1.000
+Kd 0.440 0.450 0.460
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl scorched
+Ka 1.000 1.000 1.000
+Kd 0.300 0.270 0.240
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl soul_blue
+Ka 1.000 1.000 1.000
+Kd 0.450 0.750 0.950
 Ks 0.050 0.050 0.050
 Ns 8.0

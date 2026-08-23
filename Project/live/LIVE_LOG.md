@@ -40,3 +40,12 @@
   demo houses, example-village) from all commits; repo shipped zero .obj files.
 - fix: removed blanket *.obj (Rust build junk lives in /target/), unignored
   template/agent/actions.log, committed all mesh assets. State<->disk now consistent.
+---
+
+## 2026-08-23 20:11 - ACTION by ox-alpha (AI)
+- prompt: Create a Dark Souls-like game in low settings mode
+- action: EMBERFALL HOLLOW soulslike world -> radius 2 (terrain seed 666, scatter seed 2077)
+- re-themed 25 terrain chunks to ash palette
+- props built: bonfire, hollow, dead_tree, gravestone, arch, broken_pillar, fog_gate, boss_knight, soul_ember, bloodstain
+- scene nodes: 66 (bonfire, 3 hollows, fog gate, boss arena, embers, graves)
+- gameplay spec written into world_state.json

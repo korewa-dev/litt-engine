@@ -2,17 +2,21 @@
   "format": "litt-live-state",
   "version": 1,
   "mode": "ai-exclusive",
-  "updated": "2026-08-23T01:46:57",
-  "seed": 1337,
+  "theme": "emberfall-hollow",
+  "updated": "2026-08-23T20:11:28",
+  "seed": {
+    "terrain": 666,
+    "scatter": 2077
+  },
   "chunk_size": 16.0,
   "radius": 2,
   "camera": {
     "target": [
       0,
-      0,
-      0
+      1,
+      2
     ],
-    "distance": 46
+    "distance": 20
   },
   "chunks": [
     {
@@ -242,20 +246,114 @@
     }
   ],
   "palette": {
-    "grass_a": [
-      0.435,
-      0.627,
-      0.329
+    "ash_field": [
+      0.42,
+      0.43,
+      0.4
     ],
-    "grass_b": [
-      0.525,
-      0.725,
+    "ash_drift": [
+      0.5,
+      0.51,
+      0.47
+    ],
+    "scorched": [
+      0.3,
+      0.27,
+      0.24
+    ],
+    "bonfire_steel": [
+      0.25,
+      0.26,
+      0.28
+    ],
+    "ember": [
+      0.95,
+      0.45,
+      0.1
+    ],
+    "ash_mound": [
+      0.48,
+      0.46,
       0.42
     ],
-    "dirt": [
-      0.541,
-      0.435,
-      0.278
+    "hollow_skin": [
+      0.55,
+      0.53,
+      0.47
+    ],
+    "hollow_rag": [
+      0.33,
+      0.3,
+      0.26
+    ],
+    "deadwood": [
+      0.28,
+      0.23,
+      0.19
+    ],
+    "grave_stone": [
+      0.47,
+      0.48,
+      0.5
+    ],
+    "ruin_stone": [
+      0.44,
+      0.45,
+      0.46
+    ],
+    "fog_veil": [
+      0.88,
+      0.9,
+      0.92
+    ],
+    "knight_steel": [
+      0.36,
+      0.38,
+      0.42
+    ],
+    "knight_cape": [
+      0.3,
+      0.1,
+      0.1
+    ],
+    "soul_blue": [
+      0.45,
+      0.75,
+      0.95
+    ],
+    "bloodstain_green": [
+      0.35,
+      0.7,
+      0.4
     ]
+  },
+  "gameplay": {
+    "genre": "soulslike",
+    "checkpoint": {
+      "node": "Bonfire",
+      "respawn_on_death": true
+    },
+    "souls": {
+      "pickups": 7,
+      "corpse_run": "return to Bloodstain node to recover"
+    },
+    "combat": {
+      "stamina_max": 100,
+      "roll_cost": 25,
+      "attack_cost": 20,
+      "regen_per_sec": 35
+    },
+    "enemies": {
+      "hollow_aggro_radius_m": 6,
+      "boss": "Ashen Knight"
+    },
+    "fog_gate": {
+      "position": [
+        0,
+        1.55,
+        46
+      ],
+      "opens_on": "approach"
+    }
   }
 }

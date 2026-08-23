@@ -1,0 +1,999 @@
+{
+  "_readme": "Theme library: palettes + primitive-based prop recipes + environment notes. Use worldkit.load_theme(name) to fetch; compose props per recipes with MeshBuilder.",
+  "themes": {
+    "dark_fantasy": {
+      "palette": {
+        "stone": [
+          0.3,
+          0.31,
+          0.34
+        ],
+        "iron": [
+          0.2,
+          0.21,
+          0.23
+        ],
+        "blood": [
+          0.45,
+          0.1,
+          0.1
+        ],
+        "moss": [
+          0.18,
+          0.28,
+          0.18
+        ],
+        "fog_grey": [
+          0.55,
+          0.57,
+          0.6
+        ],
+        "ember_orange": [
+          0.9,
+          0.4,
+          0.1
+        ]
+      },
+      "props": [
+        "broken_pillar: cylinder seg 9 varied heights",
+        "gargoyle_post: box post + small pyramid head",
+        "iron_fence_seg: thin boxes with spike cones",
+        "coffin_lid: hex_tile scaled flat",
+        "brazier: cone bowl + ember octahedron"
+      ],
+      "env_notes": [
+        "overcast fog, low saturation",
+        "gravestones tilted via random yaw only"
+      ]
+    },
+    "high_fantasy": {
+      "palette": {
+        "gold_trim": [
+          0.85,
+          0.68,
+          0.25
+        ],
+        "royal_blue": [
+          0.15,
+          0.3,
+          0.65
+        ],
+        "white_stone": [
+          0.82,
+          0.8,
+          0.74
+        ],
+        "arcane_violet": [
+          0.45,
+          0.25,
+          0.7
+        ],
+        "grass_green": [
+          0.35,
+          0.58,
+          0.32
+        ]
+      },
+      "props": [
+        "wizard_tower: stacked cylinders + roof_prism cap",
+        "banner_pole: pole cyl + flag prism",
+        "arcane_crystal: octahedron scaled tall",
+        "fountain_basin: disc + center cyl"
+      ],
+      "env_notes": [
+        "bright clean colors, gold accents on landmarks"
+      ]
+    },
+    "medieval_realism": {
+      "palette": {
+        "timber": [
+          0.36,
+          0.26,
+          0.17
+        ],
+        "plaster": [
+          0.78,
+          0.74,
+          0.66
+        ],
+        "thatch": [
+          0.62,
+          0.52,
+          0.28
+        ],
+        "dirt_road": [
+          0.42,
+          0.35,
+          0.27
+        ],
+        "iron_banded": [
+          0.28,
+          0.29,
+          0.3
+        ]
+      },
+      "props": [
+        "half_timber_house: box + prism roof + beam boxes",
+        "well: cyl base + prism roof on posts",
+        "cart: box bed + 2 disc wheels",
+        "market_stall: posts + slanted box awning"
+      ],
+      "env_notes": [
+        "mud roads between buildings, smoke wisps optional"
+      ]
+    },
+    "cyberpunk_neon": {
+      "palette": {
+        "neon_pink": [
+          1,
+          0.1,
+          0.55
+        ],
+        "neon_cyan": [
+          0.1,
+          0.95,
+          0.95
+        ],
+        "wet_asphalt": [
+          0.08,
+          0.09,
+          0.12
+        ],
+        "dark_glass": [
+          0.12,
+          0.16,
+          0.22
+        ],
+        "holo_yellow": [
+          0.95,
+          0.9,
+          0.2
+        ]
+      },
+      "props": [
+        "mega_tower: tall box stack with dark_glass bands",
+        "neon_sign: thin box in neon color on wall",
+        "holo_billboard: thin vertical slab holo_yellow",
+        "cable_bundle: thin cylinders between towers"
+      ],
+      "env_notes": [
+        "night, emissive neon against near-black"
+      ]
+    },
+    "retro_scifi": {
+      "palette": {
+        "hull_cream": [
+          0.85,
+          0.82,
+          0.7
+        ],
+        "hazard_red": [
+          0.75,
+          0.15,
+          0.12
+        ],
+        "panel_grey": [
+          0.45,
+          0.47,
+          0.5
+        ],
+        "tube_teal": [
+          0.2,
+          0.65,
+          0.6
+        ],
+        "rivet_dark": [
+          0.25,
+          0.26,
+          0.28
+        ]
+      },
+      "props": [
+        "dome_habitat: half sphere approximated by short wide cylinder + cone cap",
+        "antenna_array: mast + cross boxes",
+        "cargo_crate: banded box",
+        "airlock_ring: thin cyl ring"
+      ],
+      "env_notes": [
+        "1950s pulp proportions, chunky rivets"
+      ]
+    },
+    "space_station_core": {
+      "palette": {
+        "hull_white": [
+          0.88,
+          0.89,
+          0.9
+        ],
+        "hull_frame": [
+          0.3,
+          0.33,
+          0.38
+        ],
+        "warning_stripe": [
+          0.9,
+          0.65,
+          0.1
+        ],
+        "window_blue": [
+          0.4,
+          0.65,
+          0.9
+        ],
+        "machinery": [
+          0.35,
+          0.36,
+          0.38
+        ]
+      },
+      "props": [
+        "station_module: cyl core + 4 radial boxes",
+        "solar_wing: large thin blue-dark slab on mast",
+        "docking_ring: thin wide cyl",
+        "comms_dish: shallow cone inverted"
+      ],
+      "env_notes": [
+        "clean functional corridors of light"
+      ]
+    },
+    "post_apocalypse": {
+      "palette": {
+        "rust_orange": [
+          0.55,
+          0.3,
+          0.16
+        ],
+        "dust_tan": [
+          0.62,
+          0.55,
+          0.42
+        ],
+        "dead_metal": [
+          0.33,
+          0.33,
+          0.32
+        ],
+        "toxic_green": [
+          0.35,
+          0.5,
+          0.2
+        ],
+        "charred": [
+          0.15,
+          0.14,
+          0.13
+        ]
+      },
+      "props": [
+        "wrecked_car: body box + cabin box + disc wheels",
+        "barrel_fire: cyl drum + ember octahedron",
+        "shack: leaning box + scrap prism roof",
+        "watch_tower_scrap: legs + platform box"
+      ],
+      "env_notes": [
+        "everything slightly asymmetric and scorched"
+      ]
+    },
+    "steampunk_brass": {
+      "palette": {
+        "brass": [
+          0.72,
+          0.55,
+          0.25
+        ],
+        "copper_patina": [
+          0.3,
+          0.52,
+          0.48
+        ],
+        "dark_wood": [
+          0.28,
+          0.2,
+          0.14
+        ],
+        "steam_white": [
+          0.85,
+          0.86,
+          0.88
+        ],
+        "leather_brown": [
+          0.4,
+          0.26,
+          0.16
+        ]
+      },
+      "props": [
+        "boiler_tank: horizontal cyl + rivet band boxes",
+        "gear_stack: two large hex_tiles crossed",
+        "pressure_pipe: thin cyl runs with joint spheres as octahedra",
+        "airship_gondola: elongated box + envelope ellipsoid approximated by wide cyl"
+      ],
+      "env_notes": [
+        "brass everything, visible pipes and gauges"
+      ]
+    },
+    "wild_west_frontier": {
+      "palette": {
+        "sunbleached_wood": [
+          0.6,
+          0.48,
+          0.32
+        ],
+        "adobe": [
+          0.76,
+          0.63,
+          0.46
+        ],
+        "sheriff_star_gold": [
+          0.85,
+          0.68,
+          0.2
+        ],
+        "cactus_green": [
+          0.3,
+          0.48,
+          0.26
+        ],
+        "dust": [
+          0.7,
+          0.62,
+          0.48
+        ]
+      },
+      "props": [
+        "saloon_front: flat facade box + prism false front",
+        "water_tower: legs + tank cyl",
+        "tumbleweed_placeholder: wireframe-ish octahedron sparse",
+        "rail_fence: repeated post+slat boxes"
+      ],
+      "env_notes": [
+        "wide dusty main street, harsh sun"
+      ]
+    },
+    "modern_city_day": {
+      "palette": {
+        "concrete": [
+          0.62,
+          0.62,
+          0.6
+        ],
+        "glass_blue": [
+          0.45,
+          0.6,
+          0.75
+        ],
+        "asphalt": [
+          0.18,
+          0.18,
+          0.19
+        ],
+        "sidewalk_grey": [
+          0.55,
+          0.54,
+          0.52
+        ],
+        "signage_red": [
+          0.8,
+          0.15,
+          0.15
+        ]
+      },
+      "props": [
+        "office_block: glass box with frame bands",
+        "streetlight: curved pole approximated by vertical + top arm box",
+        "bench: seat + legs boxes",
+        "bus_stop: open box frame"
+      ],
+      "env_notes": [
+        "daytime, ordered grid streets"
+      ]
+    },
+    "modern_city_night": {
+      "palette": {
+        "building_black": [
+          0.1,
+          0.11,
+          0.13
+        ],
+        "lit_window": [
+          0.95,
+          0.85,
+          0.5
+        ],
+        "road_dark": [
+          0.12,
+          0.12,
+          0.13
+        ],
+        "streetlight_amber": [
+          0.95,
+          0.7,
+          0.3
+        ],
+        "rain_shine": [
+          0.25,
+          0.28,
+          0.35
+        ]
+      },
+      "props": [
+        "tower_with_windows: dark box + scattered lit-window thin boxes on grid",
+        "neon_bar_sign: colored thin box",
+        "steam_vent: small cone"
+      ],
+      "env_notes": [
+        "wet reflective ground tone, amber pools of light"
+      ]
+    },
+    "military_outpost": {
+      "palette": {
+        "olive_drab": [
+          0.3,
+          0.34,
+          0.22
+        ],
+        "sandbag_tan": [
+          0.62,
+          0.56,
+          0.4
+        ],
+        "camo_brown": [
+          0.38,
+          0.3,
+          0.2
+        ],
+        "radio_grey": [
+          0.45,
+          0.47,
+          0.48
+        ],
+        "warning_red": [
+          0.7,
+          0.15,
+          0.12
+        ]
+      },
+      "props": [
+        "sandbag_wall: stacked rounded boxes rows offset",
+        "comms_mast: lattice approximated by thin crossing boxes",
+        "bunker: low wide box + slit",
+        "jeep_body: boxes + disc wheels"
+      ],
+      "env_notes": [
+        "utilitarian, camouflage discipline"
+      ]
+    },
+    "greek_mythology": {
+      "palette": {
+        "marble_white": [
+          0.88,
+          0.87,
+          0.83
+        ],
+        "bronze": [
+          0.55,
+          0.4,
+          0.22
+        ],
+        "aegean_blue": [
+          0.15,
+          0.4,
+          0.7
+        ],
+        "laurel_green": [
+          0.3,
+          0.5,
+          0.28
+        ],
+        "terracotta": [
+          0.72,
+          0.42,
+          0.3
+        ]
+      },
+      "props": [
+        "doric_column: fluted cyl (seg 12) + square caps",
+        "temple_base: stepped boxes",
+        "amphora: two cones base to base",
+        "statue_plinth: box + abstract figure boxes"
+      ],
+      "env_notes": [
+        "white marble against deep blue sky"
+      ]
+    },
+    "egyptian_desert": {
+      "palette": {
+        "limestone": [
+          0.85,
+          0.78,
+          0.6
+        ],
+        "granite_grey": [
+          0.45,
+          0.44,
+          0.43
+        ],
+        "gold_leaf": [
+          0.85,
+          0.68,
+          0.25
+        ],
+        "lapis": [
+          0.15,
+          0.25,
+          0.6
+        ],
+        "sand_bright": [
+          0.88,
+          0.78,
+          0.55
+        ]
+      },
+      "props": [
+        "pyramid_step: stacked shrinking boxes",
+        "obelisk: tall thin tapering box + pyramid tip",
+        "sphinx_abstract: long box + head box",
+        "palm: trunk cyl + frond cones splayed"
+      ],
+      "env_notes": [
+        "monuments aligned to cardinal directions"
+      ]
+    },
+    "tropical_island": {
+      "palette": {
+        "sand_white": [
+          0.9,
+          0.84,
+          0.66
+        ],
+        "lagoon_turquoise": [
+          0.2,
+          0.75,
+          0.7
+        ],
+        "palm_green": [
+          0.25,
+          0.6,
+          0.3
+        ],
+        "volcano_dark": [
+          0.25,
+          0.22,
+          0.21
+        ],
+        "flower_pink": [
+          0.9,
+          0.45,
+          0.65
+        ]
+      },
+      "props": [
+        "palm_tree: curved-look stacked tilted cyl segments + frond cones",
+        "tiki_torch: pole + flame cone",
+        "raft: logs cyl side by side + mast",
+        "beach_umbrella: cone + pole"
+      ],
+      "env_notes": [
+        "turquoise water ring around sand"
+      ]
+    },
+    "arctic_expanse": {
+      "palette": {
+        "snow_white": [
+          0.92,
+          0.94,
+          0.96
+        ],
+        "ice_blue": [
+          0.65,
+          0.8,
+          0.9
+        ],
+        "pack_ice_grey": [
+          0.55,
+          0.62,
+          0.68
+        ],
+        "aurora_green": [
+          0.3,
+          0.85,
+          0.55
+        ],
+        "blizzard_white": [
+          0.97,
+          0.98,
+          1
+        ]
+      },
+      "props": [
+        "ice_shard: tall crystal octahedrons clustered",
+        "research_hut: dome-ish cyl + door box",
+        "frozen_mast: ship mast ice-coated cyl",
+        "snow_drift: flattened wide discs"
+      ],
+      "env_notes": [
+        "low contrast white-on-white with blue shadows"
+      ]
+    },
+    "desert_dunes": {
+      "palette": {
+        "dune_gold": [
+          0.87,
+          0.72,
+          0.45
+        ],
+        "dune_shadow": [
+          0.65,
+          0.5,
+          0.32
+        ],
+        "oasis_green": [
+          0.3,
+          0.52,
+          0.3
+        ],
+        "ruin_sandstone": [
+          0.78,
+          0.64,
+          0.44
+        ],
+        "sky_bleach": [
+          0.92,
+          0.88,
+          0.78
+        ]
+      },
+      "props": [
+        "dune_ridge: long low flattened prisms along wind direction",
+        "camel_saddle_placeholder: small box + frame",
+        "caravanserai_ruin: broken walls boxes",
+        "well_oasis: disc water + palms"
+      ],
+      "env_notes": [
+        "rippled ridges perpendicular to wind"
+      ]
+    },
+    "deep_forest": {
+      "palette": {
+        "canopy_dark": [
+          0.12,
+          0.28,
+          0.16
+        ],
+        "moss_bright": [
+          0.3,
+          0.52,
+          0.24
+        ],
+        "bark_brown": [
+          0.28,
+          0.21,
+          0.15
+        ],
+        "mist_green": [
+          0.55,
+          0.68,
+          0.55
+        ],
+        "mushroom_red": [
+          0.75,
+          0.2,
+          0.18
+        ]
+      },
+      "props": [
+        "giant_tree: thick cyl + canopy pyramids stacked",
+        "mushroom_cluster: small cone caps on stub cyls",
+        "fallen_log: horizontal cyl",
+        "firefly_hint: tiny soul-colored octahedra"
+      ],
+      "env_notes": [
+        "vertical layering, god-ray gaps implied by brightness bands"
+      ]
+    },
+    "swamplands": {
+      "palette": {
+        "murk_green": [
+          0.28,
+          0.34,
+          0.22
+        ],
+        "peat_brown": [
+          0.3,
+          0.24,
+          0.18
+        ],
+        "willow_pale": [
+          0.55,
+          0.6,
+          0.48
+        ],
+        "bog_water": [
+          0.35,
+          0.4,
+          0.3
+        ],
+        "fungus_teal": [
+          0.2,
+          0.55,
+          0.5
+        ]
+      },
+      "props": [
+        "gnarled_willow: trunk + drooping thin cyl strands",
+        "bog_pool: flat disc murk",
+        "rotting_boardwalk: plank boxes uneven",
+        "lantern_reed: thin stalk + glow tip"
+      ],
+      "env_notes": [
+        "half-sunk structures, heavy stillness"
+      ]
+    },
+    "underground_caves": {
+      "palette": {
+        "cave_stone": [
+          0.32,
+          0.3,
+          0.29
+        ],
+        "crystal_amethyst": [
+          0.55,
+          0.3,
+          0.8
+        ],
+        "still_water": [
+          0.15,
+          0.2,
+          0.28
+        ],
+        "ore_vein_gold": [
+          0.75,
+          0.62,
+          0.25
+        ],
+        "pitch_black": [
+          0.03,
+          0.03,
+          0.04
+        ]
+      },
+      "props": [
+        "stalagmite: cone cluster varied heights",
+        "crystal_growth: octahedron clusters amethyst",
+        "mine_rail: parallel thin boxes + ties",
+        "support_beam: wooden frame boxes"
+      ],
+      "env_notes": [
+        "emissive crystals are the light sources"
+      ]
+    },
+    "sky_islands": {
+      "palette": {
+        "cloud_white": [
+          0.93,
+          0.94,
+          0.96
+        ],
+        "floating_grass": [
+          0.42,
+          0.65,
+          0.35
+        ],
+        "earth_under": [
+          0.45,
+          0.35,
+          0.28
+        ],
+        "bridge_rope": [
+          0.55,
+          0.45,
+          0.3
+        ],
+        "sky_blue_high": [
+          0.55,
+          0.75,
+          0.95
+        ]
+      },
+      "props": [
+        "floating_isle: inverted pyramid under grass-topped disc",
+        "rope_bridge: plank boxes + rail ropes cyls",
+        "windmill: tower cyl + blade boxes cross",
+        "cloud_puff: overlapping white octahedra soft scale"
+      ],
+      "env_notes": [
+        "islands at varied heights, chains between"
+      ]
+    },
+    "underwater_reef": {
+      "palette": {
+        "reef_coral_pink": [
+          0.9,
+          0.45,
+          0.55
+        ],
+        "coral_orange": [
+          0.92,
+          0.55,
+          0.25
+        ],
+        "deep_blue": [
+          0.05,
+          0.2,
+          0.45
+        ],
+        "seaweed_green": [
+          0.2,
+          0.5,
+          0.35
+        ],
+        "sandy_floor": [
+          0.8,
+          0.74,
+          0.58
+        ]
+      },
+      "props": [
+        "coral_branch: cone clusters pink/orange",
+        "brain_coral: hemisphere-ish squat cyl",
+        "kelp_stalk: tall thin cyl strands",
+        "sunken_anchor: heavy box + arc approximated by boxes"
+      ],
+      "env_notes": [
+        "everything tinted toward blue with depth"
+      ]
+    },
+    "haunted_estate": {
+      "palette": {
+        "manor_grey": [
+          0.35,
+          0.35,
+          0.4
+        ],
+        "rot_wood": [
+          0.3,
+          0.24,
+          0.18
+        ],
+        "candle_glow": [
+          0.95,
+          0.75,
+          0.35
+        ],
+        "grave_night": [
+          0.1,
+          0.12,
+          0.16
+        ],
+        "spectre_pale": [
+          0.7,
+          0.8,
+          0.78
+        ]
+      },
+      "props": [
+        "manor_facade: tall box + gable prisms + window grid thin boxes some lit",
+        "crooked_gate: tilted fence frames",
+        "portrait_frame: ornate border box on wall",
+        "chandelier: ring cyl + candle cones"
+      ],
+      "env_notes": [
+        "moonlit desaturation, single warm light sources"
+      ]
+    },
+    "candy_land": {
+      "palette": {
+        "gum_pink": [
+          0.98,
+          0.6,
+          0.75
+        ],
+        "mint": [
+          0.55,
+          0.9,
+          0.7
+        ],
+        "lemon": [
+          0.98,
+          0.9,
+          0.4
+        ],
+        "choc": [
+          0.35,
+          0.22,
+          0.14
+        ],
+        "sugar_white": [
+          0.98,
+          0.98,
+          0.96
+        ]
+      },
+      "props": [
+        "lollipop_tree: disc swirl on stick cyl",
+        "ginger_house: box + icing prism edges",
+        "cane_arch: bent cane approximated by arc boxes",
+        "jelly_blob: squashed octahedron"
+      ],
+      "env_notes": [
+        "oversaturated sweetness, round everything"
+      ]
+    },
+    "toy_voxel_playground": {
+      "palette": {
+        "block_red": [
+          0.8,
+          0.25,
+          0.22
+        ],
+        "block_blue": [
+          0.25,
+          0.45,
+          0.8
+        ],
+        "block_yellow": [
+          0.95,
+          0.8,
+          0.25
+        ],
+        "block_green": [
+          0.3,
+          0.7,
+          0.35
+        ],
+        "baseplate_grey": [
+          0.55,
+          0.56,
+          0.58
+        ]
+      },
+      "props": [
+        "brick_stack: grid-aligned unit boxes with stud cyls on top",
+        "toy_car: box + smaller box + black disc wheels",
+        "block_tree: brown box trunk + green cube canopy",
+        "ramp_slide: rotated-look wedge via prism"
+      ],
+      "env_notes": [
+        "grid-snapped, chunky proportions, primary colors"
+      ]
+    },
+    "minimalist_abstract": {
+      "palette": {
+        "mono_light": [
+          0.9,
+          0.9,
+          0.9
+        ],
+        "mono_mid": [
+          0.55,
+          0.55,
+          0.55
+        ],
+        "mono_dark": [
+          0.15,
+          0.15,
+          0.15
+        ],
+        "accent_single": [
+          0.9,
+          0.3,
+          0.25
+        ],
+        "void_bg": [
+          0.95,
+          0.95,
+          0.95
+        ]
+      },
+      "props": [
+        "monolith: tall slim box",
+        "ring_portal: upright thin cyl ring",
+        "stepped_form: three stacked boxes shrinking",
+        "lone_sphere_proxy: octahedron smoothed look via many-seg cyl? use octahedron"
+      ],
+      "env_notes": [
+        "one accent color maximum, huge negative space"
+      ]
+    }
+  }
+}
