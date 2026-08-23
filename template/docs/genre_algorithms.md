@@ -4,6 +4,11 @@ Which math and algorithms make which game genre tick, and how to route them
 through Litt tooling. Identity/feel layer: template/tools/worldgen/design_types.json
 and design_rules.json. Primitive recipes: procedural_asset_math.md.
 
+**Most of these are now EXECUTABLE CODE** in template/tools/worldgen/algokit.py:
+Vec2/Vec3, BSP rooms, cellular caves, A*, BFS flow fields, Bresenham LOS,
+Poisson disc, Fisher-Yates, jump-arc solver, Catmull-Rom splines - all
+deterministic and unit-checked. Import them; do not re-derive from prose.
+
 ## Core algorithms (shared by almost everything)
 
 | Algorithm | Use | Where implemented |

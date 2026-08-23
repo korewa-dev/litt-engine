@@ -43,6 +43,9 @@ index registration, scene graph, state file, log trail - is automatic.
 WorldKit (worldkit.py) provides: xorshift32 Rng, value noise + fBm, MeshBuilder
 (box, roof prism, pyramid, cylinder/cone/disc, octahedron, hex tile), MTL writer,
 chunk emitter with material banding, index/scene/state/log writers.
+**algokit.py** adds the classic algorithms as callable code: Vec2/Vec3 vectors,
+BSP rooms, cellular automata caves, A*, BFS flow fields, Bresenham line-of-sight,
+Poisson-disc scatter, Fisher-Yates shuffle, jump-arc solver, Catmull-Rom splines.
 
 ## Adding a generator for a new archetype
 
