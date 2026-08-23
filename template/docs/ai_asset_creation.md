@@ -26,13 +26,19 @@ Related: [asset_guidelines.md](asset_guidelines.md) (size budgets) |
 
 ```
 What do you need?
+|- a WHOLE GAME by type ("like Hades", kart racer, roguelike) ... ROUTE 0
+|     -> game_type_generation.md (generators + identity datasets + playable runtime)
 |- building / crate / fence / terrain / simple prop ....... ROUTE 1 (procedural)
 |- organic unique hero prop (statue, sword, creature) ..... ROUTE 2 (image-to-3D)
 |- whole pack of polished standard pieces ................. ROUTE 3 (CC0 download)
 |- placing assets into a world ........................... SCENE ASSEMBLY (below)
 ```
 
-Default to Route 1. Escalate only when math genuinely cannot describe the shape.
+Default to **Route 0** when the human names any game/genre - the worldgen fleet
+(76 archetypes x 6 layout patterns x 26 themes) plus the play runtime produce a
+finished, playable result in one command. Drop to Routes 1-3 only for custom
+props the generators do not cover. See
+[game_type_generation.md](game_type_generation.md).
 
 ---
 

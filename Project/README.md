@@ -34,7 +34,9 @@ Project/
 3. Same size budgets as the engine (`template/docs/asset_guidelines.md`),
    applied per game.
 4. Asset creation method: follow `template/docs/ai_asset_creation.md`,
-   math recipes in `template/docs/procedural_asset_math.md`.
+   math recipes in `template/docs/procedural_asset_math.md`. For generating an
+   entire game by TYPE start at `template/docs/game_type_generation.md` -
+   one generator command + copy the play runtime = finished playable world.
 5. Record seeds and parameters in NOTES.md so any agent can regenerate.
 
 ## Quick start
