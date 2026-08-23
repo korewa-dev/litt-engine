@@ -1,17 +1,11 @@
 # Asset Attribution - example-village
 
-## Generated Assets (procedural, in-repo)
-| Asset | Method | Seed | License |
-|-------|--------|------|---------|
-| models/farm_house.obj | procedural_assets.py house | 7 | CC0 - generated |
-| models/cottage_01.obj | procedural_assets.py cottage | 8 | CC0 - generated |
-| models/pine_01.obj | procedural_assets.py tree | 9 | CC0 - generated |
-| models/pine_02.obj | procedural_assets.py tree | 10 | CC0 - generated |
-| models/pine_03.obj | procedural_assets.py tree | 11 | CC0 - generated |
-| models/supply_crate.obj | procedural_assets.py crate | - | CC0 - generated |
-| models/valley_floor.obj | procedural_assets.py terrain (fbm) | 13 | CC0 - generated |
+All assets generated in-repo by Litt tooling. No external downloads.
 
-## External Assets
-| Asset | Source | License | Attributed |
-|-------|--------|---------|------------|
-| (none) | | | |
+| Asset | Method | Source / Command | License |
+|-------|--------|------------------|---------|
+| models/layout_main.obj | procedural (MeshBuilder primitives) | gen_archetype.py life_sim hub_spoke medieval_realism seed 42 | CC0 - generated |
+| models/poi_01..05.obj | procedural | same command | CC0 - generated |
+| models/materials.mtl | palette writer | themes.json medieval_realism palette | CC0 - generated |
+| viewer/three.min.js | third-party runtime lib | three.js r149 vendored unmodified | MIT |
+| viewer/play.html + runtime.js | repo code | template/tools/runtime | CC0 - generated |

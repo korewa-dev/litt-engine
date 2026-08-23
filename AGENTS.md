@@ -63,6 +63,9 @@ Read `Project/README.md`, copy the `example-village/` structure, keep everything
 inside that one folder (its own `assets/asset_index.json`, `ATTRIBUTION.md`,
 `NOTES.md`).
 
+**Reference example:** `Project/example-village/` is a LIVE playable world -
+complete folder (assets/index/scene/state/viewer/PLAY.bat). Copy it or study it.
+
 **Runtime bridge:** `template/tools/runtime/` holds play.html + runtime.js - a
 playable client that consumes any generated world as-is (movement mode from
 state.identity, physics constants from state.gameplay.physics verbatim,

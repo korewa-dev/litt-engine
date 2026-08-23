@@ -41,15 +41,27 @@ Project/
 
 ## Quick start
 
+Fastest path - copy the working example and re-point it at your game idea:
+
+    cp -r Project/example-village Project/my-game
+    # then edit NOTES.md "reproduce exactly" command with your own
+    # archetype/pattern/theme/seed and rerun it from the repo root
+
+Manual path:
+
 ```bash
 mkdir -p Project/my-game/assets
 cd Project/my-game
-python ../../template/tools/procedural_assets.py house --name first_house --out-dir assets
-python ../../template/tools/procedural_assets.py terrain --name ground --width 32 --out-dir assets
+python ../../template/tools/worldgen/gen_archetype.py --archetype <key> --theme <t> --out-dir .
 ```
 
-## Reference example
+See `template/docs/game_type_generation.md` for the full lookup chain.
 
-`example-village/` - a complete minimal game folder generated entirely by the
-procedural pipeline: 8 assets, its own index, attribution, and a scene file
-placing everything. Copy its structure, not just its files.
+## Reference example - LIVE and PLAYABLE
+
+`example-village/` is a complete generated game folder AND a running example:
+medieval village hub (life_sim archetype, hub_spoke pattern, medieval_realism
+theme, seed 42) with viewer + vendored play runtime. Double-click
+`example-village/PLAY.bat` (port 8089) or open its viewer/play.html through any
+static server. Copy its structure, not just its files; regenerate its world
+with the exact command recorded in its NOTES.md.

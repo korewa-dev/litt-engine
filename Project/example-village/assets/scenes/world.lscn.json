@@ -2,7 +2,7 @@
   "format": "litt-scene",
   "version": 1,
   "root_id": 0,
-  "next_id": 8,
+  "next_id": 7,
   "nodes": [
     {
       "name": "Root",
@@ -14,8 +14,7 @@
         3,
         4,
         5,
-        6,
-        7
+        6
       ],
       "position": [
         0,
@@ -38,20 +37,20 @@
       "tags": []
     },
     {
-      "name": "ValleyFloor",
+      "name": "Central_Plaza",
       "id": 1,
       "parent": 0,
       "children": [],
       "position": [
-        0,
-        0,
-        0
+        0.0,
+        0.0,
+        0.0
       ],
       "rotation": [
-        0,
-        0,
-        0,
-        1
+        0.0,
+        0.0,
+        0.0,
+        1.0
       ],
       "scale": [
         1,
@@ -61,24 +60,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "example-village"
+        "hub",
+        "model:layout_main"
       ]
     },
     {
-      "name": "FarmHouse",
+      "name": "POI_01",
       "id": 2,
       "parent": 0,
       "children": [],
       "position": [
-        -7,
-        0,
-        -6
+        26.0,
+        0.0,
+        0.0
       ],
       "rotation": [
-        0,
-        0,
-        0,
-        1
+        0.0,
+        0.0,
+        0.0,
+        1.0
       ],
       "scale": [
         1,
@@ -88,24 +88,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "example-village"
+        "poi",
+        "model:poi_01"
       ]
     },
     {
-      "name": "Cottage01",
+      "name": "POI_02",
       "id": 3,
       "parent": 0,
       "children": [],
       "position": [
-        7,
-        0,
-        -5
+        8.03,
+        0.0,
+        24.73
       ],
       "rotation": [
-        0,
-        0,
-        0,
-        1
+        0.0,
+        0.0,
+        0.0,
+        1.0
       ],
       "scale": [
         1,
@@ -115,24 +116,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "example-village"
+        "poi",
+        "model:poi_02"
       ]
     },
     {
-      "name": "Pine01",
+      "name": "POI_03",
       "id": 4,
       "parent": 0,
       "children": [],
       "position": [
-        -12,
-        0,
-        4
+        -21.03,
+        0.0,
+        15.28
       ],
       "rotation": [
-        0,
-        0.25881904510252074,
-        0,
-        0.9659258262890683
+        0.0,
+        0.0,
+        0.0,
+        1.0
       ],
       "scale": [
         1,
@@ -142,24 +144,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "example-village"
+        "poi",
+        "model:poi_03"
       ]
     },
     {
-      "name": "Pine02",
+      "name": "POI_04",
       "id": 5,
       "parent": 0,
       "children": [],
       "position": [
-        13,
-        0,
-        -10
+        -21.03,
+        0.0,
+        -15.28
       ],
       "rotation": [
-        0,
-        -0.3826834323650898,
-        0,
-        0.9238795325112867
+        0.0,
+        0.0,
+        0.0,
+        1.0
       ],
       "scale": [
         1,
@@ -169,24 +172,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "example-village"
+        "poi",
+        "model:poi_04"
       ]
     },
     {
-      "name": "Pine03",
+      "name": "POI_05",
       "id": 6,
       "parent": 0,
       "children": [],
       "position": [
-        2,
-        0,
-        9
+        8.03,
+        0.0,
+        -24.73
       ],
       "rotation": [
-        0,
-        0.49999999999999994,
-        0,
-        0.8660254037844387
+        0.0,
+        0.0,
+        0.0,
+        1.0
       ],
       "scale": [
         1,
@@ -196,34 +200,8 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "example-village"
-      ]
-    },
-    {
-      "name": "SupplyCrate",
-      "id": 7,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -5.6,
-        0,
-        -4.6
-      ],
-      "rotation": [
-        0,
-        0.13052619222005157,
-        0,
-        0.9914448613738104
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "example-village"
+        "poi",
+        "model:poi_05"
       ]
     }
   ]

@@ -1,48 +1,42 @@
 {
   "format": "litt-asset-index",
   "version": 1,
-  "description": "Machine-readable asset manifest. Agents: read this file to discover assets instead of scanning the tree.",
+  "description": "Machine-readable asset manifest.",
   "assets": [
     {
-      "id": "farm_house",
+      "id": "layout_main",
       "type": "model",
-      "path": "models/farm_house.obj",
+      "path": "models/layout_main.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
-      "id": "cottage_01",
+      "id": "poi_01",
       "type": "model",
-      "path": "models/cottage_01.obj",
+      "path": "models/poi_01.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
-      "id": "pine_01",
+      "id": "poi_02",
       "type": "model",
-      "path": "models/pine_01.obj",
+      "path": "models/poi_02.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
-      "id": "pine_02",
+      "id": "poi_03",
       "type": "model",
-      "path": "models/pine_02.obj",
+      "path": "models/poi_03.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
-      "id": "pine_03",
+      "id": "poi_04",
       "type": "model",
-      "path": "models/pine_03.obj",
+      "path": "models/poi_04.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
-      "id": "supply_crate",
+      "id": "poi_05",
       "type": "model",
-      "path": "models/supply_crate.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
-      "id": "valley_floor",
-      "type": "model",
-      "path": "models/valley_floor.obj",
+      "path": "models/poi_05.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     }
   ]

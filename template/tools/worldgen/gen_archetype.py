@@ -326,11 +326,15 @@ def main():
     nf = emit(main_mb, models, "layout_main", mats, assets_dir)
     made.append(("layout_main.obj", nf))
     placed = list(base_placed)
+    # every placed node MUST carry a model:<file> tag or the play runtime
+    # cannot instantiate it - patterns declare geometry, we wire the tag here
+    name0, pos0, yaw0, tags0 = placed[0]
+    placed[0] = (name0, pos0, yaw0, list(tags0) + ["model:layout_main"])
     if pattern == "hub_spoke":
         for pm, nm, pos in poi_list:
             nf = emit(pm, models, nm.lower(), mats, assets_dir)
             made.append((nm.lower() + ".obj", nf))
-            placed.append((nm, pos, 0, ["poi"]))
+            placed.append((nm, pos, 0, ["poi", "model:" + nm.lower()]))
 
     scene_title = a.name or ("%s-%s" % (a.archetype.replace("_", "-"), pattern.replace("_", "-")))
     write_scene(root / "assets" / "scenes" / "world.lscn.json", placed, scene_title)
