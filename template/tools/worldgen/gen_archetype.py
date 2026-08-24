@@ -203,8 +203,18 @@ def pattern_track(rng, mats):
     for j in range(0, len(pts), len(pts) // 4):
         x, z = pts[j]
         cp.box(round(x, 2), 1.2, round(z, 2), 0.3, 2.4, 0.3)
-    placed = [("Track_Loop", [0, 0, 0], 0, ["track"]), ("Start_Line", [round(pts[0][0], 2), 0, round(pts[0][1], 2)], 0, ["start"])]
-    return placed, mb
+    # start gate: its OWN mesh so the Start_Line node's model:start_line
+    # reference resolves (dangling refs break runtimes)
+    sx, sz = round(pts[0][0], 2), round(pts[0][1], 2)
+    sm = MeshBuilder(); sk = kit_factory(sm)
+    posts = sk("gate_posts", mat_at(mats, "structure", "structure"))
+    posts.box(sx - 1.6, 1.5, sz, 0.28, 3.0, 0.28)
+    posts.box(sx + 1.6, 1.5, sz, 0.28, 3.0, 0.28)
+    bar = sk("gate_bar", mat_at(mats, "accent", "accent"))
+    bar.box(sx, 3.05, sz, 3.6, 0.34, 0.3)
+    placed = [("Track_Loop", [0, 0, 0], 0, ["track"]),
+              ("Start_Line", [sx, 0, sz], 0, ["start", "poi"])]
+    return placed, (mb, sm)
 
 def pattern_rooms(rng, mats, cols=3, rows=3):
     mb = MeshBuilder(); k = kit_factory(mb)
@@ -351,13 +361,19 @@ def main():
     result = PATTERNS[pattern](rng, mats)
     base_placed, payload = result
     extras = []
+    extra_prop = None
     if pattern == "hub_spoke":
         main_mb, poi_list, extras = payload
+    elif isinstance(payload, tuple):
+        main_mb, extra_prop = payload   # spline_track start gate mesh
     else:
         main_mb = payload
     made = []
     nf = emit(main_mb, models, "layout_main", mats, assets_dir)
     made.append(("layout_main.obj", nf))
+    if extra_prop is not None:
+        gnf = emit(extra_prop, models, "start_line", mats, assets_dir)
+        made.append(("start_line.obj", gnf))
     placed = list(base_placed)
     # every placed node MUST carry a model:<file> tag or the play runtime
     # cannot instantiate it - patterns declare geometry, we wire the tag here

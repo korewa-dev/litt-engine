@@ -89,7 +89,7 @@ def main():
     mb = build(MeshBuilder(), lambda p: p("void", "void_plane").cyl(0, -2, 0, 200, 200, 0.2, seg=24))
     save_prop(models, "void_plane", mb, "materials", MATS, assets_dir)
     made.append("void_plane.obj")
-    placed.append(("Void_Plane", [0, 0, 0], 0, ["backdrop"]))
+    placed.append(("Void_Plane", [0, 0, 0], 0, ["backdrop", "terrain", "floor"]))
 
     colors = ["star_white", "star_white", "star_white", "star_blue", "star_gold"]
     for i in range(a.stars):
@@ -106,7 +106,7 @@ def main():
     mb = build(MeshBuilder(), p_station)
     save_prop(models, "derelict_station", mb, "materials", MATS, assets_dir)
     made.append("derelict_station.obj")
-    placed.append(("Derelict_Station", [0, 0, 0], 0, ["poi","salvage"]))
+    placed.append(("Derelict_Station", [0, 0, 0], 0, ["poi", "salvage", "level", "hub"]))
 
     for i in range(a.asteroids):
         name = "asteroid_%02d" % (i+1)
