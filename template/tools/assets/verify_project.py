@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """verify_project.py - HARD audit that a Litt game project actually works.
 
-Checks everything any consumer (browser runtime, native player, Rust engine,
+Checks everything any consumer (native player, Rust engine, C++ viewer,
 Studio) needs. Exit code 0 == the project is provably consumable.
 
 Usage:
@@ -125,12 +125,12 @@ def audit_game(gdir: Path):
     if not engine_ok:
         problems.append(
             "no native launcher pair (need ENGINE.bat + ENGINE.sh)")
-    # browser stack is dev-preview only; pygame is a headless validator
-    preview_ok = (gdir / "viewer/play.html").exists()
+    # browser stack is PHASED OUT; VIEW.bat is the native visual checker
+    view_ok = (gdir / "VIEW.bat").exists()
     validator_ok = (gdir / "play_native.py").exists()
-    if not (preview_ok and validator_ok):
-        warn.append("preview/validator incomplete "
-                    "(viewer=%s play_native=%s)" % (preview_ok, validator_ok))
+    if not (view_ok and validator_ok):
+        warn.append("native view/validator incomplete "
+                    "(VIEW.bat=%s play_native=%s)" % (view_ok, validator_ok))
 
     return problems, warn
 

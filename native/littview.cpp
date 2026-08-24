@@ -319,9 +319,12 @@ struct Scene {
             if (fit_r > 42) fit_r = 42;
             if (fit_r < 6) fit_r = 6;
         }
-        // corridors/platformers: view PERPENDICULAR to the long axis.
-        // Long in X => put the camera on the Z axis (angle = pi/2).
-        auto_yaw = (mx[0] - mn[0] >= mx[2] - mn[2]) ? 1.5707963f : 0.0f;
+        // corridors/platformers: frame from a DIAGONAL 40 deg off the long
+        // axis - broadside shows only the thin cross-section, end-on hides
+        // the length; the diagonal stacks depth AND width into frame
+        float long_x = (mx[0] - mn[0] >= mx[2] - mn[2]);
+        float base = long_x ? 0.0f : 1.5707963f;
+        auto_yaw = base + (long_x ? -0.7f : 0.7f);
 
         // lighting terms (port of the engine bake)
         float el = env.sun_el * 3.14159265f / 180.f;
