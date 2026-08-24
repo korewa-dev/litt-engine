@@ -26,3 +26,5 @@ out/
 
 # nested cargo build dirs (any depth)
 target/
+
+__pycache__/
