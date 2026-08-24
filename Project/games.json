@@ -1,0 +1,26 @@
+{
+  "games": [
+    {
+      "name": "broken-verge",
+      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\mg_test\\deadmall",
+      "archetype": "bullet_hell",
+      "pattern": "arena_ring",
+      "theme": "post_apocalypse",
+      "kit": "survivor",
+      "seed": 5992,
+      "about": "zombie mall survival at night",
+      "built": "2026-08-24T04:46:11"
+    },
+    {
+      "name": "neon-garden",
+      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\mg_test\\rnd",
+      "archetype": "bullet_hell",
+      "pattern": "arena_ring",
+      "theme": "arctic_expanse",
+      "kit": "survivor",
+      "seed": 42,
+      "about": "",
+      "built": "2026-08-24T04:46:11"
+    }
+  ]
+}

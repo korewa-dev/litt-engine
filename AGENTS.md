@@ -80,6 +80,27 @@ live_landscape.py. For ANY named game type use **gen_archetype.py
 Identity lookups: design_types.json + design_rules.json there; themes:
 themes.json; the math per genre: `template/docs/genre_algorithms.md`.
 
+**ONE-COMMAND FULL GAME — prefer this over hand-running the pipeline:**
+
+```bash
+python template/tools/worldgen/make_game.py --random
+# or directed by any human phrase ("a game about haunted malls"):
+python template/tools/worldgen/make_game.py --about "zombie mall survival"
+```
+
+make_game.py picks archetype/pattern/theme/kit, auto-authors brief.json,
+runs generate -> props -> enrich -> lint (template/tools/assets/lint.py)
+-> native validation, deploys viewer + PLAY.bat/NATIVE.bat + NOTES.md +
+ATTRIBUTION.md, and registers the game in `Project/games.json`. Its last
+stdout line is machine-readable JSON. Override anything with --name,
+--seed, --archetype, --pattern, --theme, --kit.
+
+**STUDIO WINDOW — `litt studio [game]`:** real native window (Vulkan) with a
+chat panel on the left and a live orbiting viewport of the loaded world.
+Chat commands run the same tools in background jobs and hot-reload the view:
+`make random`, `make about <text>`, `load <name>`, `regen`, `help`. Use it to
+demo builds; use make_game.py directly when scripting.
+
 **MANDATORY GAME PIPELINE — never ship a bare generated world.** A world made
 only by a generator is geometry, not a game. Every new game under
 `Project/<name>/` MUST run all four steps, in order:

@@ -33,7 +33,18 @@ fn main() {
 }
 
 fn find_glsl_compiler() -> Option<PathBuf> {
-    let candidates = ["glslc", "glslangValidator"];
+    // Pinned standalone glslang first (see .cargo/config.toml [env])
+    if let Ok(p) = env::var("GLSLANG_PATH") {
+        let p = PathBuf::from(&p);
+        if p.is_file() { return Some(p); }
+        for c in ["glslang.exe", "glslangValidator.exe", "glslc.exe"] {
+            let cand = p.join("bin").join(c);
+            if cand.exists() { return Some(cand); }
+            let cand = p.join(c);
+            if cand.exists() { return Some(cand); }
+        }
+    }
+    let candidates = ["glslc", "glslangValidator", "glslang"];
     for c in &candidates {
         if which(c).is_ok() { return Some(c.into()); }
     }
@@ -81,6 +92,8 @@ fn compile_shaders(out_dir: &Path, compiler: Option<&PathBuf>) {
         ("quad/quad.frag.glsl", "quad_frag.spv"),
         ("mesh.vert.glsl", "mesh_vert.spv"),
         ("mesh.frag.glsl", "mesh_frag.spv"),
+        ("studio.vert.glsl", "studio_vert.spv"),
+        ("studio.frag.glsl", "studio_frag.spv"),
         ("fidelityfx/fsr4_upscaler.comp.glsl", "fsr4_upscale.spv"),
         ("fidelityfx/fsr4_framegen.comp.glsl", "fsr4_fg.spv"),
         ("compute/physics_broadphase.comp.glsl", "physics_broadphase.spv"),
@@ -97,11 +110,24 @@ fn compile_shaders(out_dir: &Path, compiler: Option<&PathBuf>) {
             generate_placeholder(&dst_path);
         }
     }
+
+    // Studio UI/world pipeline is enabled only when its SPIR-V really
+    // compiled (placeholders are 20 bytes).
+    let vert_ok = fs::metadata(out_dir.join("studio_vert.spv"))
+        .map(|m| m.len() > 200).unwrap_or(false);
+    let frag_ok = fs::metadata(out_dir.join("studio_frag.spv"))
+        .map(|m| m.len() > 200).unwrap_or(false);
+    if vert_ok && frag_ok {
+        println!("cargo:rustc-cfg=litt_studio_spv");
+    } else {
+        eprintln!("build: studio shaders unavailable - studio renders clear-only");
+    }
 }
 
 fn compile_with(compiler: &Path, src: &Path, dst: &Path) {
-    let is_glslc = compiler.file_name().map(|n| n == "glslc").unwrap_or(false);
-    let args = if is_glslc {
+    let name = compiler.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+    let is_glslang = name.contains("glslang");
+    let args = if !is_glslang {
         vec![
             src.to_string_lossy().into_owned(),
             "-o".to_string(), dst.to_string_lossy().into_owned(),
@@ -109,10 +135,9 @@ fn compile_with(compiler: &Path, src: &Path, dst: &Path) {
         ]
     } else {
         vec![
+            "-V".to_string(),
             src.to_string_lossy().into_owned(),
             "-o".to_string(), dst.to_string_lossy().into_owned(),
-            "--target-env=vulkan1.3".to_string(),
-            "-O3".to_string(),
         ]
     };
     let status = Command::new(compiler).args(&args).status();

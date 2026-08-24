@@ -73,7 +73,23 @@ pub trait GraphicsBackend: Send + Sync {
 
     /// Shutdown the backend
     fn shutdown(&mut self) -> Result<(), String>;
+
+    /// Upload world geometry as interleaved xyzrgb f32 triples (Studio).
+    /// No-op on backends without the Studio pipeline.
+    fn upload_world_mesh(&mut self, _verts: &[f32]) {}
+
+    /// Upload chat-panel geometry in pixel space (Studio).
+    fn upload_panel_mesh(&mut self, _verts: &[f32]) {}
+
+    /// Set the world view-projection matrix (Studio orbit camera).
+    fn set_world_mvp(&mut self, _mvp: [f32; 16]) {}
+
+    /// Whether Studio drawing is live (pipelines + buffers ready).
+    fn studio_ready(&self) -> bool { false }
 }
+
+/// Width of the Studio chat panel (px). The 3D viewport uses the rest.
+pub const STUDIO_PANEL_W: u32 = 430;
 
 /// Vulkan backend wrapper
 #[cfg(feature = "vulkan")]
@@ -114,6 +130,62 @@ pub mod vulkan {
         started: Instant,
         gpu_name: String,
         features: GraphicsFeatures,
+        // ---- Studio (chat panel + world mesh) ----
+        allocator: Option<litt_vulkan::GpuAllocator>,
+        studio_pipe: vk::Pipeline,
+        studio_layout: Option<vk::PipelineLayout>,
+        world_buf: Option<(vk::Buffer, litt_vulkan::Allocation, u64)>,
+        world_count: u32,
+        ui_buf: Option<(vk::Buffer, litt_vulkan::Allocation, u64)>,
+        ui_count: u32,
+        world_mvp: [f32; 16],
+    }
+
+    /// Reinterpret a static byte blob as SPIR-V words (4-byte aligned).
+    fn spv_words(bytes: &'static [u8]) -> &'static [u32] {
+        debug_assert_eq!(bytes.len() % 4, 0);
+        unsafe { std::slice::from_raw_parts(bytes.as_ptr() as *const u32, bytes.len() / 4) }
+    }
+
+    /// Host-visible buffer that grows geometrically; writes go through the
+    /// persistent mapping (HOST_VISIBLE | HOST_COHERENT).
+    fn ensure_host_buffer(
+        dev: &VulkanDevice,
+        alloc: &mut litt_vulkan::GpuAllocator,
+        slot: &mut Option<(vk::Buffer, litt_vulkan::Allocation, u64)>,
+        needed: u64,
+    ) -> Result<(), String> {
+        let cap = slot.as_ref().map(|s| s.2).unwrap_or(0);
+        if needed <= cap {
+            return Ok(());
+        }
+        let new_cap = (needed as f64 * 1.5) as u64;
+        if let Some((buf, mut a, _)) = slot.take() {
+            alloc.free_buffer(buf, &mut a);
+        }
+        let (buf, mut a) = alloc.allocate_buffer(
+            new_cap,
+            vk::BufferUsageFlags::VERTEX_BUFFER,
+            litt_vulkan::AllocFlags::HOST_VISIBLE,
+            vk::MemoryPropertyFlags::HOST_VISIBLE | vk::MemoryPropertyFlags::HOST_COHERENT,
+            vk::MemoryPropertyFlags::empty(),
+        )?;
+        *slot = Some((buf, a, new_cap));
+        let _ = dev; // device reachable through allocator
+        Ok(())
+    }
+
+    fn write_host_buffer(slot: &mut Option<(vk::Buffer, litt_vulkan::Allocation, u64)>, data: &[f32]) {
+        if let Some((_, alloc, _)) = slot {
+            if !alloc.mapped.is_null() {
+                let bytes = unsafe {
+                    std::slice::from_raw_parts_mut(alloc.mapped as *mut u8, data.len() * 4)
+                };
+                bytes.copy_from_slice(unsafe {
+                    std::slice::from_raw_parts(data.as_ptr() as *const u8, data.len() * 4)
+                });
+            }
+        }
     }
 
     impl VulkanBackend {
@@ -140,6 +212,14 @@ pub mod vulkan {
                 started: Instant::now(),
                 gpu_name: String::new(),
                 features: GraphicsFeatures::default(),
+                allocator: None,
+                studio_pipe: vk::Pipeline::null(),
+                studio_layout: None,
+                world_buf: None,
+                world_count: 0,
+                ui_buf: None,
+                ui_count: 0,
+                world_mvp: [0.0; 16],
             }
         }
 
@@ -327,6 +407,157 @@ pub mod vulkan {
                 let cmd = device.device.allocate_command_buffers(&alloc_info)
                     .map_err(|e| format!("cmd alloc: {e:?}"))?[0];
 
+                // ---- Studio pipeline + memory allocator ----
+                let mut allocator = litt_vulkan::GpuAllocator::new(
+                    &device.device, physical, &instance,
+                )?;
+
+                #[cfg(litt_studio_spv)]
+                {
+                    let vert_spv: &[u32] = spv_words(include_bytes!(
+                        concat!(env!("OUT_DIR"), "/spirv/studio_vert.spv")));
+                    let frag_spv: &[u32] = spv_words(include_bytes!(
+                        concat!(env!("OUT_DIR"), "/spirv/studio_frag.spv")));
+
+                    let vmod = device.device
+                        .create_shader_module(&vk::ShaderModuleCreateInfo {
+                            code_size: vert_spv.len() * 4,
+                            p_code: vert_spv.as_ptr(),
+                            ..Default::default()
+                        }, None)
+                        .map_err(|e| format!("studio vert module: {e:?}"))?;
+                    let fmod = device.device
+                        .create_shader_module(&vk::ShaderModuleCreateInfo {
+                            code_size: frag_spv.len() * 4,
+                            p_code: frag_spv.as_ptr(),
+                            ..Default::default()
+                        }, None)
+                        .map_err(|e| format!("studio frag module: {e:?}"))?;
+
+                    let pc_range = vk::PushConstantRange {
+                        stage_flags: vk::ShaderStageFlags::VERTEX,
+                        offset: 0,
+                        size: 64, // mat4
+                    };
+                    let layout_info = vk::PipelineLayoutCreateInfo {
+                        push_constant_range_count: 1,
+                        p_push_constant_ranges: &pc_range,
+                        ..Default::default()
+                    };
+                    let layout = device.device
+                        .create_pipeline_layout(&layout_info, None)
+                        .map_err(|e| format!("studio layout: {e:?}"))?;
+
+                    let stages = [
+                        vk::PipelineShaderStageCreateInfo {
+                            stage: vk::ShaderStageFlags::VERTEX,
+                            module: vmod,
+                            p_name: b"main\0".as_ptr().cast(),
+                            ..Default::default()
+                        },
+                        vk::PipelineShaderStageCreateInfo {
+                            stage: vk::ShaderStageFlags::FRAGMENT,
+                            module: fmod,
+                            p_name: b"main\0".as_ptr().cast(),
+                            ..Default::default()
+                        },
+                    ];
+                    let binding = vk::VertexInputBindingDescription {
+                        binding: 0,
+                        stride: 24, // pos(3f32) + color(3f32)
+                        input_rate: vk::VertexInputRate::VERTEX,
+                    };
+                    let attribs = [
+                        vk::VertexInputAttributeDescription {
+                            location: 0, binding: 0,
+                            format: vk::Format::R32G32B32_SFLOAT, offset: 0,
+                        },
+                        vk::VertexInputAttributeDescription {
+                            location: 1, binding: 0,
+                            format: vk::Format::R32G32B32_SFLOAT, offset: 12,
+                        },
+                    ];
+                    let vertex_input = vk::PipelineVertexInputStateCreateInfo {
+                        vertex_binding_description_count: 1,
+                        p_vertex_binding_descriptions: &binding,
+                        vertex_attribute_description_count: attribs.len() as u32,
+                        p_vertex_attribute_descriptions: attribs.as_ptr(),
+                        ..Default::default()
+                    };
+                    let asm = vk::PipelineInputAssemblyStateCreateInfo {
+                        topology: vk::PrimitiveTopology::TRIANGLE_LIST,
+                        ..Default::default()
+                    };
+                    let viewports = [vk::Viewport::default()];
+                    let scissors = [vk::Rect2D::default()];
+                    let viewport_state = vk::PipelineViewportStateCreateInfo {
+                        viewport_count: 1,
+                        p_viewports: viewports.as_ptr(),
+                        scissor_count: 1,
+                        p_scissors: scissors.as_ptr(),
+                        ..Default::default()
+                    };
+                    let raster = vk::PipelineRasterizationStateCreateInfo {
+                        polygon_mode: vk::PolygonMode::FILL,
+                        cull_mode: vk::CullModeFlags::NONE,
+                        front_face: vk::FrontFace::COUNTER_CLOCKWISE,
+                        line_width: 1.0,
+                        ..Default::default()
+                    };
+                    let multisample = vk::PipelineMultisampleStateCreateInfo {
+                        rasterization_samples: vk::SampleCountFlags::TYPE_1,
+                        ..Default::default()
+                    };
+                    let no_depth = vk::PipelineDepthStencilStateCreateInfo::default();
+                    let blend_attach = [vk::PipelineColorBlendAttachmentState {
+                        blend_enable: vk::FALSE,
+                        color_write_mask: vk::ColorComponentFlags::RGBA,
+                        ..Default::default()
+                    }];
+                    let blend = vk::PipelineColorBlendStateCreateInfo {
+                        attachment_count: 1,
+                        p_attachments: blend_attach.as_ptr(),
+                        ..Default::default()
+                    };
+                    let dynamic = [vk::DynamicState::VIEWPORT, vk::DynamicState::SCISSOR];
+                    let dyn_state = vk::PipelineDynamicStateCreateInfo {
+                        dynamic_state_count: dynamic.len() as u32,
+                        p_dynamic_states: dynamic.as_ptr(),
+                        ..Default::default()
+                    };
+                    let pass_handle = pass.pass;
+                    let info = vk::GraphicsPipelineCreateInfo {
+                        stage_count: stages.len() as u32,
+                        p_stages: stages.as_ptr(),
+                        p_vertex_input_state: &vertex_input,
+                        p_input_assembly_state: &asm,
+                        p_viewport_state: &viewport_state,
+                        p_rasterization_state: &raster,
+                        p_multisample_state: &multisample,
+                        p_depth_stencil_state: &no_depth,
+                        p_color_blend_state: &blend,
+                        p_dynamic_state: &dyn_state,
+                        layout,
+                        render_pass: pass_handle,
+                        subpass: 0,
+                        ..Default::default()
+                    };
+                    match device.device.create_graphics_pipelines(vk::PipelineCache::null(), &[info], None) {
+                        Ok(mut pipes) => {
+                            self.studio_pipe = pipes.remove(0);
+                            self.studio_layout = Some(layout);
+                            eprintln!("[studio] pipeline ready (vertex-color world + chat panel)");
+                        }
+                        Err((_, e)) => {
+                            eprintln!("[studio] pipeline creation failed: {e:?} -- clear-only");
+                        }
+                    }
+                    let _ = device.device.destroy_shader_module(vmod, None);
+                    let _ = device.device.destroy_shader_module(fmod, None);
+                }
+
+                self.allocator = Some(allocator);
+
                 self.entry = Some(entry);
                 self.instance = Some(instance);
                 self.surface = surface;
@@ -455,6 +686,71 @@ pub mod vulkan {
                 };
                 dev.device.cmd_begin_render_pass(cmd, &rp_begin, vk::SubpassContents::INLINE);
                 dev.device.cmd_clear_attachments(cmd, &subpass, &[sc_rect]);
+
+                // ---- Studio draws: world viewport (right), chat panel (left)
+                if self.studio_pipe == vk::Pipeline::null() {
+                    let layout = match self.studio_layout {
+                        Some(l) => l,
+                        None => {
+                            dev.device.cmd_end_render_pass(cmd);
+                            return Ok(());
+                        }
+                    };
+                    let full_w = sc.extents[0];
+                    let full_h = sc.extents[1];
+                    let panel = STUDIO_PANEL_W.min(full_w.saturating_sub(1));
+
+                    if self.world_count > 0 {
+                        if let Some((buf, _, _)) = self.world_buf.as_ref() {
+                            let vx = panel;
+                            let vw = full_w - vx;
+                            dev.device.cmd_bind_pipeline(
+                                cmd, vk::PipelineBindPoint::GRAPHICS, self.studio_pipe);
+                            dev.device.cmd_set_viewport(cmd, 0, &[vk::Viewport {
+                                x: vx as f32, y: 0.0,
+                                width: vw as f32, height: full_h as f32,
+                                min_depth: 0.0, max_depth: 1.0,
+                            }]);
+                            dev.device.cmd_set_scissor(cmd, 0, &[vk::Rect2D {
+                                offset: vk::Offset2D { x: vx as i32, y: 0 },
+                                extent: vk::Extent2D { width: vw, height: full_h },
+                            }]);
+                            dev.device.cmd_bind_vertex_buffers(cmd, 0, &[*buf], &[0]);
+                            dev.device.cmd_push_constants(
+                                cmd, layout, vk::ShaderStageFlags::VERTEX, 0,
+                                std::slice::from_raw_parts(
+                                    self.world_mvp.as_ptr() as *const u8, 64),
+                            );
+                            dev.device.cmd_draw(cmd, self.world_count, 1, 0, 0);
+                        }
+                    }
+
+                    if self.ui_count > 0 && panel > 0 {
+                        if let Some((buf, _, _)) = self.ui_buf.as_ref() {
+                            dev.device.cmd_bind_pipeline(
+                                cmd, vk::PipelineBindPoint::GRAPHICS, self.studio_pipe);
+                            dev.device.cmd_set_viewport(cmd, 0, &[vk::Viewport {
+                                x: 0.0, y: 0.0,
+                                width: panel as f32, height: full_h as f32,
+                                min_depth: 0.0, max_depth: 1.0,
+                            }]);
+                            dev.device.cmd_set_scissor(cmd, 0, &[vk::Rect2D {
+                                offset: vk::Offset2D { x: 0, y: 0 },
+                                extent: vk::Extent2D { width: panel, height: full_h },
+                            }]);
+                            dev.device.cmd_bind_vertex_buffers(cmd, 0, &[*buf], &[0]);
+                            // pixel-space ortho; y down
+                            let mvp = panel_ortho(panel, full_h);
+                            let bytes = std::slice::from_raw_parts(
+                                mvp.as_ptr() as *const u8, 64);
+                            dev.device.cmd_push_constants(
+                                cmd, layout, vk::ShaderStageFlags::VERTEX, 0, bytes,
+                            );
+                            dev.device.cmd_draw(cmd, self.ui_count, 1, 0, 0);
+                        }
+                    }
+                }
+
                 dev.device.cmd_end_render_pass(cmd);
             }
             Ok(())
@@ -496,10 +792,68 @@ pub mod vulkan {
 
         fn end_frame(&mut self) -> Result<(), String> { Ok(()) }
 
+        fn studio_ready(&self) -> bool {
+            !(self.studio_pipe == vk::Pipeline::null())
+        }
+
+        fn set_world_mvp(&mut self, mvp: [f32; 16]) {
+            self.world_mvp = mvp;
+        }
+
+        fn upload_world_mesh(&mut self, verts: &[f32]) {
+            let bytes_len = (verts.len() * 4) as u64;
+            if verts.is_empty() {
+                self.world_count = 0;
+                return;
+            }
+            if let (Some(dev), Some(alloc)) = (self.device.as_ref(), self.allocator.as_mut()) {
+                match ensure_host_buffer(dev, alloc, &mut self.world_buf, bytes_len) {
+                    Ok(()) => {
+                        write_host_buffer(&mut self.world_buf, verts);
+                        self.world_count = (verts.len() / 6) as u32;
+                    }
+                    Err(e) => eprintln!("[studio] world buffer: {e}"),
+                }
+            }
+        }
+
+        fn upload_panel_mesh(&mut self, verts: &[f32]) {
+            let bytes_len = (verts.len() * 4) as u64;
+            if verts.is_empty() {
+                self.ui_count = 0;
+                return;
+            }
+            if let (Some(dev), Some(alloc)) = (self.device.as_ref(), self.allocator.as_mut()) {
+                match ensure_host_buffer(dev, alloc, &mut self.ui_buf, bytes_len) {
+                    Ok(()) => {
+                        write_host_buffer(&mut self.ui_buf, verts);
+                        self.ui_count = (verts.len() / 6) as u32;
+                    }
+                    Err(e) => eprintln!("[studio] panel buffer: {e}"),
+                }
+            }
+        }
+
         fn shutdown(&mut self) -> Result<(), String> {
             if let Some(dev) = self.device.take() {
                 unsafe {
                     let _ = dev.device.device_wait_idle();
+                    // Studio resources first
+                    if self.studio_pipe == vk::Pipeline::null() {
+                        dev.device.destroy_pipeline(self.studio_pipe, None);
+                        self.studio_pipe = vk::Pipeline::null();
+                    }
+                    if let Some(layout) = self.studio_layout.take() {
+                        dev.device.destroy_pipeline_layout(layout, None);
+                    }
+                    if let Some(alloc) = self.allocator.as_mut() {
+                        if let Some((buf, mut a, _)) = self.world_buf.take() {
+                            alloc.free_buffer(buf, &mut a);
+                        }
+                        if let Some((buf, mut a, _)) = self.ui_buf.take() {
+                            alloc.free_buffer(buf, &mut a);
+                        }
+                    }
                     for fb in self.framebuffers.drain(..) {
                         dev.device.destroy_framebuffer(fb, None);
                     }
@@ -603,3 +957,15 @@ pub fn get_gpu_info() -> String {
     }
     "Unknown".to_string()
 }
+
+    /// Column-major ortho mapping pixel coords (y down) to NDC.
+    fn panel_ortho(w: u32, h: u32) -> [f32; 16] {
+        let wf = w as f32;
+        let hf = h as f32;
+        [
+            2.0 / wf, 0.0, 0.0, 0.0,
+            0.0, -2.0 / hf, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            -1.0, 1.0, 0.0, 1.0,
+        ]
+    }

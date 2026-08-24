@@ -46,10 +46,15 @@ pub mod editor;
 mod logging;
 mod game_loop;
 pub mod world_bridge;
+pub mod studio;
 
 use app::*;
 use logging::*;
 use game_loop::*;
+
+/// Studio target set by `litt studio [game]` before App::create runs.
+/// Some(None) == studio mode with engine-default assets.
+pub static STUDIO_TARGET: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
 
 /// Main entry point
 fn print_version() {
@@ -61,6 +66,14 @@ fn print_version() {
 fn run_cli() -> Option<i32> {
     let args: Vec<String> = std::env::args().skip(1).collect();
     match args.first().map(|s| s.as_str()) {
+        Some("studio") => {
+            // Unity-style window: chat panel + live viewport. Optional arg
+            // names a game under Project/ to open immediately.
+            let target = args.get(1).cloned();
+            let _ = STUDIO_TARGET.set(target);
+            print_version();
+            None // fall through into the windowed app
+        }
         Some("edit") => {
             let path = args.get(1).cloned().unwrap_or_else(|| "untitled.lscn.json".to_string());
             print_version();
@@ -73,8 +86,9 @@ fn run_cli() -> Option<i32> {
             }
         }
         Some("--help") | Some("-h") | Some("help") => {
-            println!("Usage: litt [edit <scene.lscn.json>]");
+            println!("Usage: litt [studio [game]] [edit <scene.lscn.json>]");
             println!("  (no args)          run the game");
+            println!("  studio [game]      chat-driven builder: chat + live viewport");
             println!("  edit <scene>       open the scene editor (creates file when missing)");
             Some(0)
         }

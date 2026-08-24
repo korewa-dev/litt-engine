@@ -50,6 +50,21 @@ pub struct App {
     pub backend: Option<Box<dyn crate::graphics::GraphicsBackend>>,
     /// One-time notice when no GPU pipeline is available
     pub warned_no_renderer: bool,
+    // ---- Studio mode (chat panel + live viewport) ----
+    /// Chat panel state when running as Studio
+    pub studio_panel: Option<crate::studio::Panel>,
+    /// Background build jobs streaming into the chat
+    pub studio_bus: crate::studio::JobBus,
+    /// Orbit camera around the world bounds (Studio viewport)
+    pub orbit: Option<crate::studio::OrbitCam>,
+    /// Asset base path ("assets" normally; "<game>/assets" in Studio)
+    pub asset_base: String,
+    /// Loaded game directory (Studio)
+    pub game_dir: Option<String>,
+    /// Re-upload world mesh on next frame
+    pub dirty_world: bool,
+    /// Re-rasterize chat panel on next frame
+    pub dirty_panel: bool,
 }
 
 impl App {
@@ -116,12 +131,36 @@ impl App {
             enable_debug_overlay: config.settings.enable_debug_overlay,
         });
 
-        // Create scene graph -- load the AI-generated world when present
+        // Create scene graph -- load the AI-generated world when present.
+        // Studio mode loads the target game's world instead.
         let mut scene = SceneGraph::new();
         let mut areas = litt_scene::AreaSystem::new();
-        let scene_path = "assets/scenes/world.lscn.json";
-        if std::path::Path::new(scene_path).exists() {
-            match litt_scene::load_graph_and_areas_file(scene_path) {
+        let mut asset_base = "assets".to_string();
+        let mut game_dir: Option<String> = None;
+        let studio_target = crate::STUDIO_TARGET.get().cloned().flatten();
+        let scene_path: String = match &studio_target {
+            Some(target) => {
+                let dir = resolve_game_dir(target);
+                match &dir {
+                    Some(d) => {
+                        asset_base = format!("{}/assets", d);
+                        println!("[studio] target game: {}", d);
+                        game_dir = Some(d.clone());
+                        format!("{}/assets/scenes/world.lscn.json", d)
+                    }
+                    None => {
+                        eprintln!(
+                            "[studio] no game '{}' under Project/ - falling back to engine assets",
+                            target
+                        );
+                        "assets/scenes/world.lscn.json".to_string()
+                    }
+                }
+            }
+            None => "assets/scenes/world.lscn.json".to_string(),
+        };
+        if std::path::Path::new(&scene_path).exists() {
+            match litt_scene::load_graph_and_areas_file(&scene_path) {
                 Ok((loaded, area_defs)) => {
                     println!("Scene: {} ({} nodes)", scene_path, loaded.nodes.len() - 1);
                     for a in area_defs {
@@ -133,6 +172,9 @@ impl App {
                 Err(e) => eprintln!("Scene load failed: {}", e),
             }
         }
+
+        // Studio chat comes alive only in studio mode
+        let studio_panel = studio_target.is_some().then(crate::studio::Panel::default);
 
         // Create asset manager
         let asset_manager = AssetManager::new()
@@ -162,6 +204,13 @@ impl App {
             bridge_stats: crate::world_bridge::BridgeStats::default(),
             backend: None,
             warned_no_renderer: false,
+            studio_panel,
+            studio_bus: crate::studio::JobBus::new(),
+            orbit: None,
+            asset_base,
+            game_dir,
+            dirty_world: true,
+            dirty_panel: true,
         })
     }
 
@@ -240,16 +289,24 @@ impl App {
                 self.build_settings_menu();
             }
 
+            // Studio chat owns the keyboard when the panel is up
+            self.studio_input();
+
             // Calculate delta time
             let now = std::time::Instant::now();
             let dt = now.duration_since(last_time).as_secs_f32().min(0.05);
             last_time = now;
 
             // Poll gameplay input (camera) unless a menu owns the keyboard
-            self.poll_input();
+            if !self.is_studio() {
+                self.poll_input();
+            }
 
             // Update systems
             self.update(dt);
+
+            // Studio background jobs + orbit
+            self.studio_tick(dt);
 
             // Render
             self.render();
@@ -257,6 +314,15 @@ impl App {
             // End frame
             self.input.end_frame();
             self.game_loop.frame_count += 1;
+
+            // Frame limiter: honor settings.max_fps so idle Studio doesn't
+            // burn the GPU/CPU (vsync also gates, but not all present modes).
+            let max = self.config.settings.max_fps.max(15) as f32;
+            let budget = std::time::Duration::from_secs_f32(1.0 / max);
+            let spent = last_time.elapsed();
+            if spent < budget {
+                std::thread::sleep(budget - spent);
+            }
         }
 
         // Cleanup
@@ -404,12 +470,49 @@ impl App {
     fn render(&mut self) {
         let (w, h) = self.window.size();
         let aspect = w as f32 / h.max(1) as f32;
+        // Trait-level camera (legacy pipelines); the Studio viewport drives
+        // its own orbit MVP through set_world_mvp below.
         let camera = self.camera_controls.to_camera(90.0, aspect);
 
         // Deploy the loaded world natively: real OBJ meshes -> tracer scene.
         // Rebuilt per frame for now; cached once the scene stops changing.
-        let (world_scene, stats) = crate::world_bridge::build_render_scene(&self.scene, "assets");
+        let base = self.asset_base.clone();
+        let (world_scene, stats) = crate::world_bridge::build_render_scene(&self.scene, &base);
         self.bridge_stats = stats;
+
+        // Studio: keep the GPU-side world mesh + chat panel in sync
+        if self.is_studio() {
+            if let Some(ref mut backend) = self.backend {
+                if backend.studio_ready() {
+                    if self.dirty_world {
+                        let (verts, cam) = crate::studio::scene_to_verts(&world_scene);
+                        if let Some(c) = cam {
+                            self.orbit = Some(c);
+                        }
+                        backend.upload_world_mesh(&verts);
+                        eprintln!(
+                            "[studio] world mesh: {} tris",
+                            verts.len() / 18
+                        );
+                        self.dirty_world = false;
+                    }
+                    if let Some(orbit) = &self.orbit {
+                        // aspect of the viewport slice only
+                        let vw = w.saturating_sub(crate::graphics::STUDIO_PANEL_W).max(1);
+                        backend.set_world_mvp(orbit.mvp(vw as f32 / h.max(1) as f32));
+                    }
+                    if self.dirty_panel {
+                        if let Some(panel) = &mut self.studio_panel {
+                            let scale = 2.0f32.max((h as f32 / 720.0) * 2.0);
+                            let verts = panel.raster(
+                                crate::graphics::STUDIO_PANEL_W, h, scale);
+                            backend.upload_panel_mesh(&verts);
+                            self.dirty_panel = false;
+                        }
+                    }
+                }
+            }
+        }
 
         // Render through the live GPU swapchain when available
         if self.backend.is_some() {
@@ -451,6 +554,272 @@ impl App {
         self.config.save().ok();
         // Audio cleanup would go here
     }
+}
+
+// ===========================================================================
+// Studio mode implementation
+// ===========================================================================
+impl App {
+    pub fn is_studio(&self) -> bool {
+        self.studio_panel.is_some()
+    }
+
+    /// Capture typed characters + Enter into the chat input line.
+    fn studio_input(&mut self) {
+        if !self.is_studio() || self.settings_menu.open {
+            return;
+        }
+        // Phase 1: read key transitions (immutable borrow only).
+        let (ch, back, enter) = {
+            let st = self.input.state();
+            let shift = st.key_down(Key::LShift) || st.key_down(Key::RShift);
+            let mut ch: Option<char> = None;
+            const L: &[Key] = &[
+                Key::A, Key::B, Key::C, Key::D, Key::E, Key::F, Key::G, Key::H,
+                Key::I, Key::J, Key::K, Key::L, Key::M, Key::N, Key::O, Key::P,
+                Key::Q, Key::R, Key::S, Key::T, Key::U, Key::V, Key::W, Key::X,
+                Key::Y, Key::Z,
+            ];
+            for (i, k) in L.iter().enumerate() {
+                if st.key_pressed(*k) {
+                    let base = b'a' + i as u8;
+                    ch = Some(if shift {
+                        base as char
+                    } else {
+                        base.to_ascii_lowercase() as char
+                    });
+                    break;
+                }
+            }
+            if ch.is_none() {
+                const N: &[Key] = &[
+                    Key::Num1, Key::Num2, Key::Num3, Key::Num4, Key::Num5,
+                    Key::Num6, Key::Num7, Key::Num8, Key::Num9, Key::Num0,
+                ];
+                const UNSHIFTED: [char; 10] =
+                    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+                const SHIFTED: [char; 10] =
+                    ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')'];
+                for (i, k) in N.iter().enumerate() {
+                    if st.key_pressed(*k) {
+                        ch = Some(if shift { SHIFTED[i] } else { UNSHIFTED[i] });
+                        break;
+                    }
+                }
+            }
+            if ch.is_none() && st.key_pressed(Key::Space) {
+                ch = Some(' ');
+            }
+            if ch.is_none() {
+                let extra = [
+                    (Key::Minus, '-', '_'),
+                    (Key::Period, '.', '>'),
+                    (Key::Comma, ',', '<'),
+                    (Key::Slash, '/', '?'),
+                    (Key::Equals, '=', '+'),
+                ];
+                for (k, plain, shifted) in extra {
+                    if st.key_pressed(k) {
+                        ch = Some(if shift { shifted } else { plain });
+                        break;
+                    }
+                }
+            }
+            (ch, st.key_pressed(Key::Backspace), st.key_pressed(Key::Return))
+        };
+        // Phase 2: mutate the panel.
+        if let Some(panel) = &mut self.studio_panel {
+            if let Some(c) = ch {
+                if panel.input.chars().count() < 120 {
+                    panel.input.push(c);
+                    self.dirty_panel = true;
+                }
+            }
+            if back {
+                panel.input.pop();
+                self.dirty_panel = true;
+            }
+            if enter {
+                let line = std::mem::take(&mut panel.input);
+                self.dirty_panel = true;
+                if !line.trim().is_empty() {
+                    panel.log(&format!("> {}", line), crate::studio::Kind::User);
+                    self.dispatch_command(line.trim().to_string());
+                    self.dirty_panel = true;
+                }
+            }
+        }
+    }
+
+    /// Per-frame studio upkeep: caret blink, job results, orbit motion.
+    fn studio_tick(&mut self, dt: f32) {
+        if !self.is_studio() {
+            return;
+        }
+        if let Some(orbit) = &mut self.orbit {
+            orbit.angle += dt * 0.12 * if orbit.spin { 1.0 } else { 0.0 };
+        }
+        if let Some(panel) = &mut self.studio_panel {
+            panel.caret_timer += dt;
+            if panel.caret_timer >= 0.5 {
+                panel.caret_timer = 0.0;
+                panel.caret_on = !panel.caret_on;
+                self.dirty_panel = true;
+            }
+        }
+        for msg in self.studio_bus.poll() {
+            match msg {
+                crate::studio::StudioMsg::Line(line, kind) => {
+                    if kind == crate::studio::Kind::Ai || !line.trim().is_empty() {
+                        if let Some(panel) = &mut self.studio_panel {
+                            panel.log(&line, kind);
+                        }
+                        self.dirty_panel = true;
+                    }
+                }
+                crate::studio::StudioMsg::Done { ok, game_dir } => {
+                    if let Some(panel) = &mut self.studio_panel {
+                        panel.log(
+                            if ok { "build finished." } else { "build FAILED - see log above." },
+                            if ok { crate::studio::Kind::Sys } else { crate::studio::Kind::Err },
+                        );
+                    }
+                    self.dirty_panel = true;
+                    let _ = (game_dir, ok);
+                }
+            }
+        }
+    }
+
+    /// Route a chat line to the engine toolchain.
+    fn dispatch_command(&mut self, line: String) {
+        let lower = line.to_lowercase();
+        let mut bus = std::mem::take(&mut self.studio_bus);
+        macro_rules! say {
+            ($($a:tt)*) => {{
+                if let Some(p) = &mut self.studio_panel {
+                    p.log(&format!($($a)*), crate::studio::Kind::Sys);
+                }
+            }};
+        }
+        if lower == "help" {
+            say!("commands:");
+            say!("  make random                 build a surprise game");
+            say!("  make about <anything>       e.g. 'a haunted mall'");
+            say!("  load <name>                 open a built game");
+            say!("  regen                       re-run gameplay layer");
+            say!("  clear | quit");
+        } else if lower == "clear" {
+            if let Some(p) = &mut self.studio_panel {
+                p.lines.clear();
+            }
+        } else if lower == "quit" || lower == "exit" {
+            self.game_loop.stop();
+        } else if lower == "make" || lower == "make random" || lower.starts_with("random") {
+            if bus.running {
+                say!("busy - wait for the current build.");
+            } else {
+                say!("building a random complete game...");
+                bus.build_random();
+            }
+        } else if let Some(rest) = lower.strip_prefix("load ") {
+            let name = rest.trim();
+            match resolve_game_dir(name) {
+                Some(dir) => {
+                    self.reload_game(dir);
+                }
+                None => say!("no game '{}' under Project/", name),
+            }
+        } else if lower == "regen" {
+            if let Some(dir) = self.game_dir.clone() {
+                if bus.running {
+                    say!("busy.");
+                } else {
+                    say!("regenerating gameplay layer...");
+                    bus.spawn_tool(
+                        "template/tools/worldgen/enrich_game.py",
+                        &[
+                            "--game-dir".into(), dir.clone(),
+                            "--brief".into(), format!("{}/brief.json", dir),
+                            "--seed".into(), format!("{}", rand_seed()),
+                        ],
+                        None,
+                    );
+                    self.reload_game(dir);
+                }
+            } else {
+                say!("no game loaded.");
+            }
+        } else if let Some(about) = lower.strip_prefix("make about ") {
+            if bus.running {
+                say!("busy - wait for the current build.");
+            } else {
+                say!("interpreting request...");
+                bus.build_about(about.trim());
+            }
+        } else {
+            // Free-form text == describe your dream game
+            if bus.running {
+                say!("busy - wait for the current build.");
+            } else {
+                say!("reading that as a game brief...");
+                bus.build_about(&line);
+            }
+        }
+        self.studio_bus = bus;
+    }
+
+    /// Point the Studio at another game directory and refresh everything.
+    fn reload_game(&mut self, dir: String) {
+        let scene_path = format!("{}/assets/scenes/world.lscn.json", dir);
+        match litt_scene::load_graph_and_areas_file(&scene_path) {
+            Ok((graph, area_defs)) => {
+                let mut areas = litt_scene::AreaSystem::new();
+                for a in area_defs {
+                    areas.register(a);
+                }
+                self.scene = graph;
+                self.areas = areas;
+                self.asset_base = format!("{}/assets", dir);
+                self.game_dir = Some(dir.clone());
+                self.orbit = None; // rebuilt from fresh bounds
+                self.dirty_world = true;
+                if let Some(p) = &mut self.studio_panel {
+                    p.log(&format!("loaded {}", dir), crate::studio::Kind::Sys);
+                }
+                self.dirty_panel = true;
+                println!("[studio] loaded {}", dir);
+            }
+            Err(e) => {
+                if let Some(p) = &mut self.studio_panel {
+                    p.log(&format!("load failed: {}", e), crate::studio::Kind::Err);
+                }
+            }
+        }
+    }
+}
+
+/// Resolve a game name/path to a directory containing a world.
+fn resolve_game_dir(target: &str) -> Option<String> {
+    let candidates = [
+        target.to_string(),
+        format!("Project/{}", target),
+        format!("Project/{}.lscn", target),
+    ];
+    for c in candidates {
+        let p = std::path::Path::new(&c).join("assets/scenes/world.lscn.json");
+        if p.exists() {
+            return Some(c.replace('\\', "/"));
+        }
+    }
+    None
+}
+
+fn rand_seed() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.subsec_nanos() as u64 ^ (d.as_secs() << 17))
+        .unwrap_or(7)
 }
 
 
