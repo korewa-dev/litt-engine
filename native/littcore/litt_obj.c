@@ -113,7 +113,7 @@ int lv_obj_load(const char *path, LvModel *out) {
     while (line < end) {
         char *nl = memchr(line, '\n', (size_t)(end - line));
         char *next = nl ? nl + 1 : end;
-        *nl ? (*nl = 0) : 0;
+        if (nl) *nl = 0;   /* last line may lack '\n' - never deref NULL */
         /* trim */
         while (*line == ' ' || *line == '\t' || *line == '\r') line++;
         if (*line == 0 || *line == '#') { line = next; continue; }

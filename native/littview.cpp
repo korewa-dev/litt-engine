@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <filesystem>
 #include "littcore/litt_world.h"
 #include "littcore/litt_json.h"
 #include "littcore/litt_obj.h"
@@ -543,6 +544,14 @@ static int run_window(const char *dir) {
     SelectObject(mdc, bmp);
 
     float angle = 0.7f;
+    // live-reload: re-read the world when world_state.json changes on disk
+    std::filesystem::path ws = std::filesystem::path(dir) / "world_state.json";
+    auto ws_time = [&]() -> std::filesystem::file_time_type {
+        std::error_code ec;
+        auto t = std::filesystem::last_write_time(ws, ec);
+        return ec ? std::filesystem::file_time_type() : t;
+    };
+    auto last_mod = ws_time();
     MSG msg = {};
     for (;;) {
         while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -551,6 +560,11 @@ static int run_window(const char *dir) {
                 goto done;
             TranslateMessage(&msg);
             DispatchMessageA(&msg);
+        }
+        if (ws_time() != last_mod) {   // AI rewrote the world: reload it
+            last_mod = ws_time();
+            Scene fresh;
+            if (fresh.load(dir)) sc = fresh;
         }
         angle += 0.0016f;
         fb.clear();

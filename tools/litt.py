@@ -229,6 +229,34 @@ def cmd_studio():
     return 0
 
 
+def _find_csc():
+    """Locate Roslyn csc: CSC env var, then vswhere (official probe),
+    then well-known drive roots. Mirrors tools/build-studio.bat."""
+    env = os.environ.get("CSC")
+    if env and Path(env).exists():
+        return env
+    vswhere = Path(os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)"))
+    vswhere = vswhere / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
+    if vswhere.exists():
+        try:
+            out = subprocess.run(
+                [str(vswhere), "-latest", "-requires", "Microsoft.Component.MSBuild",
+                 "-find", r"MSBuild\**\Bin\MSBuild.exe"],
+                capture_output=True, text=True, timeout=20).stdout.strip()
+            if out:
+                msb = Path(out.splitlines()[0])
+                csc = msb.parent / "Roslyn" / "csc.exe"
+                if csc.exists():
+                    return str(csc)
+        except Exception:
+            pass
+    for d in ("D:", "C:"):
+        c = Path(d + r"\Program Files\Program\MSBuild\Current\Bin\Roslyn\csc.exe")
+        if c.exists():
+            return str(c)
+    return None
+
+
 def cmd_doctor():
     checks = [
         ("python", shutil.which("python") or shutil.which("python3")),
@@ -236,10 +264,7 @@ def cmd_doctor():
         ("g++", shutil.which("g++")),
         ("cc/make", shutil.which("make") or shutil.which("nmake")),
         ("cargo (rust player)", shutil.which("cargo")),
-        ("csc (C# studio)", Path(r"D:\Program Files\Program\MSBuild"
-                                 r"\Current\Bin\Roslyn\csc.exe").exists()
-         or Path(r"C:\Program Files\Program\MSBuild"
-                 r"\Current\Bin\Roslyn\csc.exe").exists()),
+        ("csc (C# studio)", _find_csc()),
         ("git", shutil.which("git")),
     ]
     print("%-24s %s" % ("TOOL", "STATUS"))

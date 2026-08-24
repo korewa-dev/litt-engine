@@ -902,58 +902,6 @@ sky_color: [0.10, 0.09, 0.14],
     }
 }
 
-/// DX12 backend wrapper
-#[cfg(feature = "dx12")]
-pub mod dx12 {
-    use super::*;
-    use litt_dx12::*;
-
-    pub struct Dx12Backend {
-        pub device: Option<litt_dx12::D3D12Device>,
-        pub features: GraphicsFeatures,
-    }
-
-    impl Dx12Backend {
-        pub fn new() -> Self {
-            Self {
-                device: None,
-                features: GraphicsFeatures::default(),
-            }
-        }
-
-        pub fn init(&mut self) -> Result<(), String> {
-            // DX12 initialization
-            Ok(())
-        }
-    }
-
-    impl GraphicsBackend for Dx12Backend {
-        fn name(&self) -> &str { "DX12" }
-
-        fn supports_ray_tracing(&self) -> bool {
-            self.features.ray_tracing
-        }
-
-        fn supports_mesh_shaders(&self) -> bool {
-            true
-        }
-
-        fn adapter_info(&self) -> &str {
-            "DX12 (Windows native)"
-        }
-
-        fn initialize(&mut self, _width: u32, _height: u32) -> Result<(), String> {
-            self.init()
-        }
-
-        fn begin_frame(&mut self) -> Result<(), String> { Ok(()) }
-        fn render(&mut self, _scene: &litt_pathtracer::Scene, _camera: &litt_pathtracer::Camera) -> Result<(), String> { Ok(()) }
-        fn present(&mut self) -> Result<(), String> { Ok(()) }
-        fn end_frame(&mut self) -> Result<(), String> { Ok(()) }
-        fn shutdown(&mut self) -> Result<(), String> { Ok(()) }
-    }
-}
-
 /// Select the best graphics backend (uninitialized -- call set_window +
 /// initialize on the returned backend before first use).
 pub fn select_backend() -> Result<Box<dyn GraphicsBackend>, String> {
@@ -962,20 +910,12 @@ pub fn select_backend() -> Result<Box<dyn GraphicsBackend>, String> {
         return Ok(Box::new(vulkan::VulkanBackend::new()));
     }
 
-    #[cfg(all(not(feature = "vulkan"), feature = "dx12"))]
-    {
-        return Ok(Box::new(dx12::Dx12Backend::new()));
-    }
-
     #[allow(unreachable_code)]
     Err("No graphics backend available".to_string())
 }
 
 /// Get the detected GPU info
 pub fn get_gpu_info() -> String {
-    if cfg!(feature = "dx12") {
-        return "DX12 (Windows native)".to_string();
-    }
     if cfg!(feature = "vulkan") {
         return "Vulkan".to_string();
     }
