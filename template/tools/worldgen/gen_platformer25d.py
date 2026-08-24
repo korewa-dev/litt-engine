@@ -3,16 +3,33 @@
 
 A side-scroller corridor along +X: floor runs with death pits, floating
 platforms, spike hazards, coin arcs, parallax backdrop slabs, goal flag.
-Genre math: jump-arc feasibility (v^2 = 2*g*h, range = v_x * 2*v_y/g)
-drives gap widths; parallax depth layering for the backdrop.
-Usage: python gen_platformer25d.py [--out-dir .] [--agent ai] [--prompt "..."]
+Genre math: jump-arc feasibility (algokit.solve_jump_arc: h=v^2/2g,
+range=v_x*2v/g) caps every generated gap width at physically clearable
+ranges; --seed drives ALL layout numbers through worldkit.Rng so the same
+seed reproduces the level byte-for-byte (WORLDGEN_AUDIT item 19).
+
+Conventions (WORLDGEN_AUDIT items 20/21):
+  * every mesh is built AT ORIGIN and placed purely via node.position -
+    coins share ONE coin.obj through instance nodes, platforms come in
+    three reusable widths instanced at seed-driven spots; the walkable
+    track stays a single level-node mesh whose vertices are relative to
+    that node's pivot (never absolute world coords);
+  * pit spans and spike clusters are dedicated origin-centered hazard
+    meshes placed as nodes tagged ["hazard"] - native/littcore/litt_world.c
+    maps the "hazard" tag to LV_F_HAZARD kill/respawn semantics, so no
+    fake pickup/enemy tags are emitted;
+  * state.gameplay.hazards prose documents those same nodes.
+
+Usage: python gen_platformer25d.py [--out-dir .] [--seed 909]
+                                   [--agent ai-agent] [--prompt "..."]
 """
 import argparse
 import datetime
 from pathlib import Path
 
-from worldkit import (MeshBuilder, write_mtl_for, register_index,
-                      write_scene, write_state, append_log, save_prop)
+from algokit import can_clear_gap, solve_jump_arc
+from worldkit import (MeshBuilder, Rng, append_log, save_prop,
+                      write_mtl_for, write_scene, write_state)
 
 SEED_S = 909
 MATS = {
@@ -37,10 +54,17 @@ class PartHandle:
     def prism(self, *a): self.mb.roof_prism(*a)
     def octahedron(self, *a): self.mb.octahedron(*a)
 
-# Jump math: g=30, v_y=12 -> max height h=v^2/2g=2.4 m; airtime t=2*v/g=0.8 s;
-# with run speed 8 m/s -> max clearable gap ~= 6.4 m. Gaps stay at 3.0-4.5 m.
-GAPS = [(14.0, 3.2), (30.0, 4.2), (46.5, 3.8), (62.0, 4.5)]
-LEVEL_LEN = 78.0
+# Jump math (mirrored verbatim into state.gameplay.physics):
+# g=30 m/s^2, v_y=12 m/s -> peak height v^2/2g = 2.4 m, airtime 2v/g = 0.8 s;
+# run speed 8 m/s -> max clearable gap = run*airtime = 6.4 m. Generated gaps
+# stay within [GAP_MIN_M, GAP_MAX_M] and are re-checked with algokit's
+# can_clear_gap so nothing unjumpable can ever ship.
+GRAVITY, JUMP_V, RUN_SPEED = 30, 12, 8
+GAP_MIN_M, GAP_MAX_M = 3.0, 4.6
+# Three reusable deck meshes (half-widths -> 2.0 / 2.6 / 3.2 m decks).
+PLATFORM_VARIANTS = (("platform_short", 1.0),
+                     ("platform_mid", 1.3),
+                     ("platform_long", 1.6))
 
 def main():
     ap = argparse.ArgumentParser()
@@ -54,96 +78,160 @@ def main():
     models.mkdir(parents=True, exist_ok=True)
     assets_dir = root / "assets"
     write_mtl_for(models, "materials", MATS)
-    made = []; placed = []
 
-    mb = MeshBuilder(); kit = Kit(mb)
-    floor = kit("floor", "cinder_floor")
-    edges = [(-6.0)] + [g[0] for g in GAPS] + [LEVEL_LEN]
-    seg_starts = [-6.0]
-    for gx, gw in GAPS:
-        seg_starts.append(gx + gw)
-    pairs = []
-    starts = [-6.0] + [g[0] + g[1] for g in GAPS]
-    ends   = [g[0] for g in GAPS] + [LEVEL_LEN]
+    arc = solve_jump_arc(JUMP_V, GRAVITY, RUN_SPEED)
+    max_gap_m = min(arc["max_range_m"], 6.4)
+    assert GAP_MAX_M <= max_gap_m, "generated gap range exceeds jump physics"
+
+    # ---- TASK 19: every layout number comes from Rng(seed) -------------
+    rng = Rng(a.seed)
+    n_gaps = 4 + rng.next_u32() % 2                    # 4..5 pits
+    gaps, xcur = [], 12.0
+    for _ in range(n_gaps):
+        gx = round(xcur + rng.uniform(11.0, 16.0), 2)  # run before the pit
+        gw = round(rng.uniform(GAP_MIN_M, GAP_MAX_M), 2)
+        assert can_clear_gap(gw, JUMP_V, GRAVITY, RUN_SPEED), \
+            "gap %.2f m exceeds clearable %.2f m" % (gw, max_gap_m)
+        gaps.append((gx, gw))
+        xcur = gx + gw
+    level_len = round(xcur + 14.0, 2)                  # run-out + flag room
+    track_x = round(level_len / 2.0, 2)                # track node pivot
+
+    n_plats = 5 + rng.next_u32() % 3                   # 5..7 platforms
+    plats, tries = [], 0
+    while len(plats) < n_plats and tries < 200:
+        tries += 1
+        px = round(rng.uniform(8.0, level_len - 12.0), 2)
+        py = round(rng.uniform(1.2, 2.2), 2)           # <= peak jump height
+        if any(abs(px - q[0]) < 4.0 for q in plats):
+            continue                                   # keep decks apart
+        plats.append((px, py))
+
+    made, placed = [], []
+
+    def prop(name, mb, enforce_origin=True):
+        """TASK 20 convention: write one AT-ORIGIN mesh; placement lives
+        solely in the scene node position tuples appended by callers."""
+        save_prop(models, name, mb, "materials", MATS, assets_dir=assets_dir,
+                  enforce_origin=enforce_origin)
+        made.append(name + ".obj")
+
+    # ---- walkable track: ONE level-node mesh, verts relative to pivot --
+    mb = MeshBuilder(); kit = Kit(mb); floor = kit("floor", "cinder_floor")
+    starts = [-6.0] + [g[0] + g[1] for g in gaps]
+    ends = [g[0] for g in gaps] + [level_len]
     for s0, s1 in zip(starts, ends):
         if s1 > s0:
-            cxm = (s0 + s1) / 2.0; w = s1 - s0
-            floor.box(cxm, -0.55, 0, w/2, 0.55, 1.3)
-    dark = kit("pit_floor", "cinder_dark")
-    for gx, gw in GAPS:
-        dark.box(gx + gw/2, -2.0, 0, gw/2, 0.2, 1.3)
-    spikes = kit("spikes", "spike_iron")
-    for gx, gw in GAPS:
-        n = int(gw / 0.7)
-        for k in range(n):
-            sxp = gx + 0.35 + k * 0.7
-            spikes.cone(sxp, -1.8, 0, 0.16, 0.5, seg=6)
-    name = "level_track"
-    obj_text, nv, nf = mb.to_obj(name, "materials")
-    (models / (name + ".obj")).write_text(obj_text, encoding="utf-8")
-    register_index(assets_dir, name, "models/" + name + ".obj")
-    made.append(name + ".obj")
-    placed.append(("Level_Track", [LEVEL_LEN/2 - 3, 0, 0], 0, ["level","floor"]))
+            cxm = (s0 + s1) / 2.0 - track_x
+            floor.box(cxm, -0.55, 0, (s1 - s0) / 2, 0.55, 1.3)
+    prop("level_track", mb, enforce_origin=False)  # sanctioned level-node
+    placed.append(("Level_Track", [track_x, 0, 0], 0, ["level", "floor"],
+                   "level_track"))
 
-    plats = [(10.5, 1.6, 2.6), (27.0, 2.4, 2.2), (33.5, 1.2, 2.8), (43.0, 2.8, 2.4),
-             (58.5, 1.9, 2.6), (66.0, 3.1, 2.2), (71.0, 2.2, 2.6)]
-    for i, (px, py, pw) in enumerate(plats):
-        nm = "Platform_%02d" % (i+1)
-        mb = MeshBuilder(); k = Kit(mb); pf = k("deck", "steel_platform")
-        pf.box(px, py, 0, pw/2, 0.12, 1.1)
-        save_prop(models, nm, mb, "materials", MATS, assets_dir)
-        made.append(nm + ".obj")
-        placed.append((nm, [px, py, 0], 0, ["platform"]))
+    # ---- platforms: three reusable decks instanced per slot ------------
+    for vname, hw in PLATFORM_VARIANTS:
+        vmb = MeshBuilder(); vk = Kit(vmb); dk = vk("deck", "steel_platform")
+        dk.box(0, 0, 0, hw, 0.12, 1.1)                 # centered at origin
+        prop(vname, vmb)
+    for i, (px, py) in enumerate(plats):
+        vi = rng.next_u32() % len(PLATFORM_VARIANTS)
+        placed.append(("Platform_%02d" % (i + 1), [px, py, 0], 0,
+                       ["platform"], PLATFORM_VARIANTS[vi][0]))
 
-    coin_id = 0
-    for gx, gw in GAPS:
-        for arc in (-0.5, 0.0, 0.5):
-            coin_id += 1
-            nm = "Coin_%02d" % coin_id
-            mb = MeshBuilder(); k = Kit(mb); co = k("coin", "coin_amber")
-            co.octahedron(gx + gw/2 + arc*gw*0.5, 1.5 + (0.4 - abs(arc)*0.8) + 0.6, 0, 0.16)
-            save_prop(models, nm, mb, "materials", MATS, assets_dir)
-            made.append(nm + ".obj")
-            placed.append((nm, [round(gx + gw/2 + arc*gw*0.5, 2), round(2.1 - abs(arc)*0.8 + 0.4, 2), 0], 0, ["pickup","score"]))
+    # ---- coins: ONE mesh, every coin an instance node ------------------
+    cmb = MeshBuilder(); ck = Kit(cmb); co = ck("coin", "coin_amber")
+    co.octahedron(0, 0, 0, 0.16)
+    prop("coin", cmb)
+    n_coins = 0
+    for gx, gw in gaps:
+        offs = sorted(rng.uniform(-0.5, 0.5) for _ in range(3))
+        for off in offs:
+            n_coins += 1
+            cxp = round(gx + gw / 2 + off * gw * 0.5, 2)
+            cyp = round(1.5 + 0.8 * (1.0 - abs(off))
+                        + rng.uniform(-0.1, 0.1), 2)
+            placed.append(("Coin_%02d" % n_coins, [cxp, cyp, 0], 0,
+                           ["pickup", "score"], "coin"))
 
-    mb = MeshBuilder(); k = Kit(mb); fl = k("pole", "pole_grey")
-    fl.cyl(LEVEL_LEN - 2, 0, 0, 0.06, 0.05, 3.2, seg=8)
-    fg = k("cloth", "flag_red"); fg.prism(LEVEL_LEN - 2, 2.5, 0.45, 0.05, 0.45, 0.55)
-    save_prop(models, "goal_flag", mb, "materials", MATS, assets_dir)
-    made.append("goal_flag.obj")
-    placed.append(("Goal_Flag", [LEVEL_LEN - 2, 0, 0], 0, ["goal","win"]))
+    # ---- TASK 21: hazards leave the baked track, become tagged nodes ---
+    # Node sits mid-gap at y=-1.5 so the engine's interact-radius kill
+    # sphere triggers inside the pit yet never clips legitimate jumps;
+    # meshes below bake only the offsets relative to that node origin.
+    pmb = MeshBuilder(); pk = Kit(pmb); pz = pk("pit", "cinder_dark")
+    pz.box(0, -0.5, 0, 1.4, 0.2, 1.3)                  # dark slab, y=-2 wrld
+    prop("hazard_pit", pmb)
+    smb = MeshBuilder(); sk = Kit(smb); sp = sk("spikes", "spike_iron")
+    for sxp in (-1.05, -0.35, 0.35, 1.05):             # symmetric cluster
+        sp.cone(sxp, -0.35, 0, 0.16, 0.5, seg=6)
+    prop("hazard_spikes", smb)
+    for hi, (gx, gw) in enumerate(gaps):
+        hx = round(gx + gw / 2, 2)
+        placed.append(("Hazard_Pit_%02d" % (hi + 1), [hx, -1.5, 0], 0,
+                       ["hazard", "pit"], "hazard_pit"))
+        placed.append(("Hazard_Spike_%02d" % (hi + 1), [hx, -1.5, 0], 0,
+                       ["hazard", "spikes"], "hazard_spikes"))
 
-    for depth, (zoff, h, matname) in enumerate([(-5.5, 7.0, "bg_near"), (-11.0, 11.0, "bg_far")]):
-        nm = "Backdrop_%s" % ("Near" if depth == 0 else "Far")
-        mb = MeshBuilder(); k = Kit(mb); bg = k("slab", matname)
-        bg.box(LEVEL_LEN/2 - 3, h/2 - 1.0, zoff, LEVEL_LEN/2 + 8, h/2, 0.3)
-        save_prop(models, nm, mb, "materials", MATS, assets_dir)
-        made.append(nm + ".obj")
-        placed.append((nm, [LEVEL_LEN/2 - 3, 0, zoff], 0, ["backdrop","parallax_" + str(depth+1)]))
+    # ---- goal flag: built at origin, mirrored cloth keeps centroid 0 ---
+    fmb = MeshBuilder(); fk = Kit(fmb); pole = fk("pole", "pole_grey")
+    pole.cyl(0, 0, 0, 0.06, 0.05, 3.2, seg=8)
+    cloth = fk("cloth", "flag_red")
+    cloth.prism(0, 2.5, 0.45, 0.05, 0.45, 0.55)
+    cloth.prism(0, 2.5, -0.45, 0.05, 0.45, 0.55)
+    prop("goal_flag", fmb)
+    placed.append(("Goal_Flag", [round(level_len - 2, 2), 0, 0], 0,
+                   ["goal", "win"], "goal_flag"))
 
-    write_scene(root / "assets" / "scenes" / "world.lscn.json", placed, "rusty-cinder-run")
+    # ---- parallax backdrops --------------------------------------------
+    for bi, (zoff, hgt, matname, suffix) in enumerate(
+            [(-5.5, 7.0, "bg_near", "Near"), (-11.0, 11.0, "bg_far", "Far")]):
+        bmb = MeshBuilder(); bk = Kit(bmb); bg = bk("slab", matname)
+        bg.box(0, hgt / 2 - 1.0, 0, level_len / 2 + 8, hgt / 2, 0.3)
+        nm = "backdrop_" + suffix.lower()
+        prop(nm, bmb)
+        placed.append(("Backdrop_" + suffix, [track_x, 0, zoff], 0,
+                       ["backdrop", "parallax_%d" % (bi + 1)], nm))
+
+    write_scene(root / "assets" / "scenes" / "world.lscn.json", placed,
+                "rusty-cinder-run")
     state = {
       "format": "litt-live-state", "version": 1, "mode": "ai-exclusive",
       "theme": "rusty-cinder-run",
-      "updated": datetime.datetime.now().isoformat(timespec="seconds"),
+      # deterministic wall-clock stand-in: same seed -> byte-identical state
+      "updated": (datetime.datetime(2000, 1, 1)
+                  + datetime.timedelta(seconds=a.seed & 0xFFFF)
+                  ).isoformat(timespec="seconds"),
       "seed": {"layout": a.seed},
       "chunk_size": 0, "radius": 0,
-      "camera": {"target": [30, 1.5, 0], "distance": 26},
+      "camera": {"target": [round(track_x, 2), 1.5, 0], "distance": 26},
       "chunks": [],
       "palette": MATS,
       "gameplay": {"genre": "platformer_2_5d",
-                   "physics": {"gravity": 30, "jump_velocity": 12, "run_speed": 8,
-                               "max_jump_height_m": 2.4, "max_gap_m": 6.4,
+                   "physics": {"gravity": GRAVITY, "jump_velocity": JUMP_V,
+                               "run_speed": RUN_SPEED,
+                               "max_jump_height_m": arc["peak_height_m"],
+                               "max_gap_m": arc["max_range_m"],
                                "coyote_time_s": 0.10, "jump_buffer_s": 0.12},
-                   "hazards": {"spikes": "instant respawn at level start", "pits": "fall = respawn"},
-                   "scoring": {"coins": 12, "goal_bonus": 250}}
+                   "hazards": {
+                     "pits": "%d gap spans marked by Hazard_Pit_* nodes "
+                             "tagged ['hazard'] - falling in = instant "
+                             "respawn at level start" % n_gaps,
+                     "spikes": "%d spike clusters marked by Hazard_Spike_* "
+                               "nodes tagged ['hazard'] on each pit floor - "
+                               "touching = instant respawn" % n_gaps},
+                   "scoring": {"coins": n_coins, "goal_bonus": 250}}
     }
     write_state(root / "world_state.json", state)
     append_log(root / "LIVE_LOG.md", a.agent, a.prompt,
                "RUSTY CINDER RUN 2.5D level (seed %d)" % a.seed,
-               ["%d m track, %d gaps with spike pits, %d platforms, %d coins, goal flag" % (LEVEL_LEN, len(GAPS), len(plats), coin_id),
-                "jump-arc verified gaps (<= 6.4 m max range); physics constants in state"])
-    print("[platformer] ready: %d assets, %d scene nodes" % (len(made), len(placed)))
+               ["%d m track, %d seeded gaps (<= %.1f m jump cap), "
+                "%d instanced platforms (3 deck meshes), %d coins (1 mesh), "
+                "%d hazard nodes, goal flag"
+                % (level_len, n_gaps, max_gap_m, len(plats), n_coins,
+                   2 * n_gaps),
+                "conventions: meshes at origin + node.position placement, "
+                "hazards tagged ['hazard'] for LV_F_HAZARD kill semantics"])
+    print("[platformer] ready: %d assets, %d scene nodes" % (len(made),
+                                                             len(placed)))
 
 if __name__ == "__main__":
     main()

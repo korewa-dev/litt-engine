@@ -23,9 +23,12 @@ where g++ >nul 2>nul && (
     echo [build] bin\littview.exe OK
 )
 
-if "%1"=="test" (
-    %CC% %CFLAGS% -c tests.c -o bin\tests_main.o || exit /b 1
-    %CC% bin\litt_json.o bin\litt_obj.o bin\litt_world.o bin\tests_main.o -o bin\littcore_tests.exe || exit /b 1
-    cd bin && littcore_tests.exe
-    exit /b %ERRORLEVEL%
-)
+if not "%1"=="test" goto :done
+%CC% %CFLAGS% -c tests.c -o bin\tests_main.o || exit /b 1
+%CC% bin\litt_json.o bin\litt_obj.o bin\litt_world.o bin\tests_main.o -o bin\littcore_tests.exe || exit /b 1
+cd bin
+littcore_tests.exe
+set RC=%ERRORLEVEL%
+cd ..
+exit /b %RC%
+:done

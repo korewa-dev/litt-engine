@@ -56,8 +56,8 @@ def test_placement_conflicts_order_and_ignore():
     reg.insert("second", (20, 0), (30, 10))
     reg.insert("third", (40, 0), (50, 10))
     q = ((5, 0), (45, 5))
-    assert reg.conflicts(*q) == ["first", "third"]  # insertion order
-    assert reg.conflicts(*q, ignore=("first",)) == ["third"]
+    assert reg.conflicts(*q) == ["first", "second", "third"]  # insertion order
+    assert reg.conflicts(*q, ignore=("first",)) == ["second", "third"]
     assert reg.conflicts((60, 60), (61, 61)) == []
     assert list(reg) == ["first", "second", "third"]
     assert reg.names() == ("first", "second", "third")
@@ -163,7 +163,8 @@ def test_save_prop_guards(tmp):
     bad = make_box((9.0, 0.0))
     target = os.path.join(str(tmp), "bad_crate.obj")
     try:
-        wk.save_prop(tmp, "bad_crate", bad, "materials", {})
+        wk.save_prop(tmp, "bad_crate", bad, "materials", {},
+                     enforce_origin=True)
         raise AssertionError("enforce_origin must reject baked coords")
     except wk.TransformError:
         assert not os.path.exists(target)             # nothing was written

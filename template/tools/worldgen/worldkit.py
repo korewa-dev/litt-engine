@@ -252,7 +252,10 @@ class MeshBuilder:
         self.groups.append(self._cur)
 
     def _vi(self, p):
-        self.v.append(p)
+        # Copy the point: builder primitives share corner lists across many
+        # faces, and a shared object would be shifted once per reference by
+        # translate()/recenter_mesh(). Values (and thus OBJ bytes) unchanged.
+        self.v.append([p[0], p[1], p[2]])
         return len(self.v)
 
     def tri(self, A, B, C):

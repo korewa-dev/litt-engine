@@ -2,7 +2,31 @@
 """EMBERFALL HOLLOW - pocket soulslike world generator (Litt Engine).
 
 Bonfire checkpoint -> Hollow Road -> fog gate -> boss arena -> corpse run.
-Usage:  python gen_soulslike.py [--out-dir .] [--radius 2] [--agent ai] [--prompt "..."]
+Usage:  python gen_soulslike.py [--out-dir .] [--radius 2] [--seed N]
+        [--agent ai] [--prompt "..."]
+
+SEED PLUMBING (audit item 13): --seed drives EVERYTHING. The one integer is
+split into two decorrelated 32-bit streams by the splitmix64 finalizer over
+distinct odd constants (documented, pure int math, fully deterministic):
+
+    terrain_stream = mix64(seed ^ 0x9E3779B97F4A7C15)   # golden-ratio gamma
+    scatter_stream = mix64(seed ^ 0xD1B54A32D192ED03)   # splitmix gamma
+
+terrain_stream feeds the fBm height/band sampling of every chunk OBJ;
+scatter_stream feeds ONE xorshift32 Rng threaded through layout() placement
+AND prop-mesh variation in a fixed draw order. Omitting --seed keeps the
+historical module consts (terrain 666 / scatter 2077). Same seed => same
+bytes forever; different seeds => different terrain AND different scatter.
+
+COMPOSITION (audit item 14): gameplay-critical meshes come from the shared
+gen_props.py souls kit - bonfire (checkpoint), knight (boss), stalker
+(hollows), estus_flask + banner - built via build_prop() and merged into the
+ash palette with gen_props' own parse_mtl/setdefault convention. Only scene
+dressing the kit lacks (fog gate, corpse bloodstain, graves, dead trees,
+ruin arch/pillars, soul embers) stays bespoke. Scatter goes through
+worldkit.Placement/reserve_spot (collision-safe), every mesh is origin-
+centered (save_prop enforce_origin; auto_recenter only for random-branch
+dead trees), and scene nodes carry placement via position/yaw alone.
 
 Genre math used (details: template/docs/genre_algorithms.md):
   - fBm terrain, world-space sampling for seamless chunk tiling
@@ -12,14 +36,36 @@ Genre math used (details: template/docs/genre_algorithms.md):
 import argparse
 import datetime
 import math
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from worldkit import (Rng, fbm, value_noise, MeshBuilder, write_mtl_for,
                       emit_chunk, register_index, write_scene, write_state,
-                      append_log, save_prop, sha12, NL)
+                      append_log, save_prop, Placement, reserve_spot)
+from gen_props import PALETTES, build_prop, parse_mtl
 
 CHUNK, RES, AMP, FREQ = 16.0, 12, 1.2, 0.08
-SEED_T, SEED_S = 666, 2077
+LEGACY_T, LEGACY_S = 666, 2077  # pre---seed default streams (back-compat)
+
+_M64 = (1 << 64) - 1
+
+
+def _mix64(z):
+    """splitmix64 finalizer, truncated to 32 bits for worldkit.Rng."""
+    z &= _M64
+    z ^= z >> 30; z = (z * 0xBF58476D1CE4E5B9) & _M64
+    z ^= z >> 27; z = (z * 0x94D049BB133111EB) & _M64
+    z ^= z >> 31
+    return z & 0xFFFFFFFF
+
+
+def derive_seeds(seed):
+    """--seed N -> (terrain_seed, scatter_seed); scheme in module docstring."""
+    return (_mix64(seed ^ 0x9E3779B97F4A7C15),
+            _mix64(seed ^ 0xD1B54A32D192ED03))
+
 
 MATS = {
   "ash_field": (0.42,0.43,0.40), "ash_drift": (0.50,0.51,0.47), "scorched": (0.30,0.27,0.24),
@@ -40,25 +86,8 @@ def band(tri, seed):
     return "ash_drift" if value_noise(mx*0.5, mz*0.5, seed+77) > 0.5 else "ash_field"
 
 
-def p_bonfire(p):
-    ash = p("mound", "ash_mound");   ash.cyl(0, 0, 0, 0.95, 0.70, 0.22)
-    steel = p("sword", "bonfire_steel")
-    steel.box(0, 0.85, 0, 0.055, 0.75, 0.02)
-    steel.box(0, 1.38, 0, 0.30, 0.035, 0.04)
-    steel.box(0, 1.52, 0, 0.06, 0.06, 0.06)
-    emb = p("coals", "ember");       emb.cyl(0, 0.20, 0, 0.34, 0.30, 0.10)
-    stone = p("ring", "grave_stone")
-    for i in range(6):
-        a = 6.2831853 * i / 6
-        stone.box(1.15*math.cos(a), 0.09, 1.15*math.sin(a), 0.14, 0.09, 0.14)
-
-def p_hollow(p):
-    skin = p("body", "hollow_skin"); rag = p("rag", "hollow_rag")
-    rag.box(0, 0.28, 0, 0.30, 0.28, 0.22)
-    skin.box(0.03, 0.78, 0.05, 0.24, 0.26, 0.19)
-    skin.box(0.10, 1.06, 0.10, 0.11, 0.11, 0.11)
-    skin.box(-0.34, 0.62, 0.02, 0.07, 0.34, 0.07)
-    skin.box(0.38, 0.58, -0.02, 0.07, 0.30, 0.07)
+# --------------------------------------------------- bespoke dressing props
+# (souls-kit coverage lives in gen_props.build_prop; see main())
 
 def p_dead_tree(rng):
     def fn(p):
@@ -84,7 +113,6 @@ def p_arch(p):
     st = p("stone", "ruin_stone")
     st.box(-2.6, 1.9, 0, 0.45, 1.9, 0.45)
     st.box( 2.6, 1.9, 0, 0.45, 1.9, 0.45)
-   
     st.box(0, 4.0, 0, 3.05, 0.30, 0.50)
 
 def p_pillar(rng):
@@ -96,16 +124,6 @@ def p_pillar(rng):
 def p_fog_gate(p):
     fog = p("veil", "fog_veil"); fog.box(0, 1.55, 0, 3.1, 1.55, 0.14)
 
-def p_boss_knight(p):
-    steel = p("armor", "knight_steel"); cape = p("cape", "knight_cape")
-    steel.box(-0.45, 0.85, 0, 0.20, 0.85, 0.24)
-    steel.box( 0.45, 0.85, 0, 0.20, 0.85, 0.24)
-    steel.box(0, 1.95, 0, 0.62, 0.55, 0.40)
-    steel.box(0, 2.68, 0, 0.30, 0.28, 0.30)
-    cape.quad([-0.55,1.65,-0.28],[0.55,1.65,-0.28],[0.42,0.15,-0.34],[-0.42,0.15,-0.34])
-    steel.box(0.92, 1.9, 0.30, 0.06, 1.35, 0.10)
-    steel.box(0.92, 3.28, 0.30, 0.16, 0.05, 0.16)
-
 def p_soul_ember(p):
     s = p("soul", "soul_blue"); s.octahedron(0, 0.28, 0, 0.20)
 
@@ -115,34 +133,74 @@ def p_bloodstain(p):
     b.cone(0, 0.03, 0, 0.10, 0.22, seg=6)
 
 # ------------------------------------------------------------------- layout
-def layout():
-    rng = Rng(SEED_S)
-    items = [
-      ("Bonfire",      "bonfire",      [0, 0, 2],    0,   ["poi","checkpoint"]),
-      ("Player_Start", "bonfire",      [0, 0, 4.5],  0,   ["player","start"]),
-      ("Bloodstain",   "bloodstain",   [2.2, 0, 5],  0,   ["memorial","corpse_run"]),
-      ("Hollow_01",    "hollow",       [-4, 0, 14],  15,  ["enemy","aggro_small"]),
-      ("Hollow_02",    "hollow",       [5, 0, 22],   -20, ["enemy","aggro_small"]),
-      ("Hollow_03",    "hollow",       [-2, 0, 31],  40,  ["enemy","aggro_small"]),
-      ("Fog_Gate",     "fog_gate",     [0, 0, 46],   0,   ["gate","boss_entry"]),
-      ("Ashen_Knight", "boss_knight",  [0, 0, 62],   180, ["boss","aggro_large"]),
-    ]
-    for k in range(7):
-        ex = rng.uniform(-14, 14); ez = rng.uniform(6, 58)
-        items.append(("Soul_Ember_%02d" % (k+1), "soul_ember", [round(ex,2), 0, round(ez,2)], 0, ["pickup","souls"]))
-    for k in range(9):
-        gx = rng.uniform(3.0, 5.8) * rng.pick([-1, 1])
-        gz = rng.uniform(7, 44)
-        items.append(("Grave_%02d" % (k+1), "grave", [round(gx,2), 0, round(gz,2)],
-                      int(rng.uniform(0, 360)), ["deco"]))
-    for k in range(6):
-        tx = rng.uniform(-18, 18); tz = rng.uniform(-8, 66)
-        items.append(("Dead_Tree_%02d" % (k+1), "dead_tree", [round(tx,2), 0, round(tz,2)],
-                      int(rng.uniform(0, 360)), ["deco"]))
+LANDMARKS = [(0.0, 2.0), (0.0, 38.0), (0.0, 46.0), (0.0, 62.0)]
+
+
+def layout(rng, reg):
+    """Seeded composition; reserve_spot() keeps every footprint collision-free.
+
+    Tag contract (audited): enemy+aggro_small x3..5 (stalkers along the road
+    corridor), boss+aggro_large x1, pickup+souls x7..8 embers clustered at
+    landmarks plus x3 estus flasks, checkpoint bonfire, player/start,
+    boss_entry fog gate, corpse_run memorial, deco dressing off-corridor."""
+    items = []
+
+    def put(nm, kind, x, z, yaw, tags, w, d):
+        pos = reserve_spot(reg, nm, round(float(x), 2), round(float(z), 2), w, d)
+        if pos is not None:
+            items.append((nm, [pos[0], pos[2]], yaw, list(tags), kind))
+        return pos is not None
+
+    # fixed story anchors first, so seeded scatter must route around them
+    for row in (
+      ("Bonfire",       "bonfire",    0,    2,   0,   ["poi","checkpoint"],          2.4, 2.4),
+      ("Player_Start",  "bonfire",    0,    4.5, 0,   ["player","start"],            1.0, 1.0),
+      ("Bloodstain",    "bloodstain", 2.2,  5,   0,   ["memorial","corpse_run"],     1.2, 1.2),
+      ("Ruin_Arch",     "arch",       0,    38,  90,  ["deco","gate_frame"],         1.2, 6.2),
+      ("Fog_Gate",      "fog_gate",   0,    46,  0,   ["gate","boss_entry"],         6.4, 0.6),
+      ("Ashen_Knight",  "knight",     0,    62,  180, ["boss","aggro_large"],        1.8, 1.8),
+    ):
+        put(*row)
+    # kit banners flank the fog gate and the arena mouth (shared banner.obj)
+    for nm, x, z, yaw in (("Banner_Gate_L", -2.0, 45.2, -15),
+                          ("Banner_Gate_R",  2.0, 45.2,  15),
+                          ("Banner_Arena_L", -3.5, 56.5, -20),
+                          ("Banner_Arena_R",  3.5, 56.5,  20)):
+        put(nm, "banner", x, z, yaw, ["deco"], 0.5, 0.5)
+    # estus flask pickups near landmarks (bonfire / gate / arena mouth)
+    for i, (lx, lz) in enumerate(((1.8, 3.4), (-2.1, 43.2), (1.6, 58.0)), 1):
+        put("Estus_%02d" % i, "estus_flask",
+            lx + rng.uniform(-0.5, 0.5), lz + rng.uniform(-0.5, 0.5),
+            0, ["pickup", "souls"], 0.5, 0.5)
+    # hollows: 3..5 stalkers spread up the road corridor with jitter
+    n_hollows = 3 + int(rng.uniform(0, 3))
+    for k in range(n_hollows):
+        hz = 13 + k * (27.0 / (n_hollows - 1)) + rng.uniform(-2.5, 2.5)
+        put("Hollow_%02d" % (k+1), "stalker", rng.uniform(-4.5, 4.5), hz,
+            int(rng.uniform(0, 360)), ["enemy", "aggro_small"], 0.9, 0.9)
+    # soul embers: 7..8, clustered within ~3 m of the story landmarks
+    n_embers = 7 + int(rng.uniform(0, 2))
+    for k in range(n_embers):
+        lx, lz = LANDMARKS[k % len(LANDMARKS)]
+        put("Soul_Ember_%02d" % (k+1), "soul_ember",
+            lx + rng.uniform(-3.0, 3.0), lz + rng.uniform(-3.0, 3.0),
+            0, ["pickup", "souls"], 0.5, 0.5)
+    # graves: 8..10, always off-corridor (|x| >= 3 m from the road spine)
+    n_graves = 8 + int(rng.uniform(0, 3))
+    for k in range(n_graves):
+        gx = rng.pick([-1, 1]) * rng.uniform(3.0, 6.5)
+        put("Grave_%02d" % (k+1), "grave", gx, rng.uniform(7, 44),
+            int(rng.uniform(0, 360)), ["deco"], 0.6, 0.6)
+    # dead trees: 5..7 scattered wide, kept off-corridor as well
+    n_trees = 5 + int(rng.uniform(0, 3))
+    for k in range(n_trees):
+        tx = rng.pick([-1, 1]) * rng.uniform(2.5, 17.5)
+        put("Dead_Tree_%02d" % (k+1), "dead_tree", tx, rng.uniform(-8, 64),
+            int(rng.uniform(0, 360)), ["deco"], 0.9, 0.9)
+    # ruin pillars guard the approach to the arena
     for k in range(4):
-        px = rng.pick([-6.5, -4.5, 4.5, 6.5])
-        items.append(("Ruin_Pillar_%02d" % (k+1), "pillar", [px, 0, 50 + k*4], 0, ["deco"]))
-    items.append(("Ruin_Arch", "arch", [0, 0, 38], 90, ["deco", "gate_frame"]))
+        put("Ruin_Pillar_%02d" % (k+1), "pillar",
+            rng.pick([-6.5, -4.5, 4.5, 6.5]), 50 + k*4, 0, ["deco"], 0.9, 0.9)
     return items
 
 
@@ -173,24 +231,37 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=".")
     ap.add_argument("--radius", type=int, default=2)
+    ap.add_argument("--seed", type=int, default=None,
+                    help="master seed -> derived terrain/scatter streams "
+                         "(omitted: legacy terrain 666 / scatter 2077)")
     ap.add_argument("--agent", default="ai-agent")
     ap.add_argument("--prompt", default=None)
     a = ap.parse_args()
 
+    seed_t, seed_s = (LEGACY_T, LEGACY_S) if a.seed is None else derive_seeds(a.seed)
+
     root = Path(a.out_dir); models = root / "assets" / "models"
     models.mkdir(parents=True, exist_ok=True)
     assets_dir = root / "assets"
+
+    # --- materials: ash palette, then gen_props prop_* MERGE (never recolor)
     write_mtl_for(models, "materials", MATS)
+    merged = parse_mtl(models / "materials.mtl")
+    pal = PALETTES["haunted_estate"]
+    for k, v in pal.items():
+        merged.setdefault("prop_" + k, v)
+    write_mtl_for(models, "materials", merged)
+
     made = []; placed = []; registry = []
 
     # --- terrain chunks (seamless: heights sampled in world space) ---------
     # Hollow Road runs +Z, so chunk rows reach farther toward the boss arena.
-    band_fn = lambda tri: band(tri, SEED_T)
+    band_fn = lambda tri: band(tri, seed_t)
     for x in range(-a.radius, a.radius + 1):
         for z in range(-a.radius, a.radius + 3):
             cid = "chunk_%d_%d" % (x, z)
             mb = MeshBuilder()
-            emit_chunk(mb, "ash_field", x, z, CHUNK, RES, SEED_T, height, band_fn)
+            emit_chunk(mb, "ash_field", x, z, CHUNK, RES, seed_t, height, band_fn)
             obj_text, nv, nf = mb.to_obj(cid, "materials")
             p = models / (cid + ".obj")
             if not p.exists():
@@ -200,20 +271,34 @@ def main():
     for cid, rel in registry:
         register_index(assets_dir, cid, rel)
 
-    # --- props (each unique model built once, shared by its scene nodes) ---
-    rng = Rng(SEED_S)
-    for name, fn in [("bonfire", p_bonfire), ("bloodstain", p_bloodstain),
-                     ("hollow", p_hollow), ("grave", p_grave(rng)),
-                     ("dead_tree", p_dead_tree(rng)), ("pillar", p_pillar(rng)),
-                     ("arch", p_arch), ("fog_gate", p_fog_gate),
-                     ("boss_knight", p_boss_knight), ("soul_ember", p_soul_ember)]:
-        save_prop(models, name, build(MeshBuilder(), fn), "materials", MATS, assets_dir)
+    # --- props: souls kit from gen_props.build_prop, then bespoke dressing -
+    ppal = {"prop_" + k: v for k, v in pal.items()}
+    rng = Rng(seed_s)  # one scatter stream drives layout AND mesh variation
+    # Kit meshes were not authored under the strict 0.05 m centroid tolerance
+    # (e.g. bonfire sits at z=-0.06), so they take save_prop's sanctioned
+    # auto_recenter repair: x/z snapped to origin, base height preserved -
+    # placement stays node-only either way.
+    for name in ("bonfire", "stalker", "knight", "estus_flask", "banner"):
+        save_prop(models, name, build_prop(name, ppal), "materials", merged,
+                  assets_dir=assets_dir, auto_recenter=True)
+        made.append(name + ".obj")
+    for name, fn, centered in [("bloodstain", p_bloodstain, True),
+                               ("grave", p_grave(rng), True),
+                               ("dead_tree", p_dead_tree(rng), False),
+                               ("pillar", p_pillar(rng), True),
+                               ("arch", p_arch, True),
+                               ("fog_gate", p_fog_gate, True),
+                               ("soul_ember", p_soul_ember, True)]:
+        save_prop(models, name, build(MeshBuilder(), fn), "materials", merged,
+                  assets_dir=assets_dir,
+                  enforce_origin=centered, auto_recenter=not centered)
         made.append(name + ".obj")
 
-    # --- scene nodes from layout(), each prop grounded on the fBm surface ---
-    for nm, kind, pos, yaw, tags in layout():
-        y = round(height(pos[0], pos[2], SEED_T), 3)
-        placed.append((nm, [pos[0], y, pos[2]], yaw, list(tags), kind))
+    # --- scene nodes: registry-placed layout grounded on the fBm surface ---
+    reg = Placement()
+    for nm, xz, yaw, tags, kind in layout(rng, reg):
+        y = round(height(xz[0], xz[1], seed_t), 3)
+        placed.append((nm, [xz[0], y, xz[1]], yaw, tags, kind))
     write_scene(root / "assets" / "scenes" / "world.lscn.json", placed, "emberfall-hollow")
 
     # --- world state LAST, then log ----------------------------------------
@@ -223,7 +308,7 @@ def main():
       "identity": {"movement": "soulslike third-person stamina sprint",
                    "camera": "third-person orbit"},
       "updated": datetime.datetime.now().isoformat(timespec="seconds"),
-      "seed": {"terrain": SEED_T, "scatter": SEED_S},
+      "seed": {"input": a.seed, "terrain": seed_t, "scatter": seed_s},
       "chunk_size": CHUNK, "radius": a.radius,
       "camera": {"target": [0, 1.5, 30], "distance": 30},
       "chunks": [{"id": c, "path": "assets/" + r,
@@ -244,13 +329,14 @@ def main():
     }
     write_state(root / "world_state.json", state)
     append_log(root / "LIVE_LOG.md", a.agent, a.prompt,
-               "EMBERFALL HOLLOW pocket-soulslike world (terrain seed %d, scatter seed %d)" % (SEED_T, SEED_S),
+               "EMBERFALL HOLLOW pocket-soulslike world (seed %s -> terrain %d, scatter %d)"
+               % (a.seed, seed_t, seed_s),
                ["%d terrain chunks (%.0fm grid, res %d, road-extended +Z)" % (len(registry), CHUNK, RES),
-                "%d prop models, %d scene nodes; bonfire/corpse-run/fog-gate/boss contract in world_state.json"
-                % (len(made) - len(registry), len(placed))])
-    print("[emberfall] ready: %d chunks + %d assets | %d scene nodes"
-          % (len(registry), len(made), len(placed)))
+                "%d prop models (gen_props souls kit + bespoke dressing), %d scene nodes; "
+                "bonfire/corpse-run/fog-gate/boss contract in world_state.json"
+                % (len(made) - len(registry), len(placed) - len(registry))])
+    print("[emberfall] ready: %d chunks + %d assets | %d scene nodes | seed %s (T%d/S%d)"
+          % (len(registry), len(made), len(placed), a.seed, seed_t, seed_s))
 
 if __name__ == "__main__":
     main()
-...

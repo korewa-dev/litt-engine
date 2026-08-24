@@ -134,7 +134,7 @@ def main():
     reserved = {(c[0], c[1]) for c in corners} | {(north[0], north[1]),
                                                   (south[0], south[1])}
     plains = [t for t in board_tiles
-              if t[5] == "tile_plains" and (t[0], t[1]) not in reserved]
+              if t[4] == "tile_plains" and (t[0], t[1]) not in reserved]
     gems = plains[:4] if len(plains) <= 4 else \
         [plains[i * len(plains) // 4] for i in range(4)]
     if gems:
