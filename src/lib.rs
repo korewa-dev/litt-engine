@@ -31,6 +31,9 @@ pub mod editor;
 // SceneGraph -> pathtracer Scene deployment bridge
 pub mod world_bridge;
 
+// Native gameplay session (the ported runtime contract)
+pub mod gameplay;
+
 // Deterministic replay recording/playback
 pub mod replay;
 

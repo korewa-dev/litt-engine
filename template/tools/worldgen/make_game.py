@@ -351,34 +351,30 @@ def deploy_runtime(game_dir, port_seed):
     (g / "tools").mkdir(exist_ok=True)
     rt = REPO / "template/tools/runtime"
     ex = REPO / "Project/example-village"
+    # Browser stack ships as DEV PREVIEW only - the engine's own Vulkan
+    # player (`ENGINE.bat` / `ENGINE.sh` -> `litt play <dir>`) is THE way to
+    # play: it unlocks FSR, path tracing and every future render feature.
     shutil.copy(rt / "runtime.js", g / "viewer/", )
     shutil.copy(rt / "play.html", g / "viewer/")
     shutil.copy(ex / "viewer/three.min.js", g / "viewer/")
     shutil.copy(ex / "tools/serve_live.py", g / "tools/")
     shutil.copy(ex / "play_native.py", g / "")
     port = 8100 + (port_seed % 400)
-    bat = ("@echo off\nrem %s player\ncd /d \"%%~dp0\"\n"
+    bat = ("@echo off\nrem %s dev preview (NOT the game renderer)\ncd /d \"%%~dp0\"\n"
            "start \"litt-server\" /min python tools\\serve_live.py --port %d\n"
-           "timeout /t 2 >nul\nstart http://127.0.0.1:%d/viewer/play.html"
+           "timeout /t 2 >nul\nstart http://127.0.0.1:%d/viewer/"
            % (g.name, port, port))
-    (g / "PLAY.bat").write_text(bat, encoding="ascii")
-    nbat = ("@echo off\nrem %s native window\ncd /d \"%%~dp0\"\n"
-            "python play_native.py\nif errorlevel 1 pause" % g.name)
-    (g / "NATIVE.bat").write_text(nbat, encoding="ascii")
-    # open THIS game inside the real Studio window (chat + live viewport)
-    engine_bat = (
-        "@echo off\nrem %s in the Litt Studio window\n"
-        "setlocal\n"
-        "set ROOT=%%~dp0..\\..\n"
-        "if defined LITT_ENGINE set EXE=%%LITT_ENGINE%%\n"
-        "if not defined LITT_ENGINE (\n"
-        "  if exist \"%%ROOT%%\\target\\x86_64-pc-windows-gnu\\release\\litt.exe\" "
-        "set EXE=%%ROOT%%\\target\\x86_64-pc-windows-gnu\\release\\litt.exe\n"
-        ")\n"
-        "if not defined EXE set "
-        "EXE=%%ROOT%%\\target\\x86_64-pc-windows-gnu\\debug\\litt.exe\n"
-        "\"%%EXE%%\" studio \"%%~dp0\"\n" % g.name)
-    (g / "ENGINE.bat").write_text(engine_bat, encoding="ascii")
+    (g / "PREVIEW.bat").write_text(bat, encoding="ascii")
+    nbat = ("@echo off\nrem %s headless validation (CI smoke)\ncd /d \"%%~dp0\"\n"
+            "python play_native.py --frames 60 --dummy\nif errorlevel 1 pause" % g.name)
+    (g / "VALIDATE.bat").write_text(nbat, encoding="ascii")
+    # cross-platform native launchers (Windows + Linux/macOS)
+    from gen_launchers import BAT as _LBAT, SH as _LSH
+    (g / "ENGINE.bat").write_text(
+        _LBAT.replace("\\\\", "\\"), encoding="ascii", newline="\r\n")
+    sh_path = g / "ENGINE.sh"
+    sh_path.write_text(_LSH, encoding="utf-8", newline="\n")
+    sh_path.chmod(0o755)
     return port
 
 

@@ -263,6 +263,17 @@
       "seed": 1967,
       "about": "neon rooftop precision jumps",
       "built": "2026-08-24T10:19:44"
+    },
+    {
+      "name": "cinder-hold",
+      "dir": "Project\\cinder-hold",
+      "archetype": "roguelite",
+      "pattern": "room_graph",
+      "theme": "underground_caves",
+      "kit": "survivor",
+      "seed": 3082,
+      "about": "volcanic survival arena",
+      "built": "2026-08-24T11:15:44"
     }
   ]
 }

@@ -119,16 +119,18 @@ def audit_game(gdir: Path):
     else:
         warn.append("no asset_index.json")
 
-    # --- 7. launchers: need at least ONE playable path ---
-    browser_ok = ((gdir / "viewer/play.html").exists()
-                  and (gdir / "viewer/runtime.js").exists())
-    native_ok = (gdir / "play_native.py").exists()
-    if not (browser_ok or native_ok):
-        problems.append("no playable path (need viewer pair or play_native.py)")
-    elif not native_ok:
-        warn.append("native player absent (browser only)")
-    elif not (gdir / "NATIVE.bat").exists():
-        warn.append("NATIVE.bat absent")
+    # --- 7. launchers: the ENGINE pair is THE playable path (any OS) ---
+    engine_ok = ((gdir / "ENGINE.sh").exists()
+                 and (gdir / "ENGINE.bat").exists())
+    if not engine_ok:
+        problems.append(
+            "no native launcher pair (need ENGINE.bat + ENGINE.sh)")
+    # browser stack is dev-preview only; pygame is a headless validator
+    preview_ok = (gdir / "viewer/play.html").exists()
+    validator_ok = (gdir / "play_native.py").exists()
+    if not (preview_ok and validator_ok):
+        warn.append("preview/validator incomplete "
+                    "(viewer=%s play_native=%s)" % (preview_ok, validator_ok))
 
     return problems, warn
 

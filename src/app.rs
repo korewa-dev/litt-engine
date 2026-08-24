@@ -65,6 +65,8 @@ pub struct App {
     pub dirty_world: bool,
     /// Re-rasterize chat panel on next frame
     pub dirty_panel: bool,
+    /// Native gameplay session (`litt play [game]`)
+    pub play_session: Option<crate::gameplay::Session>,
 }
 
 impl App {
@@ -138,7 +140,9 @@ impl App {
         let mut asset_base = "assets".to_string();
         let mut game_dir: Option<String> = None;
         let studio_target = crate::STUDIO_TARGET.get().cloned().flatten();
-        let scene_path: String = match &studio_target {
+        let play_target = crate::PLAY_TARGET.get().cloned().flatten();
+        let target = studio_target.clone().or_else(|| play_target.clone());
+        let scene_path: String = match &target {
             Some(target) => {
                 let dir = resolve_game_dir(target);
                 match &dir {
@@ -181,6 +185,25 @@ impl App {
             .with_base_path("assets")
             .with_cache_size(512 * 1024 * 1024);
 
+        // Native gameplay session for `litt play [game]`
+        let mut play_session = None;
+        if play_target.is_some() {
+            if let Some(dir) = &game_dir {
+                let state_path = format!("{}/world_state.json", dir);
+                let text = std::fs::read_to_string(&state_path).unwrap_or_default();
+                let cfg = crate::gameplay::GameplayConfig::from_state_json(&text);
+                println!(
+                    "[play] mode {:?} | lives {:?} | {}",
+                    cfg.mode, cfg.lives, cfg.objective
+                );
+                let assets = format!("{}/assets", dir);
+                play_session =
+                    Some(crate::gameplay::Session::new(&scene, cfg, &assets));
+            } else {
+                eprintln!("[play] no world found - running engine defaults");
+            }
+        }
+
         Ok(Self {
             window,
             game_loop,
@@ -211,6 +234,7 @@ impl App {
             game_dir,
             dirty_world: true,
             dirty_panel: true,
+            play_session,
         })
     }
 
@@ -298,7 +322,11 @@ impl App {
             last_time = now;
 
             // Poll gameplay input (camera) unless a menu owns the keyboard
-            if !self.is_studio() {
+            if self.settings_menu.open {
+                // frozen while the menu is up
+            } else if self.play_session.is_some() {
+                self.poll_play_input(dt);
+            } else if !self.is_studio() {
                 self.poll_input();
             }
 
@@ -376,6 +404,28 @@ impl App {
         // Mouse delta from locked cursor (handled by platform crate)
         let (dx, dy) = self.input.state.mouse.delta.into();
         self.camera_controls.process_mouse(dx, dy);
+    }
+
+    /// Feed the native gameplay session: contract-identical WASD mapping.
+    fn poll_play_input(&mut self, dt: f32) {
+        use litt_input::Key;
+        let inp = {
+            let st = self.input.state();
+            let f = (st.key_down(Key::W) as i8 - st.key_down(Key::S) as i8) as f32;
+            let s = (st.key_down(Key::D) as i8 - st.key_down(Key::A) as i8) as f32;
+            let side = self
+                .play_session
+                .as_ref()
+                .map(|x| x.cfg.mode == crate::gameplay::Mode::Side2D5)
+                .unwrap_or(false);
+            let jump_pressed =
+                st.key_pressed(Key::Space) || (side && st.key_pressed(Key::W));
+            let d: (f32, f32) = st.mouse.delta.into();
+            crate::gameplay::PlayInput { f, s, jump_pressed, mouse_dx: d.0 }
+        };
+        if let Some(sess) = &mut self.play_session {
+            sess.step(dt, inp);
+        }
     }
 
     /// Translate pressed keys into menu navigation while the menu is open.
@@ -470,6 +520,10 @@ impl App {
     fn render(&mut self) {
         let (w, h) = self.window.size();
         let aspect = w as f32 / h.max(1) as f32;
+        // Native play mode: the session owns the camera.
+        if let Some(sess) = &self.play_session {
+            sess.apply_camera(&mut self.camera_controls);
+        }
         // Trait-level camera (legacy pipelines); the Studio viewport drives
         // its own orbit MVP through set_world_mvp below.
         let camera = self.camera_controls.to_camera(90.0, aspect);
@@ -509,6 +563,21 @@ impl App {
                             backend.upload_panel_mesh(&verts);
                             self.dirty_panel = false;
                         }
+                    }
+                }
+            }
+        }
+
+        // Play-mode HUD rides the same GPU panel channel as the chat.
+        if self.play_session.is_some() {
+            if let Some(ref mut backend) = self.backend {
+                if backend.studio_ready() {
+                    if let Some(sess) = &self.play_session {
+                        let lines = sess.hud_lines();
+                        let banner = sess.banner();
+                        let verts =
+                            crate::studio::hud_verts(&lines, banner, w, h);
+                        backend.upload_panel_mesh(&verts);
                     }
                 }
             }

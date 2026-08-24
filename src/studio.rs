@@ -153,6 +153,51 @@ pub fn text_width(s: &str, scale: f32) -> f32 {
     s.chars().count() as f32 * FONT_W * scale
 }
 
+/// Free-floating text into pixel-space panel verts (y down), same
+/// convention as `Panel::raster`.
+fn draw_str(v: &mut Vec<f32>, s: &str, x: f32, y: f32, scale: f32, c: [f32; 3]) {
+    let mut cx = x;
+    for ch in s.chars() {
+        draw_char(v, ch as u8, cx, y, scale, c);
+        cx += FONT_W * scale;
+    }
+}
+
+/// Play-mode HUD raster: objective/score/lives lines top-left plus an
+/// optional centered banner (GOAL REACHED / GAME OVER).
+pub fn hud_verts(
+    lines: &[(String, [f32; 3])],
+    banner: Option<&str>,
+    w: u32,
+    h: u32,
+) -> Vec<f32> {
+    let mut v = Vec::with_capacity(8 * 1024);
+    let scale = 2.0f32.max((h as f32 / 720.0) * 2.0);
+    for (i, (s, c)) in lines.iter().enumerate() {
+        // dark backing strip for legibility over any world
+        let tw = text_width(s, scale);
+        push_quad(
+            &mut v,
+            6.0,
+            4.0 + i as f32 * LINE_H * 1.25,
+            12.0 + tw,
+            10.0 + i as f32 * LINE_H * 1.25 + LINE_H,
+            [0.0, 0.0, 0.02],
+        );
+        draw_str(&mut v, s, 12.0, 8.0 + i as f32 * LINE_H * 1.25, scale, *c);
+    }
+    if let Some(b) = banner {
+        let bs = 5.0f32.max((h as f32 / 720.0) * 5.0);
+        let bw = text_width(b, bs);
+        let x = ((w as f32) - bw) * 0.5;
+        let y = (h as f32) * 0.16;
+        let col: [f32; 3] = if b.starts_with("GAME") { [1.0, 0.35, 0.30] } else { [1.0, 0.85, 0.35] };
+        push_quad(&mut v, x - 14.0, y - 10.0, x + bw + 14.0, y + LINE_H * 1.1 + 10.0, [0.03, 0.02, 0.05]);
+        draw_str(&mut v, b, x, y, bs, col);
+    }
+    v
+}
+
 /// Wrap a line into chunks of at most `cols` chars (breaks long words).
 pub fn wrap(line: &str, cols: usize) -> Vec<String> {
     let cols = cols.max(4);
