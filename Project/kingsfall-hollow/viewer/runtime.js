@@ -27,8 +27,8 @@
   }
 
   function parseOBJ(text) {
-    var vs = [], ns = [], groups = [], cur = null;
-    function begin(mat) { cur = { mat: mat, pos: [], nor: [] }; groups.push(cur); }
+    var vs = [], ns = [], groups = [], cur = null, pendPart = null;
+    function begin(mat) { cur = { mat: mat, part: pendPart || mat, pos: [], nor: [] }; groups.push(cur); pendPart = null; }
     begin("default");
     text.split(/\r?\n/).forEach(function (line) {
       var t = line.trim();
@@ -36,6 +36,7 @@
       var p = t.split(/\s+/);
       if (p[0] === "v") { vs.push(parseFloat(p[1]), parseFloat(p[2]), parseFloat(p[3])); }
       else if (p[0] === "vn") { ns.push(parseFloat(p[1]), parseFloat(p[2]), parseFloat(p[3])); }
+      else if (p[0] === "g") { pendPart = p.slice(1).join(" ") || null; }
       else if (p[0] === "usemtl") { begin(p[1]); }
       else if (p[0] === "f") {
         var idx = [];
@@ -87,7 +88,9 @@
           mat = matCache[key] ||
             (matCache[key] = new THREE.MeshLambertMaterial({ color: new THREE.Color(kd[0], kd[1], kd[2]) }));
         }
-        group.add(new THREE.Mesh(geo, mat));
+        var mesh = new THREE.Mesh(geo, mat);
+        mesh.name = g.part || g.mat;   // rig system addresses parts by name
+        group.add(mesh);
       });
       return group;
     });
@@ -182,7 +185,10 @@
       var mt = (node.tags || []).filter(function (t) { return t.indexOf("model:") === 0; })[0];
       if (!mt) return;
       var url = "../assets/models/" + mt.slice(6) + ".obj";
-      pending.push(objToGroup(url, mtlMats).then(function (g) { register(node, g); })
+      pending.push(objToGroup(url, mtlMats).then(function (g) {
+        register(node, g);
+        assembleRig(g, mt.slice(6));
+      })
         .catch(function (e) { console.warn("[litt] model failed:", url, e); }));
     });
 
@@ -305,12 +311,105 @@
     }
 
     var clock = new THREE.Clock();
+
+    // ---- procedural rigs -------------------------------------------------
+    // Characters are ordinary OBJs whose `g <part>` groups carry semantic
+    // names (leg_l, arm_r, rotor_n, flame, cloth, lantern, spark...). The
+    // assembler re-parents those meshes under pivot Object3Ds at their
+    // joint (top of the limb) so rotations behave like real bones.
+    var animated = [];
+    var HOVER = { drone: 1, wraith: 1, stalker: 1 };
+    var WALKER = { brute: 1, knight: 1 };
+
+    function assembleRig(group, ref) {
+      var lower = ref.toLowerCase();
+      var mode = HOVER[lower] ? "hover" : (WALKER[lower] ? "walk" : "prop");
+      var rig = { mode: mode, bones: [], baseY: group.position.y, speed: 0.35 };
+      group.children.forEach(function (mesh) {
+        if (!mesh.isMesh) return;
+        var n = (mesh.name || "").toLowerCase();
+        var role = null;
+        if (n.indexOf("rotor") >= 0) role = "spin";
+        else if (n.indexOf("flame") >= 0 || n.indexOf("spark") >= 0 ||
+                 n.indexOf("glow") >= 0) role = "flicker";
+        else if (n.indexOf("cloth") >= 0) role = "wave";
+        else if (n.indexOf("lantern") >= 0) role = "sway";
+        else if (n.indexOf("leg") >= 0) role = "leg";
+        else if (n.indexOf("arm") >= 0 || n.indexOf("sleeve") >= 0 ||
+                 n.indexOf("blade") >= 0) role = "arm";
+        else if (n.indexOf("sword") >= 0) role = "sword";
+        if (!role) return;
+        var bb = new THREE.Box3().setFromObject(mesh);
+        var c = bb.getCenter(new THREE.Vector3());
+        var pivot = new THREE.Object3D();
+        // joints sit at the TOP of limbs (shoulders/hips), mid for props
+        var jy = (role === "leg" || role === "arm" ||
+                  role === "sword" || role === "spin") ? bb.max.y : c.y;
+        pivot.position.set(c.x, jy, c.z);
+        mesh.position.sub(pivot.position);
+        group.add(pivot);
+        pivot.add(mesh);
+        rig.bones.push({ node: pivot, role: role,
+                         phase: n.indexOf("_r") >= 0 ? Math.PI : 0 });
+      });
+      // parent a sword under its arm bone so it swings along
+      rig.bones.forEach(function (b) {
+        if (b.role !== "sword") return;
+        var arm = null;
+        rig.bones.forEach(function (o) {
+          if (o.role === "arm" && !arm &&
+              Math.abs(b.node.position.x - o.node.position.x) < 0.25)
+            arm = o;
+        });
+        if (arm) {
+          b.node.rotation.z = 0.2;
+          b.node.position.sub(arm.node.position);
+          arm.node.add(b.node);
+        }
+      });
+      animated.push({ obj: group, rig: rig });
+      return group;
+    }
+
+    function updateAnimated(dt, tNow) {
+      for (var i = 0; i < animated.length; i++) {
+        var a = animated[i], r = a.rig;
+        // ease animation speed toward idle/aggro target
+        var target = a.obj.userData.rigTarget != null ?
+          a.obj.userData.rigTarget : 0.35;
+        r.speed += (target - r.speed) * Math.min(1, dt * 4);
+        var s = r.speed;
+        if (r.mode === "hover")
+          a.obj.position.y = r.baseY + Math.sin(tNow * 2.4 + i) * 0.12;
+        for (var k = 0; k < r.bones.length; k++) {
+          var b = r.bones[k];
+          if (b.role === "spin") b.node.rotation.y += dt * (12 + 26 * s);
+          else if (b.role === "leg")
+            b.node.rotation.x = Math.sin(tNow * (2.5 + 5 * s) + b.phase) *
+              0.55 * s;
+          else if (b.role === "arm")
+            b.node.rotation.x = -Math.sin(tNow * (2.5 + 5 * s) + b.phase) *
+              0.42 * s;
+          else if (b.role === "sword") b.node.rotation.x =
+            -Math.sin(tNow * (2.5 + 5 * s)) * 0.3 * s;
+          else if (b.role === "flicker") {
+            var f = 1 + Math.sin(tNow * 9 + b.phase + i) * 0.16;
+            b.node.scale.set(f, 1 + Math.sin(tNow * 7 + i) * 0.22, f);
+          } else if (b.role === "wave")
+            b.node.rotation.z = Math.sin(tNow * 2.3 + b.phase) * 0.24;
+          else if (b.role === "sway")
+            b.node.rotation.z = Math.sin(tNow * 1.7 + i) * 0.35;
+        }
+      }
+    }
+
     Promise.all(pending).then(function () { loop(); });
 
     function loop() {
       requestAnimationFrame(loop);
       var dt = Math.min(clock.getDelta(), 0.05);
       var now = performance.now() / 1000;
+      updateAnimated(dt, now);            // rigs stay alive even while frozen
       if (gameOver || now < deadUntil) { renderer.render(sc, cam); return; }
 
       // input -> planar velocity
@@ -353,6 +452,7 @@
         if (has(it.tags, "enemy")) {
           var d = c.distanceTo(pos);
           var aggro = (gp.enemy_aggro_m || 6);
+          it.obj.userData.rigTarget = d < aggro ? 1 : 0.35;
           if (d < aggro && d > 0.1) {
             // home on the PLANE only - flyers keep their cruise height
             var flat = new THREE.Vector3(c.x - pos.x, 0, c.z - pos.z);

@@ -1,13 +1,11 @@
 newmtl bg_far
 Ka 1.000 1.000 1.000
-	map_Kd ../textures/neon_sunset_far.png
 Kd 0.160 0.120 0.110
 Ks 0.050 0.050 0.050
 Ns 8.0
 
 newmtl bg_near
 Ka 1.000 1.000 1.000
-	map_Kd ../textures/neon_city_near.png
 Kd 0.280 0.190 0.150
 Ks 0.050 0.050 0.050
 Ns 8.0
@@ -60,9 +58,21 @@ Kd 0.100 0.950 0.850
 Ks 0.050 0.050 0.050
 Ns 8.0
 
+newmtl prop_glow
+Ka 1.000 1.000 1.000
+Kd 0.200 1.000 0.900
+Ks 0.050 0.050 0.050
+Ns 8.0
+
 newmtl prop_gold
 Ka 1.000 1.000 1.000
 Kd 1.000 0.840 0.200
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl prop_hide
+Ka 1.000 1.000 1.000
+Kd 0.300 0.330 0.400
 Ks 0.050 0.050 0.050
 Ns 8.0
 
@@ -72,9 +82,21 @@ Kd 0.250 0.280 0.340
 Ks 0.050 0.050 0.050
 Ns 8.0
 
+newmtl prop_metal_dk
+Ka 1.000 1.000 1.000
+Kd 0.130 0.150 0.190
+Ks 0.050 0.050 0.050
+Ns 8.0
+
 newmtl prop_void
 Ka 1.000 1.000 1.000
 Kd 0.080 0.060 0.140
+Ks 0.050 0.050 0.050
+Ns 8.0
+
+newmtl prop_wood
+Ka 1.000 1.000 1.000
+Kd 0.200 0.220 0.280
 Ks 0.050 0.050 0.050
 Ns 8.0
 
