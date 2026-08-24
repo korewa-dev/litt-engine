@@ -332,16 +332,27 @@ let rewards = train_episodes(&mut my_game, &mut agent, 400, 256);
 ## Quick Start
 
 ```bash
-# Build (default: Vulkan)
+# the ONE command - status dashboard of everything
+./litt              (Windows: litt.bat)
+
+# build native C/C++ core + C# studio (Rust player optional: --full)
+litt build
+litt studio          # dark themed game browser/cooker GUI
+
+# everyday use
+litt                 # what games exist, modes, health, how to launch
+litt new --about "cozy island farming tale" --seed 9   # cook a world
+litt play reef-rest  # Vulkan player (falls back to C++ viewer)
+litt view reef-rest  # C++ orbit viewer (--shot f.bmp for a still)
+litt proof           # sim + render + pixel-content proof, all games
+litt test            # C tests + viewer selftest + project audit
+litt doctor          # toolchain health check
+```
+
+### Classic Rust path (optional)
+
+```bash
 cargo build --release
-
-# Build with DX12 (Windows)
-cargo build --release --features dx12
-
-# Build with both backends
-cargo build --release --features dx12,vulkan
-
-# Run
 cargo run --release
 ```
 
@@ -352,7 +363,7 @@ cargo run --release
 | `LIT_FSR_MODE` | FSR mode (0=off, 1=FSR3, 2=FSR4) |
 | `LIT_FSR_QUALITY` | Quality preset |
 | `LIT_NPU_MODE` | NPU mode (0=off, 1=auto, 2=forced, 3=hybrid) |
-| `LIT_GRAPHICS_API` | Force backend (vulkan/dx12) |
+| `LIT_GRAPHICS_API` | Force backend (vulkan) |
 
 ---
 

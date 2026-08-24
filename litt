@@ -1,0 +1,4 @@
+#!/bin/sh
+# litt - the one command for the whole engine (delegates to tools/litt.py)
+HERE="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$HERE/tools/litt.py" "$@"
