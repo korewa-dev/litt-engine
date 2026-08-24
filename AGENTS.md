@@ -103,6 +103,11 @@ the game name to the GAMES list in `tests/example_worlds.rs` and run
 with **zero missing models** before you may call it done. Hand-rolled box
 rooms instead of this pipeline are a rules violation.
 
+**AI-generated assets:** textures may come from Stable Diffusion via
+`template/tools/assets/gen_texture.py` (A1111-compatible server, or labeled
+procedural fallback) and images become terrain via `gen_heightfield.py`.
+See `docs/ai_textures.md`. Provenance logging + index registration apply.
+
 **ZIP-copy trap:** working in an extracted download (path contains
 litt-engine-main, no .git folder)? Stop - nothing built there can be pushed.
 Ask the human for the canonical working copy and move there first.

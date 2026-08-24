@@ -1,11 +1,13 @@
 newmtl bg_far
 Ka 1.000 1.000 1.000
+	map_Kd ../textures/neon_sunset_far.png
 Kd 0.160 0.120 0.110
 Ks 0.050 0.050 0.050
 Ns 8.0
 
 newmtl bg_near
 Ka 1.000 1.000 1.000
+	map_Kd ../textures/neon_city_near.png
 Kd 0.280 0.190 0.150
 Ks 0.050 0.050 0.050
 Ns 8.0

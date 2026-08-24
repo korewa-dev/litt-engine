@@ -55,6 +55,34 @@ pub enum FSRMode {
     UltraPerformance,
 }
 
+/// AI asset generation (Stable Diffusion or compatible server).
+///
+/// The endpoint speaks the AUTOMATIC1111 WebUI contract (`/sdapi/v1/*`).
+/// Python tools (`template/tools/assets/`) read this file directly; the
+/// engine treats it as configuration only -- no network calls at runtime.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AiAssets {
+    /// Master switch for AI-generated assets in build pipelines.
+    pub enabled: bool,
+    /// A1111-compatible server base URL.
+    pub endpoint: String,
+    /// Optional bearer token for hosted endpoints. Never logged.
+    pub api_key: String,
+    /// Default checkpoint title to request from the server.
+    pub model: String,
+}
+
+impl Default for AiAssets {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            endpoint: "http://127.0.0.1:7860".to_string(),
+            api_key: String::new(),
+            model: String::new(),
+        }
+    }
+}
+
 /// Engine settings
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
@@ -90,6 +118,9 @@ pub struct Settings {
     pub target_frame_time_ms: f32,
     pub enable_profiler: bool,
     pub enable_debug_overlay: bool,
+
+    // AI asset generation
+    pub ai_assets: AiAssets,
 }
 
 impl Default for Settings {
@@ -119,6 +150,7 @@ impl Default for Settings {
             target_frame_time_ms: 8.33,
             enable_profiler: false,
             enable_debug_overlay: false,
+            ai_assets: AiAssets::default(),
         }
     }
 }
@@ -133,6 +165,9 @@ impl Settings {
         self.sfx_volume = self.sfx_volume.clamp(0.0, 1.0);
         self.mouse_sensitivity = self.mouse_sensitivity.clamp(0.0002, 0.02);
         self.max_fps = self.max_fps.clamp(30, 1000);
+        let ep = self.ai_assets.endpoint.trim().to_string();
+        self.ai_assets.endpoint =
+            if ep.is_empty() { AiAssets::default().endpoint } else { ep };
     }
 }
 
@@ -208,5 +243,29 @@ mod tests {
         assert_eq!(s.master_volume, 1.0);
         assert_eq!(s.max_fps, 1000);
         assert!(s.mouse_sensitivity <= 0.02);
+    }
+
+    #[test]
+    fn ai_assets_config_roundtrip_and_defaults() {
+        // Handwritten config with an AI endpoint loads it verbatim...
+        let back: Settings = serde_json::from_str(
+            r#"{"ai_assets": {"enabled": true,
+                               "endpoint": "http://render-box:7860",
+                               "api_key": "sk-x",
+                               "model": "dreamshaper_8"}}"#,
+        )
+        .unwrap();
+        assert!(back.ai_assets.enabled);
+        assert_eq!(back.ai_assets.endpoint, "http://render-box:7860");
+        assert_eq!(back.ai_assets.model, "dreamshaper_8");
+
+        // ...and sanitize keeps a non-empty endpoint, repairs empty ones.
+        let mut s = back.clone();
+        s.sanitize();
+        assert_eq!(s.ai_assets.endpoint, "http://render-box:7860");
+        let mut t = Settings::default();
+        t.ai_assets.endpoint = "   ".to_string();
+        t.sanitize();
+        assert!(!t.ai_assets.endpoint.trim().is_empty());
     }
 }

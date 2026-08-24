@@ -176,6 +176,18 @@
       "type": "model",
       "path": "models/banner.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "neon_sunset_far",
+      "type": "texture",
+      "path": "assets/textures/neon_sunset_far.png",
+      "loader": "litt_asset::manager::AssetManager::load_texture"
+    },
+    {
+      "id": "neon_city_near",
+      "type": "texture",
+      "path": "assets/textures/neon_city_near.png",
+      "loader": "litt_asset::manager::AssetManager::load_texture"
     }
   ]
 }
