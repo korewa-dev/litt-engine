@@ -325,7 +325,8 @@ const ENEMY_SPEED: f32 = 3.2;
 
 /// Interaction outcomes deferred out of the entity sweep.
 enum Ev {
-    Score,
+    /// Pickup consumed; Some(item name) for story-flavored toasts.
+    Score(Option<String>),
     Goal,
     Checkpoint(Vec3),
     Poi(String),
@@ -376,6 +377,12 @@ pub struct Session {
     interactives: Vec<Interactive>,
     /// Per-enemy cruise height restore target.
     enemy_base_y: HashMap<usize, f32>,
+    /// Animated-clock for rigs; advanced every step.
+    pub anim_t: f32,
+    /// Set when rendering inputs changed (enemy moved, pickup consumed).
+    scene_dirty: bool,
+    /// Any enemy currently chasing (drives rig animation intensity).
+    any_chasing: bool,
 
     // camera outputs
     pub cam_pos: Vec3,
@@ -468,6 +475,9 @@ impl Session {
             solids,
             interactives,
             enemy_base_y,
+            anim_t: 0.0,
+            scene_dirty: true,
+            any_chasing: false,
             cam_pos: Vec3::ZERO,
             cam_yaw_out: std::f32::consts::PI,
             cam_pitch: 0.0,
@@ -482,6 +492,20 @@ impl Session {
         &self.toast.0
     }
 
+    /// Rig animation clock - advances every simulated step.
+    pub fn anim_speed(&self) -> f32 {
+        if self.any_chasing { 1.0 } else { 0.35 }
+    }
+
+    /// Rendering inputs changed since the last assembled tracer scene.
+    pub fn scene_dirty(&self) -> bool {
+        self.scene_dirty
+    }
+
+    pub fn clear_scene_dirty(&mut self) {
+        self.scene_dirty = false;
+    }
+
     fn set_toast(&mut self, msg: &str) {
         self.toast = (msg.to_string(), self.now);
     }
@@ -489,6 +513,7 @@ impl Session {
     /// Advance the simulation by dt (already clamped <= 0.05 by the caller).
     pub fn step(&mut self, dt: f32, input: PlayInput) {
         self.now += dt;
+        self.anim_t += dt;
         if self.game_over || self.now < self.dead_until {
             self.update_camera();
             return;
@@ -623,14 +648,17 @@ impl Session {
         // Work on a local copy so entity updates can consult world state
         // freely; death (if any) applies once, after the sweep.
         let mut its = std::mem::take(&mut self.interactives);
-        let (death, events) = self.sweep_interactions(&mut its, dt);
+        let (death, events, moved, chasing) = self.sweep_interactions(&mut its, dt);
         self.interactives = its;
         for ev in events {
             match ev {
-                Ev::Score => {
+                Ev::Score(name) => {
                     let pts = self.cfg.coins_value;
                     self.score += pts;
-                    self.set_toast(&format!("+{}", pts));
+                    match name {
+                        Some(n) => self.set_toast(&format!("+{} {}", pts, n)),
+                        None => self.set_toast(&format!("+{}", pts)),
+                    }
                 }
                 Ev::Goal => self.won = true,
                 Ev::Checkpoint(p) => {
@@ -643,14 +671,20 @@ impl Session {
         if let Some(msg) = death {
             self.die(msg);
         }
+        self.any_chasing = chasing;
+        if moved || !death.is_none() {
+            self.scene_dirty = true;
+        }
     }
 
     fn sweep_interactions(
         &self,
         its: &mut [Interactive],
         dt: f32,
-    ) -> (Option<&'static str>, Vec<Ev>) {
+    ) -> (Option<&'static str>, Vec<Ev>, bool, bool) {
         let mut events = Vec::new();
+        let mut moved = false;
+        let mut chasing_any = false;
         for (idx, it) in its.iter_mut().enumerate() {
             if !it.alive {
                 continue;
@@ -662,10 +696,14 @@ impl Session {
                 let dy = it.pos.1 - self.pos.1;
                 let d3 = (hd * hd + dy * dy).sqrt();
                 if d3 < self.cfg.enemy_aggro_m && d3 > 0.1 {
+                    chasing_any = true;
                     // home on the plane only; keep cruise height
                     let nx = it.pos.0 - dx / hd * ENEMY_SPEED * dt;
                     let nz = it.pos.2 - dz / hd * ENEMY_SPEED * dt;
                     if !self.point_blocked(nx, it.pos.1, nz) {
+                        if (nx - it.pos.0).abs() > 1e-5 || (nz - it.pos.2).abs() > 1e-5 {
+                            moved = true;
+                        }
                         it.pos.0 = nx;
                         it.pos.2 = nz;
                     }
@@ -681,6 +719,8 @@ impl Session {
                             "caught - respawning"
                         }),
                         events,
+                        moved,
+                        chasing_any,
                     );
                 }
             } else {
@@ -691,10 +731,10 @@ impl Session {
                     continue;
                 }
                 if it.hazard {
-                    return (Some("hazard!"), events);
+                    return (Some("hazard!"), events, moved, chasing_any);
                 } else if it.scoring {
                     it.alive = false;
-                    events.push(Ev::Score);
+                    events.push(Ev::Score(if it.poi { Some(it.name.clone()) } else { None }));
                 } else if it.goal {
                     events.push(Ev::Goal);
                 } else if it.checkpoint {
@@ -706,7 +746,7 @@ impl Session {
                 }
             }
         }
-        (None, events)
+        (None, events, moved, chasing_any)
     }
 
     fn point_blocked(&self, x: f32, y: f32, z: f32) -> bool {

@@ -2,7 +2,8 @@
 //! Outputs GPU-friendly mesh data (vertex buffers, index buffers, UVs, normals).
 
 use litt_math::{Vec3, Mat4};
-use super::handle::AssetHandle;
+use super::handle::{AssetHandle, AssetType};
+use std::collections::HashMap;
 
 /// Vertex format for GPU mesh
 #[derive(Clone, Debug)]
@@ -213,6 +214,10 @@ pub struct ObjLoader;
 
 impl ObjLoader {
     /// Load an OBJ model from bytes
+    ///
+    /// Group-aware: every `g <name>` (or `usemtl` switch) starts a new named
+    /// mesh so part-based rigs survive loading. Faces may span global vertex
+    /// indices; each mesh keeps its own local index buffer.
     pub fn load_from_bytes(data: &[u8]) -> Result<Model, String> {
         let content = String::from_utf8_lossy(data);
         let mut model = Model::new("obj_model");
@@ -220,8 +225,33 @@ impl ObjLoader {
         let mut positions = Vec::new();
         let mut normals = Vec::new();
         let mut uvs = Vec::new();
-        let mut vertices = Vec::new();
-        let mut indices = Vec::new();
+
+        // current group being assembled
+        let mut cur_name = String::from("obj_mesh");
+        let mut cur_mat = String::new();
+        let mut vertices: Vec<Vertex> = Vec::new();
+        let mut indices: Vec<u32> = Vec::new();
+        // global "v//vn" pair -> local vertex index within the current group
+        let mut remap: HashMap<(usize, usize), u32> = HashMap::new();
+
+        macro_rules! flush_group {
+            () => {
+                if !vertices.is_empty() {
+                    let mut mesh = Mesh::new(&cur_name.clone());
+                    mesh.vertices = std::mem::take(&mut vertices);
+                    mesh.indices = std::mem::take(&mut indices);
+                    if !cur_mat.is_empty() {
+                        model.materials.push(MaterialRef {
+                            handle: AssetHandle::from_path(&cur_mat, AssetType::Material),
+                            name: cur_mat.clone(),
+                        });
+                    }
+                    mesh.compute_bounds();
+                    model.add_mesh(mesh);
+                    remap.clear();
+                }
+            };
+        }
 
         for line in content.lines() {
             let line = line.trim();
@@ -254,6 +284,22 @@ impl ObjLoader {
                         uvs.push((u, v));
                     }
                 }
+                "g" | "o" => {
+                    // named part boundary - flush and start a fresh mesh
+                    flush_group!();
+                    if parts.len() >= 2 {
+                        cur_name = parts[1..].join("_");
+                    }
+                }
+                "usemtl" => {
+                    if parts.len() >= 2 && parts[1] != cur_mat {
+                        flush_group!();
+                        cur_mat = parts[1].to_string();
+                        if cur_name == "obj_mesh" {
+                            cur_name = cur_mat.clone();
+                        }
+                    }
+                }
                 "f" => {
                     // OBJ corner formats: "v", "v/vt", "v//vn", "v/vt/vn".
                     // Empty slots are legal ("1//3") -- keep them positional.
@@ -278,8 +324,12 @@ impl ObjLoader {
                             _ => (0.0, 0.0),
                         };
 
-                        vertices.push(Vertex::new(pos, norm, uv));
-                        corner_indices.push(vertices.len() as u32 - 1);
+                        let key = (vi, ni.unwrap_or(usize::MAX));
+                        let local = *remap.entry(key).or_insert_with(|| {
+                            vertices.push(Vertex::new(pos, norm, uv));
+                            (vertices.len() - 1) as u32
+                        });
+                        corner_indices.push(local);
                     }
                     // Triangle-fan the polygon (handles tris, quads, ngons).
                     if corner_indices.len() >= 3 {
@@ -294,12 +344,10 @@ impl ObjLoader {
             }
         }
 
-        if !vertices.is_empty() {
-            let mut mesh = Mesh::new("obj_mesh");
-            mesh.vertices = vertices;
-            mesh.indices = indices;
-            mesh.compute_bounds();
-            model.add_mesh(mesh);
+        flush_group!();
+
+        if model.meshes.is_empty() {
+            return Err("OBJ contained no faces".to_string());
         }
 
         Ok(model)
@@ -345,5 +393,37 @@ mod obj_tests {
         let model = ObjLoader::load_from_bytes(bad).unwrap();
         // Malformed corner skipped, valid face still loads.
         assert_eq!(model.meshes[0].indices.len(), 3);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn obj_groups_become_named_meshes() {
+        let obj = b"# part rig\n\
+                    g knight_torso\nusemtl prop_metal\nv 0 0 0\nv 1 0 0\nv 0 1 0\nf 1//1 2//1 3//1\n\
+                    g knight_leg_l\nusemtl prop_metal_dk\nv 5 0 0\nv 6 0 0\nv 5 1 0\nf 4//2 5//2 6//2\n";
+        let model = ObjLoader::load_from_bytes(obj).unwrap();
+        assert_eq!(model.meshes.len(), 2, "each g-group must be its own mesh");
+        assert_eq!(model.meshes[0].name, "knight_torso");
+        assert_eq!(model.meshes[1].name, "knight_leg_l");
+        // global vertex indices must be remapped per group
+        assert_eq!(model.meshes[1].vertices[0].position.0, 5.0);
+        assert_eq!(
+            model.meshes[1].indices,
+            vec![0, 1, 2],
+            "second group indexes locally from zero"
+        );
+        assert_eq!(model.materials.len(), 2);
+    }
+
+    #[test]
+    fn usemtl_switch_splits_when_no_groups() {
+        let obj = b"v 0 0 0\nv 1 0 0\nv 0 1 0\nusemtl red\nf 1 2 3\n";
+        let model = ObjLoader::load_from_bytes(obj).unwrap();
+        assert!(!model.meshes.is_empty());
+        assert_eq!(model.meshes[0].name, "red");
     }
 }

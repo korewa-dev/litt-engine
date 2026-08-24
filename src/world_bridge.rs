@@ -12,10 +12,87 @@
 
 use std::collections::HashMap;
 
-use litt_asset::ObjLoader;
+use litt_asset::{ObjLoader, Model};
 use litt_math::Vec3;
 use litt_pathtracer::{Light, MaterialEntry, Scene, Sphere, Triangle};
 use litt_scene::SceneGraph;
+
+/// Environment lighting pulled from a world_state.json `environment`
+/// block -- makes generator weather/time-of-day VISIBLY matter natively.
+#[derive(Clone, Debug)]
+pub struct EnvLight {
+    /// Sky zenith color (also tints the fill light).
+    pub sky_top: Vec3,
+    /// Sun elevation above horizon, degrees.
+    pub sun_elevation_deg: f32,
+    /// Sun azimuth around Y, degrees.
+    pub sun_azimuth_deg: f32,
+    /// Global multiplier on sun intensity.
+    pub intensity: f32,
+}
+
+impl EnvLight {
+    /// Parse from raw world_state text; None fields keep engine defaults.
+    pub fn from_state_json(text: &str) -> Option<EnvLight> {
+        let root = crate::gameplay::Json::parse(text).ok()?;
+        let env = root.get("environment")?;
+        let mut e = EnvLight {
+            sky_top: Vec3::new(0.35, 0.55, 0.90),
+            sun_elevation_deg: 50.0,
+            sun_azimuth_deg: 135.0,
+            intensity: 1.0,
+        };
+        if let Some(sky) = env.get("sky").and_then(|s| s.get("top_color")).and_then(|c| c.as_arr_f32()) {
+            e.sky_top = Vec3::new(sky[0], sky[1], sky[2]);
+        }
+        if let Some(sun) = env.get("sun") {
+            e.sun_elevation_deg =
+                sun.get("elevation_deg").and_then(|v| v.as_f64()).unwrap_or(50.0) as f32;
+            e.sun_azimuth_deg =
+                sun.get("azimuth_deg").and_then(|v| v.as_f64()).unwrap_or(135.0) as f32;
+        }
+        if let Some(li) = env
+            .get("lighting")
+            .and_then(|l| l.get("global_light_intensity"))
+            .and_then(|v| v.as_f64())
+        {
+            e.intensity = li as f32;
+        }
+        Some(e)
+    }
+}
+
+trait ArrF32 {
+    fn as_arr_f32(&self) -> Option<[f32; 3]>;
+}
+impl ArrF32 for crate::gameplay::Json {
+    fn as_arr_f32(&self) -> Option<[f32; 3]> {
+        match self {
+            crate::gameplay::Json::Arr(items) if items.len() >= 3 => Some([
+                items[0].as_f64()? as f32,
+                items[1].as_f64()? as f32,
+                items[2].as_f64()? as f32,
+            ]),
+            _ => None,
+        }
+    }
+}
+
+/// Per-frame rig/animation context for scene assembly. A neutral context
+/// renders everything static.
+#[derive(Clone, Copy, Debug)]
+pub struct AnimCtx {
+    /// Seconds of animated time (driven by the gameplay session).
+    pub t: f32,
+    /// 0..1+ activity level: idle ~0.35, chased ~1.0.
+    pub speed: f32,
+}
+
+impl Default for AnimCtx {
+    fn default() -> Self {
+        Self { t: 0.0, speed: 0.35 }
+    }
+}
 
 /// Material slots used by the bridge (fixed palette, index-stable).
 pub mod mat {
@@ -43,19 +120,76 @@ pub struct BridgeStats {
     pub missing_models: Vec<String>,
 }
 
+/// Compatibility entry used by tests and quick deploys: fresh model cache,
+/// engine default lighting, no animation.
+pub fn build_render_scene(graph: &SceneGraph, base_dir: &str) -> (Scene, BridgeStats) {
+    build_render_scene_ex(
+        graph,
+        base_dir,
+        &mut std::collections::HashMap::new(),
+        None,
+        AnimCtx::default(),
+    )
+}
+
 /// Build the path-tracer scene for a world rooted at `base_dir`
 /// (the folder containing `models/`).
-pub fn build_render_scene(graph: &SceneGraph, base_dir: &str) -> (Scene, BridgeStats) {
+///
+/// `model_cache` lets the caller reuse parsed OBJs across frames (huge win:
+/// rebuilding no longer re-reads every file). `env` drives sun/fill lights
+/// from the generator's environment; `anim` animates rig parts (legs, arms,
+/// rotors, flames) during extraction so native play shows living skeletons.
+pub fn build_render_scene_ex(
+    graph: &SceneGraph,
+    base_dir: &str,
+    model_cache: &mut HashMap<String, Option<std::sync::Arc<Model>>>,
+    env: Option<&EnvLight>,
+    anim: AnimCtx,
+) -> (Scene, BridgeStats) {
     let mut scene = Scene::new();
     let mut stats = BridgeStats::default();
-    let mut mesh_cache: HashMap<String, Option<litt_asset::Model>> = HashMap::new();
     let mut min = Vec3::new(f32::MAX, f32::MAX, f32::MAX);
     let mut max = Vec3::new(f32::MIN, f32::MIN, f32::MIN);
 
     let mut ids: Vec<u32> = graph.nodes.keys().copied().collect();
     ids.sort_unstable();
 
-    // Fixed lighting: one warm sun high above the plaza plus soft fill.
+    // Lighting: environment-driven when available, engine defaults otherwise.
+    let (sun_dir, warm, cool) = match env {
+        Some(e) => {
+            let el = e.sun_elevation_deg.to_radians();
+            let az = e.sun_azimuth_deg.to_radians();
+            let dir = Vec3::new(
+                az.cos() * el.cos(),
+                el.sin().max(0.08),
+                az.sin() * el.cos(),
+            );
+            let k = e.intensity;
+            (
+                dir,
+                Vec3::new(1.0 * k, 0.95 * k, 0.86 * k),
+                Vec3::new(
+                    0.30 + e.sky_top.0 * 0.35,
+                    0.34 + e.sky_top.1 * 0.35,
+                    0.40 + e.sky_top.2 * 0.35,
+                ),
+            )
+        }
+        None => (
+            Vec3::new(0.42, 0.72, 0.55),
+            Vec3::new(2.4, 2.3, 2.18),
+            Vec3::new(0.55, 0.62, 0.75),
+        ),
+    };
+    let sun_pos = Vec3::new(
+        sun_dir.0 * 60.0,
+        sun_dir.1 * 60.0 + 6.0,
+        sun_dir.2 * 60.0,
+    );
+    let sun_intensity = match env {
+        Some(_) => 2.2,
+        None => 2.4,
+    };
     scene.add_material(ground_material());
     scene.add_material(structure_material());
     scene.add_material(accent_material());
@@ -65,15 +199,15 @@ pub fn build_render_scene(graph: &SceneGraph, base_dir: &str) -> (Scene, BridgeS
     scene.add_material(goal_material());
     scene.add_material(default_material());
     scene.add_light(Light {
-        position: Vec3::new(18.0, 30.0, 12.0),
-        color: Vec3::new(1.0, 0.96, 0.88),
-        intensity: 2.4,
+        position: sun_pos,
+        color: warm,
+        intensity: sun_intensity,
         radius: 1.5,
     });
     scene.add_light(Light {
-        position: Vec3::new(-20.0, 14.0, -16.0),
-        color: Vec3::new(0.55, 0.62, 0.75),
-        intensity: 0.8,
+        position: Vec3::new(-sun_pos.0 * 0.4, 14.0, -sun_pos.2 * 0.4),
+        color: cool,
+        intensity: if env.is_some() { 0.9 } else { 0.8 },
         radius: 3.0,
     });
 
@@ -94,40 +228,39 @@ pub fn build_render_scene(graph: &SceneGraph, base_dir: &str) -> (Scene, BridgeS
         let model_tag = node.tags.iter().find(|t| t.starts_with("model:")).map(|t| t["model:".len()..].to_string());
         let mut rendered_mesh = false;
         if let Some(name) = &model_tag {
-            let entry = mesh_cache.entry(name.clone()).or_insert_with(|| {
+            let entry = model_cache.entry(name.clone()).or_insert_with(|| {
                 let path = format!("{}/models/{}.obj", base_dir.trim_end_matches('/'), name);
-                ObjLoader::load_from_file(&path).ok()
+                ObjLoader::load_from_file(&path).ok().map(std::sync::Arc::new)
             });
-            match entry {
-                Some(model) => {
-                    stats.meshes_loaded += 1;
-                    'meshes: for mesh in &model.meshes {
-                        let idx = &mesh.indices;
-                        for tri in idx.chunks_exact(3) {
-                            if scene.triangles.len() >= MAX_TRIANGLES || stats.triangles >= MAX_TRIANGLES {
-                                break 'meshes;
-                            }
-                            let a = mesh.vertices[tri[0] as usize].position;
-                            let b = mesh.vertices[tri[1] as usize].position;
-                            let c = mesh.vertices[tri[2] as usize].position;
-                            let ta = transform(a, pos, yaw, scale);
-                            let tb = transform(b, pos, yaw, scale);
-                            let tc = transform(c, pos, yaw, scale);
-                            let normal = face_normal(ta, tb, tc);
-                            let material_id = material_for_tags(&node.tags);
-                            scene.add_triangle(Triangle { v0: ta, v1: tb, v2: tc, normal, material_id });
-                            stats.triangles += 1;
-                            grow_bounds(&ta, &mut min, &mut max);
-                            grow_bounds(&tb, &mut min, &mut max);
-                            grow_bounds(&tc, &mut min, &mut max);
+            if let Some(model) = entry.as_deref() {
+                stats.meshes_loaded += 1;
+                'meshes: for mesh in &model.meshes {
+                    // rig: rotate this part around its joint for animated refs
+                    let pose = part_pose(&model.name, mesh, name, &anim);
+                    for tri in mesh.indices.chunks_exact(3) {
+                        if scene.triangles.len() >= MAX_TRIANGLES || stats.triangles >= MAX_TRIANGLES {
+                            break 'meshes;
                         }
+                        let a = apply_pose(mesh.vertices[tri[0] as usize].position, pose);
+                        let b = apply_pose(mesh.vertices[tri[1] as usize].position, pose);
+                        let c = apply_pose(mesh.vertices[tri[2] as usize].position, pose);
+                        let ta = transform(a, pos, yaw, scale);
+                        let tb = transform(b, pos, yaw, scale);
+                        let tc = transform(c, pos, yaw, scale);
+                        let normal = face_normal(ta, tb, tc);
+                        let material_id = material_for_tags(&node.tags);
+                        scene.add_triangle(Triangle { v0: ta, v1: tb, v2: tc, normal, material_id });
+                        stats.triangles += 1;
+                        grow_bounds(&ta, &mut min, &mut max);
+                        grow_bounds(&tb, &mut min, &mut max);
+                        grow_bounds(&tc, &mut min, &mut max);
                     }
                     rendered_mesh = true;
                 }
-                None => {
-                    if !stats.missing_models.contains(name) {
-                        stats.missing_models.push(name.clone());
-                    }
+            }
+            if !rendered_mesh && entry.is_none() {
+                if !stats.missing_models.contains(name) {
+                    stats.missing_models.push(name.clone());
                 }
             }
         }
@@ -177,8 +310,80 @@ pub fn build_render_scene(graph: &SceneGraph, base_dir: &str) -> (Scene, BridgeS
     (scene, stats)
 }
 
-fn transform(v: Vec3, pos: Vec3, yaw: f32, scale: f32) -> Vec3 {
-    let (sy, cy) = yaw.sin_cos();
+/// Rig pose for one part mesh: rotation (rx, ry, rz radians) around a joint
+/// pivot in model space. Convention-driven from the generator's part names
+/// -- the same vocabulary the browser runtime animates.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+struct PartPose {
+    pivot: Vec3,
+    rx: f32,
+    ry: f32,
+    rz: f32,
+    lift: f32,
+}
+
+fn part_pose(_model: &str, mesh: &litt_asset::Mesh, ref_name: &str, anim: &AnimCtx) -> PartPose {
+    let n = mesh.name.to_lowercase();
+    let mut p = PartPose::default();
+    let bb = mesh.bounding_box;
+    let t = anim.t;
+    let s = anim.speed;
+    if n.contains("rotor") {
+        // spin about own axis
+        p.pivot = Vec3::new((bb.0 .0 + bb.1 .0) * 0.5, (bb.0 .1 + bb.1 .1) * 0.5, (bb.0 .2 + bb.1 .2) * 0.5);
+        p.ry = t * (12.0 + 26.0 * s);
+    } else if n.contains("leg") {
+        let phase = if n.ends_with("_r") || n.contains("_r_") { std::f32::consts::PI } else { 0.0 };
+        p.pivot = Vec3::new((bb.0 .0 + bb.1 .0) * 0.5, bb.1 .1, (bb.0 .2 + bb.1 .2) * 0.5);
+        p.rx = (t * (2.5 + 5.0 * s) + phase).sin() * 0.55 * s;
+    } else if n.contains("arm") || n.contains("sleeve") || n.contains("blade") || n.contains("sword") {
+        let phase = if n.ends_with("_r") || n.contains("_r_") { std::f32::consts::PI } else { 0.0 };
+        p.pivot = Vec3::new((bb.0 .0 + bb.1 .0) * 0.5, bb.1 .1, (bb.0 .2 + bb.1 .2) * 0.5);
+        p.rx = -(t * (2.5 + 5.0 * s) + phase).sin() * 0.42 * s;
+    } else if n.contains("flame") || n.contains("spark") || n.contains("glow") {
+        p.pivot = Vec3::new((bb.0 .0 + bb.1 .0) * 0.5, bb.0 .1, (bb.0 .2 + bb.1 .2) * 0.5);
+        p.lift = (t * 7.0).sin() * 0.06;
+        p.rz = (t * 9.0 + 1.3).sin() * 0.10;
+    } else if n.contains("cloth") {
+        p.pivot = Vec3::new(bb.0 .0, bb.1 .1, (bb.0 .2 + bb.1 .2) * 0.5);
+        p.rz = (t * 2.3).sin() * 0.24;
+    } else if n.contains("lantern") {
+        p.pivot = Vec3::new(bb.0 .0, bb.1 .1, (bb.0 .2 + bb.1 .2) * 0.5);
+        p.rz = (t * 1.7).sin() * 0.35;
+    }
+    // flyers bob their whole body
+    if matches!(ref_name, "drone" | "wraith" | "stalker") && !n.contains("rotor") {
+        p.lift += (t * 2.4).sin() * 0.12;
+    }
+    p
+}
+
+fn apply_pose(v: Vec3, pose: PartPose) -> Vec3 {
+    if pose == PartPose::default() {
+        return v;
+    }
+    // translate to joint, rotate X then Y then Z, translate back, add lift
+    let mut d = Vec3::new(v.0 - pose.pivot.0, v.1 - pose.pivot.1, v.2 - pose.pivot.2);
+    if pose.rx != 0.0 {
+        let (sn, cs) = pose.rx.sin_cos();
+        d = Vec3::new(d.0, d.1 * cs - d.2 * sn, d.1 * sn + d.2 * cs);
+    }
+    if pose.ry != 0.0 {
+        let (sn, cs) = pose.ry.sin_cos();
+        d = Vec3::new(d.0 * cs + d.2 * sn, d.1, -d.0 * sn + d.2 * cs);
+    }
+    if pose.rz != 0.0 {
+        let (sn, cs) = pose.rz.sin_cos();
+        d = Vec3::new(d.0 * cs - d.1 * sn, d.0 * sn + d.1 * cs, d.2);
+    }
+    Vec3::new(
+        d.0 + pose.pivot.0,
+        d.1 + pose.pivot.1 + pose.lift,
+        d.2 + pose.pivot.2,
+    )
+}
+
+fn transform(v: Vec3, pos: Vec3, yaw: f32, scale: f32) -> Vec3 {    let (sy, cy) = yaw.sin_cos();
     let x = v.0 * scale;
     let z = v.2 * scale;
     Vec3::new(
@@ -380,5 +585,41 @@ mod tests {
         let (_, stats) = build_render_scene(&g, ".");
         assert_eq!(stats.nodes_rendered, 0);
         assert_eq!(stats.spheres, 0);
+    }
+
+    #[test]
+    fn rig_parts_animate_between_frames() {
+        // a model with one leg part; the node references it by ref name
+        let dir = std::env::temp_dir().join(format!("litt_rig_test_{}", std::process::id()));
+        std::fs::create_dir_all(dir.join("models")).unwrap();
+        let obj = "g leg_l\nv -0.2 0 0\nv 0.2 0 0\nv 0 1 0\nf 1 2 3\n";
+        std::fs::write(dir.join("models/brute.obj"), obj).unwrap();
+
+        let g = graph_with(|n| {
+            n.add_tag("model:brute");
+        });
+        let base = dir.to_str().unwrap();
+        let (s0, _st0) = build_render_scene(&g, base);
+        let (s1, st1) = build_render_scene_ex(
+            &g,
+            base,
+            &mut HashMap::new(),
+            None,
+            AnimCtx { t: 1.0, speed: 1.0 },
+        );
+        assert!(st1.triangles >= 1, "leg mesh loaded");
+        let moved = s1
+            .triangles
+            .iter()
+            .zip(s0.triangles.iter())
+            .filter(|(a, b)| {
+                ((a.v0 .0 - b.v0 .0).powi(2) + (a.v0 .1 - b.v0 .1).powi(2)).sqrt() > 0.01
+            })
+            .count();
+        assert!(
+            moved >= 1,
+            "at least one triangle must move under animation"
+        );
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

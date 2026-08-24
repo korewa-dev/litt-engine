@@ -350,7 +350,13 @@ pub fn run_interactive(path: &str) -> Result<(), String> {
         // world's assets end-to-end (meshes found, transforms applied).
         if st.key_pressed(litt_input::Key::P) {
             let base = if std::path::Path::new("assets/models").is_dir() { "assets" } else { "." };
-            let (_, stats) = crate::world_bridge::build_render_scene(&session.graph, base);
+            let (_, stats) = crate::world_bridge::build_render_scene_ex(
+                &session.graph,
+                base,
+                &mut std::collections::HashMap::new(),
+                None,
+                crate::world_bridge::AnimCtx::default(),
+            );
             println!(
                 "[deploy] tris={} markers={} meshes={} missing={:?}",
                 stats.triangles, stats.spheres, stats.meshes_loaded, stats.missing_models

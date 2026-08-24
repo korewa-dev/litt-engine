@@ -394,10 +394,25 @@ def main():
     ap.add_argument("--weather", default=None,
                     help="clear|rain|snow (passed to gen_archetype)")
     ap.add_argument("--skip-validate", action="store_true")
+    ap.add_argument("--scale", default=None, choices=["small", "medium", "full"],
+                    help="story/content scope: small demo, medium game, "
+                         "full RPG (acts/items/roster size)")
     a = ap.parse_args()
 
     if not a.random and not a.about and not a.archetype:
         ap.error("pass --random or --about \"description\"")
+
+    # scale from explicit flag, else read it out of the human's wording
+    scale = a.scale
+    if scale is None and a.about:
+        t = a.about.lower()
+        if any(w in t for w in ("full", "big", "huge", "epic", "rpg",
+                                "long", "entire", "whole")):
+            scale = "full"
+        elif any(w in t for w in ("small", "quick", "short", "tiny",
+                                  "minimal", "demo")):
+            scale = "small"
+    scale = scale or "medium"
 
     seed = a.seed if a.seed is not None else random.randrange(10_000)
     rng = random.Random(seed)
@@ -448,6 +463,88 @@ def main():
     layout = scene_layout(out)
 
     brief = brief_for(kit, theme, name, seed, a.about, layout)
+
+    # ---- narrative layer (story acts, items, roster) ---------------------
+    run(WORLDGEN / "gen_story.py", "--about", a.about or name,
+        "--game-dir", str(out), "--archetype", arch,
+        "--scale", scale, "--seed", str(seed))
+    try:
+        items = json.loads((out / "story/items.json").read_text(
+            encoding="utf-8")).get("items", [])
+        roster = json.loads((out / "story/roster.json").read_text(
+            encoding="utf-8")).get("roster", [])
+    except Exception as exc:  # story is enhancement, never fatal
+        print("[make] story merge skipped: %s" % exc)
+        items, roster = [], []
+
+    def _model_for_rarity(rarity):
+        return {"legendary": "objective", "rare": "token"}.get(rarity, "coin")
+
+    ENEMY_MODEL = {"souls": ("wraith", "knight", "brute"),
+                   "platformer": ("drone", "stalker", "brute")}
+    emook, eelite, eboss = ENEMY_MODEL.get(kit, ("drone", "stalker", "brute"))
+    # only reference meshes this game's prop kit actually shipped
+    models_dir = out / "assets/models"
+    have = ({p.stem for p in models_dir.glob("*.obj")}
+            if models_dir.is_dir() else set())
+
+    def have_any(*names):
+        return next((n for n in names if n in have), None)
+
+    pickup_for = {
+        "coin": have_any("coin"),
+        "token": have_any("token", "gem", "coin"),
+        "objective": have_any("objective", "estus_flask", "gem", "coin"),
+    }
+    emook = have_any("drone", "stalker", "wraith", "brute")
+    eelite = have_any("stalker", "knight", "brute", emook)
+    eboss = have_any("brute", "knight", "wraith", emook)
+
+    existing = {n.get("name") for n in brief.get("nodes", [])}
+    for i, it in enumerate(items):
+        nm = "Item_%02d_%s" % (i, "".join(ch for ch in it["name"].title()
+                                          if ch.isalnum())[:18])
+        mdl = pickup_for[_model_for_rarity(it.get("rarity"))]
+        if nm in existing or not mdl or not layout:
+            continue
+        frac = 0.14 + (0.72 * (i + 1)) / max(1, len(items))
+        brief.setdefault("nodes", []).append({
+            "name": nm, "pos": place_on(layout, min(frac, 0.9)),
+            "tags": ["scoring", "model:%s" % mdl],
+            "poi": "%s (%s)" % (it["name"], it["rarity"]),
+        })
+        existing.add(nm)
+    bosses = [r for r in roster if r["role"] == "boss"]
+    others = [r for r in roster if r["role"] != "boss"]
+    for i, r in enumerate(bosses):
+        nm = "Boss_%d_%s" % (i, "".join(ch for ch in r["name"]
+                                        if ch.isalnum())[:16])
+        if layout and nm not in existing and eboss:
+            brief.setdefault("nodes", []).append({
+                "name": nm,
+                "pos": place_on(layout, 0.35 + 0.18 * i),
+                "tags": ["enemy", "hazard", "model:%s" % eboss],
+                "poi": r["description"],
+            })
+            existing.add(nm)
+    for i, r in enumerate(others):
+        role = r["role"]
+        nm = "Foe_%02d_%s" % (i, "".join(ch for ch in r["name"]
+                                         if ch.isalnum())[:16])
+        mdl = eelite if role == "elite" else emook
+        if not layout or nm in existing or not mdl:
+            continue
+        frac = 0.22 + (0.62 * (i + 1)) / max(1, len(others))
+        brief.setdefault("nodes", []).append({
+            "name": nm,
+            "pos": place_on(layout, min(frac, 0.86)),
+            "tags": ["enemy", "model:%s" % mdl],
+            "poi": r["description"],
+        })
+        existing.add(nm)
+    print("[make] story layer: %d items -> pickups, %d roster -> enemies"
+          % (len(items), len(roster)))
+
     brief_path = out / "brief.json"
     brief_path.write_text(json.dumps(brief, indent=2), encoding="utf-8")
     run(WORLDGEN / "enrich_game.py", "--game-dir", str(out),
@@ -469,10 +566,11 @@ def main():
     # NOTES + ATTRIBUTION + manifest ---------------------------------------
     (out / "NOTES.md").write_text(
         "# NOTES - %s\n\n%s\n\n- built by: make_game.py (%s mode)\n"
-        "- archetype=%s pattern=%s theme=%s kit=%s seed=%d\n"
+        "- archetype=%s pattern=%s theme=%s kit=%s seed=%d scale=%s\n"
         "- lint: clean | solids nodes: %d\n- browser port: %d\n"
+        "- story: story/story.md (+items.json, +roster.json)\n"
         % (name, (a.about or "random pick"), "about" if a.about else "random",
-           arch, pat, theme, kit, seed, solids, port), encoding="utf-8")
+           arch, pat, theme, kit, seed, scale, solids, port), encoding="utf-8")
     (out / "ATTRIBUTION.md").write_text(
         "# ATTRIBUTION - %s\n\nAll assets procedurally generated by Litt "
         "worldgen tools. No third-party content.\n" % name, encoding="utf-8")

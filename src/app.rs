@@ -67,6 +67,19 @@ pub struct App {
     pub dirty_panel: bool,
     /// Native gameplay session (`litt play [game]`)
     pub play_session: Option<crate::gameplay::Session>,
+    /// Parsed OBJ cache shared across frame rebuilds (perf law)
+    pub model_cache:
+        std::collections::HashMap<String, Option<std::sync::Arc<litt_asset::Model>>>,
+    /// Environment lighting parsed from world_state.json
+    pub env_light: Option<crate::world_bridge::EnvLight>,
+    /// Last assembled tracer scene - reused until something changes
+    pub cached_scene: Option<litt_pathtracer::Scene>,
+}
+
+/// Shared empty scene for frames before the first build.
+static EMPTY_SCENE: std::sync::OnceLock<litt_pathtracer::Scene> = std::sync::OnceLock::new();
+fn empty_scene() -> &'static litt_pathtracer::Scene {
+    EMPTY_SCENE.get_or_init(litt_pathtracer::Scene::new)
 }
 
 impl App {
@@ -187,6 +200,7 @@ impl App {
 
         // Native gameplay session for `litt play [game]`
         let mut play_session = None;
+        let env_light;
         if play_target.is_some() {
             if let Some(dir) = &game_dir {
                 let state_path = format!("{}/world_state.json", dir);
@@ -196,12 +210,22 @@ impl App {
                     "[play] mode {:?} | lives {:?} | {}",
                     cfg.mode, cfg.lives, cfg.objective
                 );
+                env_light = crate::world_bridge::EnvLight::from_state_json(&text);
                 let assets = format!("{}/assets", dir);
                 play_session =
                     Some(crate::gameplay::Session::new(&scene, cfg, &assets));
             } else {
                 eprintln!("[play] no world found - running engine defaults");
+                env_light = None;
             }
+        } else if let Some(dir) = &game_dir {
+            // studio viewport also honors the generator's mood lighting
+            let state_path = format!("{}/world_state.json", dir);
+            let text = std::fs::read_to_string(&state_path).unwrap_or_default();
+            env_light = crate::world_bridge::EnvLight::from_state_json(&text);
+            let _ = text;
+        } else {
+            env_light = None;
         }
 
         Ok(Self {
@@ -235,6 +259,9 @@ impl App {
             dirty_world: true,
             dirty_panel: true,
             play_session,
+            model_cache: std::collections::HashMap::new(),
+            env_light,
+            cached_scene: None,
         })
     }
 
@@ -529,10 +556,38 @@ impl App {
         let camera = self.camera_controls.to_camera(90.0, aspect);
 
         // Deploy the loaded world natively: real OBJ meshes -> tracer scene.
-        // Rebuilt per frame for now; cached once the scene stops changing.
+        // PERF LAW: models are parsed once and cached; the assembled scene
+        // only rebuilds when the world or a living entity actually changes.
         let base = self.asset_base.clone();
-        let (world_scene, stats) = crate::world_bridge::build_render_scene(&self.scene, &base);
-        self.bridge_stats = stats;
+        let anim = crate::world_bridge::AnimCtx {
+            t: self.play_session.as_ref().map(|s| s.anim_t).unwrap_or(0.0),
+            speed: self.play_session.as_ref().map(|s| s.anim_speed()).unwrap_or(0.35),
+        };
+        let scene_dirty = self.dirty_world
+            || self
+                .play_session
+                .as_ref()
+                .map(|s| s.scene_dirty())
+                .unwrap_or(false);
+        if scene_dirty || self.cached_scene.is_none() {
+            let (world_scene, stats) = crate::world_bridge::build_render_scene_ex(
+                &self.scene,
+                &base,
+                &mut self.model_cache,
+                self.env_light.as_ref(),
+                anim,
+            );
+            self.bridge_stats = stats;
+            self.cached_scene = Some(world_scene);
+            if let Some(sess) = &mut self.play_session {
+                sess.clear_scene_dirty();
+            }
+            self.dirty_world = false;
+        }
+        let world_scene = match &self.cached_scene {
+            Some(s) => s,
+            None => empty_scene(),
+        };
 
         // Studio: keep the GPU-side world mesh + chat panel in sync
         if self.is_studio() {

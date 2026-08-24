@@ -100,7 +100,12 @@ def main():
         add("Checkpoint_%02d" % n, c, ["checkpoint", "poi"])
 
     for spec in brief.get("nodes", []):
-        add(spec["name"], spec["pos"], spec["tags"], spec.get("scale", (1, 1, 1)))
+        node = add(spec["name"], spec["pos"], spec["tags"],
+                   spec.get("scale", (1, 1, 1)))
+        # story layer: item/roster flavor text rides along as a poi notice
+        poi = spec.get("poi")
+        if poi and "poi" not in spec.get("tags", []):
+            node.setdefault("tags", []).append("poi")
 
     for z in brief.get("zones", []):
         r = float(z.get("radius", 15))

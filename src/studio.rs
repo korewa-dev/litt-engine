@@ -612,9 +612,32 @@ impl JobBus {
 
     /// make_game.py --about "<text>"
     pub fn build_about(&mut self, about: &str) {
+        // scope the build from the human's own wording ("make me a FULL
+        // dark souls game" -> --scale full) so a one-line prompt yields a
+        // proportioned game without a follow-up questionnaire.
+        let t = about.to_lowercase();
+        let scale = if ["full", "big", "huge", "epic", "long", "entire",
+                        "whole"]
+            .iter()
+            .any(|w| t.contains(w))
+        {
+            "full"
+        } else if ["small", "quick", "short", "tiny", "minimal", "demo"]
+            .iter()
+            .any(|w| t.contains(w))
+        {
+            "small"
+        } else {
+            "medium"
+        };
         self.spawn_tool(
             "template/tools/worldgen/make_game.py",
-            &["--about".to_string(), about.to_string()],
+            &[
+                "--about".to_string(),
+                about.to_string(),
+                "--scale".to_string(),
+                scale.to_string(),
+            ],
             Some("done - type 'load <name>' when it finishes".into()),
         );
     }
