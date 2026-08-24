@@ -163,8 +163,11 @@ class MeshBuilder:
         out += ["v %s %s %s" % (fnum(p[0]), fnum(p[1]), fnum(p[2])) for p in self.v]
         out += ["vn %s %s %s" % (fnum(n[0]), fnum(n[1]), fnum(n[2])) for n in self.vn]
         for g in self.groups:
+            if not g["faces"]:
+                continue  # never emit dead/empty groups (bare usemtl breaks parsers)
             out.append("g %s" % g["name"])
-            out.append("usemtl %s" % g["mat"])
+            if g["mat"]:
+                out.append("usemtl %s" % g["mat"])
             out += g["faces"]
         tris = sum(len(g["faces"]) for g in self.groups)
         return NL.join(out) + NL, len(self.v), tris

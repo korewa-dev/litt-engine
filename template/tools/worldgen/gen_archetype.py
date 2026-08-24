@@ -174,7 +174,6 @@ def pattern_board(rng, mats, n=4):
     mb = MeshBuilder(); k = kit_factory(mb)
     fr = k("frame", mat_at(mats, "structure", "structure"))
     fr.box(0, -0.12, 0, 5.6, 0.1, 5.6)
-    tl = k("tiles", "")
     kinds = sorted(set(mats.keys()) - {"structure"}) or ["ground"]
     for qx in range(-n, n + 1):
         for qz in range(-n, n + 1):

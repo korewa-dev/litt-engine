@@ -49,6 +49,8 @@ def parse_obj_groups(path):
         if p[0] == "v":
             vs.append((float(p[1]), float(p[2]), float(p[3])))
         elif p[0] == "usemtl":
+            if len(p) < 2:
+                continue  # bare usemtl: malformed OBJ, keep current material
             if cur_idx:
                 groups.append((cur_mat, cur_idx))
             cur_mat, cur_idx = p[1], []
