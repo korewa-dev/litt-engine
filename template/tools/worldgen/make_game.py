@@ -37,51 +37,62 @@ sys.path.insert(0, str(ASSETS_TOOLS))
 from lint import lint_game, solid_count  # noqa: E402
 
 # --------------------------------------------------------------- intent map
+# Every archetype below is verified against `gen_archetype.py --list`.
 INTENT_KEYWORDS = [
     # (regex on lowercase request) -> (archetype, pattern, theme, kit)
-    (r"zombie|horde|survivor|survival|swarm|infect", "bullet_hell", "arena_ring", "post_apocalypse", "survivor"),
-    (r"race|racing|drive|car|kart|speed", "racing", "spline_track", "modern_city_night", "platformer"),
-    (r"dungeon|crypt|dwarf|mines?|cave", "soulslike", "room_graph", "underground_caves", "souls"),
+    (r"zombie|horde|swarm|infect|outbreak", "survival_horror", "arena_ring", "post_apocalypse", "survivor"),
+    (r"race|racing|drive|car|kart|speed", "kart_racer", "spline_track", "modern_city_night", "platformer"),
+    (r"dungeon|crypt|dwarf|mines?|cave|catacomb", "dungeon_crawler", "room_graph", "underground_caves", "souls"),
     (r"souls|boss|estus|knight|hollow|dark souls", "soulslike", "hub_spoke", "haunted_estate", "souls"),
-    (r"space|alien|void|station|asteroid|galax", "space_trader", "hub_spoke", "space_station_core", "souls"),
-    (r"plat|jump|run|mario|celeste|parkour|rooftop", "platformer_2_5d", "corridor_run", "cyberpunk_neon", "platformer"),
-    (r"puzzle|board|chess|tile|tactic", "tactics", "grid_board", "minimalist_abstract", "survivor"),
-    (r"western|cowboy|desert|wild west", "shooter", "arena_ring", "wild_west_frontier", "survivor"),
-    (r"ocean|sea|underwater|reef|submarin", "exploration", "hub_spoke", "underwater_reef", "survivor"),
-    (r"island|tropical|beach|pirate", "adventure", "hub_spoke", "tropical_island", "survivor"),
-    (r"egypt|pyramid|tomb|pharaoh", "soulslike", "room_graph", "egyptian_desert", "souls"),
-    (r"horror|ghost|haunt|scary|creepy", "soulslike", "corridor_run", "haunted_estate", "souls"),
-    (r"candy|cute|cozy|pastel|kids?", "adventure", "grid_board", "candy_land", "survivor"),
-    (r"steampunk|brass|gear|clockwork", "shooter", "corridor_run", "steampunk_brass", "survivor"),
-    (r"forest|nature|druid|elf", "exploration", "hub_spoke", "deep_forest", "souls"),
-    (r"arctic|snow|ice|frozen", "survival", "arena_ring", "arctic_expanse", "survivor"),
-    (r"military|war|soldier|trench", "shooter", "rooms_pattern", "military_outpost", "survivor"),
+    (r"space|alien|void|station|asteroid|galax|scifi", "walking_simulator", "hub_spoke", "space_station_core", "souls"),
+    (r"plat|jump|parkour|rooftop|precision", "precision_action", "corridor_run", "cyberpunk_neon", "platformer"),
+    (r"runner|endless run", "endless_runner", "spline_track", "retro_scifi", "platformer"),
+    (r"metroidvania|explore.*map|backtrack", "metroidvania", "corridor_run", "deep_forest", "platformer"),
+    (r"puzzle|board|chess|tile|tactic", "grid_tactics", "grid_board", "minimalist_abstract", "survivor"),
+    (r"western|cowboy|wild west", "open_world_western", "arena_ring", "wild_west_frontier", "survivor"),
+    (r"ocean|sea|underwater|reef|submarin", "walking_simulator", "hub_spoke", "underwater_reef", "survivor"),
+    (r"island|tropical|beach|pirate", "naval_pirate", "hub_spoke", "tropical_island", "survivor"),
+    (r"egypt|pyramid|tomb|pharaoh", "dungeon_crawler", "room_graph", "egyptian_desert", "souls"),
+    (r"horror|ghost|haunt|scary|creepy", "psychological_horror", "corridor_run", "haunted_estate", "souls"),
+    (r"candy|cute|cozy|pastel|kids?", "narrative_adventure", "grid_board", "candy_land", "survivor"),
+    (r"steampunk|brass|gear|clockwork", "extraction_shooter", "corridor_run", "steampunk_brass", "survivor"),
+    (r"forest|nature|druid|elf", "walking_simulator", "hub_spoke", "deep_forest", "souls"),
+    (r"arctic|snow|ice|frozen", "open_world_survival", "arena_ring", "arctic_expanse", "survivor"),
+    (r"military|war|soldier|trench|shoot", "tactical_shooter", "room_graph", "military_outpost", "survivor"),
+    (r"rogue|dungeon crawl|permadeath", "roguelite", "grid_board", "dark_fantasy", "survivor"),
 ]
 
-ARCHETYPES_AVAILABLE = None  # lazy from --list
+PLATFORMER_ARCHES = {"kart_racer", "precision_action", "endless_runner",
+                     "metroidvania"}
+SOULS_ARCHES = {"soulslike", "dungeon_crawler", "psychological_horror",
+                "naval_pirate", "walking_simulator"}
+
+
+def kit_for(arch):
+    if arch in PLATFORMER_ARCHES:
+        return "platformer"
+    if arch in SOULS_ARCHES:
+        return "souls"
+    return "survivor"
 
 
 def pick_random(rng):
-    archs = ["roguelite", "bullet_hell", "soulslike", "shooter", "exploration",
-             "survival", "racing", "platformer_2_5d", "adventure", "tactics"]
+    archs = ["roguelite", "bullet_hell", "soulslike", "extraction_shooter",
+             "walking_simulator", "open_world_survival", "kart_racer",
+             "metroidvania", "narrative_adventure", "grid_tactics"]
     pat_theme = {
         "arena_ring": ["dark_fantasy", "post_apocalypse", "arctic_expanse"],
         "corridor_run": ["haunted_estate", "steampunk_brass", "cyberpunk_neon"],
         "hub_spoke": ["haunted_estate", "deep_forest", "tropical_island",
                       "underwater_reef", "space_station_core"],
         "grid_board": ["minimalist_abstract", "candy_land", "toy_voxel_playground"],
-        "spline_track": ["modern_city_night", "wild_west_frontier"],
+        "spline_track": ["modern_city_night", "wild_west_frontier", "retro_scifi"],
         "room_graph": ["underground_caves", "egyptian_desert", "military_outpost"],
     }
-    kit_by_arch = {"platformer_2_5d": "platformer", "racing": "platformer"}
     arch = rng.choice(archs)
-    if arch == "platformer_2_5d":
-        return arch, None, rng.choice(["cyberpunk_neon", "dark_fantasy"]), \
-            "platformer"
     pat = rng.choice(list(pat_theme.keys()))
     theme = rng.choice(pat_theme[pat])
-    return arch, pat, theme, kit_by_arch.get(arch, "souls" if arch in
-                                              ("soulslike",) else "survivor")
+    return arch, pat, theme, kit_for(arch)
 
 
 def map_intent(text):
@@ -257,7 +268,8 @@ def main():
           % (name, arch, pat, theme, kit, seed, out))
 
     # ---- pipeline (each step a shipped tool) -----------------------------
-    if arch == "platformer_2_5d":
+    if arch == "platformer25d":
+        # explicit opt-in to the true side-scroller generator
         run(WORLDGEN / "gen_platformer25d.py", "--out-dir", str(out),
             "--agent", "ai-agent", "--prompt", a.about or "random")
     else:

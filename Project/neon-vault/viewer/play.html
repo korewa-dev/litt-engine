@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Litt Play - playable generated world</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#111;font-family:Consolas,monospace}
+  #hud{position:fixed;top:12px;left:12px;z-index:10;background:rgba(8,14,20,.8);color:#bfe3f2;
+       padding:10px 14px;border-radius:8px;border:1px solid #2e4a5c;font-size:12px;line-height:1.55}
+  #hud b{color:#ffd97a}
+  #toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:10;color:#bfe3f2;
+         font-size:15px;opacity:0;transition:opacity .4s;text-shadow:0 1px 3px #000}
+  #win{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:20;
+       background:rgba(0,0,0,.72);color:#ffd97a;font-size:34px;letter-spacing:3px;flex-direction:column}
+  #win small{color:#bfe3f2;font-size:13px;margin-top:10px;letter-spacing:1px}
+  #err{display:none;position:fixed;left:12px;bottom:12px;right:12px;z-index:99;
+       background:#3a0e0e;color:#ffb0a0;border:1px solid #a33;padding:12px;
+       font-size:13px;white-space:pre-wrap;border-radius:8px}
+</style>
+</head>
+<body>
+<div id="hud">loading world...</div>
+<div id="toast"></div>
+<div id="win"><div>GOAL REACHED</div><small>refresh to play again</small></div>
+<div id="err"></div>
+<script>
+  function _showErr(m) {
+    var e = document.getElementById("err");
+    e.style.display = "block";
+    e.textContent += "[litt-play] " + m + "\n";
+  }
+  window.onerror = function (msg, src, line, col) {
+    _showErr(msg + "  (" + (src || "?").split("/").pop() + ":" + line + ":" + col + ")");
+  };
+  window.addEventListener("unhandledrejection", function (ev) {
+    _showErr("promise: " + (ev.reason && ev.reason.message ? ev.reason.message : ev.reason));
+  });
+</script>
+<script src="./three.min.js"></script>
+<script>
+  if (typeof THREE === "undefined") {
+    document.getElementById("hud").textContent = "three.min.js failed to load - is viewer/three.min.js present?";
+  } else {
+    window.addEventListener("load", function () { try { LittPlay.init(); } catch (e) { _showErr(e.message); } });
+  }
+</script>
+</body>
+</html>

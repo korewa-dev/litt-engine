@@ -1,0 +1,346 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "next_id": 12,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [
+        1
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": []
+    },
+    {
+      "name": "Corridor",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [
+        35.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "level",
+        "model:layout_main"
+      ]
+    },
+    {
+      "name": "Checkpoint_01",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [
+        18.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_02",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [
+        36.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_03",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [
+        52.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_04",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [
+        68.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Drone_A",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [
+        27.0,
+        4.6,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Drone_B",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [
+        43.0,
+        5.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Gem_High",
+      "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [
+        10.5,
+        3.6,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:gem"
+      ]
+    },
+    {
+      "name": "Spikes_Mid",
+      "id": 9,
+      "parent": 0,
+      "children": [],
+      "position": [
+        39.5,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "hazard",
+        "model:spike"
+      ]
+    },
+    {
+      "name": "Cyberpunk Neon",
+      "id": 10,
+      "parent": 0,
+      "children": [],
+      "position": [
+        36.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        4.2,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "area",
+        "music:zone_platformer"
+      ]
+    },
+    {
+      "name": "Player_Start",
+      "id": 11,
+      "parent": 0,
+      "children": [],
+      "position": [
+        1.5,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "player",
+        "start"
+      ]
+    }
+  ]
+}

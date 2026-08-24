@@ -1,0 +1,151 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "underground_caves",
+  "updated": "2026-08-24T05:30:59",
+  "seed": {
+    "archetype_seed": 3347
+  },
+  "chunk_size": 0,
+  "radius": 0,
+  "camera": {
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "distance": 30
+  },
+  "chunks": [],
+  "palette": {
+    "cave_stone": [
+      0.32,
+      0.3,
+      0.29
+    ],
+    "crystal_amethyst": [
+      0.55,
+      0.3,
+      0.8
+    ],
+    "still_water": [
+      0.15,
+      0.2,
+      0.28
+    ],
+    "ore_vein_gold": [
+      0.75,
+      0.62,
+      0.25
+    ],
+    "pitch_black": [
+      0.03,
+      0.03,
+      0.04
+    ],
+    "ground": [
+      0.38,
+      0.44,
+      0.34
+    ]
+  },
+  "identity": {
+    "archetype": "dungeon_crawler",
+    "camera": "top_down",
+    "combat": "real_time_combat",
+    "movement": "free_roam_movement",
+    "structure": "procedural_world",
+    "pacing": "fast_paced",
+    "pattern": "room_graph",
+    "theme": "underground_caves"
+  },
+  "environment": {
+    "sky": {
+      "type": "clear",
+      "top_color": [
+        0.35,
+        0.55,
+        0.9
+      ],
+      "horizon_color": [
+        0.75,
+        0.85,
+        0.95
+      ],
+      "cloud_layers": [
+        {
+          "density": 0.15,
+          "height": 120,
+          "speed": 0.25
+        }
+      ]
+    },
+    "sun": {
+      "azimuth_deg": 135.0,
+      "elevation_deg": 62
+    },
+    "lighting": {
+      "global_light_intensity": 1.0,
+      "ambient_light_color": [
+        0.5,
+        0.52,
+        0.55
+      ],
+      "shadow_softness": 0.5,
+      "time_of_day": "noon"
+    },
+    "fog": {
+      "density": 0.01,
+      "height": 30,
+      "haze": 0.4
+    },
+    "weather": {
+      "type": "clear",
+      "wind_speed": 0.25,
+      "particle_density": 0.0
+    },
+    "notes": [
+      "emissive crystals are the light sources"
+    ]
+  },
+  "gameplay": {
+    "genre": "dungeon_crawler",
+    "objective": "neon-vault: reclaim the shrines of the underground caves court",
+    "procgen_rules": [
+      "open zoos, food and torch pressure systems"
+    ],
+    "ai_behavior": "horde swarming",
+    "environment_types": [
+      "monster_zoos",
+      "treasure_vaults"
+    ],
+    "enemy_aggro_m": 9.0,
+    "corpse_run": true,
+    "scoring": {
+      "coins": 25
+    },
+    "physics": {
+      "gravity": 26,
+      "run_speed": 5.5,
+      "coyote_time_s": 0.1
+    },
+    "side_objectives": [
+      "Kindle all bonfires in one run",
+      "Bank 800 points before the banner"
+    ],
+    "roster": [
+      {
+        "name": "Hollow Knight",
+        "behavior": "guards shrine; lunge inside 3 m"
+      },
+      {
+        "name": "Garden Stalker",
+        "behavior": "patrols; drops chase at 12 m"
+      }
+    ]
+  },
+  "meta": {
+    "enriched_seed": 3347
+  }
+}
