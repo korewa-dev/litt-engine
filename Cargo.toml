@@ -25,7 +25,7 @@ litt-ags = { path = "crates/ags" }
 litt-physics = { path = "crates/physics" }
 litt-ai = { path = "crates/ai" }
 litt-asset = { path = "crates/asset" }
-ash = { version = "0.38", default-features = false }
+ash = { version = "0.38", default-features = false, features = ["loaded"] }
 ash-window = "0.13"
 vma = "0.3"
 bytemuck = { version = "1", features = ["extern_crate_alloc"] }

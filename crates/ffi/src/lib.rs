@@ -83,26 +83,38 @@ pub unsafe extern "C" fn litt_deploy_world(
 }
 
 /// Triangle count of a deployed world.
+///
+/// # Safety
+/// `w` must be null or a valid handle from [`litt_deploy_world`].
 #[no_mangle]
-pub extern "C" fn litt_world_triangles(w: *const LittWorld) -> usize {
+pub unsafe extern "C" fn litt_world_triangles(w: *const LittWorld) -> usize {
     unsafe { w.as_ref().map_or(0, |w| w.tri_count) }
 }
 
 /// Sphere (marker light/emitter proxy) count.
+///
+/// # Safety
+/// `w` must be null or a valid handle from [`litt_deploy_world`].
 #[no_mangle]
-pub extern "C" fn litt_world_spheres(w: *const LittWorld) -> usize {
+pub unsafe extern "C" fn litt_world_spheres(w: *const LittWorld) -> usize {
     unsafe { w.as_ref().map_or(0, |w| w.sphere_count) }
 }
 
 /// Number of OBJ meshes successfully loaded.
+///
+/// # Safety
+/// `w` must be null or a valid handle from [`litt_deploy_world`].
 #[no_mangle]
-pub extern "C" fn litt_world_meshes(w: *const LittWorld) -> usize {
+pub unsafe extern "C" fn litt_world_meshes(w: *const LittWorld) -> usize {
     unsafe { w.as_ref().map_or(0, |w| w.meshes_loaded) }
 }
 
 /// Number of models referenced by the scene but missing on disk.
+///
+/// # Safety
+/// `w` must be null or a valid handle from [`litt_deploy_world`].
 #[no_mangle]
-pub extern "C" fn litt_world_missing_count(w: *const LittWorld) -> c_int {
+pub unsafe extern "C" fn litt_world_missing_count(w: *const LittWorld) -> c_int {
     unsafe { w.as_ref().map_or(0, |w| w.missing.len()) as c_int }
 }
 

@@ -46,6 +46,8 @@ pub struct App {
     pub areas: litt_scene::AreaSystem,
     /// Stats from the last world->renderer deployment
     pub bridge_stats: crate::world_bridge::BridgeStats,
+    /// Live GPU backend (Vulkan swapchain frames when available)
+    pub backend: Option<Box<dyn crate::graphics::GraphicsBackend>>,
     /// One-time notice when no GPU pipeline is available
     pub warned_no_renderer: bool,
 }
@@ -158,6 +160,7 @@ impl App {
             settings_menu: litt_ui::Menu::new("SETTINGS"),
             areas,
             bridge_stats: crate::world_bridge::BridgeStats::default(),
+            backend: None,
             warned_no_renderer: false,
         })
     }
@@ -266,6 +269,27 @@ impl App {
     fn init(&mut self) -> Result<(), String> {
         // Init audio
         self.audio.init().ok();
+
+        // Bring up the GPU backend against our window (Vulkan first)
+        let (w, h) = self.window.size();
+        match crate::graphics::select_backend() {
+            Ok(mut backend) => {
+                #[cfg(target_os = "windows")]
+                backend.set_window(self.window.hwnd() as isize);
+                match backend.initialize(w.max(1), h.max(1)) {
+                    Ok(()) => {
+                        println!(
+                            "Renderer: {} on {}",
+                            backend.name(),
+                            backend.adapter_info()
+                        );
+                        self.backend = Some(backend);
+                    }
+                    Err(e) => eprintln!("GPU backend init failed: {e} -- software-only path"),
+                }
+            }
+            Err(e) => eprintln!("No graphics backend: {e}"),
+        }
 
         // Print GPU info
         println!("Initializing engine...");
@@ -387,8 +411,19 @@ impl App {
         let (world_scene, stats) = crate::world_bridge::build_render_scene(&self.scene, "assets");
         self.bridge_stats = stats;
 
-        // Render through the Vulkan pipeline if available
-        if let Some(ref mut pipeline) = self.path_pipeline {
+        // Render through the live GPU swapchain when available
+        if self.backend.is_some() {
+            if let Err(e) = self.backend.as_mut().unwrap().begin_frame() {
+                eprintln!("[gpu] begin_frame: {e}");
+            }
+            if let Err(e) = self.backend.as_mut().unwrap().render(&world_scene, &camera) {
+                eprintln!("[gpu] render: {e}");
+            }
+            if let Err(e) = self.backend.as_mut().unwrap().present() {
+                eprintln!("[gpu] present: {e}");
+            }
+            let _ = self.backend.as_mut().unwrap().end_frame();
+        } else if let Some(ref mut pipeline) = self.path_pipeline {
             pipeline.update(&camera, &world_scene, w, h);
         } else if !self.warned_no_renderer {
             self.warned_no_renderer = true;
@@ -408,6 +443,10 @@ impl App {
 
     /// Shutdown all systems
     fn shutdown(&mut self) {
+        // GPU first (device waits idle before window teardown)
+        if let Some(ref mut backend) = self.backend {
+            let _ = backend.shutdown();
+        }
         // Save config
         self.config.save().ok();
         // Audio cleanup would go here
