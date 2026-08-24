@@ -177,7 +177,8 @@
     var vel = new THREE.Vector3(); var pos = spawn.clone();
     var grounded = false, coyote = 0, buffer = 0, camYaw = Math.PI, score = 0, deadUntil = 0, won = false;
     var keys = {};
-    addEventListener("keydown", function (e) { keys[e.code] = true; if (e.code === "Space") buffer = COYOTE + 0.02; });
+    var BUF = phys.jump_buffer_s || (COYOTE + 0.02);
+    addEventListener("keydown", function (e) { keys[e.code] = true; if (e.code === "Space") buffer = BUF; });
     addEventListener("keyup", function (e) { keys[e.code] = false; });
     addEventListener("mousemove", function (e) { if (document.pointerLockElement) camYaw -= e.movementX * 0.003; });
     addEventListener("click", function () { if (mode === "3D") renderer.domElement.requestPointerLock(); });

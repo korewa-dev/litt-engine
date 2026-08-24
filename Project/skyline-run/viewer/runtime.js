@@ -145,14 +145,15 @@
       pending.push(objToGroup("../assets/" + c.path.replace(/^assets\//, ""), mtlMats).then(function (g) {
         g.position.fromArray(c.position || [0, 0, 0]); sc.add(g);
         solids.push(new THREE.Box3().setFromObject(g));
-      }).catch(function () {}));
+      }).catch(function (e) { console.warn("[litt] chunk failed:", c.path, e); }));
     });
     (scene.nodes || []).forEach(function (node) {
       if (node.id === 0) return;
       var mt = (node.tags || []).filter(function (t) { return t.indexOf("model:") === 0; })[0];
       if (!mt) return;
       var url = "../assets/models/" + mt.slice(6) + ".obj";
-      pending.push(objToGroup(url, mtlMats).then(function (g) { register(node, g); }).catch(function () {}));
+      pending.push(objToGroup(url, mtlMats).then(function (g) { register(node, g); })
+        .catch(function (e) { console.warn("[litt] model failed:", url, e); }));
     });
 
     // player -- spawn at a node tagged "player"/"start" when the world
@@ -176,7 +177,8 @@
     var vel = new THREE.Vector3(); var pos = spawn.clone();
     var grounded = false, coyote = 0, buffer = 0, camYaw = Math.PI, score = 0, deadUntil = 0, won = false;
     var keys = {};
-    addEventListener("keydown", function (e) { keys[e.code] = true; if (e.code === "Space") buffer = COYOTE + 0.02; });
+    var BUF = phys.jump_buffer_s || (COYOTE + 0.02);
+    addEventListener("keydown", function (e) { keys[e.code] = true; if (e.code === "Space") buffer = BUF; });
     addEventListener("keyup", function (e) { keys[e.code] = false; });
     addEventListener("mousemove", function (e) { if (document.pointerLockElement) camYaw -= e.movementX * 0.003; });
     addEventListener("click", function () { if (mode === "3D") renderer.domElement.requestPointerLock(); });

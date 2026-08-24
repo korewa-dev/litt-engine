@@ -145,18 +145,29 @@
       pending.push(objToGroup("../assets/" + c.path.replace(/^assets\//, ""), mtlMats).then(function (g) {
         g.position.fromArray(c.position || [0, 0, 0]); sc.add(g);
         solids.push(new THREE.Box3().setFromObject(g));
-      }).catch(function () {}));
+      }).catch(function (e) { console.warn("[litt] chunk failed:", c.path, e); }));
     });
     (scene.nodes || []).forEach(function (node) {
       if (node.id === 0) return;
       var mt = (node.tags || []).filter(function (t) { return t.indexOf("model:") === 0; })[0];
       if (!mt) return;
       var url = "../assets/models/" + mt.slice(6) + ".obj";
-      pending.push(objToGroup(url, mtlMats).then(function (g) { register(node, g); }).catch(function () {}));
+      pending.push(objToGroup(url, mtlMats).then(function (g) { register(node, g); })
+        .catch(function (e) { console.warn("[litt] model failed:", url, e); }));
     });
 
-    // player
+    // player -- spawn at a node tagged "player"/"start" when the world
+    // declares one; otherwise fall back to the classic default.
     var spawn = new THREE.Vector3(0, 1.2, 4);
+    (function pickSpawn() {
+      var s = (scene.nodes || []).filter(function (n) {
+        return n.id !== 0 && (has(n.tags || [], "player") || has(n.tags || [], "start"));
+      })[0];
+      if (s) {
+        spawn.fromArray(s.position || [0, 0, 0]);
+        spawn.y += 1.2;
+      }
+    })();
     var playerGeo = (typeof THREE.CapsuleGeometry === "function")
       ? new THREE.CapsuleGeometry(0.45, 0.9, 4, 8)
       : new THREE.CylinderGeometry(0.45, 0.45, 1.6, 10);
@@ -166,7 +177,8 @@
     var vel = new THREE.Vector3(); var pos = spawn.clone();
     var grounded = false, coyote = 0, buffer = 0, camYaw = Math.PI, score = 0, deadUntil = 0, won = false;
     var keys = {};
-    addEventListener("keydown", function (e) { keys[e.code] = true; if (e.code === "Space") buffer = COYOTE + 0.02; });
+    var BUF = phys.jump_buffer_s || (COYOTE + 0.02);
+    addEventListener("keydown", function (e) { keys[e.code] = true; if (e.code === "Space") buffer = BUF; });
     addEventListener("keyup", function (e) { keys[e.code] = false; });
     addEventListener("mousemove", function (e) { if (document.pointerLockElement) camYaw -= e.movementX * 0.003; });
     addEventListener("click", function () { if (mode === "3D") renderer.domElement.requestPointerLock(); });

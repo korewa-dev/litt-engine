@@ -117,6 +117,7 @@ def layout():
     rng = Rng(SEED_S)
     items = [
       ("Bonfire",      "bonfire",      [0, 0, 2],    0,   ["poi","checkpoint"]),
+      ("Player_Start", "bonfire",      [0, 0, 4.5],  0,   ["player","start"]),
       ("Bloodstain",   "bloodstain",   [2.2, 0, 5],  0,   ["memorial","corpse_run"]),
       ("Hollow_01",    "hollow",       [-4, 0, 14],  15,  ["enemy","aggro_small"]),
       ("Hollow_02",    "hollow",       [5, 0, 22],   -20, ["enemy","aggro_small"]),
@@ -225,6 +226,10 @@ def main():
       "palette": MATS,
       "gameplay": {
         "genre": "soulslike",
+        "objective": "Emberfall Hollow: kindle the bonfire, survive the road, face the Ashen Knight",
+        "enemy_aggro_m": 8.0,
+        "corpse_run": True,
+        "spawn": [0.0, 0.0, 4.5],
         "checkpoint": {"node": "Bonfire", "respawn_on_death": True},
         "souls": {"pickups": 7, "corpse_run": "return to Bloodstain node to recover"},
         "combat": {"stamina_max": 100, "roll_cost": 25, "attack_cost": 20, "regen_per_sec": 35},
