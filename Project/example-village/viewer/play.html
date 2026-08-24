@@ -38,9 +38,12 @@
   });
 </script>
 <script src="./three.min.js"></script>
+<script src="./runtime.js"></script>
 <script>
   if (typeof THREE === "undefined") {
     document.getElementById("hud").textContent = "three.min.js failed to load - is viewer/three.min.js present?";
+  } else if (typeof LittPlay === "undefined") {
+    document.getElementById("hud").textContent = "runtime.js failed to load - is viewer/runtime.js present?";
   } else {
     window.addEventListener("load", function () { try { LittPlay.init(); } catch (e) { _showErr(e.message); } });
   }

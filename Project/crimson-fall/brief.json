@@ -1,0 +1,111 @@
+{
+  "objective": "crimson-fall: reclaim the shrines of the underground caves court",
+  "side_objectives": [
+    "Kindle all bonfires in one run",
+    "Bank 800 points before the banner"
+  ],
+  "physics": {
+    "gravity": 26,
+    "run_speed": 5.5,
+    "coyote_time_s": 0.1
+  },
+  "enemy_aggro_m": 9.0,
+  "corpse_run": true,
+  "scoring": {
+    "coins": 25
+  },
+  "roster": [
+    {
+      "name": "Hollow Knight",
+      "behavior": "guards shrine; lunge inside 3 m"
+    },
+    {
+      "name": "Garden Stalker",
+      "behavior": "patrols; drops chase at 12 m"
+    }
+  ],
+  "spawn": [
+    24.29,
+    3.6,
+    27.0
+  ],
+  "checkpoints": [
+    [
+      29.41,
+      3.6,
+      27.0
+    ],
+    [
+      44.05,
+      3.6,
+      27.0
+    ]
+  ],
+  "nodes": [
+    {
+      "name": "Bonfire_Plaza",
+      "pos": [
+        25.75,
+        3.6,
+        27.0
+      ],
+      "tags": [
+        "checkpoint",
+        "poi",
+        "model:bonfire"
+      ]
+    },
+    {
+      "name": "Knight_Sun",
+      "pos": [
+        41.86,
+        3.6,
+        27.0
+      ],
+      "tags": [
+        "enemy",
+        "model:knight"
+      ]
+    },
+    {
+      "name": "Stalker_Rose",
+      "pos": [
+        36.0,
+        3.6,
+        27.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Estus_Hidden",
+      "pos": [
+        47.71,
+        3.6,
+        27.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:estus_flask"
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "name": "Underground Caves Court",
+      "pos": [
+        36.0,
+        0,
+        27.0
+      ],
+      "radius": 26,
+      "tags": [
+        "music:hollow_wind"
+      ]
+    }
+  ],
+  "_prompt": "haunted mansion dungeon crawl"
+}

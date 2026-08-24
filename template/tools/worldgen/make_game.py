@@ -113,11 +113,95 @@ def auto_name(rng):
     return "%s-%s" % (rng.choice(NAME_WORDS_A), rng.choice(NAME_WORDS_B))
 
 
-def brief_for(kit, theme, name, seed, prompt_text):
+def scene_layout(game_dir):
+    """Union bbox of walkable solids (floor/level/track/board/hub/terrain
+    nodes), from their OBJ vertex bounds + node positions.
+
+    Returns dict {min:[3], max:[3], axis: 0|2, top: y} or None."""
+    import json as _json
+    gdir = Path(game_dir)
+    scene = _json.loads(
+        (gdir / "assets/scenes/world.lscn.json").read_text(encoding="utf-8"))
+    lo = [None] * 3
+    hi = [None] * 3
+    for node in scene["nodes"]:
+        tags = set(node.get("tags", []))
+        if not (tags & {"floor", "level", "track", "board", "hub", "terrain"}):
+            continue
+        mt = [t for t in tags if t.startswith("model:")]
+        if not mt:
+            continue
+        obj = gdir / "assets/models" / (mt[0][6:] + ".obj")
+        if not obj.exists():
+            continue
+        bmin = [1e9] * 3
+        bmax = [-1e9] * 3
+        nv = 0
+        for ln in obj.read_text(encoding="utf-8").splitlines():
+            p = ln.split()
+            if p and p[0] == "v":
+                nv += 1
+                for i in range(3):
+                    v = float(p[i + 1])
+                    if v < bmin[i]:
+                        bmin[i] = v
+                    if v > bmax[i]:
+                        bmax[i] = v
+        if not nv:
+            continue
+        pos = node.get("position", [0, 0, 0])
+        for i in range(3):
+            a, b = bmin[i] + pos[i], bmax[i] + pos[i]
+            lo[i] = a if lo[i] is None else min(lo[i], a)
+            hi[i] = b if hi[i] is None else max(hi[i], b)
+    if lo[0] is None or hi[0] is None:
+        return None
+    span_x = hi[0] - lo[0]
+    span_z = hi[2] - lo[2]
+    return {"min": lo, "max": hi,
+            "axis": 0 if span_x >= span_z else 2,
+            "top": hi[1]}
+
+
+def place_on(layout, frac, lift=1.2):
+    """Point standing ON the solid span at fraction along its long axis."""
+    a = layout["axis"]
+    p = [layout["min"][0] + (layout["max"][0] - layout["min"][0]) * 0.5,
+         layout["top"] + lift,
+         layout["min"][2] + (layout["max"][2] - layout["min"][2]) * 0.5]
+    p[a] = layout["min"][a] + (layout["max"][a] - layout["min"][a]) * frac
+    return [round(p[0], 2), round(p[1], 2), round(p[2], 2)]
+
+
+def brief_for(kit, theme, name, seed, prompt_text, layout=None):
     """Auto-author a feature-rich gameplay brief from kit templates."""
     rng = random.Random(seed)
     flavor = theme.replace("_", " ")
+    # geometry-aware anchors: everything sits ON the actual walkable span
+    if layout:
+        origin = [round((layout["min"][0] + layout["max"][0]) * 0.5, 2),
+                  round((layout["min"][2] + layout["max"][2]) * 0.5, 2)]
+    else:
+        origin = [0.0, 0.0]
+
+    def ox(p):  # shift a constant [x,y,z] into the real layout
+        return [round(p[0] + origin[0], 2), p[1], round(p[2] + origin[1], 2)]
+
     if kit == "platformer":
+        if layout:
+            spawn_p = place_on(layout, 0.05)
+            cps = [place_on(layout, f) for f in (0.28, 0.52, 0.76)]
+            drone_a = place_on(layout, 0.38, lift=4.6)
+            drone_b = place_on(layout, 0.62, lift=5.0)
+            gem_hi = place_on(layout, 0.14, lift=3.6)
+            spikes = place_on(layout, 0.45)
+        else:
+            spawn_p = [1.5, 0.0, 0.0]
+            cps = [[18, 0, 0], [36, 0, 0], [52, 0, 0], [68, 0, 0]]
+            drone_a = [27, 4.6, 0]
+            drone_b = [43, 5.0, 0]
+            gem_hi = [10.5, 3.6, 0]
+            spikes = [39.5, 0, 0]
         brief = {
             "objective": "%s: cross the level, bank the gems, reach the banner" % name,
             "side_objectives": ["No-death run", "All gems", "Under par time"],
@@ -127,18 +211,34 @@ def brief_for(kit, theme, name, seed, prompt_text):
             "scoring": {"coins": 25},
             "roster": [{"name": "Sentinel Drone",
                         "behavior": "patrols its platform; dive on proximity"}],
-            "spawn": [1.5, 0.0, 0.0],
-            "checkpoints": [[18, 0, 0], [36, 0, 0], [52, 0, 0], [68, 0, 0]],
+            "spawn": spawn_p,
+            "checkpoints": cps,
             "nodes": [
-                {"name": "Drone_A", "pos": [27, 4.6, 0], "tags": ["enemy", "hazard", "model:drone"]},
-                {"name": "Drone_B", "pos": [43, 5.0, 0], "tags": ["enemy", "hazard", "model:drone"]},
-                {"name": "Gem_High", "pos": [10.5, 3.6, 0], "tags": ["pickup", "score", "model:gem"]},
-                {"name": "Spikes_Mid", "pos": [39.5, 0, 0], "tags": ["hazard", "model:spike"]},
+                {"name": "Drone_A", "pos": drone_a, "tags": ["enemy", "hazard", "model:drone"]},
+                {"name": "Drone_B", "pos": drone_b, "tags": ["enemy", "hazard", "model:drone"]},
+                {"name": "Gem_High", "pos": gem_hi, "tags": ["pickup", "score", "model:gem"]},
+                {"name": "Spikes_Mid", "pos": spikes, "tags": ["hazard", "model:spike"]},
             ],
-            "zones": [{"name": flavor.title(), "pos": [36, 0, 0], "radius": 42,
+            "zones": [{"name": flavor.title(), "pos": ox([36, 0, 0]), "radius": 42,
                        "tags": ["music:zone_" + kit]}],
         }
     elif kit == "souls":
+        if layout:
+            spawn_p = place_on(layout, 0.18)
+            cp_a = place_on(layout, 0.32)
+            cp_b = place_on(layout, 0.72)
+            shrine = place_on(layout, 0.22)
+            knight = place_on(layout, 0.66)
+            stalker = place_on(layout, 0.5)
+            estus = place_on(layout, 0.82)
+        else:
+            spawn_p = [0.0, 0.0, 3.0]
+            cp_a = [0, 0, 6.5]
+            cp_b = [-18, 0, 13.0]
+            shrine = [0, 0, 6.5]
+            knight = [23, 0, 0]
+            stalker = [16, 0, 16]
+            estus = [27.5, 0, 2.0]
         brief = {
             "objective": "%s: reclaim the shrines of the %s court" % (name, flavor),
             "side_objectives": ["Kindle all bonfires in one run",
@@ -150,18 +250,36 @@ def brief_for(kit, theme, name, seed, prompt_text):
                 {"name": "Hollow Knight", "behavior": "guards shrine; lunge inside 3 m"},
                 {"name": "Garden Stalker", "behavior": "patrols; drops chase at 12 m"},
             ],
-            "spawn": [0.0, 0.0, 3.0],
-            "checkpoints": [[0, 0, 6.5], [-18, 0, 13.0], [6, 0, -22.0]],
+            "spawn": spawn_p,
+            "checkpoints": [cp_a, cp_b],
             "nodes": [
-                {"name": "Bonfire_Plaza", "pos": [0, 0, 6.5], "tags": ["checkpoint", "poi", "model:bonfire"]},
-                {"name": "Knight_Sun", "pos": [23, 0, 0], "tags": ["enemy", "model:knight"]},
-                {"name": "Stalker_Rose", "pos": [16, 0, 16], "tags": ["enemy", "model:stalker"]},
-                {"name": "Estus_Hidden", "pos": [27.5, 0, 2.0], "tags": ["pickup", "score", "model:estus_flask"]},
+                {"name": "Bonfire_Plaza", "pos": shrine, "tags": ["checkpoint", "poi", "model:bonfire"]},
+                {"name": "Knight_Sun", "pos": knight, "tags": ["enemy", "model:knight"]},
+                {"name": "Stalker_Rose", "pos": stalker, "tags": ["enemy", "model:stalker"]},
+                {"name": "Estus_Hidden", "pos": estus, "tags": ["pickup", "score", "model:estus_flask"]},
             ],
-            "zones": [{"name": flavor.title() + " Court", "pos": [0, 0, 0],
+            "zones": [{"name": flavor.title() + " Court", "pos": ox([0, 0, 0]),
                        "radius": 26, "tags": ["music:hollow_wind"]}],
         }
     else:  # survivor
+        if layout:
+            spawn_p = place_on(layout, 0.5)
+            wraith_n = ox([0, 0, -8])
+            wraith_e = ox([8, 0, 0])
+            brute_g = ox([0, 0, 11.5])
+            gem_ne = ox([3.5, 0, 3.5])
+            heart_w = ox([-3, 0, 2])
+            zone_pos = ox([0, 0, 0])
+            cps = [ox([9.9, 0, 3.1]), ox([-7.4, 0, -6.9])]
+        else:
+            spawn_p = [0.0, 0.0, 4.5]
+            wraith_n = [0, 0, -8]
+            wraith_e = [8, 0, 0]
+            brute_g = [0, 0, 11.5]
+            gem_ne = [3.5, 0, 3.5]
+            heart_w = [-3, 0, 2]
+            zone_pos = [0, 0, 0]
+            cps = [[9.9, 0, 3.1], [-7.4, 0, -6.9]]
         brief = {
             "objective": "%s: survive the Legion's waves in the %s arena" % (name, flavor),
             "side_objectives": ["Light every brazier", "600 points, no deaths"],
@@ -174,16 +292,16 @@ def brief_for(kit, theme, name, seed, prompt_text):
                 {"name": "Ember Wraith", "behavior": "fast ring-dodger, dives when aggroed"},
                 {"name": "Ash Brute", "behavior": "slow tank guarding gates"},
             ],
-            "spawn": [0.0, 0.0, 4.5],
-            "checkpoints": [[9.9, 0, 3.1], [-7.4, 0, -6.9]],
+            "spawn": spawn_p,
+            "checkpoints": cps,
             "nodes": [
-                {"name": "Wraith_N", "pos": [0, 0, -8], "tags": ["enemy", "model:wraith"]},
-                {"name": "Wraith_E", "pos": [8, 0, 0], "tags": ["enemy", "model:wraith"]},
-                {"name": "Brute_Gate", "pos": [0, 0, 11.5], "tags": ["enemy", "model:brute"]},
-                {"name": "Gem_NE", "pos": [3.5, 0, 3.5], "tags": ["pickup", "score", "model:gem"]},
-                {"name": "Heart_W", "pos": [-3, 0, 2], "tags": ["pickup", "score", "model:heart"]},
+                {"name": "Wraith_N", "pos": wraith_n, "tags": ["enemy", "model:wraith"]},
+                {"name": "Wraith_E", "pos": wraith_e, "tags": ["enemy", "model:wraith"]},
+                {"name": "Brute_Gate", "pos": brute_g, "tags": ["enemy", "model:brute"]},
+                {"name": "Gem_NE", "pos": gem_ne, "tags": ["pickup", "score", "model:gem"]},
+                {"name": "Heart_W", "pos": heart_w, "tags": ["pickup", "score", "model:heart"]},
             ],
-            "zones": [{"name": flavor.title() + " Arena", "pos": [0, 0, 0],
+            "zones": [{"name": flavor.title() + " Arena", "pos": zone_pos,
                        "radius": 15, "tags": ["music:ember_dread"]}],
         }
     brief["_prompt"] = prompt_text or ("a %s game" % flavor)
@@ -224,6 +342,20 @@ def deploy_runtime(game_dir, port_seed):
     nbat = ("@echo off\nrem %s native window\ncd /d \"%%~dp0\"\n"
             "python play_native.py\nif errorlevel 1 pause" % g.name)
     (g / "NATIVE.bat").write_text(nbat, encoding="ascii")
+    # open THIS game inside the real Studio window (chat + live viewport)
+    engine_bat = (
+        "@echo off\nrem %s in the Litt Studio window\n"
+        "setlocal\n"
+        "set ROOT=%%~dp0..\\..\n"
+        "if defined LITT_ENGINE set EXE=%%LITT_ENGINE%%\n"
+        "if not defined LITT_ENGINE (\n"
+        "  if exist \"%%ROOT%%\\target\\x86_64-pc-windows-gnu\\release\\litt.exe\" "
+        "set EXE=%%ROOT%%\\target\\x86_64-pc-windows-gnu\\release\\litt.exe\n"
+        ")\n"
+        "if not defined EXE set "
+        "EXE=%%ROOT%%\\target\\x86_64-pc-windows-gnu\\debug\\litt.exe\n"
+        "\"%%EXE%%\" studio \"%%~dp0\"\n" % g.name)
+    (g / "ENGINE.bat").write_text(engine_bat, encoding="ascii")
     return port
 
 
@@ -279,7 +411,10 @@ def main():
             "--prompt", a.about or "random")
     run(WORLDGEN / "gen_props.py", "--game-dir", str(out), "--kit", kit)
 
-    brief = brief_for(kit, theme, name, seed, a.about)
+    # derive gameplay anchors from the REAL generated geometry
+    layout = scene_layout(out)
+
+    brief = brief_for(kit, theme, name, seed, a.about, layout)
     brief_path = out / "brief.json"
     brief_path.write_text(json.dumps(brief, indent=2), encoding="utf-8")
     run(WORLDGEN / "enrich_game.py", "--game-dir", str(out),

@@ -67,17 +67,6 @@
       "built": "2026-08-24T05:29:57"
     },
     {
-      "name": "crimson-fall",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\endless_runner",
-      "archetype": "endless_runner",
-      "pattern": "spline_track",
-      "theme": "retro_scifi",
-      "kit": "platformer",
-      "seed": 5173,
-      "about": "endless_runner test",
-      "built": "2026-08-24T05:29:58"
-    },
-    {
       "name": "sunken-bastion",
       "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\metroidvania",
       "archetype": "metroidvania",
@@ -219,6 +208,28 @@
       "seed": 3347,
       "about": "haunted mansion dungeon crawl",
       "built": "2026-08-24T05:30:59"
+    },
+    {
+      "name": "crimson-fall",
+      "dir": "Project\\crimson-fall",
+      "archetype": "dungeon_crawler",
+      "pattern": "room_graph",
+      "theme": "underground_caves",
+      "kit": "souls",
+      "seed": 3442,
+      "about": "haunted mansion dungeon crawl",
+      "built": "2026-08-24T05:59:08"
+    },
+    {
+      "name": "ash-reach",
+      "dir": "Project\\ash-reach",
+      "archetype": "precision_action",
+      "pattern": "corridor_run",
+      "theme": "cyberpunk_neon",
+      "kit": "platformer",
+      "seed": 3311,
+      "about": "neon rooftop precision jumps",
+      "built": "2026-08-24T05:59:10"
     }
   ]
 }
