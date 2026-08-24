@@ -1,0 +1,13 @@
+[package]
+name = "litt-ffi"
+version = "0.1.0"
+edition = "2021"
+description = "C ABI bridge: lets C++ engines deploy Litt worlds"
+
+[lib]
+name = "litt_ffi"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+litt-scene = { path = "../scene" }
+litt = { path = "../.." }
