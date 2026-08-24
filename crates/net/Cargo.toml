@@ -1,8 +1,0 @@
-[package]
-name = "litt-net"
-version = "0.1.0"
-edition = "2021"
-description = "Networking for Litt Engine -- UDP/TCP transport, snapshots, replication"
-
-[dependencies]
-litt-math = { path = "../math" }

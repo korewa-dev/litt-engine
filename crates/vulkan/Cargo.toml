@@ -13,4 +13,3 @@ bytemuck = { workspace = true }
 log = { workspace = true }
 litt-math = { path = "../math" }
 litt-platform = { path = "../platform" }
-litt-ags = { path = "../ags" }
