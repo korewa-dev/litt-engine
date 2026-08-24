@@ -107,5 +107,6 @@
       ]
     }
   ],
-  "_prompt": "haunted mansion dungeon crawl"
+  "_prompt": "haunted mansion dungeon crawl",
+  "lives": 3
 }

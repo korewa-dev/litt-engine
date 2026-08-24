@@ -61,7 +61,8 @@ def main():
     added_nodes = []
 
     # ---- rules & tuning -------------------------------------------------
-    for key in ("objective", "enemy_aggro_m", "corpse_run"):
+    for key in ("objective", "enemy_aggro_m", "corpse_run",
+                "spawn", "lives", "interact_radius_m", "kill_radius_m"):
         if key in brief:
             gp[key] = brief[key]
     if "scoring" in brief:
@@ -74,9 +75,12 @@ def main():
 
     # ---- scene surgery ----------------------------------------------------
     next_id = scene.get("next_id", 1)
+    existing_names = {n.get("name") for n in scene["nodes"]}
 
     def add(name, pos, tags, scale=(1.0, 1.0, 1.0)):
         nonlocal next_id
+        if name in existing_names:
+            return   # idempotent: re-running enrich must not clone nodes
         node = {
             "name": name, "id": next_id, "parent": 0, "children": [],
             "position": [round(float(c), 3) for c in pos],
@@ -86,6 +90,7 @@ def main():
         }
         next_id += 1
         scene["nodes"].append(node)
+        existing_names.add(name)
         added_nodes.append((name, tags))
         return node
 

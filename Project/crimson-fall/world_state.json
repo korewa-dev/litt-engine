@@ -3,9 +3,9 @@
   "version": 1,
   "mode": "ai-exclusive",
   "theme": "underground_caves",
-  "updated": "2026-08-24T05:59:07",
+  "updated": "2026-08-24T09:05:30",
   "seed": {
-    "archetype_seed": 3442
+    "archetype_seed": 6433
   },
   "chunk_size": 0,
   "radius": 0,
@@ -122,6 +122,11 @@
     ],
     "enemy_aggro_m": 9.0,
     "corpse_run": true,
+    "spawn": [
+      24.29,
+      3.6,
+      27.0
+    ],
     "scoring": {
       "coins": 25
     },
@@ -143,9 +148,10 @@
         "name": "Garden Stalker",
         "behavior": "patrols; drops chase at 12 m"
       }
-    ]
+    ],
+    "lives": 3
   },
   "meta": {
-    "enriched_seed": 3442
+    "enriched_seed": 9
   }
 }

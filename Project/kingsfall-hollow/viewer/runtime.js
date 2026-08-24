@@ -14,10 +14,13 @@
     var mats = {}; var cur = null;
     text.split(/\r?\n/).forEach(function (line) {
       line = line.trim();
-      if (line.indexOf("newmtl ") === 0) { cur = line.slice(7); mats[cur] = [0.7, 0.7, 0.7]; }
+      if (line.indexOf("newmtl ") === 0) { cur = line.slice(7); mats[cur] = { kd: [0.7, 0.7, 0.7], map: null }; }
       else if (cur && line.indexOf("Kd ") === 0) {
         var p = line.slice(3).trim().split(/\s+/);
-        mats[cur] = [parseFloat(p[0]), parseFloat(p[1]), parseFloat(p[2])];
+        mats[cur].kd = [parseFloat(p[0]), parseFloat(p[1]), parseFloat(p[2])];
+      }
+      else if (cur && line.indexOf("map_Kd ") === 0) {
+        mats[cur].map = line.slice(7).trim();
       }
     });
     return mats;
@@ -54,6 +57,17 @@
   }
 
   var matCache = {};
+  var texLoader = (typeof THREE !== "undefined") ? new THREE.TextureLoader() : null;
+  var texCache = {};
+  function getTex(rel) {
+    if (!texCache[rel]) {
+      var t = texLoader.load("../assets/models/" + rel);
+      // r149 encoding API; sRGB keeps albedo colors correct under lighting
+      if (THREE.sRGBEncoding !== undefined && "encoding" in t) t.encoding = THREE.sRGBEncoding;
+      texCache[rel] = t;
+    }
+    return texCache[rel];
+  }
   function objToGroup(url, mtlMats) {
     var group = new THREE.Group();
     return fetch(url).then(function (r) { return r.text(); }).then(function (txt) {
@@ -61,11 +75,19 @@
         var geo = new THREE.BufferGeometry();
         geo.setAttribute("position", new THREE.Float32BufferAttribute(g.pos, 3));
         geo.setAttribute("normal", new THREE.Float32BufferAttribute(g.nor, 3));
-        var kd = mtlMats[g.mat] || [0.7, 0.7, 0.7];
-        var key = kd.join(",");
-        var mesh = new THREE.Mesh(geo, matCache[key] ||
-          (matCache[key] = new THREE.MeshLambertMaterial({ color: new THREE.Color(kd[0], kd[1], kd[2]) })));
-        group.add(mesh);
+        var mdef = mtlMats[g.mat];
+        var kd = (mdef && mdef.kd) || [0.7, 0.7, 0.7];
+        var mat;
+        if (mdef && mdef.map && texLoader) {
+          var tk = "tex:" + mdef.map;
+          mat = matCache[tk] ||
+            (matCache[tk] = new THREE.MeshLambertMaterial({ map: getTex(mdef.map) }));
+        } else {
+          var key = kd.join(",");
+          mat = matCache[key] ||
+            (matCache[key] = new THREE.MeshLambertMaterial({ color: new THREE.Color(kd[0], kd[1], kd[2]) }));
+        }
+        group.add(new THREE.Mesh(geo, mat));
       });
       return group;
     });
@@ -130,7 +152,14 @@
     var pending = [];
     function register(node, obj) {
       obj.position.fromArray(node.position || [0, 0, 0]);
-      obj.rotation.y = quatYaw(node.rotation || [0, 0, 0, 1]);
+      var q = node.rotation;
+      if (q && q.length === 4 && (q[0] || q[2])) {
+        obj.quaternion.set(q[0], q[1], q[2], q[3]);   // full orientation
+      } else {
+        obj.rotation.y = quatYaw(node.rotation || [0, 0, 0, 1]);
+      }
+      var scl = node.scale;
+      if (scl && scl.length === 3) obj.scale.fromArray(scl);
       sc.add(obj);
       var box = new THREE.Box3().setFromObject(obj);
       var tags = node.tags || [];
@@ -178,6 +207,11 @@
     var grounded = false, coyote = 0, buffer = 0, camYaw = Math.PI, score = 0, deadUntil = 0, won = false;
     var keys = {};
     var BUF = phys.jump_buffer_s || (COYOTE + 0.02);
+    // gameplay-tunable knobs (previously hardcoded or inert)
+    var REACH = gp.interact_radius_m || 1.6;
+    var KILLR = gp.kill_radius_m || 1.1;
+    var lives = (gp.lives == null) ? Infinity : gp.lives;
+    var gameOver = false, topZoom = 34;
     addEventListener("keydown", function (e) { keys[e.code] = true; if (e.code === "Space") buffer = BUF; });
     addEventListener("keyup", function (e) { keys[e.code] = false; });
     addEventListener("mousemove", function (e) { if (document.pointerLockElement) camYaw -= e.movementX * 0.003; });
@@ -193,6 +227,7 @@
     hud.innerHTML = "<b>" + (gp.genre || state.theme || "litt") + "</b> · " + mode +
       "<br>" + objective +
       "<br>score: <span id=\"sc\">0</span>" +
+      (lives !== Infinity ? "<br>lives: <span id=\"lv\">" + lives + "</span>" : "") +
       "<br><span style=\"opacity:.7\">WASD move · Space jump · click to look</span>";
     function toast(msg, bad) {
       var t = document.getElementById("toast");
@@ -206,6 +241,23 @@
       if (msg) toast(msg, true);
     }
 
+    function die(msg) {
+      if (gameOver) return;
+      deadUntil = performance.now() / 1000 + 0.7;
+      respawn(msg);
+      if (lives !== Infinity) {
+        lives -= 1;
+        var lv = document.getElementById("lv");
+        if (lv) lv.textContent = lives;
+        if (lives <= 0) {
+          gameOver = true;
+          var w = document.getElementById("win");
+          w.firstChild.textContent = "GAME OVER";
+          w.style.display = "flex";
+        }
+      }
+    }
+
     function groundAt(x, z, y) {
       var best = -Infinity;
       for (var i = 0; i < solids.length; i++) {
@@ -217,6 +269,36 @@
       return best;
     }
 
+    // horizontal push-out against solid AABBs (walls), player radius .45
+    function collideWalls() {
+      for (var i = 0; i < solids.length; i++) {
+        var b = solids[i];
+        if (pos.y >= b.max.y - 0.15 || pos.y + 1.7 <= b.min.y) continue; // no vertical overlap
+        if (pos.x < b.min.x - 0.45 || pos.x > b.max.x + 0.45 ||
+            pos.z < b.min.z - 0.45 || pos.z > b.max.z + 0.45) continue;
+        var dxl = pos.x - (b.min.x - 0.45), dxr = (b.max.x + 0.45) - pos.x;
+        var dzl = pos.z - (b.min.z - 0.45), dzr = (b.max.z + 0.45) - pos.z;
+        var m = Math.min(dxl, dxr, dzl, dzr);
+        if (m === dxl) { pos.x = b.min.x - 0.45; vel.x = Math.min(vel.x, 0); }
+        else if (m === dxr) { pos.x = b.max.x + 0.45; vel.x = Math.max(vel.x, 0); }
+        else if (m === dzl) { pos.z = b.min.z - 0.45; vel.z = Math.min(vel.z, 0); }
+        else { pos.z = b.max.z + 0.45; vel.z = Math.max(vel.z, 0); }
+      }
+    }
+
+    // head bump: rising into a solid underside stops the ascent
+    function collideCeiling() {
+      if (vel.y <= 0) return;
+      for (var i = 0; i < solids.length; i++) {
+        var b = solids[i];
+        if (pos.x < b.min.x - 0.3 || pos.x > b.max.x + 0.3 ||
+            pos.z < b.min.z - 0.3 || pos.z > b.max.z + 0.3) continue;
+        if (pos.y + 1.8 > b.min.y && pos.y < b.min.y) {
+          pos.y = b.min.y - 1.85; vel.y = 0;
+        }
+      }
+    }
+
     var clock = new THREE.Clock();
     Promise.all(pending).then(function () { loop(); });
 
@@ -224,7 +306,7 @@
       requestAnimationFrame(loop);
       var dt = Math.min(clock.getDelta(), 0.05);
       var now = performance.now() / 1000;
-      if (now < deadUntil) { renderer.render(sc, cam); return; }
+      if (gameOver || now < deadUntil) { renderer.render(sc, cam); return; }
 
       // input -> planar velocity
       var f = (keys.KeyW ? 1 : 0) - (keys.KeyS ? 1 : 0);
@@ -250,7 +332,9 @@
       var gy = groundAt(pos.x, pos.z, pos.y);
       grounded = false;
       if (gy > -Infinity && pos.y <= gy + 0.05 && vel.y <= 0) { pos.y = gy; vel.y = 0; grounded = true; }
-      if (pos.y < -14) respawn("fell into the dark - back to checkpoint");
+      collideWalls();
+      collideCeiling();
+      if (pos.y < -14) die("fell into the dark - back to checkpoint");
 
       // interactions
       for (var i = 0; i < interactives.length; i++) {
@@ -262,11 +346,24 @@
           var aggro = (gp.enemy_aggro_m || 6);
           if (d < aggro && d > 0.1) {
             var push = c.clone().sub(pos).normalize().multiplyScalar(-3.2 * dt);
-            it.obj.position.add(push); it.box.setFromObject(it.obj);
+            var nx = it.obj.position.x + push.x, nz = it.obj.position.z + push.z;
+            // enemies respect walls now: cancel the step if it lands inside one
+            var blocked = false;
+            for (var wj = 0; wj < solids.length; wj++) {
+              var wb = solids[wj];
+              if (nx >= wb.min.x - 0.3 && nx <= wb.max.x + 0.3 &&
+                  nz >= wb.min.z - 0.3 && nz <= wb.max.z + 0.3 &&
+                  c.y < wb.max.y && c.y > wb.min.y) { blocked = true; break; }
+            }
+            if (!blocked) { it.obj.position.add(push); it.box.setFromObject(it.obj); }
           }
-          if (d < 1.1) { deadUntil = now + 0.7; respawn(gp.corpse_run ? "you died - corpse run begins" : "caught - respawning"); break; }
-        } else if (c.distanceTo(pos) < 1.6) {
-          if (has(it.tags, "pickup") || has(it.tags, "score")) {
+          if (d < KILLR) { die(gp.corpse_run ? "you died - corpse run begins" : "caught - respawning"); break; }
+        } else if (c.distanceTo(pos) < REACH) {
+          if (has(it.tags, "hazard")) {
+            die("hazard!"); break;
+          } else if (has(it.tags, "pickup") || has(it.tags, "score") ||
+                     has(it.tags, "token") || has(it.tags, "dice") ||
+                     has(it.tags, "objective")) {
             it.alive = false; it.obj.visible = false;
             var pts = (gp.scoring && gp.scoring.coins) ? 25 : 10;
             score += pts; document.getElementById("sc").textContent = score;
@@ -286,7 +383,7 @@
 
       // camera
       if (mode === "TOP") {
-        cam.position.set(pos.x, 34, pos.z + 12); cam.lookAt(pos.x, pos.y, pos.z);
+        cam.position.set(pos.x, topZoom, pos.z + topZoom * 0.35); cam.lookAt(pos.x, pos.y, pos.z);
       } else if (mode === "2D5") {
         cam.position.set(pos.x + 2, pos.y + 6, 16); cam.lookAt(pos.x, pos.y + 1, 0);
       } else {
