@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- LittStudio.csproj - classic MSBuild project (no dotnet SDK needed).
+     Built by the VS-bundled MSBuild 17; references resolve through the
+     documented Microsoft.Common.CurrentVersion.targets machinery.
+     Language: C# latest supported by Roslyn 4.14 (= C# 13 syntax;
+     runtime API surface stays .NET Framework 4.8). -->
+<Project ToolsVersion="Current" DefaultTargets="Build"
+         xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>LittStudio</RootNamespace>
+    <AssemblyName>LittStudio</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>latest</LangVersion>
+    <Optimize>true</Optimize>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <!-- Documented escape hatch when reference assemblies are absent
+         (MSB3644): FrameworkPathOverride (see
+         Microsoft.Common.CurrentVersion.targets 'FrameworkPathOverride'
+         property) points the build at implementation assemblies. -->
+    <FrameworkPathOverride Condition="!Exists('C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8')">C:\Windows\Microsoft.NET\Framework64\v4.0.30319</FrameworkPathOverride>
+    <OutputPath>..\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="cs\LittStudio.cs" />
+  </ItemGroup>
+
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+</Project>

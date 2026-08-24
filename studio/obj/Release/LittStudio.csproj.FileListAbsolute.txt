@@ -1,0 +1,4 @@
+D:\Allgemein\Documents\Default Project\litt engine\studio\obj\Release\LittStudio.csproj.AssemblyReference.cache
+D:\Allgemein\Documents\Default Project\litt engine\studio\obj\Release\LittStudio.csproj.CoreCompileInputs.cache
+D:\Allgemein\Documents\Default Project\litt engine\studio\obj\Release\LittStudio.exe
+D:\Allgemein\Documents\Default Project\litt engine\LittStudio.exe
