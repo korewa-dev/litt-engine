@@ -1,5 +1,5 @@
 //! Gameplay session -- THE native game rules, ported from the reference
-//! runtime contract (template/tools/runtime/runtime.js) so the engine is the
+//! runtime contract (native/littcore/litt_world.c is its C port) so the engine is the
 //! single source of play. Data-driven entirely from a generated world:
 //!
 //!   identity.movement / identity.camera substrings -> camera mode

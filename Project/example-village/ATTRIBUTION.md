@@ -7,5 +7,3 @@ All assets generated in-repo by Litt tooling. No external downloads.
 | models/layout_main.obj | procedural (MeshBuilder primitives) | gen_archetype.py life_sim hub_spoke medieval_realism seed 42 | CC0 - generated |
 | models/poi_01..05.obj | procedural | same command | CC0 - generated |
 | models/materials.mtl | palette writer | themes.json medieval_realism palette | CC0 - generated |
-| viewer/three.min.js | third-party runtime lib | three.js r149 vendored unmodified | MIT |
-| viewer/play.html + runtime.js | repo code | template/tools/runtime | CC0 - generated |

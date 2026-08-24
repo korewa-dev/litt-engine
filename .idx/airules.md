@@ -9,8 +9,7 @@ are engine internals - not yours to touch.
 
 ROUTING:
 - "develop" / "build a world/game" -> LIVE MODE: cd Project/live, read AI_RULES.md,
-  start server in background: python tools/serve_live.py
-  watch: http://127.0.0.1:8088/viewer/ | play: http://127.0.0.1:8088/viewer/play.html
+  watch: litt view live (native C++ orbit viewer)
   orient via world_state.json + LIVE_LOG.md, THEN expand via
   python tools/live_landscape.py --radius N --seed S (or any worldgen generator).
 - separate new game -> Project/<game-name>/ following Project/README.md.
@@ -19,8 +18,8 @@ ROUTING:
   python template/tools/worldgen/gen_archetype.py --archetype <key> --theme <t>
   (flagships: gen_soulslike/gen_space/gen_tabletop/gen_platformer25d).
   Lookup "like <game>" in template/tools/worldgen/genre_index.csv.
-  Make playable: copy template/tools/runtime/{play.html,runtime.js} into the
-  project viewer folder.
+  Make playable: ENGINE.bat/.sh (Vulkan player) ships with every game;
+  litt view <game> opens the native C++ viewer. No HTML anywhere.
 - engine bug/feature -> say so first, read docs/ARCHITECTURE.md before any code edit.
 - pure question -> answer only, write nothing anywhere.
 

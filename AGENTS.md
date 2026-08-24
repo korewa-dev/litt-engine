@@ -40,9 +40,8 @@ Follow this exact sequence, in order, no skips:
 cd Project/live
 read AI_RULES.md            # mandatory - it binds your whole session
 
-# 2. start the observer + player so humans can watch AND play your work
-python tools/serve_live.py          # watch: http://127.0.0.1:8088/viewer/
-                                    # play:  http://127.0.0.1:8088/viewer/play.html
+# 2. open the native viewer so humans can watch your work live
+litt view live                      # C++ orbit viewer (littview window)
 
 # 3. orient: current world extent, recent actions, existing assets
 read world_state.json               # chunks, seed, camera
@@ -64,13 +63,14 @@ inside that one folder (its own `assets/asset_index.json`, `ATTRIBUTION.md`,
 `NOTES.md`).
 
 **Reference example:** `Project/example-village/` is a LIVE playable world -
-complete folder (assets/index/scene/state/viewer/PLAY.bat). Copy it or study it.
+complete folder (assets/index/scene/state). Copy it or study it.
 
-**Runtime bridge:** `template/tools/runtime/` holds play.html + runtime.js - a
-playable client that consumes any generated world as-is (movement mode from
+**Runtime bridge:** the native contract lives in `native/littcore` (C) -
+`litt_world.c` consumes any generated world as-is (movement mode from
 state.identity, physics constants from state.gameplay.physics verbatim,
-pickups/goals/hazards/enemies from node tags). Copy both into the project
-viewer folder to make it playable. Keep them in sync when you upgrade one.
+pickups/goals/hazards/enemies from node tags). `native/littcli validate`
+proves it headlessly; `litt view <game>` shows it. The browser stack
+(play.html/runtime.js) was removed - do not reintroduce HTML.
 
 **Genre generators - run, do not rewrite:** `template/tools/worldgen/` ships
 gen_soulslike.py, gen_space.py, gen_tabletop.py, gen_platformer25d.py,
@@ -90,7 +90,7 @@ python template/tools/worldgen/make_game.py --about "zombie mall survival"
 
 make_game.py picks archetype/pattern/theme/kit, auto-authors brief.json,
 runs generate -> props -> enrich -> lint (template/tools/assets/lint.py)
--> native validation, deploys viewer + PLAY.bat/NATIVE.bat + NOTES.md +
+-> native validation, deploys ENGINE.bat/.sh + VIEW.bat + VALIDATE.bat + NOTES.md +
 ATTRIBUTION.md, and registers the game in `Project/games.json`. Its last
 stdout line is machine-readable JSON. Override anything with --name,
 --seed, --archetype, --pattern, --theme, --kit.

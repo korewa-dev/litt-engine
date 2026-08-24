@@ -6,7 +6,7 @@ engine-only (examples, engine demo content) - never mix game content into it.
 
 > **`live/` is special**: it is the live-deployment workspace where the AI works
 > autonomously while humans observe and prompt only. See `live/README.md` and
-> open the observer at `http://127.0.0.1:8088/viewer/` (`python live/tools/serve_live.py`).
+> watch with the native viewer: `litt view live`.
 
 ## Layout - one folder per game
 
@@ -61,7 +61,7 @@ See `template/docs/game_type_generation.md` for the full lookup chain.
 
 `example-village/` is a complete generated game folder AND a running example:
 medieval village hub (life_sim archetype, hub_spoke pattern, medieval_realism
-theme, seed 42) with viewer + vendored play runtime. Double-click
-`example-village/PLAY.bat` (port 8089) or open its viewer/play.html through any
-static server. Copy its structure, not just its files; regenerate its world
-with the exact command recorded in its NOTES.md.
+theme, seed 42). Play it with `example-village/ENGINE.bat` (Vulkan player) or
+inspect it with `litt view example-village` (native C++ viewer). Copy its
+structure, not just its files; regenerate its world with the exact command
+recorded in its NOTES.md.

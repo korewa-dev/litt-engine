@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """native_proof.py - REAL proof that every game project renders natively.
 
-Replaces the retired browser_proof.py (browser stack is phased out).
 For each game project:
   1. `littcli validate <dir>` - headless C simulation (solids, entities,
      contract physics, zero missing models)

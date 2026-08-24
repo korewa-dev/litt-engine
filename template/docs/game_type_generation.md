@@ -7,7 +7,7 @@ lives in ai_asset_creation.md.
 Everything referenced here ships in the repo:
 
     template/tools/worldgen/     generators + identity/theme datasets
-    template/tools/runtime/      playable client (play.html + runtime.js)
+    native/littcore + littcli    the C runtime contract + headless validator
     template/tools/worldgen/algokit.py  algorithms as callable code
 
 ---
@@ -69,16 +69,18 @@ environment blocks) + LIVE_LOG.md entry. Deterministic from --seed.
 
 ## Make it playable
 
-Copy the runtime next to the world and serve:
+make_game.py already ships the native launchers into every project:
 
-    cp template/tools/runtime/{play.html,runtime.js} <project>/viewer/
-    python <project>/tools/serve_live.py      # or any static server on that folder
+    <project>/ENGINE.bat (or ./ENGINE.sh)   -> Vulkan player: `litt play <game>`
+    <project>/VIEW.bat                      -> C++ orbit viewer: `litt view <game>`
 
-Open .../viewer/play.html. The runtime reads state.identity to choose the
+The same contract the browser runtime used to honor now lives in
+native/littcore/litt_world.c: it reads state.identity to choose the
 movement mode (third-person 3D, side-scroller, top-down), applies
 state.gameplay.physics verbatim (gravity, jump velocity, run speed, coyote
 time), and node tags drive pickups/goals/checkpoints/hazards/enemies.
 No conversion step exists - whatever you generate is immediately playable.
+Prove it headless with `native/bin/littcli validate <project> --frames 60`.
 
 ---
 
@@ -99,8 +101,7 @@ No conversion step exists - whatever you generate is immediately playable.
     python gen_archetype.py --archetype roguelike --pattern room_graph \
         --time-of-day night --weather fog --seed 9
 
-Then copy play.html + runtime.js into the project viewer folder and hand the
-human the URL.
+Then run `litt play <game>` to hand the human the world.
 
 ---
 

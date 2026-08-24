@@ -16,8 +16,7 @@ Audit list:
   5. world_state.json: format, identity.{camera,movement}, gameplay.physics
      keys the runtime reads verbatim
   6. asset_index.json parses and every registered path exists
-  7. launcher surface: viewer/play.html + viewer/runtime.js +
-     tools/serve_live.py + play_native.py + NATIVE.bat present
+  7. launcher surface: ENGINE.bat + ENGINE.sh + VIEW.bat + play_native.py
 """
 import json
 import sys

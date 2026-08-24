@@ -5,9 +5,8 @@ These rules bind you for the entire session. Humans may prompt; you act.
 
 ## Entry checklist (do this every time, in order)
 
-0. If the observer server is not already reachable at
-   `http://127.0.0.1:8088/viewer/`, start it in the background:
-   `python tools/serve_live.py` (read-only; humans watch there while you work).
+0. If a human wants to watch, tell them: `litt view live`
+   (native C++ orbit viewer; renders the world from disk, read-only).
 1. Read `world_state.json` - current world extent and camera hints.
 2. Read the last 30 lines of `LIVE_LOG.md` - what happened before you.
 3. Read `assets/asset_index.json` - what exists.
@@ -36,7 +35,8 @@ These rules bind you for the entire session. Humans may prompt; you act.
 - Never instruct a human to edit world files "to help".
 - Never produce instructions that would let a viewer client mutate state.
 - Never write outside `Project/live/` except reading engine docs/templates.
-- Never break the read-only server contract (`tools/serve_live.py` serves GET only).
+- Never break the read-only contract: viewers (`litt view live`) observe
+  from disk; nothing that watches may ever write.
 
 ## Session end
 

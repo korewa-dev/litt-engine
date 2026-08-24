@@ -24,16 +24,16 @@ those remain in git history.
     assets/asset_index.json   manifest - read FIRST
     assets/models/*.obj|mtl   layout_main + poi_01..05
     assets/scenes/world.lscn.json  node graph with model:<name> tags
-    viewer/                   play.html + runtime.js + three.min.js (vendored)
-    tools/serve_live.py       read-only server + player host
-    PLAY.bat                  double-click to play (port 8089)
+    ENGINE.bat / ENGINE.sh    native Vulkan player launchers
+    VIEW.bat                  C++ orbit viewer (littview window)
+    VALIDATE.bat              headless sim smoke (play_native.py)
     ATTRIBUTION.md            provenance rows
 
 ## Play
 
-Double-click PLAY.bat (or: python tools/serve_live.py --port 8089 then open
-http://127.0.0.1:8089/viewer/play.html). Movement mode resolves to top-down
-from state.identity.camera = isometric; WASD walks the villager between POIs.
+Run ENGINE.bat (Vulkan player) or `litt view example-village` for the C++
+viewer. Movement mode resolves to top-down from state.identity.camera =
+isometric; WASD walks the villager between POIs.
 
 ## TODOs for whoever copies this
 
