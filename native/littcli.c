@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
     if (frames <= 0) frames = 30;
 
     char path[1024];
-    char *state = NULL, *unused = NULL;
+    char *state = NULL;
     snprintf(path, sizeof(path), "%s/world_state.json", dir);
     if (read_file(path, &state)) {
         fprintf(stderr, "[littcli] missing %s\n", path);
@@ -78,7 +78,6 @@ int main(int argc, char **argv) {
            "\"interactives\":%d,\"tris\":%ld,\"missing\":%d}\n",
            ok ? "true" : "false", lv_mode_name(s.cfg.mode), frames,
            s.solid_count, interactives, s.tri_count, s.missing_models);
-    free(unused);
     lv_session_free(&s);
     return ok ? 0 : 1;
 }

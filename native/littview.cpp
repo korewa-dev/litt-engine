@@ -92,8 +92,9 @@ static bool write_bmp(const char *path, const FB &fb) {
     unsigned data = 54u + (unsigned)row * fb.h;
     unsigned char hdr[54] = {'B', 'M'};
     memcpy(hdr + 2, &data, 4);
-    unsigned zero = 0, off = 54, hsz = 40;
+    unsigned off = 54, hsz = 40;
     short planes = 1, bpp = 24;
+    memset(hdr + 6, 0, 8); /* reserved1/2 */
     memcpy(hdr + 10, &off, 4); memcpy(hdr + 14, &hsz, 4);
     memcpy(hdr + 18, &fb.w, 4); memcpy(hdr + 22, &fb.h, 4);
     memcpy(hdr + 26, &planes, 2); memcpy(hdr + 28, &bpp, 2);
@@ -376,24 +377,27 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
     float dbg_hy_min = 1e9f, dbg_hy_max = -1e9f;
     long dbg_px = 0, rej_behind = 0, rej_area = 0,
          rej_bbox = 0, drawn_tris = 0;
-    float dbg_tx_min = 1e9f, dbg_tx_max = -1e9f;
-    float dbg_w_min = 1e9f, dbg_w_max = -1e9f;
     float r = sc.fit_r;
-    // constant SLANT range framing: elevation trades height vs ground dist
+    // constant SLANT-range framing: elevation trades height vs ground dist
     float slant = r * 1.9f > 12 ? r * 1.9f : 12;
-    float hy = sc.bounds_max[1] - sc.bounds_min[1];
-    float hx_ = sc.bounds_max[0] - sc.bounds_min[0];
-    float hz = sc.bounds_max[2] - sc.bounds_min[2];
-    float hmax = hx_ > hz ? hx_ : hz;
-    bool flat = hy < 0.35f * hmax;
-    float el = (flat ? 55.0f : 24.0f) * 3.14159265f / 180.0f;
-    float horiz = slant * cosf(el) / fmaxf(0.5f, hmul * 0.5f + 0.5f);
-    float hgt = slant * sinf(el) * hmul;
-    float dist = horiz;
+    float ext_y = sc.bounds_max[1] - sc.bounds_min[1];
+    float ext_x = sc.bounds_max[0] - sc.bounds_min[0];
+    float ext_z = sc.bounds_max[2] - sc.bounds_min[2];
+    float ext_h = ext_x > ext_z ? ext_x : ext_z;
+    bool flat_world = ext_y < 0.35f * ext_h;
+    float el = (flat_world ? 55.0f : 24.0f) * 3.14159265f / 180.0f;
+    float hgt = slant * sinf(el) * hmul;                       // camera lift
+    float dist = sqrtf(slant * slant - hgt * hgt);             // ground dist
     V3 eye = {sc.centre[0] + cosf(angle) * dist, sc.centre[1] + hgt,
               sc.centre[2] + sinf(angle) * dist};
     float P[16], V[16], MVP[16];
-    persp(60, (float)fb.w / fb.h, 0.1f, 6000.f, P);
+    // 60-degree HORIZONTAL fov => derive vertical from aspect (studio.rs's
+    // raw 1/tan convention implies a ~143 deg hfov - fine in a side panel,
+    // fisheye in a game window)
+    float aspect = (float)fb.w / fb.h;
+    float vfov = 2.0f * atanf(tanf(30.0f * 3.14159265f / 180.0f) / aspect) *
+                 180.0f / 3.14159265f;
+    persp(vfov, aspect, 0.1f, 6000.f, P);
     look_at(eye, {sc.centre[0], sc.centre[1], sc.centre[2]}, V);
     mat_mul(P, V, MVP);
 
@@ -416,13 +420,6 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
             if (dbg) rej_behind++;
             continue;
         }
-        if (dbg)
-            for (int k = 0; k < 3; k++) {
-                if (t.p[k].x < dbg_tx_min) dbg_tx_min = t.p[k].x;
-                if (t.p[k].x > dbg_tx_max) dbg_tx_max = t.p[k].x;
-                if (sw[k] < dbg_w_min) dbg_w_min = sw[k];
-                if (sw[k] > dbg_w_max) dbg_w_max = sw[k];
-            }
         float hx[3], hy[3];
         for (int k = 0; k < 3; k++) {
             float inv = 1.0f / sw[k];
@@ -433,7 +430,7 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
         float area = (hx[1] - hx[0]) * (hy[2] - hy[0]) -
                      (hx[2] - hx[0]) * (hy[1] - hy[0]);
         if (dbg) {
-            dbg_drawn++;
+            drawn_tris++;
             for (int k = 0; k < 3; k++) {
                 if (hx[k] < dbg_hx_min) dbg_hx_min = hx[k];
                 if (hx[k] > dbg_hx_max) dbg_hx_max = hx[k];
@@ -478,11 +475,11 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
     if (dbg)
         fprintf(stderr,
                 "[dbg] tris=%zu behind_rej=%ld area_rej=%ld offscreen=%ld "
-                "rasterized=%ld written=%ld bbox_px hx=[%.0f..%.0f] hy=[%.0f..%.0f]"
-                " eye_d=%.0f fit_r=%.0f\n",
+                "drawn=%ld written=%ld bbox_px hx=[%.0f..%.0f] hy=[%.0f..%.0f]"
+                " fit_r=%.0f slant=%.0f\n",
                 sc.tris.size(), rej_behind, rej_area, rej_bbox, drawn_tris,
                 dbg_px, dbg_hx_min, dbg_hx_max, dbg_hy_min, dbg_hy_max,
-                sc.fit_r * 1.9f, sc.fit_r);
+                sc.fit_r, r * 1.9f);
 }
 
 // ------------------------------------------------------------------ win32
@@ -498,7 +495,8 @@ static int run_window(const char *dir) {
         fprintf(stderr, "[littview] failed to load %s\n", dir);
         return 1;
     }
-    WNDCLASSA wc = {0};
+    WNDCLASSA wc;
+    ZeroMemory(&wc, sizeof(wc));
     wc.lpfnWndProc = DefWindowProcA;
     wc.hInstance = GetModuleHandleA(NULL);
     wc.lpszClassName = "LittView";
@@ -552,19 +550,6 @@ static int run_window(const char *dir) {
 #endif
 
 // ------------------------------------------------------------------ main
-static int read_all(const char *path, std::string &out) {
-    FILE *f = fopen(path, "rb");
-    if (!f) return 1;
-    fseek(f, 0, SEEK_END);
-    long sz = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    out.resize((size_t)sz + 1);
-    fread(out.data(), 1, (size_t)sz, f);
-    out[(size_t)sz] = 0;
-    fclose(f);
-    return 0;
-}
-
 int main(int argc, char **argv) {
     if (argc >= 2 && !strcmp(argv[1], "selftest")) {
         // fallthrough to mode handling below

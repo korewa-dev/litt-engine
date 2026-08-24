@@ -20,11 +20,27 @@ Build: `native\build.bat` (Windows, gcc/llvm-mingw) or `make -C native`
 Integration: `make_game.py` prefers `native/bin/littcli(.exe)` for step-4
 validation and falls back to Python when the binary is absent.
 
-## Stage 2 (NEXT) - C++ renderer front-end
+## Stage 2 (SHIPPED, first light) - C++ renderer front-end
 
-C++ layer consuming littcore: window + swapchain via Vulkan, reusing the
-shader knowledge in `crates/fidelityfx/src/shaders` (CAS/FSR are already GLSL
-and portable). The Rust renderer crate becomes the reference implementation.
+`littview.cpp` - single-file C++17 front-end consuming littcore:
+
+- loads a game's world_state + lscn + every `model:` OBJ (cached per name)
+- ports the engine bake: sun diffuse |n.l| + hemispheric ambient + centroid
+  distance haze, tag-driven tints (enemy red / pickup gold / goal green)
+- orbit camera with robust framing: fit radius from the 88th-percentile
+  triangle-centroid distance (backdrop ground discs can't zoom us out),
+  constant slant range, elevation auto-steepens to 55 deg for flat worlds,
+  yaw auto-picks perpendicular to the long axis
+- depth-buffered software rasterizer, gamma-correct output; BMP writer for
+  offscreen verification (`render <dir> --out f.bmp`), Win32 DIB window
+  mode (`window <dir>`, arrows-free slow auto-orbit), pixel selftest
+- NOTE: studio.rs perspective uses f=1/tan(fov) => ~143 deg effective hfov;
+  fine in its side panel, fisheye fullscreen - littview derives vfov from a
+  proper 60 deg horizontal fov instead
+
+Verified: selftest ok; six shipped games render with real content
+(drowned-vow 66%, kingsfall 79%, reef-rest 67% frame fill, 22-42 distinct
+colors each); LITT_DEBUG=1 prints rasterizer diagnostics.
 
 ## Stage 3 (LATER) - parity & retirement
 
