@@ -332,6 +332,15 @@ enum Ev {
     Poi(String),
 }
 
+/// Enemy combat tier - drives speed and special behavior in the sweep.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+enum Tier {
+    #[default]
+    Mook,
+    Elite,
+    Boss,
+}
+
 #[derive(Clone, Debug)]
 struct Aabb {
     min: Vec3,
@@ -351,6 +360,10 @@ struct Interactive {
     poi: bool,
     alive: bool,
     seen_poi: bool,
+    /// combat tier (mook/elite/boss) for speed + lunge behavior
+    tier: Tier,
+    /// seconds until the next lunge is allowed (bosses/elites)
+    lunge_cd: f32,
 }
 
 /// One interactive playthrough of a generated world.
@@ -436,6 +449,24 @@ impl Session {
             }
             let lift = if enemy || hazard { 0.0 } else { 0.5 };
             let pos = Vec3::new(node.position.0, node.position.1 + lift, node.position.2);
+            // combat tier from story-merge naming conventions
+            // (Boss_*/Elite_*/Mook_*); drives speed + lunge behavior
+            let tier = if !enemy {
+                Tier::Mook
+            } else {
+                let nl = node.name.to_lowercase();
+                if nl.starts_with("boss_") || nl.contains("boss") {
+                    Tier::Boss
+                } else if nl.starts_with("elite_") {
+                    Tier::Elite
+                } else if node.tags.iter().any(|t| {
+                    t == "model:brute" || t == "model:knight"
+                }) {
+                    Tier::Elite
+                } else {
+                    Tier::Mook
+                }
+            };
             if enemy {
                 enemy_base_y.insert(interactives.len(), node.position.1);
             }
@@ -451,6 +482,8 @@ impl Session {
                 poi,
                 alive: true,
                 seen_poi: false,
+                tier,
+                lunge_cd: 0.0,
             });
         }
 
@@ -697,9 +730,25 @@ impl Session {
                 let d3 = (hd * hd + dy * dy).sqrt();
                 if d3 < self.cfg.enemy_aggro_m && d3 > 0.1 {
                     chasing_any = true;
+                    // tier pacing: bosses press harder, elites keep pressure
+                    let (speed_mul, can_lunge) = match it.tier {
+                        Tier::Boss => (1.35, true),
+                        Tier::Elite => (1.15, false),
+                        Tier::Mook => (1.0, false),
+                    };
+                    // boss lunge: short explosive dash on a cooldown
+                    let mut lunge = 1.0;
+                    if can_lunge {
+                        it.lunge_cd -= dt;
+                        if it.lunge_cd <= 0.0 && hd < 8.0 {
+                            lunge = 2.4;
+                            it.lunge_cd = 3.5;
+                        }
+                    }
+                    let sp = ENEMY_SPEED * speed_mul * lunge;
                     // home on the plane only; keep cruise height
-                    let nx = it.pos.0 - dx / hd * ENEMY_SPEED * dt;
-                    let nz = it.pos.2 - dz / hd * ENEMY_SPEED * dt;
+                    let nx = it.pos.0 - dx / hd * sp * dt;
+                    let nz = it.pos.2 - dz / hd * sp * dt;
                     if !self.point_blocked(nx, it.pos.1, nz) {
                         if (nx - it.pos.0).abs() > 1e-5 || (nz - it.pos.2).abs() > 1e-5 {
                             moved = true;
@@ -1089,6 +1138,8 @@ mod tests {
             poi: false,
             alive: true,
             seen_poi: false,
+            tier: Tier::Mook,
+            lunge_cd: 0.0,
         });
         s.enemy_base_y.insert(0, 1.2);
         let y_before = s.interactives[0].pos.1;
@@ -1100,6 +1151,41 @@ mod tests {
             "enemy must hold cruise height, got {}",
             e.pos.1
         );
+    }
+
+    #[test]
+    fn boss_tier_presses_harder_than_mook() {
+        let mk = |tier: Tier| {
+            let mut s = empty_session(Mode::Orbit3D);
+            s.interactives.push(Interactive {
+                name: if tier == Tier::Boss { "Boss_X".into() } else { "Drone".into() },
+                pos: Vec3::new(4.0, 1.2, 0.0),
+                base_y: 1.2,
+                enemy: true,
+                hazard: false,
+                scoring: false,
+                goal: false,
+                checkpoint: false,
+                poi: false,
+                alive: true,
+                seen_poi: false,
+                tier,
+                lunge_cd: 0.0,
+            });
+            s.enemy_base_y.insert(0, 1.2);
+            s
+        };
+        let mut mook = mk(Tier::Mook);
+        let mut boss = mk(Tier::Boss);
+        run_seconds(&mut mook, 1.2, PlayInput::default());
+        run_seconds(&mut boss, 1.2, PlayInput::default());
+        let dm = (mook.interactives[0].pos.0.powi(2)
+            + mook.interactives[0].pos.2.powi(2))
+            .sqrt();
+        let db = (boss.interactives[0].pos.0.powi(2)
+            + boss.interactives[0].pos.2.powi(2))
+            .sqrt();
+        assert!(db < dm, "boss must close distance faster ({} vs {})", db, dm);
     }
 
     #[test]
@@ -1117,6 +1203,8 @@ mod tests {
             poi: false,
             alive: true,
             seen_poi: false,
+            tier: Tier::Mook,
+            lunge_cd: 0.0,
         });
         s.pos = Vec3::new(2.0, 1.0, 2.0);
         s.step(0.016, PlayInput::default());

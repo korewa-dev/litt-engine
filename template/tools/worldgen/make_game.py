@@ -529,8 +529,11 @@ def main():
             existing.add(nm)
     for i, r in enumerate(others):
         role = r["role"]
-        nm = "Foe_%02d_%s" % (i, "".join(ch for ch in r["name"]
-                                         if ch.isalnum())[:16])
+        # engine reads combat tier from the name prefix
+        pfx = "Elite_" if role == "elite" else "Mook_"
+        nm = "%s%02d_%s" % (pfx, i,
+                            "".join(ch for ch in r["name"]
+                                    if ch.isalnum())[:16])
         mdl = eelite if role == "elite" else emook
         if not layout or nm in existing or not mdl:
             continue

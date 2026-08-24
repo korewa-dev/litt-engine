@@ -168,10 +168,15 @@ fn upload_slice<T: Copy>(
 }
 
 /// Upload scene data to GPU buffers
+///
+/// `internal` is the render-scale resolution (FSR input size). The
+/// accumulation/velocity/output images are allocated at exactly this size so
+/// the path-trace dispatch, push constants and FSR input extents all agree.
 pub fn upload_scene(
     _device: &Device,
     scene: &Scene,
     allocator: &mut GpuAllocator,
+    internal: (u32, u32),
 ) -> Result<PathTracerBuffers, String> {
     // Triangles (packed GPU layout)
     let gpu_triangles = to_gpu_triangles(scene);
@@ -214,8 +219,10 @@ pub fn upload_scene(
     )?;
 
     // Accumulation buffer (device local) -- HDR
+    let iw = internal.0.max(1);
+    let ih = internal.1.max(1);
     let (accum_image, accum_view, accum_alloc) = allocator.allocate_image(
-        [640, 360, 1],
+        [iw, ih, 1],
         vk::Format::R32G32B32A32_SFLOAT,
         vk::ImageUsageFlags::STORAGE
             | vk::ImageUsageFlags::TRANSFER_SRC
@@ -227,7 +234,7 @@ pub fn upload_scene(
 
     // Velocity buffer -- motion vectors for reprojection
     let (velocity_image, velocity_view, vel_alloc) = allocator.allocate_image(
-        [640, 360, 1],
+        [iw, ih, 1],
         vk::Format::R16G16_SFLOAT,
         vk::ImageUsageFlags::STORAGE,
         AllocFlags::DEVICE_LOCAL,
@@ -237,7 +244,7 @@ pub fn upload_scene(
 
     // Output buffer -- final display image
     let (output_image, output_view, out_alloc) = allocator.allocate_image(
-        [640, 360, 1],
+        [iw, ih, 1],
         vk::Format::R8G8B8A8_UNORM,
         vk::ImageUsageFlags::STORAGE | vk::ImageUsageFlags::TRANSFER_SRC,
         AllocFlags::DEVICE_LOCAL,
@@ -281,7 +288,7 @@ pub fn upload_scene(
             memory: vk::DeviceMemory::null(),
             view: accum_view,
             format: vk::Format::R32G32B32A32_SFLOAT,
-            extent: [640, 360, 1],
+            extent: [iw, ih, 1],
             allocation: Some(accum_alloc),
         },
         velocity_buffer: Image {
@@ -289,7 +296,7 @@ pub fn upload_scene(
             memory: vk::DeviceMemory::null(),
             view: velocity_view,
             format: vk::Format::R16G16_SFLOAT,
-            extent: [640, 360, 1],
+            extent: [iw, ih, 1],
             allocation: Some(vel_alloc),
         },
         output_buffer: Image {
@@ -297,7 +304,7 @@ pub fn upload_scene(
             memory: vk::DeviceMemory::null(),
             view: output_view,
             format: vk::Format::R8G8B8A8_UNORM,
-            extent: [640, 360, 1],
+            extent: [iw, ih, 1],
             allocation: Some(out_alloc),
         },
         scratch_buffer: Buffer {

@@ -468,7 +468,10 @@ pub fn mul(a: [f32; 16], b: [f32; 16]) -> [f32; 16] {
 // ---------------------------------------------------------------------------
 // Scene -> vertex soup (world triangles colored by material albedo)
 // ---------------------------------------------------------------------------
-pub fn scene_to_verts(scene: &litt_pathtracer::Scene) -> (Vec<f32>, Option<OrbitCam>) {
+pub fn scene_to_verts(
+    scene: &litt_pathtracer::Scene,
+    env: Option<&crate::world_bridge::EnvLight>,
+) -> (Vec<f32>, Option<OrbitCam>) {
     let mut v = Vec::with_capacity(scene.triangles.len() * 18);
     let mut min = [f32::MAX; 3];
     let mut max = [f32::MIN; 3];
@@ -479,15 +482,79 @@ pub fn scene_to_verts(scene: &litt_pathtracer::Scene) -> (Vec<f32>, Option<Orbit
             .map(|m| m.albedo)
             .unwrap_or(Vec3(0.6, 0.6, 0.6))
     };
+
+    // --- lighting model (baked per triangle) ------------------------------
+    // Sun direction/color from the generator's environment when available;
+    // pleasant defaults otherwise.
+    let (sun_dir, sun_col, sky_col) = match env {
+        Some(e) => {
+            let el = e.sun_elevation_deg.to_radians();
+            let az = e.sun_azimuth_deg.to_radians();
+            let d = Vec3(
+                az.cos() * el.cos(),
+                el.sin().max(0.08),
+                az.sin() * el.cos(),
+            );
+            let k = e.intensity;
+            (
+                d,
+                Vec3(1.05 * k, 0.97 * k, 0.86 * k),
+                Vec3(
+                    0.35 + e.sky_top.0 * 0.5,
+                    0.42 + e.sky_top.1 * 0.5,
+                    0.52 + e.sky_top.2 * 0.5,
+                ),
+            )
+        }
+        None => (
+            Vec3(0.42, 0.72, 0.55),
+            Vec3(1.05, 0.99, 0.90),
+            Vec3(0.62, 0.70, 0.82),
+        ),
+    };
+    // normalize sun dir once
+    let sl = (sun_dir.0 * sun_dir.0 + sun_dir.1 * sun_dir.1 + sun_dir.2 * sun_dir.2)
+        .sqrt()
+        .max(1e-5);
+    let sd = Vec3(sun_dir.0 / sl, sun_dir.1 / sl, sun_dir.2 / sl);
+
+    // Pass 1: shade every triangle (sun diffuse + hemispheric ambient),
+    // keep its corners and color for the haze pass.
+    let mut shaded: Vec<([[f32; 3]; 3], [f32; 3])> = Vec::with_capacity(scene.triangles.len());
+    let mut cx = 0.0f32;
+    let mut cy = 0.0f32;
+    let mut cz = 0.0f32;
     for t in &scene.triangles {
-        // Triangle is #[repr(packed)] - copy fields by value first
         let (tv0, tv1, tv2, tnorm, tmid) = (t.v0, t.v1, t.v2, t.normal, t.material_id);
         let c0 = mat(tmid);
-        // cheap directional shading so flat walls still read as geometry
-        let shade = 0.72 + 0.28 * tnorm.1.abs().clamp(0.0, 1.0);
-        let c = [c0.0 * shade, c0.1 * shade, c0.2 * shade];
+        let n = tnorm;
+        let nl = (n.0 * n.0 + n.1 * n.1 + n.2 * n.2).sqrt().max(1e-6);
+        let nx = n.0 / nl;
+        let ny = n.1 / nl;
+        let nz = n.2 / nl;
+
+        // sun diffuse (two-sided so backfaces never go pure black)
+        let ndl = (nx * sd.0 + ny * sd.1 + nz * sd.2).abs();
+        // hemispheric ambient: sky above, dim bounce below
+        let amb = 0.34 + 0.22 * ny.clamp(-1.0, 1.0);
+        let col = [
+            c0.0 * (sky_col.0 * amb + sun_col.0 * 0.85 * ndl),
+            c0.1 * (sky_col.1 * amb + sun_col.1 * 0.85 * ndl),
+            c0.2 * (sky_col.2 * amb + sun_col.2 * 0.85 * ndl),
+        ];
+        let cen = [(tv0.0 + tv1.0 + tv2.0) / 3.0,
+                   (tv0.1 + tv1.1 + tv2.1) / 3.0,
+                   (tv0.2 + tv1.2 + tv2.2) / 3.0];
+        cx += cen[0];
+        cy += cen[1];
+        cz += cen[2];
+        let corners = [
+            [tv0.0, tv0.1, tv0.2],
+            [tv1.0, tv1.1, tv1.2],
+            [tv2.0, tv2.1, tv2.2],
+        ];
+        shaded.push((corners, col));
         for p in [tv0, tv1, tv2] {
-            v.extend_from_slice(&[p.0, p.1, p.2, c[0], c[1], c[2]]);
             for i in 0..3 {
                 let val = match i {
                     0 => p.0,
@@ -497,6 +564,39 @@ pub fn scene_to_verts(scene: &litt_pathtracer::Scene) -> (Vec<f32>, Option<Orbit
                 if val < min[i] { min[i] = val; }
                 if val > max[i] { max[i] = val; }
             }
+        }
+    }
+
+    // Pass 2: distance haze toward the horizon color (depth proxy: distance
+    // from the scene centroid - the camera orbits it, so it reads as fog).
+    let n3 = (shaded.len() as f32).max(1.0);
+    let centre = [cx / n3, cy / n3, cz / n3];
+    let radius = (((max[0] - min[0]).powi(2)
+        + (max[1] - min[1]).powi(2)
+        + (max[2] - min[2]).powi(2))
+        .sqrt()
+        * 0.5)
+        .max(1e-4);
+    let horizon = [
+        (sky_col.0 * 0.8 + 0.15).min(1.0),
+        (sky_col.1 * 0.8 + 0.14).min(1.0),
+        (sky_col.2 * 0.8 + 0.13).min(1.0),
+    ];
+    for tri in &shaded {
+        let (corners, col3) = tri;
+        let d = ((corners[0][0] + corners[1][0] + corners[2][0]) / 3.0 - centre[0]).powi(2)
+            + ((corners[0][1] + corners[1][1] + corners[2][1]) / 3.0 - centre[1]).powi(2)
+            + ((corners[0][2] + corners[1][2] + corners[2][2]) / 3.0 - centre[2]).powi(2);
+        let d = d.sqrt();
+        let f = (d / radius).clamp(0.0, 1.0);
+        let haze = f * f * 0.45;
+        let c = [
+            (col3[0] + (horizon[0] - col3[0]) * haze).min(1.0),
+            (col3[1] + (horizon[1] - col3[1]) * haze).min(1.0),
+            (col3[2] + (horizon[2] - col3[2]) * haze).min(1.0),
+        ];
+        for p in corners {
+            v.extend_from_slice(&[p[0], p[1], p[2], c[0], c[1], c[2]]);
         }
     }
     let cam = if scene.triangles.is_empty() {
@@ -700,12 +800,13 @@ mod tests {
             normal: Vec3(0.0, 1.0, 0.0),
             material_id: 0,
         });
-        let (v, cam) = scene_to_verts(&s);
+        let (v, cam) = scene_to_verts(&s, None);
         assert_eq!(v.len(), 18);
         let cam = cam.expect("cam");
         assert_eq!(cam.center, [0.0, 1.0, 0.0]);
-        // red channel survives, green shaded by normal.y=1 -> 0.28*? stays 0
+        // red channel survives the new bake (sun + ambient keep it bright);
+        // green stays dark for an albedo of pure red
         assert!(v[3] > 0.7);
-        assert_eq!(v[4], 0.0);
+        assert!(v[4] < 0.05);
     }
 }

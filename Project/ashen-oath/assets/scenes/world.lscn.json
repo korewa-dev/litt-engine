@@ -1,0 +1,2381 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "next_id": 82,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": []
+    },
+    {
+      "name": "Central_Plaza",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "hub",
+        "model:layout_main"
+      ]
+    },
+    {
+      "name": "POI_01",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [
+        26.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_01"
+      ]
+    },
+    {
+      "name": "POI_02",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [
+        8.03,
+        0.0,
+        24.73
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_02"
+      ]
+    },
+    {
+      "name": "POI_03",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -21.03,
+        0.0,
+        15.28
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_03"
+      ]
+    },
+    {
+      "name": "POI_04",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -21.03,
+        0.0,
+        -15.28
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_04"
+      ]
+    },
+    {
+      "name": "POI_05",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [
+        8.03,
+        0.0,
+        -24.73
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_05"
+      ]
+    },
+    {
+      "name": "Coin",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_01",
+      "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [
+        10.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_02",
+      "id": 9,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7.07,
+        0.0,
+        7.07
+      ],
+      "rotation": [
+        0.0,
+        0.3827,
+        0.0,
+        0.9239
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_03",
+      "id": 10,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        10.0
+      ],
+      "rotation": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_04",
+      "id": 11,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -7.07,
+        0.0,
+        7.07
+      ],
+      "rotation": [
+        0.0,
+        0.9239,
+        0.0,
+        0.3827
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_05",
+      "id": 12,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -10.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_06",
+      "id": 13,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -7.07,
+        0.0,
+        -7.07
+      ],
+      "rotation": [
+        0.0,
+        0.9239,
+        0.0,
+        -0.3827
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_07",
+      "id": 14,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -0.0,
+        0.0,
+        -10.0
+      ],
+      "rotation": [
+        0.0,
+        0.7071,
+        0.0,
+        -0.7071
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_08",
+      "id": 15,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7.07,
+        0.0,
+        -7.07
+      ],
+      "rotation": [
+        0.0,
+        0.3827,
+        0.0,
+        -0.9239
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_09",
+      "id": 16,
+      "parent": 0,
+      "children": [],
+      "position": [
+        13.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_10",
+      "id": 17,
+      "parent": 0,
+      "children": [],
+      "position": [
+        21.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_11",
+      "id": 18,
+      "parent": 0,
+      "children": [],
+      "position": [
+        4.02,
+        0.0,
+        12.36
+      ],
+      "rotation": [
+        0.0,
+        0.5878,
+        0.0,
+        0.809
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_12",
+      "id": 19,
+      "parent": 0,
+      "children": [],
+      "position": [
+        6.49,
+        0.0,
+        19.97
+      ],
+      "rotation": [
+        0.0,
+        0.5878,
+        0.0,
+        0.809
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_13",
+      "id": 20,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -10.52,
+        0.0,
+        7.64
+      ],
+      "rotation": [
+        0.0,
+        0.9511,
+        0.0,
+        0.309
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_14",
+      "id": 21,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -16.99,
+        0.0,
+        12.34
+      ],
+      "rotation": [
+        0.0,
+        0.9511,
+        0.0,
+        0.309
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Stalker",
+      "id": 22,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Stalker_01",
+      "id": 23,
+      "parent": 0,
+      "children": [],
+      "position": [
+        12.94,
+        0.0,
+        9.4
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Stalker_02",
+      "id": 24,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -4.94,
+        0.0,
+        15.22
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Festival_Banner",
+      "id": 25,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "goal",
+        "model:festival_banner"
+      ]
+    },
+    {
+      "name": "Ground_Pad",
+      "id": 26,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "floor",
+        "model:ground_pad"
+      ]
+    },
+    {
+      "name": "Checkpoint_01",
+      "id": 27,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -28.8,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_02",
+      "id": 28,
+      "parent": 0,
+      "children": [],
+      "position": [
+        35.2,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Bonfire_Plaza",
+      "id": 29,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -44.8,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi",
+        "model:bonfire"
+      ]
+    },
+    {
+      "name": "Knight_Sun",
+      "id": 30,
+      "parent": 0,
+      "children": [],
+      "position": [
+        25.6,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:knight"
+      ]
+    },
+    {
+      "name": "Stalker_Rose",
+      "id": 31,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Estus_Hidden",
+      "id": 32,
+      "parent": 0,
+      "children": [],
+      "position": [
+        51.2,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Fog_Gate_Banner",
+      "id": 33,
+      "parent": 0,
+      "children": [],
+      "position": [
+        68.8,
+        3.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Item_00_UnlitShrine",
+      "id": 34,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -53.76,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_01_ForsakenSigil",
+      "id": 35,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -49.92,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_02_CinderedOath",
+      "id": 36,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -46.08,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_03_RuinedRequiem",
+      "id": 37,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -42.24,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_04_CinderedCinder",
+      "id": 38,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -38.4,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_05_ForsakenPyre",
+      "id": 39,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -34.56,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_06_AshenCinder",
+      "id": 40,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -30.72,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_07_TwilightCinder",
+      "id": 41,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -26.88,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_08_SilentOath",
+      "id": 42,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -23.04,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_09_ForsakenRelic",
+      "id": 43,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -19.2,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_10_RuinedPyre",
+      "id": 44,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -15.36,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_11_CinderedShrine",
+      "id": 45,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -11.52,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_12_ForsakenBell",
+      "id": 46,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -7.68,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_13_AshenBell",
+      "id": 47,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -3.84,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_14_EmberedRequiem",
+      "id": 48,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_15_SilentEmber",
+      "id": 49,
+      "parent": 0,
+      "children": [],
+      "position": [
+        3.84,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_16_PaleOath",
+      "id": 50,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7.68,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_17_TwilightOath",
+      "id": 51,
+      "parent": 0,
+      "children": [],
+      "position": [
+        11.52,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_18_UnlitRequiem",
+      "id": 52,
+      "parent": 0,
+      "children": [],
+      "position": [
+        15.36,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_19_UnlitEmber",
+      "id": 53,
+      "parent": 0,
+      "children": [],
+      "position": [
+        19.2,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_20_SilentRequiem",
+      "id": 54,
+      "parent": 0,
+      "children": [],
+      "position": [
+        23.04,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_21_RuinedSigil",
+      "id": 55,
+      "parent": 0,
+      "children": [],
+      "position": [
+        26.88,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_22_TwilightRequiem",
+      "id": 56,
+      "parent": 0,
+      "children": [],
+      "position": [
+        30.72,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:estus_flask",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_23_RuinedRelic",
+      "id": 57,
+      "parent": 0,
+      "children": [],
+      "position": [
+        34.56,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_24_PaleRelic",
+      "id": 58,
+      "parent": 0,
+      "children": [],
+      "position": [
+        38.4,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_25_PaleEmber",
+      "id": 59,
+      "parent": 0,
+      "children": [],
+      "position": [
+        42.24,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_26_AshenGrave",
+      "id": 60,
+      "parent": 0,
+      "children": [],
+      "position": [
+        46.08,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_27_TwilightEmber",
+      "id": 61,
+      "parent": 0,
+      "children": [],
+      "position": [
+        49.92,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_28_ForsakenShrine",
+      "id": 62,
+      "parent": 0,
+      "children": [],
+      "position": [
+        53.76,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_29_ForsakenRequiem",
+      "id": 63,
+      "parent": 0,
+      "children": [],
+      "position": [
+        57.6,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Boss_0_VowKnightAldric",
+      "id": 64,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -24.0,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:knight",
+        "poi"
+      ]
+    },
+    {
+      "name": "Boss_1_SisterCinder",
+      "id": 65,
+      "parent": 0,
+      "children": [],
+      "position": [
+        4.8,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:knight",
+        "poi"
+      ]
+    },
+    {
+      "name": "Boss_2_thePaleWarden",
+      "id": 66,
+      "parent": 0,
+      "children": [],
+      "position": [
+        33.6,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:knight",
+        "poi"
+      ]
+    },
+    {
+      "name": "Boss_3_theEmberEyedHoun",
+      "id": 67,
+      "parent": 0,
+      "children": [],
+      "position": [
+        62.4,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:knight",
+        "poi"
+      ]
+    },
+    {
+      "name": "Elite_00_TheForsakenShrin",
+      "id": 68,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -36.53,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Elite_01_TheTwilightRequi",
+      "id": 69,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -28.27,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Elite_02_ThePaleRelic",
+      "id": 70,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -20.0,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Elite_03_TheCinderedSigil",
+      "id": 71,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -11.73,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_04_ForsakenCinder",
+      "id": 72,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -3.47,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_05_EmberedPyre",
+      "id": 73,
+      "parent": 0,
+      "children": [],
+      "position": [
+        4.8,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_06_CinderedVigil",
+      "id": 74,
+      "parent": 0,
+      "children": [],
+      "position": [
+        13.07,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_07_CinderedRequiem",
+      "id": 75,
+      "parent": 0,
+      "children": [],
+      "position": [
+        21.33,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_08_CinderedShrine",
+      "id": 76,
+      "parent": 0,
+      "children": [],
+      "position": [
+        29.6,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_09_PaleSigil",
+      "id": 77,
+      "parent": 0,
+      "children": [],
+      "position": [
+        37.87,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_10_RuinedShrine",
+      "id": 78,
+      "parent": 0,
+      "children": [],
+      "position": [
+        46.13,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_11_EmberedCinder",
+      "id": 79,
+      "parent": 0,
+      "children": [],
+      "position": [
+        54.4,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Haunted Estate Court",
+      "id": 80,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        2.6,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "area",
+        "music:hollow_wind"
+      ]
+    },
+    {
+      "name": "Player_Start",
+      "id": 81,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -51.2,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "player",
+        "start"
+      ]
+    }
+  ]
+}

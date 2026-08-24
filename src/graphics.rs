@@ -84,6 +84,9 @@ pub trait GraphicsBackend: Send + Sync {
     /// Set the world view-projection matrix (Studio orbit camera).
     fn set_world_mvp(&mut self, _mvp: [f32; 16]) {}
 
+    /// Tint the background/clear toward the world's sky (environment).
+    fn set_sky_color(&mut self, _rgb: [f32; 3]) {}
+
     /// Whether Studio drawing is live (pipelines + buffers ready).
     fn studio_ready(&self) -> bool { false }
 }
@@ -139,6 +142,7 @@ pub mod vulkan {
         ui_buf: Option<(vk::Buffer, litt_vulkan::Allocation, u64)>,
         ui_count: u32,
         world_mvp: [f32; 16],
+    sky_color: [f32; 3],
     }
 
     /// Reinterpret a static byte blob as SPIR-V words (4-byte aligned).
@@ -220,6 +224,7 @@ pub mod vulkan {
                 ui_buf: None,
                 ui_count: 0,
                 world_mvp: [0.0; 16],
+sky_color: [0.10, 0.09, 0.14],
             }
         }
 
@@ -655,7 +660,22 @@ pub mod vulkan {
                 } else { (0.10, 0.09, 0.14) }
             } else { (0.10, 0.09, 0.14) };
             let breathe = 0.5 + 0.5 * (self.started.elapsed().as_secs_f32().sin()) * 0.08;
-            let clear = [r * breathe, g * breathe, b * breathe, 1.0];
+            // environment sky tint wins over the albedo-average when set
+            let (r, g, b) = if self.sky_color[0] > 0.0 || self.sky_color[1] > 0.0 {
+                (
+                    self.sky_color[0].max(0.02),
+                    self.sky_color[1].max(0.02),
+                    self.sky_color[2].max(0.03),
+                )
+            } else {
+                (r, g, b)
+            };
+            let clear = [
+                r * breathe.clamp(0.85, 1.15),
+                g * breathe.clamp(0.85, 1.15),
+                b * breathe.clamp(0.85, 1.15),
+                1.0,
+            ];
 
             let subpass = [vk::ClearAttachment {
                 aspect_mask: vk::ImageAspectFlags::COLOR,
@@ -798,6 +818,10 @@ pub mod vulkan {
 
         fn set_world_mvp(&mut self, mvp: [f32; 16]) {
             self.world_mvp = mvp;
+        }
+
+        fn set_sky_color(&mut self, rgb: [f32; 3]) {
+            self.sky_color = rgb;
         }
 
         fn upload_world_mesh(&mut self, verts: &[f32]) {

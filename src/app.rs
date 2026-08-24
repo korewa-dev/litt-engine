@@ -558,6 +558,14 @@ impl App {
         // Deploy the loaded world natively: real OBJ meshes -> tracer scene.
         // PERF LAW: models are parsed once and cached; the assembled scene
         // only rebuilds when the world or a living entity actually changes.
+        if let (Some(env), Some(ref mut backend)) = (&self.env_light, &mut self.backend) {
+            let sky = [
+                (0.10 + env.sky_top.0 * 0.55).min(0.9),
+                (0.10 + env.sky_top.1 * 0.55).min(0.9),
+                (0.12 + env.sky_top.2 * 0.55).min(0.9),
+            ];
+            backend.set_sky_color(sky);
+        }
         let base = self.asset_base.clone();
         let anim = crate::world_bridge::AnimCtx {
             t: self.play_session.as_ref().map(|s| s.anim_t).unwrap_or(0.0),
@@ -594,7 +602,8 @@ impl App {
             if let Some(ref mut backend) = self.backend {
                 if backend.studio_ready() {
                     if self.dirty_world {
-                        let (verts, cam) = crate::studio::scene_to_verts(&world_scene);
+                        let (verts, cam) =
+                    crate::studio::scene_to_verts(&world_scene, self.env_light.as_ref());
                         if let Some(c) = cam {
                             self.orbit = Some(c);
                         }

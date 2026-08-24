@@ -63,6 +63,9 @@ impl std::fmt::Debug for RenderPipeline {
 }
 
 impl RenderPipeline {
+    /// Default internal-resolution fraction (FSR Quality-ish).
+    pub const DEFAULT_RENDER_SCALE: f32 = 0.5;
+
     /// Create new render pipeline with FSR 3.1.5 and CAS
     #[allow(clippy::too_many_arguments)]
     pub fn new(
@@ -74,18 +77,23 @@ impl RenderPipeline {
         width: u32,
         height: u32,
     ) -> Result<Self, String> {
-        // Upload scene data to GPU
-        let path_tracer_buffers = pt_upload_scene(device, scene, allocator)?;
+        // Internal render resolution (FSR input). One size rules them all:
+        // scene buffers, path-trace dispatch and push constants.
+        let fsr_enabled = true;
+        let render_scale = Self::DEFAULT_RENDER_SCALE;
+        let fsr_input_w = ((width as f32 * render_scale) as u32).max(1);
+        let fsr_input_h = ((height as f32 * render_scale) as u32).max(1);
+
+        // Upload scene data to GPU buffers at the FSR-internal resolution
+        let path_tracer_buffers =
+            pt_upload_scene(device, scene, allocator, (fsr_input_w, fsr_input_h))?;
 
         // Build acceleration structures (BLAS + TLAS) for ray tracing
         let _acceleration = litt_pathtracer::build_scene_acceleration(
             device, rt_loader, allocator, scene,
         )?;
 
-        // Initialize FSR 3.1.5 at half resolution (common FSR quality setting)
-        let fsr_enabled = true;
-        let fsr_input_w = (width / 2).max(1);
-        let fsr_input_h = (height / 2).max(1);
+        // Initialize FSR 3.1.5 upscale pass
         let mut fsr_pipeline = Fsr3Pipeline::new();
         unsafe {
             fsr_pipeline.initialize(

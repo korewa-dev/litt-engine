@@ -1,0 +1,727 @@
+{
+  "objective": "ashen-oath: kindle the bonfires of the haunted estate court and force the fog gate at the far banner",
+  "side_objectives": [
+    "Kindle every bonfire in one run",
+    "Bank 800 points before the gate",
+    "Never die twice to the same knight"
+  ],
+  "physics": {
+    "gravity": 26,
+    "run_speed": 5.5,
+    "coyote_time_s": 0.1
+  },
+  "enemy_aggro_m": 9.0,
+  "corpse_run": true,
+  "scoring": {
+    "coins": 25
+  },
+  "roster": [
+    {
+      "name": "Hollow Knight",
+      "behavior": "guards the mid-court shrine; lunge inside 3 m"
+    },
+    {
+      "name": "Garden Stalker",
+      "behavior": "patrols the long road; drops chase at 12 m"
+    }
+  ],
+  "spawn": [
+    -51.2,
+    4.2,
+    0.0
+  ],
+  "checkpoints": [
+    [
+      -28.8,
+      4.2,
+      0.0
+    ],
+    [
+      35.2,
+      4.2,
+      0.0
+    ]
+  ],
+  "nodes": [
+    {
+      "name": "Bonfire_Plaza",
+      "pos": [
+        -44.8,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "checkpoint",
+        "poi",
+        "model:bonfire"
+      ]
+    },
+    {
+      "name": "Knight_Sun",
+      "pos": [
+        25.6,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:knight"
+      ]
+    },
+    {
+      "name": "Stalker_Rose",
+      "pos": [
+        0.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Estus_Hidden",
+      "pos": [
+        51.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Fog_Gate_Banner",
+      "pos": [
+        68.8,
+        3.2,
+        0.0
+      ],
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Item_00_UnlitShrine",
+      "pos": [
+        -53.76,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Unlit Shrine (common)"
+    },
+    {
+      "name": "Item_01_ForsakenSigil",
+      "pos": [
+        -49.92,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forsaken Sigil (common)"
+    },
+    {
+      "name": "Item_02_CinderedOath",
+      "pos": [
+        -46.08,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Cindered Oath (common)"
+    },
+    {
+      "name": "Item_03_RuinedRequiem",
+      "pos": [
+        -42.24,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ruined Requiem (common)"
+    },
+    {
+      "name": "Item_04_CinderedCinder",
+      "pos": [
+        -38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Cindered Cinder (common)"
+    },
+    {
+      "name": "Item_05_ForsakenPyre",
+      "pos": [
+        -34.56,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forsaken Pyre (uncommon)"
+    },
+    {
+      "name": "Item_06_AshenCinder",
+      "pos": [
+        -30.72,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ashen Cinder (common)"
+    },
+    {
+      "name": "Item_07_TwilightCinder",
+      "pos": [
+        -26.88,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Twilight Cinder (uncommon)"
+    },
+    {
+      "name": "Item_08_SilentOath",
+      "pos": [
+        -23.04,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Silent Oath (common)"
+    },
+    {
+      "name": "Item_09_ForsakenRelic",
+      "pos": [
+        -19.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forsaken Relic (common)"
+    },
+    {
+      "name": "Item_10_RuinedPyre",
+      "pos": [
+        -15.36,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ruined Pyre (common)"
+    },
+    {
+      "name": "Item_11_CinderedShrine",
+      "pos": [
+        -11.52,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Cindered Shrine (common)"
+    },
+    {
+      "name": "Item_12_ForsakenBell",
+      "pos": [
+        -7.68,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forsaken Bell (common)"
+    },
+    {
+      "name": "Item_13_AshenBell",
+      "pos": [
+        -3.84,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ashen Bell (uncommon)"
+    },
+    {
+      "name": "Item_14_EmberedRequiem",
+      "pos": [
+        0.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Embered Requiem (common)"
+    },
+    {
+      "name": "Item_15_SilentEmber",
+      "pos": [
+        3.84,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Silent Ember (common)"
+    },
+    {
+      "name": "Item_16_PaleOath",
+      "pos": [
+        7.68,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Pale Oath (uncommon)"
+    },
+    {
+      "name": "Item_17_TwilightOath",
+      "pos": [
+        11.52,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Twilight Oath (uncommon)"
+    },
+    {
+      "name": "Item_18_UnlitRequiem",
+      "pos": [
+        15.36,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Unlit Requiem (uncommon)"
+    },
+    {
+      "name": "Item_19_UnlitEmber",
+      "pos": [
+        19.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Unlit Ember (common)"
+    },
+    {
+      "name": "Item_20_SilentRequiem",
+      "pos": [
+        23.04,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Silent Requiem (common)"
+    },
+    {
+      "name": "Item_21_RuinedSigil",
+      "pos": [
+        26.88,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Ruined Sigil (rare)"
+    },
+    {
+      "name": "Item_22_TwilightRequiem",
+      "pos": [
+        30.72,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:estus_flask"
+      ],
+      "poi": "Twilight Requiem (legendary)"
+    },
+    {
+      "name": "Item_23_RuinedRelic",
+      "pos": [
+        34.56,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Ruined Relic (rare)"
+    },
+    {
+      "name": "Item_24_PaleRelic",
+      "pos": [
+        38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Pale Relic (common)"
+    },
+    {
+      "name": "Item_25_PaleEmber",
+      "pos": [
+        42.24,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Pale Ember (common)"
+    },
+    {
+      "name": "Item_26_AshenGrave",
+      "pos": [
+        46.08,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ashen Grave (uncommon)"
+    },
+    {
+      "name": "Item_27_TwilightEmber",
+      "pos": [
+        49.92,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Twilight Ember (common)"
+    },
+    {
+      "name": "Item_28_ForsakenShrine",
+      "pos": [
+        53.76,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forsaken Shrine (uncommon)"
+    },
+    {
+      "name": "Item_29_ForsakenRequiem",
+      "pos": [
+        57.6,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Forsaken Requiem (rare)"
+    },
+    {
+      "name": "Boss_0_VowKnightAldric",
+      "pos": [
+        -24.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:knight"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Boss_1_SisterCinder",
+      "pos": [
+        4.8,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:knight"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Boss_2_thePaleWarden",
+      "pos": [
+        33.6,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:knight"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Boss_3_theEmberEyedHoun",
+      "pos": [
+        62.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:knight"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Elite_00_TheForsakenShrin",
+      "pos": [
+        -36.53,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Elite_01_TheTwilightRequi",
+      "pos": [
+        -28.27,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Elite_02_ThePaleRelic",
+      "pos": [
+        -20.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Elite_03_TheCinderedSigil",
+      "pos": [
+        -11.73,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Mook_04_ForsakenCinder",
+      "pos": [
+        -3.47,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Blind to stillness; sprinting draws it."
+    },
+    {
+      "name": "Mook_05_EmberedPyre",
+      "pos": [
+        4.8,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Blind to stillness; sprinting draws it."
+    },
+    {
+      "name": "Mook_06_CinderedVigil",
+      "pos": [
+        13.07,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    },
+    {
+      "name": "Mook_07_CinderedRequiem",
+      "pos": [
+        21.33,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Slow to anger, slow to forget."
+    },
+    {
+      "name": "Mook_08_CinderedShrine",
+      "pos": [
+        29.6,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Guards loot caches along the route."
+    },
+    {
+      "name": "Mook_09_PaleSigil",
+      "pos": [
+        37.87,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Guards loot caches along the route."
+    },
+    {
+      "name": "Mook_10_RuinedShrine",
+      "pos": [
+        46.13,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    },
+    {
+      "name": "Mook_11_EmberedCinder",
+      "pos": [
+        54.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    }
+  ],
+  "zones": [
+    {
+      "name": "Haunted Estate Court",
+      "pos": [
+        0.0,
+        0,
+        0.0
+      ],
+      "radius": 26,
+      "tags": [
+        "music:hollow_wind"
+      ]
+    }
+  ],
+  "_prompt": "dark souls full game, big world with bosses and items"
+}

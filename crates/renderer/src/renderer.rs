@@ -138,9 +138,16 @@ impl Renderer {
         // Begin command buffer recording
         let command_buffer = self.command_pool.begin_single_time_commands()?;
 
-        // Update pipeline constants
+        // Update pipeline constants.
+        // CRITICAL: the path tracer renders at the INTERNAL (FSR input)
+        // resolution -- resolution_x/y in the push constants must match the
+        // dispatch grid and accumulation buffer, or rays only cover the
+        // top-left corner of the image. The accumulation buffer extent is
+        // the single source of truth for that size.
         if let Some(ref mut pipeline) = self.render_pipeline {
-            pipeline.update(camera, scene, self.swapchain.extents[0], self.swapchain.extents[1]);
+            let iw = pipeline.path_tracer_buffers.accumulation_buffer.extent[0];
+            let ih = pipeline.path_tracer_buffers.accumulation_buffer.extent[1];
+            pipeline.update(camera, scene, iw, ih);
         }
 
         // Transition accumulation buffer to GENERAL for storage writes

@@ -285,6 +285,17 @@
       "seed": 42,
       "about": "make me a game like dark souls, full game with story and items",
       "built": "2026-08-24T11:44:56"
+    },
+    {
+      "name": "ashen-oath",
+      "dir": "Project\\ashen-oath",
+      "archetype": "soulslike",
+      "pattern": "hub_spoke",
+      "theme": "haunted_estate",
+      "kit": "souls",
+      "seed": 77,
+      "about": "dark souls full game, big world with bosses and items",
+      "built": "2026-08-24T18:23:28"
     }
   ]
 }
