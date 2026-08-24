@@ -1,21 +1,14 @@
 ---
 
-## 2026-08-24 09:05 - ACTION by ai-agent (AI)
+## 2026-08-24 10:13 - ACTION by ai-agent (AI)
 - prompt: haunted mansion dungeon crawl
-- action: dungeon_crawler world via room_graph (theme underground_caves, seed 6433)
-- 1 assets emitted; environment block: noon/clear
+- action: dungeon_crawler world via room_graph (theme underground_caves, seed 2595)
+- 1 assets emitted; environment block: dusk/rain
 - identity copied into state.identity from design_rules.json
 
 ---
 
-## 2026-08-24 09:05 - ENRICH by ai-agent (AI)
-- brief: brief.json (seed 6433)
-- objective: crimson-fall: reclaim the shrines of the underground caves court
-- +8 nodes (checkpoints/pickups/zones/spawn)
-
----
-
-## 2026-08-24 09:05 - ENRICH by ai-agent (AI)
-- brief: brief.json (seed 9)
-- objective: crimson-fall: reclaim the shrines of the underground caves court
-- +0 nodes (checkpoints/pickups/zones/spawn)
+## 2026-08-24 10:13 - ENRICH by ai-agent (AI)
+- brief: brief.json (seed 2595)
+- objective: crimson-fall: kindle the bonfires of the underground caves court and force the fog gate at the far banner
+- +9 nodes (checkpoints/pickups/zones/spawn)

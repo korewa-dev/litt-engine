@@ -9,6 +9,7 @@ Exit 0 only if every game renders with zero console/page errors.
 """
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -31,6 +32,21 @@ def free_port(start):
                 return port
             except OSError:
                 port += 1
+
+
+def kill_tree(proc):
+    """Windows-safe: serve_live.py may spawn children; kill the whole tree."""
+    if proc.poll() is not None:
+        return
+    if os.name == "nt":
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)],
+                       capture_output=True)
+    else:
+        proc.terminate()
+    try:
+        proc.wait(timeout=5)
+    except Exception:
+        pass
 
 
 def serve(game_dir, port):
@@ -81,10 +97,11 @@ def main():
                 page.wait_for_timeout(int(a.seconds * 1000))
                 shot = SHOTS / f"{g.name}.png"
                 page.screenshot(path=str(shot))
-                # poke the world: walk forward - a live game answers
-                page.keyboard.down("KeyW")
+                # poke the world: strafe right - works in every camera mode
+                # (2D5 strafes with A/D; W is jump there, so never probe W)
+                page.keyboard.down("KeyD")
                 page.wait_for_timeout(900)
-                page.keyboard.up("KeyW")
+                page.keyboard.up("KeyD")
                 shot2 = SHOTS / f"{g.name}_t2.png"
                 page.wait_for_timeout(300)
                 page.screenshot(path=str(shot2))
@@ -98,7 +115,7 @@ def main():
                 failures.setdefault(g.name, {}).update(
                     console=console_errors[:4], page=page_errors[:4],
                     probe=locals().get("probe"))
-                srv.kill()
+                kill_tree(srv)
 
         browser.close()
 

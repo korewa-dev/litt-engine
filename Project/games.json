@@ -210,15 +210,37 @@
       "built": "2026-08-24T05:30:59"
     },
     {
-      "name": "ash-reach",
-      "dir": "Project\\ash-reach",
+      "name": "crimson-fall-860",
+      "dir": "Project\\crimson-fall-860",
+      "archetype": "dungeon_crawler",
+      "pattern": "room_graph",
+      "theme": "underground_caves",
+      "kit": "souls",
+      "seed": 860,
+      "about": "haunted mansion dungeon crawl",
+      "built": "2026-08-24T10:09:02"
+    },
+    {
+      "name": "ash-reach-951",
+      "dir": "Project\\ash-reach-951",
       "archetype": "precision_action",
-      "pattern": "corridor_run",
+      "pattern": "spline_track",
       "theme": "cyberpunk_neon",
       "kit": "platformer",
-      "seed": 3311,
+      "seed": 7951,
       "about": "neon rooftop precision jumps",
-      "built": "2026-08-24T05:59:10"
+      "built": "2026-08-24T10:09:04"
+    },
+    {
+      "name": "crimson-fall-114",
+      "dir": "Project\\crimson-fall-114",
+      "archetype": "dungeon_crawler",
+      "pattern": "room_graph",
+      "theme": "underground_caves",
+      "kit": "souls",
+      "seed": 114,
+      "about": "haunted mansion dungeon crawl",
+      "built": "2026-08-24T10:09:25"
     },
     {
       "name": "crimson-fall",
@@ -227,9 +249,20 @@
       "pattern": "room_graph",
       "theme": "underground_caves",
       "kit": "souls",
-      "seed": 6433,
+      "seed": 2595,
       "about": "haunted mansion dungeon crawl",
-      "built": "2026-08-24T09:05:30"
+      "built": "2026-08-24T10:13:17"
+    },
+    {
+      "name": "ash-reach",
+      "dir": "Project\\ash-reach",
+      "archetype": "precision_action",
+      "pattern": "corridor_run",
+      "theme": "cyberpunk_neon",
+      "kit": "platformer",
+      "seed": 1967,
+      "about": "neon rooftop precision jumps",
+      "built": "2026-08-24T10:19:44"
     }
   ]
 }

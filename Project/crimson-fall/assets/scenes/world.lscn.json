@@ -2,7 +2,7 @@
   "format": "litt-scene",
   "version": 1,
   "root_id": 0,
-  "next_id": 10,
+  "next_id": 11,
   "nodes": [
     {
       "name": "Root",
@@ -230,8 +230,37 @@
       ]
     },
     {
-      "name": "Underground Caves Court",
+      "name": "Fog_Gate_Banner",
       "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [
+        51.74,
+        2.6,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Underground Caves Court",
+      "id": 9,
       "parent": 0,
       "children": [],
       "position": [
@@ -259,7 +288,7 @@
     },
     {
       "name": "Player_Start",
-      "id": 9,
+      "id": 10,
       "parent": 0,
       "children": [],
       "position": [

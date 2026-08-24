@@ -1,8 +1,9 @@
 {
-  "objective": "crimson-fall: reclaim the shrines of the underground caves court",
+  "objective": "crimson-fall: kindle the bonfires of the underground caves court and force the fog gate at the far banner",
   "side_objectives": [
-    "Kindle all bonfires in one run",
-    "Bank 800 points before the banner"
+    "Kindle every bonfire in one run",
+    "Bank 800 points before the gate",
+    "Never die twice to the same knight"
   ],
   "physics": {
     "gravity": 26,
@@ -17,11 +18,11 @@
   "roster": [
     {
       "name": "Hollow Knight",
-      "behavior": "guards shrine; lunge inside 3 m"
+      "behavior": "guards the mid-court shrine; lunge inside 3 m"
     },
     {
       "name": "Garden Stalker",
-      "behavior": "patrols; drops chase at 12 m"
+      "behavior": "patrols the long road; drops chase at 12 m"
     }
   ],
   "spawn": [
@@ -91,6 +92,19 @@
         "score",
         "model:estus_flask"
       ]
+    },
+    {
+      "name": "Fog_Gate_Banner",
+      "pos": [
+        51.74,
+        2.6,
+        27.0
+      ],
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
     }
   ],
   "zones": [
@@ -107,6 +121,5 @@
       ]
     }
   ],
-  "_prompt": "haunted mansion dungeon crawl",
-  "lives": 3
+  "_prompt": "haunted mansion dungeon crawl"
 }

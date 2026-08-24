@@ -167,7 +167,8 @@
           has(tags, "track") || has(tags, "hub") || has(tags, "terrain")) solids.push(box);
       if (has(tags, "platform")) solids.push(box);
       if (tags.some(function (t) { return ["pickup", "score", "goal", "hazard", "enemy", "checkpoint", "poi", "objective", "dice", "token", "player", "start", "win"].indexOf(t) !== -1; }))
-        interactives.push({ name: node.name, tags: tags, obj: obj, box: box, alive: true });
+        interactives.push({ name: node.name, tags: tags, obj: obj, box: box, alive: true,
+                            baseY: obj.position.y });
     }
 
     (state.chunks || []).forEach(function (c) {
@@ -212,7 +213,11 @@
     var KILLR = gp.kill_radius_m || 1.1;
     var lives = (gp.lives == null) ? Infinity : gp.lives;
     var gameOver = false, topZoom = 34;
-    addEventListener("keydown", function (e) { keys[e.code] = true; if (e.code === "Space") buffer = BUF; });
+    addEventListener("keydown", function (e) {
+      keys[e.code] = true;
+      if (e.code === "Space") buffer = BUF;
+      if (mode === "2D5" && e.code === "KeyW") buffer = BUF;   // W jumps in side-view
+    });
     addEventListener("keyup", function (e) { keys[e.code] = false; });
     addEventListener("mousemove", function (e) { if (document.pointerLockElement) camYaw -= e.movementX * 0.003; });
     addEventListener("click", function () { if (mode === "3D") renderer.domElement.requestPointerLock(); });
@@ -312,9 +317,13 @@
       var f = (keys.KeyW ? 1 : 0) - (keys.KeyS ? 1 : 0);
       var s = (keys.KeyD ? 1 : 0) - (keys.KeyA ? 1 : 0);
       var dirX = 0, dirZ = 0;
-      if (mode === "2D5") { dirX = f !== 0 || s !== 0 ? (f - s) : 0; dirZ = 0; }
-      else if (mode === "TOP") { dirX = s; dirZ = f; }
-      else {
+      if (mode === "2D5") {
+        dirX = s;                       // A/D strafe along the run axis
+        dirZ = 0;
+      } else if (mode === "TOP") {
+        dirX = s;
+        dirZ = -f;                      // W pushes AWAY from the top-down viewer
+      } else {
         var fx = -Math.sin(camYaw), fz = -Math.cos(camYaw);
         dirX = fx * f - fz * s; dirZ = fz * f + fx * s;
       }
@@ -345,19 +354,32 @@
           var d = c.distanceTo(pos);
           var aggro = (gp.enemy_aggro_m || 6);
           if (d < aggro && d > 0.1) {
-            var push = c.clone().sub(pos).normalize().multiplyScalar(-3.2 * dt);
-            var nx = it.obj.position.x + push.x, nz = it.obj.position.z + push.z;
-            // enemies respect walls now: cancel the step if it lands inside one
-            var blocked = false;
-            for (var wj = 0; wj < solids.length; wj++) {
-              var wb = solids[wj];
-              if (nx >= wb.min.x - 0.3 && nx <= wb.max.x + 0.3 &&
-                  nz >= wb.min.z - 0.3 && nz <= wb.max.z + 0.3 &&
-                  c.y < wb.max.y && c.y > wb.min.y) { blocked = true; break; }
+            // home on the PLANE only - flyers keep their cruise height
+            var flat = new THREE.Vector3(c.x - pos.x, 0, c.z - pos.z);
+            if (flat.length() > 0.1) {
+              var step = flat.normalize().multiplyScalar(-3.2 * dt);
+              var nx = it.obj.position.x + step.x, nz = it.obj.position.z + step.z;
+              // enemies respect walls now: cancel the step if it lands inside one
+              var blocked = false;
+              for (var wj = 0; wj < solids.length; wj++) {
+                var wb = solids[wj];
+                if (nx >= wb.min.x - 0.3 && nx <= wb.max.x + 0.3 &&
+                    nz >= wb.min.z - 0.3 && nz <= wb.max.z + 0.3 &&
+                    c.y < wb.max.y && c.y > wb.min.y) { blocked = true; break; }
+              }
+              if (!blocked) it.obj.position.add(step);
+              if (it.baseY != null)
+                it.obj.position.y += (it.baseY - it.obj.position.y) * Math.min(1, dt * 2);
+              it.box.setFromObject(it.obj);
+              c = it.box.getCenter(new THREE.Vector3());
             }
-            if (!blocked) { it.obj.position.add(push); it.box.setFromObject(it.obj); }
           }
-          if (d < KILLR) { die(gp.corpse_run ? "you died - corpse run begins" : "caught - respawning"); break; }
+          // fair kill: horizontal reach plus a vertical tolerance so tall
+          // boss meshes don't kill from their bbox-center altitude
+          var hd = Math.hypot(c.x - pos.x, c.z - pos.z);
+          if (hd < KILLR + 0.4 && Math.abs(c.y - pos.y) < 2.5) {
+            die(gp.corpse_run ? "you died - corpse run begins" : "caught - respawning"); break;
+          }
         } else if (c.distanceTo(pos) < REACH) {
           if (has(it.tags, "hazard")) {
             die("hazard!"); break;
@@ -377,6 +399,12 @@
             toast(it.name); it.alive = false;
           }
         }
+      }
+
+      // score-threshold victory (survival arenas without a goal node)
+      if (gp.score_goal && !won && score >= gp.score_goal) {
+        won = true;
+        document.getElementById("win").style.display = "flex";
       }
 
       playerMesh.position.copy(pos);

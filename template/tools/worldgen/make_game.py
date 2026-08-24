@@ -195,6 +195,9 @@ def brief_for(kit, theme, name, seed, prompt_text, layout=None):
             drone_b = place_on(layout, 0.62, lift=5.0)
             gem_hi = place_on(layout, 0.14, lift=3.6)
             spikes = place_on(layout, 0.45)
+            banner = place_on(layout, 0.97, lift=0.2)
+            trail = [place_on(layout, f, lift=1.6) for f in
+                     (0.20, 0.33, 0.58, 0.70, 0.84)]
         else:
             spawn_p = [1.5, 0.0, 0.0]
             cps = [[18, 0, 0], [36, 0, 0], [52, 0, 0], [68, 0, 0]]
@@ -202,24 +205,36 @@ def brief_for(kit, theme, name, seed, prompt_text, layout=None):
             drone_b = [43, 5.0, 0]
             gem_hi = [10.5, 3.6, 0]
             spikes = [39.5, 0, 0]
+            banner = [69, 0.2, 0]
+            trail = []
+        nodes = [
+            {"name": "Drone_A", "pos": drone_a, "tags": ["enemy", "hazard", "model:drone"]},
+            {"name": "Drone_B", "pos": drone_b, "tags": ["enemy", "hazard", "model:drone"]},
+            {"name": "Gem_High", "pos": gem_hi, "tags": ["pickup", "score", "model:gem"]},
+            {"name": "Spikes_Mid", "pos": spikes, "tags": ["hazard", "model:spike"]},
+        ]
+        for i, t in enumerate(trail):
+            nodes.append({"name": "Coin_%02d" % (i + 1), "pos": t,
+                          "tags": ["pickup", "score", "model:coin"]})
+        if layout:
+            # visible finish line: the run ends when you reach the banner
+            nodes.append({"name": "Win_Banner", "pos": banner,
+                          "tags": ["goal", "poi", "model:banner"]})
         brief = {
-            "objective": "%s: cross the level, bank the gems, reach the banner" % name,
-            "side_objectives": ["No-death run", "All gems", "Under par time"],
+            "objective": "%s: ride the %s ridge, slip the drones, plant your run at the summit banner" % (name, flavor),
+            "side_objectives": ["No-death run", "Every coin on the trail",
+                                "Reach the banner under par"],
             "physics": {"gravity": 30, "jump_velocity": 12, "run_speed": 8,
                         "coyote_time_s": 0.12},
+            "lives": 3,
             "enemy_aggro_m": 4.5, "corpse_run": False,
             "scoring": {"coins": 25},
             "roster": [{"name": "Sentinel Drone",
                         "behavior": "patrols its platform; dive on proximity"}],
             "spawn": spawn_p,
             "checkpoints": cps,
-            "nodes": [
-                {"name": "Drone_A", "pos": drone_a, "tags": ["enemy", "hazard", "model:drone"]},
-                {"name": "Drone_B", "pos": drone_b, "tags": ["enemy", "hazard", "model:drone"]},
-                {"name": "Gem_High", "pos": gem_hi, "tags": ["pickup", "score", "model:gem"]},
-                {"name": "Spikes_Mid", "pos": spikes, "tags": ["hazard", "model:spike"]},
-            ],
-            "zones": [{"name": flavor.title(), "pos": ox([36, 0, 0]), "radius": 42,
+            "nodes": nodes,
+            "zones": [{"name": flavor.title() + " Ridge", "pos": ox([36, 0, 0]), "radius": 42,
                        "tags": ["music:zone_" + kit]}],
         }
     elif kit == "souls":
@@ -231,6 +246,7 @@ def brief_for(kit, theme, name, seed, prompt_text, layout=None):
             knight = place_on(layout, 0.66)
             stalker = place_on(layout, 0.5)
             estus = place_on(layout, 0.82)
+            gate = place_on(layout, 0.93, lift=0.2)
         else:
             spawn_p = [0.0, 0.0, 3.0]
             cp_a = [0, 0, 6.5]
@@ -239,16 +255,18 @@ def brief_for(kit, theme, name, seed, prompt_text, layout=None):
             knight = [23, 0, 0]
             stalker = [16, 0, 16]
             estus = [27.5, 0, 2.0]
+            gate = [40, 0.2, 0]
         brief = {
-            "objective": "%s: reclaim the shrines of the %s court" % (name, flavor),
-            "side_objectives": ["Kindle all bonfires in one run",
-                                "Bank 800 points before the banner"],
+            "objective": "%s: kindle the bonfires of the %s court and force the fog gate at the far banner" % (name, flavor),
+            "side_objectives": ["Kindle every bonfire in one run",
+                                "Bank 800 points before the gate",
+                                "Never die twice to the same knight"],
             "physics": {"gravity": 26, "run_speed": 5.5, "coyote_time_s": 0.1},
             "enemy_aggro_m": 9.0, "corpse_run": True,
             "scoring": {"coins": 25},
             "roster": [
-                {"name": "Hollow Knight", "behavior": "guards shrine; lunge inside 3 m"},
-                {"name": "Garden Stalker", "behavior": "patrols; drops chase at 12 m"},
+                {"name": "Hollow Knight", "behavior": "guards the mid-court shrine; lunge inside 3 m"},
+                {"name": "Garden Stalker", "behavior": "patrols the long road; drops chase at 12 m"},
             ],
             "spawn": spawn_p,
             "checkpoints": [cp_a, cp_b],
@@ -257,6 +275,8 @@ def brief_for(kit, theme, name, seed, prompt_text, layout=None):
                 {"name": "Knight_Sun", "pos": knight, "tags": ["enemy", "model:knight"]},
                 {"name": "Stalker_Rose", "pos": stalker, "tags": ["enemy", "model:stalker"]},
                 {"name": "Estus_Hidden", "pos": estus, "tags": ["pickup", "score", "model:estus_flask"]},
+                {"name": "Fog_Gate_Banner", "pos": gate,
+                 "tags": ["goal", "poi", "model:banner"]},
             ],
             "zones": [{"name": flavor.title() + " Court", "pos": ox([0, 0, 0]),
                        "radius": 26, "tags": ["music:hollow_wind"]}],
@@ -281,9 +301,12 @@ def brief_for(kit, theme, name, seed, prompt_text, layout=None):
             zone_pos = [0, 0, 0]
             cps = [[9.9, 0, 3.1], [-7.4, 0, -6.9]]
         brief = {
-            "objective": "%s: survive the Legion's waves in the %s arena" % (name, flavor),
-            "side_objectives": ["Light every brazier", "600 points, no deaths"],
+            "objective": "%s: hold the %s arena against the Legion - six waves, then the sky opens" % (name, flavor),
+            "side_objectives": ["Light every brazier before wave three",
+                                "Reach 600 points without a death"],
             "physics": {"gravity": 24, "run_speed": 6.5, "coyote_time_s": 0.1},
+            "lives": 3,
+            "score_goal": 600,
             "enemy_aggro_m": 8.5, "corpse_run": False,
             "scoring": {"coins": 25},
             "waves": [{"at_score": s * 150, "note": "wave %d" % (s + 1)}
@@ -370,6 +393,10 @@ def main():
     ap.add_argument("--archetype"); ap.add_argument("--pattern")
     ap.add_argument("--theme"); ap.add_argument("--seed", type=int)
     ap.add_argument("--kit", choices=["survivor", "platformer", "souls"])
+    ap.add_argument("--time-of-day", default=None,
+                    help="dawn|noon|dusk|night (passed to gen_archetype)")
+    ap.add_argument("--weather", default=None,
+                    help="clear|rain|snow (passed to gen_archetype)")
     ap.add_argument("--skip-validate", action="store_true")
     a = ap.parse_args()
 
@@ -391,6 +418,12 @@ def main():
     pat = a.pattern or pat
     theme = a.theme or theme
     kit = a.kit or kit
+    # 2D5 camera archetypes move on one axis only - curved spline decks drop
+    # the player off the world. Force a straight pattern for side-view kits.
+    if kit == "platformer" and pat in {"spline_track", "room_graph"}:
+        print("[make] %s + %s would break side-view movement -> corridor_run"
+              % (arch, pat))
+        pat = "corridor_run"
     name = a.name or auto_name(rng)
     out = Path(a.out_dir) if a.out_dir else REPO / "Project" / name
     if out.exists():
@@ -405,10 +438,14 @@ def main():
         run(WORLDGEN / "gen_platformer25d.py", "--out-dir", str(out),
             "--agent", "ai-agent", "--prompt", a.about or "random")
     else:
-        run(WORLDGEN / "gen_archetype.py", "--archetype", arch,
-            "--pattern", pat, "--theme", theme, "--seed", str(seed),
-            "--name", name, "--out-dir", str(out),
-            "--prompt", a.about or "random")
+        cmd = ["--archetype", arch, "--pattern", pat, "--theme", theme,
+               "--seed", str(seed), "--name", name, "--out-dir", str(out),
+               "--prompt", a.about or "random"]
+        if a.time_of_day:
+            cmd += ["--time-of-day", a.time_of_day]
+        if a.weather:
+            cmd += ["--weather", a.weather]
+        run(WORLDGEN / "gen_archetype.py", *cmd)
     run(WORLDGEN / "gen_props.py", "--game-dir", str(out), "--kit", kit)
 
     # derive gameplay anchors from the REAL generated geometry

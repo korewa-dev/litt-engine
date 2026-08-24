@@ -3,9 +3,9 @@
   "version": 1,
   "mode": "ai-exclusive",
   "theme": "cyberpunk_neon",
-  "updated": "2026-08-24T05:59:09",
+  "updated": "2026-08-24T10:19:44",
   "seed": {
-    "archetype_seed": 3311
+    "archetype_seed": 1967
   },
   "chunk_size": 0,
   "radius": 0,
@@ -62,48 +62,48 @@
   },
   "environment": {
     "sky": {
-      "type": "clear",
+      "type": "sunrise",
       "top_color": [
-        0.35,
-        0.55,
-        0.9
+        0.3,
+        0.4,
+        0.65
       ],
       "horizon_color": [
-        0.75,
-        0.85,
-        0.95
+        0.95,
+        0.65,
+        0.45
       ],
       "cloud_layers": [
         {
-          "density": 0.15,
+          "density": 0.4,
           "height": 120,
-          "speed": 0.25
+          "speed": 0.8
         }
       ]
     },
     "sun": {
       "azimuth_deg": 135.0,
-      "elevation_deg": 62
+      "elevation_deg": 12
     },
     "lighting": {
-      "global_light_intensity": 1.0,
+      "global_light_intensity": 0.8,
       "ambient_light_color": [
-        0.5,
-        0.52,
-        0.55
+        0.45,
+        0.4,
+        0.42
       ],
       "shadow_softness": 0.5,
-      "time_of_day": "noon"
+      "time_of_day": "dawn"
     },
     "fog": {
-      "density": 0.01,
+      "density": 0.035,
       "height": 30,
-      "haze": 0.4
+      "haze": 1.4000000000000001
     },
     "weather": {
-      "type": "clear",
-      "wind_speed": 0.25,
-      "particle_density": 0.0
+      "type": "rain",
+      "wind_speed": 0.8,
+      "particle_density": 0.7
     },
     "notes": [
       "night, emissive neon against near-black"
@@ -111,7 +111,7 @@
   },
   "gameplay": {
     "genre": "precision_action",
-    "objective": "ash-reach: cross the level, bank the gems, reach the banner",
+    "objective": "ash-reach: ride the cyberpunk neon ridge, slip the drones, plant your run at the summit banner",
     "procgen_rules": [
       "gauntlet rhythm spacing, checkpoint per screen"
     ],
@@ -122,6 +122,12 @@
     ],
     "enemy_aggro_m": 4.5,
     "corpse_run": false,
+    "spawn": [
+      38.5,
+      6.0,
+      0.0
+    ],
+    "lives": 3,
     "scoring": {
       "coins": 25
     },
@@ -133,8 +139,8 @@
     },
     "side_objectives": [
       "No-death run",
-      "All gems",
-      "Under par time"
+      "Every coin on the trail",
+      "Reach the banner under par"
     ],
     "roster": [
       {
@@ -144,6 +150,6 @@
     ]
   },
   "meta": {
-    "enriched_seed": 3311
+    "enriched_seed": 1967
   }
 }
