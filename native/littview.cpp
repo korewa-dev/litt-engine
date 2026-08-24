@@ -83,6 +83,10 @@ struct FB {
         px.assign((size_t)W * H, 0xFF20180F); // warm dark clear
         depth.assign((size_t)W * H, 1e30f);
     }
+    void clear(void) {
+        std::fill(px.begin(), px.end(), 0xFF20180Fu);
+        std::fill(depth.begin(), depth.end(), 1e30f);
+    }
 };
 
 static bool write_bmp(const char *path, const FB &fb) {
@@ -442,7 +446,6 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
             if (dbg) rej_area++;
             continue;
         }
-        float inv_area = 1.0f / area;
         int minx = (int)fmaxf(0, floorf(fminf(fminf(hx[0], hx[1]), hx[2])));
         int maxx = (int)fminf(fb.w - 1, ceilf(fmaxf(fmaxf(hx[0], hx[1]), hx[2])));
         int miny = (int)fmaxf(0, floorf(fminf(fminf(hy[0], hy[1]), hy[2])));
@@ -455,21 +458,38 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
         unsigned gg = (unsigned)(powf(t.col[1], 1.0f / 2.2f) * 255);
         unsigned bb = (unsigned)(powf(t.col[2], 1.0f / 2.2f) * 255);
         unsigned color = 0xFF000000u | (rr << 16) | (gg << 8) | bb;
+
+        // incremental barycentric: W0/W1 evaluated once per row start, then
+        // stepped by constant deltas across the scanline. Deltas are the
+        // raw-edge derivatives scaled by inv_area (they normalize WITH the
+        // initial value).
+        const float inv_area = 1.0f / area;
+        const float st0x = (hy[1] - hy[2]) * inv_area;
+        const float st0y = (hx[2] - hx[1]) * inv_area;
+        const float st1x = (hy[2] - hy[0]) * inv_area;
+        const float st1y = (hx[0] - hx[2]) * inv_area;
+        const float fsx = (float)minx + 0.5f, fsy = (float)miny + 0.5f;
+        float r0 = ((hx[1] - fsx) * (hy[2] - fsy) - (hx[2] - fsx) * (hy[1] - fsy)) * inv_area;
+        float r1 = ((hx[2] - fsx) * (hy[0] - fsy) - (hx[0] - fsx) * (hy[2] - fsy)) * inv_area;
         for (int y = miny; y <= maxy; y++) {
+            float w0 = r0, w1 = r1;
+            unsigned *rowp = &fb.px[(size_t)y * fb.w];
+            float *rowz = &fb.depth[(size_t)y * fb.w];
             for (int x = minx; x <= maxx; x++) {
-                float fx = x + 0.5f, fy = y + 0.5f;
-                float w0 = ((hx[1] - fx) * (hy[2] - fy) - (hx[2] - fx) * (hy[1] - fy)) * inv_area;
-                float w1 = ((hx[2] - fx) * (hy[0] - fy) - (hx[0] - fx) * (hy[2] - fy)) * inv_area;
-                float w2 = 1 - w0 - w1;
-                if (w0 < 0 || w1 < 0 || w2 < 0) continue;
-                float z = w0 * sz[0] + w1 * sz[1] + w2 * sz[2];
-                size_t idx = (size_t)y * fb.w + x;
-                if (z < fb.depth[idx]) {
-                    fb.depth[idx] = z;
-                    fb.px[idx] = color;
-                    if (dbg) dbg_px++;
+                float w2 = 1.0f - w0 - w1;
+                if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
+                    float z = w0 * sz[0] + w1 * sz[1] + w2 * sz[2];
+                    if (z < rowz[x]) {
+                        rowz[x] = z;
+                        rowp[x] = color;
+                        if (dbg) dbg_px++;
+                    }
                 }
+                w0 += st0x;
+                w1 += st1x;
             }
+            r0 += st0y;
+            r1 += st1y;
         }
     }
     if (dbg)
@@ -530,6 +550,7 @@ static int run_window(const char *dir) {
             DispatchMessageA(&msg);
         }
         angle += 0.0016f;
+        fb.clear();
         render(sc, fb, angle, 1.0f);
         memcpy(bits, fb.px.data(), (size_t)fb.w * fb.h * 4);
         BitBlt(wdc, 0, 0, fb.w, fb.h, mdc, 0, 0, SRCCOPY);
@@ -550,6 +571,23 @@ static int run_window(const char *dir) {
 #endif
 
 // ------------------------------------------------------------------ main
+#ifdef _WIN32
+#include <windows.h>
+static double now_s(void) {
+    LARGE_INTEGER f, t;
+    QueryPerformanceFrequency(&f);
+    QueryPerformanceCounter(&t);
+    return (double)t.QuadPart / (double)f.QuadPart;
+}
+#else
+#include <ctime>
+static double now_s(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (double)ts.tv_sec + 1e-9 * (double)ts.tv_nsec;
+}
+#endif
+
 int main(int argc, char **argv) {
     if (argc >= 2 && !strcmp(argv[1], "selftest")) {
         // fallthrough to mode handling below
@@ -557,6 +595,7 @@ int main(int argc, char **argv) {
         fprintf(stderr,
                 "usage:\n"
                 "  littview render <dir> [--yaw d] [--hgt f] [--w W] [--h H] [--out f.bmp]\n"
+                "  littview bench  <dir> [--frames N]\n"
                 "  littview window <dir>\n"
                 "  littview selftest\n");
         return 2;
@@ -610,7 +649,7 @@ int main(int argc, char **argv) {
     }
 
     if (mode == "window") return run_window(dir);
-    if (mode != "render") {
+    if (mode != "render" && mode != "bench") {
         fprintf(stderr, "unknown mode %s\n", argv[1]);
         return 2;
     }
@@ -623,6 +662,23 @@ int main(int argc, char **argv) {
     if (yaw < -999.0f) yaw = sc.auto_yaw;
     FB fb;
     fb.resize(W, H);
+
+    if (mode == "bench") {
+        int frames = 200;
+        for (int i = 3; i + 1 < argc; i += 2)
+            if (!strcmp(argv[i], "--frames")) frames = atoi(argv[i + 1]);
+        double t0 = now_s();
+        for (int i = 0; i < frames; i++) {
+            fb.clear();
+            render(sc, fb, yaw + i * 0.02f, hgt);
+        }
+        double dt = now_s() - t0;
+        printf("{\"bench\":true,\"frames\":%d,\"ms_per_frame\":%.3f,"
+               "\"tris\":%zu,\"w\":%d,\"h\":%d}\n",
+               frames, dt * 1000.0 / frames, sc.tris.size(), W, H);
+        return 0;
+    }
+
     render(sc, fb, yaw, hgt);
     if (!write_bmp(out, fb)) {
         fprintf(stderr, "[littview] cannot write %s\n", out);
