@@ -7,3 +7,4 @@ ar = "x86_64-w64-mingw32-ar"
 
 [env]
 VULKAN_SDK = { value = "C:\\Users\\roika\\AppData\\Local\\Temp\\VulkanSDK", force = true }
+GLSLANG_PATH = { value = "D:\\Allgemein\\tools\\glslang\\bin\\glslang.exe", force = true }

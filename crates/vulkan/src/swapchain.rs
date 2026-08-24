@@ -26,7 +26,7 @@ pub fn create_swapchain(
     let caps = unsafe {
         surface_loader
             .get_physical_device_surface_capabilities(physical, surface)
-            .map_err(|e| format!("Failed to get surface capabilities: {:?}", e))?
+            .map_err(|e| format!("Failed to get surface capabilities: {e:?}"))?
     };
 
     // Determine image count
@@ -41,7 +41,7 @@ pub fn create_swapchain(
     let formats = unsafe {
         surface_loader
             .get_physical_device_surface_formats(physical, surface)
-            .map_err(|e| format!("Failed to get surface formats: {:?}", e))?
+            .map_err(|e| format!("Failed to get surface formats: {e:?}"))?
     };
     let format = formats[0]; // Prefer first (usually RGBA8 or BGRA8)
 
@@ -49,7 +49,7 @@ pub fn create_swapchain(
     let present_modes = unsafe {
         surface_loader
             .get_physical_device_surface_present_modes(physical, surface)
-            .map_err(|e| format!("Failed to get present modes: {:?}", e))?
+            .map_err(|e| format!("Failed to get present modes: {e:?}"))?
     };    let present_mode = if present_modes.contains(&vk::PresentModeKHR::MAILBOX) {
         vk::PresentModeKHR::MAILBOX
     } else if present_modes.contains(&vk::PresentModeKHR::FIFO) {
@@ -102,14 +102,14 @@ pub fn create_swapchain(
     let swapchain = unsafe {
         swapchain_loader
             .create_swapchain(&swapchain_info, None)
-            .map_err(|e| format!("Failed to create swapchain: {:?}", e))?
+            .map_err(|e| format!("Failed to create swapchain: {e:?}"))?
     };
 
     // Get swapchain images
     let images = unsafe {
         swapchain_loader
             .get_swapchain_images(swapchain)
-            .map_err(|e| format!("Failed to get swapchain images: {:?}", e))?
+            .map_err(|e| format!("Failed to get swapchain images: {e:?}"))?
     };
 
     // Create image views
@@ -186,7 +186,7 @@ pub fn present(
         p_image_indices: image_indices.as_ptr(),
         ..Default::default()
     };
-    unsafe { swapchain_loader.queue_present(queue, &info).map_err(|e| { eprintln!("Present failed: {:?}", e); }) }
+    unsafe { swapchain_loader.queue_present(queue, &info).map_err(|e| { eprintln!("Present failed: {e:?}"); }) }
 }
 
 use ash::vk;

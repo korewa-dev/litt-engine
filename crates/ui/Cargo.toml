@@ -8,10 +8,3 @@ description = "UI/HUD system for Litt Engine -- debug overlays and menus"
 litt-math = { path = "../math" }
 bytemuck = { workspace = true }
 log = { workspace = true }
-
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true

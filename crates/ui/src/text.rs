@@ -6,7 +6,7 @@ pub use stb_text;
 
 #[cfg(not(feature = "stb_truetype"))]
 pub mod stb_text {
-    use super::*;
+    
 
     /// Glyph metrics
     #[derive(Debug, Clone)]
@@ -23,6 +23,12 @@ pub mod stb_text {
 
     /// Text renderer (placeholder)
     pub struct TextRenderer;
+
+    impl Default for TextRenderer {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
 
     impl TextRenderer {
         pub fn new() -> Self { Self }

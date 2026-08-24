@@ -2,7 +2,7 @@
 //! Outputs GPU-friendly mesh data (vertex buffers, index buffers, UVs, normals).
 
 use litt_math::{Vec3, Mat4};
-use super::handle::{AssetHandle, AssetState};
+use super::handle::AssetHandle;
 
 /// Vertex format for GPU mesh
 #[derive(Clone, Debug)]
@@ -203,7 +203,7 @@ impl GltfLoader {
     /// Load a GLTF model from file
     pub fn load_from_file(path: &str) -> Result<Model, String> {
         let data = std::fs::read(path)
-            .map_err(|e| format!("Failed to read file '{}': {}", path, e))?;
+            .map_err(|e| format!("Failed to read file '{path}': {e}"))?;
         Self::load_from_bytes(&data)
     }
 }
@@ -255,22 +255,38 @@ impl ObjLoader {
                     }
                 }
                 "f" => {
-                    for i in 1..parts.len() {
-                        let vertex: Vec<usize> = parts[i]
-                            .split('/')
-                            .filter_map(|s| s.parse().ok())
-                            .collect();
-                        if vertex.len() >= 3 {
-                            let vi = vertex[0] - 1;
-                            let ni = if vertex.len() > 2 { vertex[2] - 1 } else { 0 };
-                            let ti = if vertex.len() > 1 { vertex[1] - 1 } else { 0 };
+                    // OBJ corner formats: "v", "v/vt", "v//vn", "v/vt/vn".
+                    // Empty slots are legal ("1//3") -- keep them positional.
+                    let mut corner_indices: Vec<u32> = Vec::new();
+                    for corner in &parts[1..] {
+                        let slots: Vec<Option<usize>> =
+                            corner.split('/').map(|s| s.parse().ok()).collect();
+                        let vi = match slots.first().and_then(|o| *o) {
+                            Some(v) if v >= 1 => v - 1,
+                            _ => continue,
+                        };
+                        let ti = slots.get(1).and_then(|o| *o).and_then(|v| v.checked_sub(1));
+                        let ni = slots.get(2).and_then(|o| *o).and_then(|v| v.checked_sub(1));
 
-                            let pos = if vi < positions.len() { positions[vi] } else { Vec3::ZERO };
-                            let norm = if ni < normals.len() { normals[ni] } else { Vec3::Y };
-                            let uv = if ti < uvs.len() { uvs[ti] } else { (0.0, 0.0) };
+                        let pos = if vi < positions.len() { positions[vi] } else { Vec3::ZERO };
+                        let norm = match ni {
+                            Some(n) if n < normals.len() => normals[n],
+                            _ => Vec3::Y,
+                        };
+                        let uv = match ti {
+                            Some(t) if t < uvs.len() => uvs[t],
+                            _ => (0.0, 0.0),
+                        };
 
-                            vertices.push(Vertex::new(pos, norm, uv));
-                            indices.push(vertices.len() as u32 - 1);
+                        vertices.push(Vertex::new(pos, norm, uv));
+                        corner_indices.push(vertices.len() as u32 - 1);
+                    }
+                    // Triangle-fan the polygon (handles tris, quads, ngons).
+                    if corner_indices.len() >= 3 {
+                        for i in 2..corner_indices.len() {
+                            indices.push(corner_indices[0]);
+                            indices.push(corner_indices[i - 1]);
+                            indices.push(corner_indices[i]);
                         }
                     }
                 }
@@ -292,7 +308,42 @@ impl ObjLoader {
     /// Load an OBJ model from file
     pub fn load_from_file(path: &str) -> Result<Model, String> {
         let data = std::fs::read(path)
-            .map_err(|e| format!("Failed to read file '{}': {}", path, e))?;
+            .map_err(|e| format!("Failed to read file '{path}': {e}"))?;
         Self::load_from_bytes(&data)
+    }
+}
+
+#[cfg(test)]
+mod obj_tests {
+    use super::*;
+
+    #[test]
+    fn obj_loader_accepts_all_face_formats() {
+        // Covers "v//vn" (generator output), bare "v", and "v/vt" corners.
+        let obj = b"# tiny world\n\
+            v 0 0 0\nv 1 0 0\nv 1 1 0\nv 0 0 1\n\
+            vn 0 0 1\nvt 0 0\n\
+            f 1//1 2//1 3//1\n\
+            f 1 2 4\n\
+            f 1/1 2/1 4/1\n";
+        let model = ObjLoader::load_from_bytes(obj).unwrap();
+        assert_eq!(model.meshes.len(), 1);
+        // Every face must survive the parser (regression: v//vn was dropped).
+        assert_eq!(model.meshes[0].indices.len(), 9);
+    }
+
+    #[test]
+    fn obj_loader_fan_triangulates_quads() {
+        let quad = b"v 0 0 0\nv 1 0 0\nv 1 1 0\nv 0 1 0\nf 1 2 3 4\n";
+        let model = ObjLoader::load_from_bytes(quad).unwrap();
+        assert_eq!(model.meshes[0].indices.len(), 6); // quad -> 2 triangles
+    }
+
+    #[test]
+    fn obj_loader_skips_malformed_corners_gracefully() {
+        let bad = b"v 0 0 0\nv 1 0 0\nv 1 1 0\nf 1 x 3\nf 1 2 3\n";
+        let model = ObjLoader::load_from_bytes(bad).unwrap();
+        // Malformed corner skipped, valid face still loads.
+        assert_eq!(model.meshes[0].indices.len(), 3);
     }
 }

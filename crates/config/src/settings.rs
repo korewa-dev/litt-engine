@@ -1,9 +1,12 @@
 //! Engine settings -- graphics, audio, input, and performance configuration.
+//!
+//! Settings serialize to plain JSON (`litt_engine.json`) so both humans and
+//! AI agents can inspect or rewrite them with text tools.
 
-use litt_math::Vec2;
+use serde::{Deserialize, Serialize};
 
 /// Graphics quality preset
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GraphicsQuality {
     Low,
     Medium,
@@ -13,7 +16,7 @@ pub enum GraphicsQuality {
 }
 
 /// Anti-aliasing mode
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AAMode {
     Off,
     FXAA,
@@ -24,7 +27,7 @@ pub enum AAMode {
 }
 
 /// Shadow quality
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ShadowQuality {
     Off,
     Low,
@@ -33,8 +36,28 @@ pub enum ShadowQuality {
     Ultra,
 }
 
+/// Texture quality
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TextureQuality {
+    Low,
+    Medium,
+    High,
+    Ultra,
+}
+
+/// FSR mode
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum FSRMode {
+    Off,
+    Quality,
+    Balanced,
+    Performance,
+    UltraPerformance,
+}
+
 /// Engine settings
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(default)]
 pub struct Settings {
     // Graphics
     pub window_title: String,
@@ -100,56 +123,90 @@ impl Default for Settings {
     }
 }
 
-/// Texture quality
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum TextureQuality {
-    Low,
-    Medium,
-    High,
-    Ultra,
-}
-
-/// FSR mode
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum FSRMode {
-    Off,
-    Quality,
-    Balanced,
-    Performance,
-    UltraPerformance,
+impl Settings {
+    /// Clamp user-adjustable values into safe ranges (menu sliders call this).
+    pub fn sanitize(&mut self) {
+        self.window_width = self.window_width.clamp(320, 7680);
+        self.window_height = self.window_height.clamp(200, 4320);
+        self.master_volume = self.master_volume.clamp(0.0, 1.0);
+        self.music_volume = self.music_volume.clamp(0.0, 1.0);
+        self.sfx_volume = self.sfx_volume.clamp(0.0, 1.0);
+        self.mouse_sensitivity = self.mouse_sensitivity.clamp(0.0002, 0.02);
+        self.max_fps = self.max_fps.clamp(30, 1000);
+    }
 }
 
 /// Save settings to JSON file
 pub fn save_settings(settings: &Settings, path: &str) -> Result<(), String> {
-    #[cfg(feature = "serde")]
-    {
-        let json = serde_json::to_string_pretty(settings)
-            .map_err(|e| format!("Failed to serialize settings: {}", e))?;
-        std::fs::write(path, json)
-            .map_err(|e| format!("Failed to write settings: {}", e))?;
-        Ok(())
-    }
-    #[cfg(not(feature = "serde"))]
-    {
-        let _ = settings;
-        let _ = path;
-        Err("serde feature not enabled".to_string())
-    }
+    let json = serde_json::to_string_pretty(settings)
+        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
+    std::fs::write(path, json).map_err(|e| format!("Failed to write settings: {}", e))?;
+    Ok(())
 }
 
 /// Load settings from JSON file
 pub fn load_settings(path: &str) -> Result<Settings, String> {
-    #[cfg(feature = "serde")]
-    {
-        let data = std::fs::read_to_string(path)
-            .map_err(|e| format!("Failed to read settings: {}", e))?;
-        let settings: Settings = serde_json::from_str(&data)
-            .map_err(|e| format!("Failed to parse settings: {}", e))?;
-        Ok(settings)
+    let data = std::fs::read_to_string(path)
+        .map_err(|e| format!("Failed to read settings: {}", e))?;
+    let settings: Settings =
+        serde_json::from_str(&data).map_err(|e| format!("Failed to parse settings: {}", e))?;
+    Ok(settings)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn settings_roundtrip_json() {
+        let mut s = Settings::default();
+        s.master_volume = 0.42;
+        s.aa_mode = AAMode::MSAA4x;
+        s.fsr_mode = FSRMode::UltraPerformance;
+        s.fullscreen = true;
+
+        let json = serde_json::to_string(&s).unwrap();
+        let back: Settings = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.master_volume, 0.42);
+        assert_eq!(back.aa_mode, AAMode::MSAA4x);
+        assert_eq!(back.fsr_mode, FSRMode::UltraPerformance);
+        assert!(back.fullscreen);
     }
-    #[cfg(not(feature = "serde"))]
-    {
-        let _ = path;
-        Err("serde feature not enabled".to_string())
+
+    #[test]
+    fn settings_file_roundtrip() {
+        let dir = std::env::temp_dir().join("litt_config_test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("settings.json");
+        let path_str = path.to_str().unwrap();
+
+        let mut s = Settings::default();
+        s.mouse_sensitivity = 0.005;
+        save_settings(&s, path_str).unwrap();
+        let back = load_settings(path_str).unwrap();
+        assert_eq!(back.mouse_sensitivity, 0.005);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn partial_json_fills_defaults() {
+        // Older/handwritten config files may lack new fields -- they must
+        // still load thanks to #[serde(default)].
+        let back: Settings = serde_json::from_str("{\"window_width\": 800}").unwrap();
+        assert_eq!(back.window_width, 800);
+        assert_eq!(back.window_height, 720);
+        assert!(back.vsync);
+    }
+
+    #[test]
+    fn sanitize_clamps_ranges() {
+        let mut s = Settings::default();
+        s.master_volume = 5.0;
+        s.max_fps = 10_000;
+        s.mouse_sensitivity = 1.0;
+        s.sanitize();
+        assert_eq!(s.master_volume, 1.0);
+        assert_eq!(s.max_fps, 1000);
+        assert!(s.mouse_sensitivity <= 0.02);
     }
 }

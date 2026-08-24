@@ -39,7 +39,7 @@ fn find_glslang() -> Option<PathBuf> {
             return Some(PathBuf::from(candidate));
         }
     }
-    env::var("GLSLANG_PATH").ok().map(|p| PathBuf::from(p))
+    env::var("GLSLANG_PATH").ok().map(PathBuf::from)
 }
 
 fn compile_shader(compiler: &Path, src: &Path, dst: &Path) {
@@ -51,6 +51,6 @@ fn compile_shader(compiler: &Path, src: &Path, dst: &Path) {
             println!("cargo:warning=[MUSA] Compiled {}", src.file_name().unwrap().to_string_lossy());
         }
         Ok(out) => eprintln!("cargo:warning=[MUSA] Failed {}: {}", src.display(), String::from_utf8_lossy(&out.stderr)),
-        Err(e) => eprintln!("cargo:warning=[MUSA] Cannot run compiler: {}", e),
+        Err(e) => eprintln!("cargo:warning=[MUSA] Cannot run compiler: {e}"),
     }
 }

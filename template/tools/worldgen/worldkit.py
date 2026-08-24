@@ -218,7 +218,13 @@ def register_index(assets_dir, aid, rel_path, loader="litt_asset::manager::Asset
     idx_path.write_text(json.dumps(data, indent=2) + NL, encoding="utf-8")
 
 def write_scene(path, placed, title):
-    """placed: list of (node_name, position[x,y,z], yaw_degrees, tags_list)."""
+    """placed: list of (node_name, position[x,y,z], yaw_degrees, tags_list)
+              or (node_name, position, yaw, tags, model_ref).
+
+    Every node gets a `model:<ref>` tag so runtimes can instantiate it:
+    explicit ref when provided, otherwise the snake-cased node name
+    (`Coin_07` -> `model:coin_07`). Missing meshes are skipped safely by
+    consumers."""
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     q = lambda deg: [0.0, round(math.sin(math.radians(deg)/2), 4), 0.0, round(math.cos(math.radians(deg)/2), 4)]
     nodes = [{"name": "Root", "id": 0, "parent": None,
@@ -226,11 +232,16 @@ def write_scene(path, placed, title):
               "position": [0,0,0], "rotation": [0,0,0,1], "scale": [1,1,1],
               "visible": True, "layer": 0, "tags": []}]
     for n, item in enumerate(placed, start=1):
-        nm, pos, yaw, tags = item
+        nm, pos, yaw, tags = item[:4]
+        tags = list(tags)
+        ref = item[4] if len(item) > 4 else nm.lower().replace(" ", "_")
+        mt = "model:" + ref
+        if not any(t.startswith("model:") for t in tags):
+            tags.append(mt)
         nodes.append({"name": nm, "id": n, "parent": 0, "children": [],
                       "position": [float(pos[0]), float(pos[1]), float(pos[2])],
                       "rotation": q(yaw), "scale": [1,1,1],
-                      "visible": True, "layer": 0, "tags": list(tags)})
+                      "visible": True, "layer": 0, "tags": tags})
     scene = {"format": "litt-scene", "version": 1, "root_id": 0,
              "next_id": len(placed)+1, "nodes": nodes}
     path.write_text(json.dumps(scene, indent=2) + NL, encoding="utf-8")

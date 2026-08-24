@@ -31,7 +31,7 @@ impl GpuTimerQuery {
         let query_pool = unsafe {
             device
                 .create_query_pool(&info, None)
-                .map_err(|e| format!("Failed to create query pool: {:?}", e))?
+                .map_err(|e| format!("Failed to create query pool: {e:?}"))?
         };
         Ok(Self {
             query_pool,

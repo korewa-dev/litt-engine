@@ -74,7 +74,7 @@ impl std::fmt::Display for AssetState {
             Self::Pending => write!(f, "Pending"),
             Self::Loading => write!(f, "Loading"),
             Self::Loaded => write!(f, "Loaded"),
-            Self::Error(s) => write!(f, "Error: {}", s),
+            Self::Error(s) => write!(f, "Error: {s}"),
         }
     }
 }

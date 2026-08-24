@@ -1,7 +1,7 @@
 //! Debug renderer -- renders debug overlays like wireframes, normals, and AABBs.
 //! Provides GPU-compatible debug primitives for visualization.
 
-use litt_math::{Vec3, Vec2, Mat4};
+use litt_math::Vec3;
 
 /// Debug primitive type
 #[derive(Clone, Debug)]

@@ -80,6 +80,29 @@ live_landscape.py. For ANY named game type use **gen_archetype.py
 Identity lookups: design_types.json + design_rules.json there; themes:
 themes.json; the math per genre: `template/docs/genre_algorithms.md`.
 
+**MANDATORY GAME PIPELINE — never ship a bare generated world.** A world made
+only by a generator is geometry, not a game. Every new game under
+`Project/<name>/` MUST run all four steps, in order:
+
+```bash
+python template/tools/worldgen/gen_<genre>.py --out-dir Project/<name> ...   # 1. geometry
+python template/tools/worldgen/gen_props.py --game-dir Project/<name> \
+    --kit survivor|platformer|souls                                           # 2. prop kit (model: refs)
+# 3. author Project/<name>/brief.json (objective, side_objectives, physics,
+#    enemy_aggro_m, corpse_run, scoring, waves, roster, spawn, checkpoints,
+#    nodes[], zones[]) then:
+python template/tools/worldgen/enrich_game.py --game-dir Project/<name> \
+    --brief Project/<name>/brief.json --seed <S>                              # 3. gameplay layer
+python Project/<name>/play_native.py --project Project/<name> \
+    --frames 30 --dummy                                                       # 4. native validation
+```
+
+Step 4 must print `interactives` > 0 and `solids` > 0 (platformers). Then add
+the game name to the GAMES list in `tests/example_worlds.rs` and run
+`cargo test --test example_worlds` — the engine itself must deploy your world
+with **zero missing models** before you may call it done. Hand-rolled box
+rooms instead of this pipeline are a rules violation.
+
 **ZIP-copy trap:** working in an extracted download (path contains
 litt-engine-main, no .git folder)? Stop - nothing built there can be pushed.
 Ask the human for the canonical working copy and move there first.

@@ -65,7 +65,7 @@ pub mod amd_xdna {
             let latency_ms = if self.precision == "INT8" { 2.0 } else { 4.0 };
 
             Ok(InferenceResult::new(
-                inputs.iter().map(|t| Tensor::empty(t.shape.clone(), t.data_type.clone())).collect(),
+                inputs.iter().map(|t| Tensor::empty(t.shape.clone(), t.data_type)).collect(),
                 latency_ms,
                 BackendKind::Npu(super::super::npu::NpuBackend::AmdXdna),
             ))
@@ -93,6 +93,12 @@ pub mod intel_ai {
         pub ready: bool,
     }
 
+    impl Default for IntelAiBackend {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl IntelAiBackend {
         pub fn new() -> Self {
             Self { device_id: "0".to_string(), precision: "FP16".to_string(), ready: false }
@@ -108,7 +114,7 @@ pub mod intel_ai {
             let latency_ms = if self.precision == "FP16" { 3.0 } else { 5.0 };
 
             Ok(InferenceResult::new(
-                inputs.iter().map(|t| Tensor::empty(t.shape.clone(), t.data_type.clone())).collect(),
+                inputs.iter().map(|t| Tensor::empty(t.shape.clone(), t.data_type)).collect(),
                 latency_ms,
                 BackendKind::Npu(super::super::npu::NpuBackend::IntelAiBoost),
             ))
@@ -136,6 +142,12 @@ pub mod hexagon {
         pub ready: bool,
     }
 
+    impl Default for HexagonBackend {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl HexagonBackend {
         pub fn new() -> Self {
             Self { device_id: 0, precision: "INT8".to_string(), ready: false }
@@ -151,7 +163,7 @@ pub mod hexagon {
             let latency_ms = 1.5;
 
             Ok(InferenceResult::new(
-                inputs.iter().map(|t| Tensor::empty(t.shape.clone(), t.data_type.clone())).collect(),
+                inputs.iter().map(|t| Tensor::empty(t.shape.clone(), t.data_type)).collect(),
                 latency_ms,
                 BackendKind::Npu(super::super::npu::NpuBackend::QualcommHexagon),
             ))
@@ -179,6 +191,12 @@ pub mod core_ml {
         pub ready: bool,
     }
 
+    impl Default for CoreMLBackend {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl CoreMLBackend {
         pub fn new() -> Self {
             Self { model_format: "mlmodel".to_string(), precision: "FP16".to_string(), ready: false }
@@ -194,7 +212,7 @@ pub mod core_ml {
             let latency_ms = 2.0;
 
             Ok(InferenceResult::new(
-                inputs.iter().map(|t| Tensor::empty(t.shape.clone(), t.data_type.clone())).collect(),
+                inputs.iter().map(|t| Tensor::empty(t.shape.clone(), t.data_type)).collect(),
                 latency_ms,
                 BackendKind::Npu(super::super::npu::NpuBackend::AppleNe),
             ))
@@ -210,7 +228,7 @@ pub mod core_ml {
 pub mod cpu {
     use super::*;
     use crate::selector::BackendKind;
-    use litt_math::Vec3;
+    
 
     /// CPU backend with SIMD acceleration
     ///
@@ -246,7 +264,7 @@ pub mod cpu {
             // Simple matrix multiply simulation
             let mut outputs = Vec::new();
             for output_spec in &model.outputs {
-                let mut output = Tensor::empty(output_spec.shape.clone(), output_spec.data_type.clone());
+                let mut output = Tensor::empty(output_spec.shape.clone(), output_spec.data_type);
                 // Fill with simulated output
                 for i in 0..output.data.len() {
                     output.data[i] = (i % 256) as u8;
@@ -280,6 +298,12 @@ pub mod vulkan_compute {
         pub ready: bool,
     }
 
+    impl Default for VulkanComputeBackend {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl VulkanComputeBackend {
         pub fn new() -> Self {
             Self { precision: "FP16".to_string(), ready: false }
@@ -294,7 +318,7 @@ pub mod vulkan_compute {
 
             let mut outputs = Vec::new();
             for output_spec in &model.outputs {
-                let mut output = Tensor::empty(output_spec.shape.clone(), output_spec.data_type.clone());
+                let mut output = Tensor::empty(output_spec.shape.clone(), output_spec.data_type);
                 for i in 0..output.data.len() {
                     output.data[i] = (i % 256) as u8;
                 }

@@ -27,6 +27,9 @@ from worldkit import (Rng, fbm, MeshBuilder, write_mtl_for, register_index,
                       write_scene, write_state, append_log, load_theme, list_themes)
 
 HERE = Path(__file__).parent
+OBJECTIVES = {
+  "hub_spoke": "collect the coins, dodge the stalkers, reach the festival banner",
+}
 DEFAULT_MATS = {
   "structure": (0.55, 0.52, 0.48), "accent": (0.85, 0.40, 0.20),
   "ground": (0.38, 0.44, 0.34), "detail": (0.30, 0.32, 0.36),
@@ -133,8 +136,39 @@ def pattern_hub(rng, mats, spokes=5, reach=26):
         if near_path:
             continue
         dec.cone(round(x, 2), 1.0, round(z, 2), 0.9, 2.0, seg=7)
+    # --- game content: coins, stalkers, goal banner ---
+    extras = []   # (emit_name_or_None, ref_model, display_name, mb_or_None, pos, yaw, tags)
+    cm = MeshBuilder(); ck = kit_factory(cm)
+    ck("gem", mat_at(mats, "accent", "accent")).octahedron(0, 0.55, 0, 0.28)
+    extras.append(("coin", "coin", "Coin", cm, [0, 0, 0], 0, ["pickup"]))
+    coin_n = 0
+    for i in range(8):
+        a = math.pi / 4 * i
+        coin_n += 1
+        extras.append((None, "coin", "Coin_%02d" % coin_n, None,
+                       [round(10 * math.cos(a), 2), 0, round(10 * math.sin(a), 2)],
+                       int(a * 57.3) % 360, ["pickup"]))
+    for s in range(3):
+        a2 = 2.0 * math.pi * s / spokes
+        for t in (13, 21):
+            coin_n += 1
+            extras.append((None, "coin", "Coin_%02d" % coin_n, None,
+                           [round(math.cos(a2) * t, 2), 0, round(math.sin(a2) * t, 2)],
+                           int(a2 * 57.3) % 360, ["pickup"]))
+    sm = MeshBuilder(); sk = kit_factory(sm)
+    sk("body", mat_at(mats, "detail", "detail")).box(0, 0.9, 0, 0.5, 1.8, 0.5)
+    sk("hood", mat_at(mats, "accent", "accent")).pyramid(0, 1.9, 0, 0.6, 0.6, 0.7)
+    extras.append(("stalker", "stalker", "Stalker", sm, [0, 0, 0], 0, ["enemy"]))
+    for i in range(2):
+        a3 = 2.0 * math.pi * (i + 0.5) / spokes
+        extras.append((None, "stalker", "Stalker_%02d" % (i + 1), None,
+                       [round(16 * math.cos(a3), 2), 0, round(16 * math.sin(a3), 2)], 0, ["enemy"]))
+    bm = MeshBuilder(); bk = kit_factory(bm)
+    bk("pole", mat_at(mats, "structure", "structure")).cyl(reach + 4, 0.0, 0, 0.09, 0.07, 4.6, seg=8)
+    bk("cloth", mat_at(mats, "accent", "accent")).prism(reach + 4, 3.4, 0.75, 0.06, 0.7, 1.1)
+    extras.append(("festival_banner", "festival_banner", "Festival_Banner", bm, [0, 0, 0], 0, ["goal"]))
     placed = [("Central_Plaza", [0, 0, 0], 0, ["hub"])]
-    return placed, (mb, poi)
+    return placed, (mb, poi, extras)
 
 def pattern_board(rng, mats, n=4):
     mb = MeshBuilder(); k = kit_factory(mb)
@@ -319,7 +353,7 @@ def main():
     base_placed, payload = result
     extras = []
     if pattern == "hub_spoke":
-        main_mb, poi_list = payload
+        main_mb, poi_list, extras = payload
     else:
         main_mb = payload
     made = []
@@ -335,6 +369,18 @@ def main():
             nf = emit(pm, models, nm.lower(), mats, assets_dir)
             made.append((nm.lower() + ".obj", nf))
             placed.append((nm, pos, 0, ["poi", "model:" + nm.lower()]))
+    for ename, rname, disp, mbx, epos, eyaw, etags in extras:
+        if ename is not None:
+            nf = emit(mbx, models, ename, mats, assets_dir)
+            made.append((ename + ".obj", nf))
+        placed.append((disp, epos, eyaw, list(etags) + ["model:" + rname]))
+    if pattern in ("hub_spoke", "arena_ring", "spline_track"):
+        gm = MeshBuilder(); gk = kit_factory(gm)
+        gpad = gk("pad", mat_at(mats, "ground", "ground"))
+        gpad.box(0, -0.15, 0, 80, 0.3, 80)
+        gnf = emit(gm, models, "ground_pad", mats, assets_dir)
+        made.append(("ground_pad.obj", gnf))
+        placed.append(("Ground_Pad", [0, 0, 0], 0, ["floor", "model:ground_pad"]))
 
     scene_title = a.name or ("%s-%s" % (a.archetype.replace("_", "-"), pattern.replace("_", "-")))
     write_scene(root / "assets" / "scenes" / "world.lscn.json", placed, scene_title)
@@ -354,7 +400,7 @@ def main():
                    "pattern": pattern, "theme": a.theme},
       "environment": env_block(a.time_of_day, a.weather, a.sun_azimuth, theme_data),
       "gameplay": {"genre": a.archetype,
-                   "objective": rules_a.get("generator") and "see design_rules procgen_rules",
+                   "objective": OBJECTIVES.get(pattern, "explore and complete the archetype goals"),
                    "procgen_rules": rules_a.get("procgen_rules"),
                    "ai_behavior": rules_a.get("ai_behavior"),
                    "environment_types": rules_a.get("environment_types")},

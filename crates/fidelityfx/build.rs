@@ -36,7 +36,7 @@ fn main() {
         println!("cargo:warning=Compiling GLSL shaders with {}", compiler.display());
         for (src_file, const_name) in SHADER_SOURCES {
             let src = Path::new("src/shaders").join(src_file);
-            let dst = out_path.join(format!("{}.spv", const_name));
+            let dst = out_path.join(format!("{const_name}.spv"));
             if src.exists() {
                 compile_shader(compiler, &src, &dst);
             }
@@ -49,12 +49,14 @@ fn main() {
 }
 
 fn find_glslang() -> Option<PathBuf> {
-    // Check common locations
+    // Check common locations (glslangValidator <=15, unified `glslang` >=16)
     let candidates = [
         "glslangValidator",
         "glslc",
         "C:/Program Files/glslang/Build/bin/glslangValidator.exe",
         "C:/Program Files (x86)/glslang/Build/bin/glslangValidator.exe",
+        "D:/Allgemein/tools/glslang/bin/glslang.exe",
+        "C:/Program Files/glslang/Build/bin/glslang.exe",
     ];
     for candidate in &candidates {
         if Command::new(candidate)
@@ -65,18 +67,29 @@ fn find_glslang() -> Option<PathBuf> {
             return Some(PathBuf::from(candidate));
         }
     }
-    // Check GLSLANG_PATH env var
-    if let Ok(path) = env::var("GLSLANG_PATH") {
-        let p = PathBuf::from(path);
-        if p.exists() {
-            return Some(p);
+    // Check GLSLANG_PATH / GLSLC_PATH env vars
+    for var in ["GLSLANG_PATH", "GLSLC_PATH"] {
+        if let Ok(path) = env::var(var) {
+            let p = PathBuf::from(path);
+            if p.exists() {
+                return Some(p);
+            }
         }
     }
     None
 }
 
 fn compile_shader(compiler: &Path, src: &Path, dst: &Path) {
-    let output = Command::new(compiler)
+    let name = compiler
+        .file_name()
+        .map(|n| n.to_string_lossy().to_lowercase())
+        .unwrap_or_default();
+    let mut cmd = Command::new(compiler);
+    // glslc defaults to Vulkan SPIR-V; standalone glslang needs explicit -V.
+    if !name.starts_with("glslc") {
+        cmd.arg("-V");
+    }
+    let output = cmd
         .arg(src)
         .arg("-o")
         .arg(dst)
@@ -94,7 +107,7 @@ fn compile_shader(compiler: &Path, src: &Path, dst: &Path) {
             );
         }
         Err(e) => {
-            eprintln!("cargo:warning=Could not run shader compiler: {}", e);
+            eprintln!("cargo:warning=Could not run shader compiler: {e}");
         }
     }
 }

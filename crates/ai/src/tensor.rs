@@ -1,8 +1,6 @@
 //! Unified tensor representation for AI inference.
 //! Supports multiple precision modes and data layouts.
 
-use litt_math::Vec3;
-use bytemuck::{Pod, Zeroable};
 use super::selector::BackendKind;
 
 /// Data type for tensor elements
@@ -111,7 +109,7 @@ impl Tensor {
 
     /// Create a tensor from float values
     pub fn from_floats(values: &[f32], shape: Shape) -> Self {
-        let bytes: Vec<u8> = values.iter().map(|&v| v.to_bits().to_le_bytes()).flatten().collect();
+        let bytes: Vec<u8> = values.iter().flat_map(|&v| v.to_bits().to_le_bytes()).collect();
         Self { data: bytes, shape, data_type: DataType::Float32, device: TensorDevice::CPU }
     }
 

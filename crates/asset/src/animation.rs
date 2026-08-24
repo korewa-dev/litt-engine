@@ -388,7 +388,7 @@ mod tests {
                 target_name: "Hips".into(),
                 keyframes: vec![
                     Keyframe { time: 0.0, position: Vec3::new(0.0, 0.0, 0.0), rotation: [0.0, 0.0, 0.0, 1.0], scale: Vec3::ONE },
-                    Keyframe { time: 1.0, position: Vec3::new(0.0, 1.0, 0.0), rotation: [0.0, 0.7071068, 0.0, 0.7071068], scale: Vec3::ONE },
+                    Keyframe { time: 1.0, position: Vec3::new(0.0, 1.0, 0.0), rotation: [0.0, std::f32::consts::FRAC_1_SQRT_2, 0.0, std::f32::consts::FRAC_1_SQRT_2], scale: Vec3::ONE },
                 ],
             }],
         }

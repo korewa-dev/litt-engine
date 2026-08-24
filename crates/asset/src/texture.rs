@@ -1,8 +1,7 @@
 //! Texture loading -- PNG, JPEG, KTX2, DDS support.
 //! GPU-friendly texture formats with MIP maps and compression.
 
-use litt_math::Vec3;
-use super::handle::{AssetHandle, AssetType, AssetState};
+use super::handle::{AssetHandle, AssetState};
 
 /// Texture format
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -119,9 +118,9 @@ impl Texture {
 
     /// Get texture size in bytes (per layer)
     pub fn size_bytes(&self) -> usize {
-        let blocks_x = ((self.width + 3) / 4) as u64;
-        let blocks_y = ((self.height + 3) / 4) as u64;
-        let blocks_z = ((self.depth + 3) / 4) as u64;
+        let blocks_x = self.width.div_ceil(4) as u64;
+        let blocks_y = self.height.div_ceil(4) as u64;
+        let blocks_z = self.depth.div_ceil(4) as u64;
         let total = blocks_x * blocks_y * blocks_z
             * self.format.bpp() as u64
             * self.array_layers as u64
@@ -140,9 +139,9 @@ impl ImageLoader {
         // Try to decode as image
         let image = image::ImageReader::new(std::io::Cursor::new(data))
             .with_guessed_format()
-            .map_err(|e| format!("Failed to decode image: {}", e))?
+            .map_err(|e| format!("Failed to decode image: {e}"))?
             .decode()
-            .map_err(|e| format!("Failed to decode image '{}': {}", name, e))?;
+            .map_err(|e| format!("Failed to decode image '{name}': {e}"))?;
 
         let width = image.width();
         let height = image.height();
@@ -169,7 +168,7 @@ impl ImageLoader {
     /// Load a texture from file
     pub fn load_from_file(handle: AssetHandle, name: &str, path: &str) -> Result<Texture, String> {
         let data = std::fs::read(path)
-            .map_err(|e| format!("Failed to read image file '{}': {}", path, e))?;
+            .map_err(|e| format!("Failed to read image file '{path}': {e}"))?;
         Self::load_from_bytes(handle, name, &data)
     }
 
@@ -227,8 +226,8 @@ impl MipmapGenerator {
         let mut offset = 0;
 
         while current_width > 1 || current_height > 1 {
-            let next_width = (current_width + 1) / 2;
-            let next_height = (current_height + 1) / 2;
+            let next_width = current_width.div_ceil(2);
+            let next_height = current_height.div_ceil(2);
             let current_row_size = current_width * channels as u32;
             let next_row_size = next_width * channels as u32;
 

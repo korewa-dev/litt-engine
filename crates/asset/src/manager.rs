@@ -126,7 +126,7 @@ impl AssetManager {
         let model = match ext.as_str() {
             "gltf" | "glb" => GltfLoader::load_from_file(full_path.to_str().unwrap_or(path)),
             "obj" => ObjLoader::load_from_file(full_path.to_str().unwrap_or(path)),
-            _ => Err(format!("Unknown model format: {}", ext)),
+            _ => Err(format!("Unknown model format: {ext}")),
         }?;
 
         let size = model.total_vertices() * std::mem::size_of::<super::model::Vertex>()
@@ -156,15 +156,15 @@ impl AssetManager {
         let texture = match ext.as_str() {
             "ktx" | "ktx2" => {
                 let data = std::fs::read(&full_path)
-                    .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
+                    .map_err(|e| format!("Failed to read '{path}': {e}"))?;
                 ImageLoader::load_ktx2(handle, path, &data)
             }
             "png" | "jpg" | "jpeg" | "bmp" | "tga" | "webp" => {
                 let data = std::fs::read(&full_path)
-                    .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
+                    .map_err(|e| format!("Failed to read '{path}': {e}"))?;
                 ImageLoader::load_from_bytes(handle, path, &data)
             }
-            _ => Err(format!("Unknown texture format: {}", ext)),
+            _ => Err(format!("Unknown texture format: {ext}")),
         }?;
 
         let size = texture.data.len();
@@ -193,17 +193,17 @@ impl AssetManager {
         let source = match ext.as_str() {
             "glsl" | "vert" | "frag" | "comp" => {
                 let content = std::fs::read_to_string(&full_path)
-                    .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
+                    .map_err(|e| format!("Failed to read '{path}': {e}"))?;
                 ShaderSource::Glsl(content)
             }
             "hlsl" | "vert" | "frag" | "comp" => {
                 let content = std::fs::read_to_string(&full_path)
-                    .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
+                    .map_err(|e| format!("Failed to read '{path}': {e}"))?;
                 ShaderSource::Hlsl(content)
             }
             "spv" => {
                 let data = std::fs::read(&full_path)
-                    .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
+                    .map_err(|e| format!("Failed to read '{path}': {e}"))?;
                 if data.len() % 4 != 0 {
                     return Err("Invalid SPIR-V file".to_string());
                 }
@@ -214,10 +214,10 @@ impl AssetManager {
             }
             "dxil" => {
                 let data = std::fs::read(&full_path)
-                    .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
+                    .map_err(|e| format!("Failed to read '{path}': {e}"))?;
                 ShaderSource::Dxil(data)
             }
-            _ => return Err(format!("Unknown shader format: {}", ext)),
+            _ => return Err(format!("Unknown shader format: {ext}")),
         };
 
         let mut shader = Shader::new(handle, path, stage, source);
@@ -241,9 +241,9 @@ impl AssetManager {
     /// Load a material by name
     pub fn load_material(&mut self, name: &str) -> AssetHandle {
         let handle = AssetHandle::from_path(name, AssetType::Material);
-        if !self.assets.contains_key(&handle) {
+        if let std::collections::hash_map::Entry::Vacant(e) = self.assets.entry(handle) {
             let material = Material::new(name);
-            self.assets.insert(handle, Asset::Material(Box::new(material)));
+            e.insert(Asset::Material(Box::new(material)));
             self.cache.record(handle, std::mem::size_of::<Material>());
             self.load_count += 1;
         }

@@ -122,7 +122,7 @@ impl CacheStats {
 
 fn format_size(bytes: usize) -> String {
     if bytes < 1024 {
-        format!("{} B", bytes)
+        format!("{bytes} B")
     } else if bytes < 1024 * 1024 {
         format!("{:.1} KB", bytes as f64 / 1024.0)
     } else if bytes < 1024 * 1024 * 1024 {

@@ -94,16 +94,10 @@ impl GpuAllocator {
     }
 
     fn find_type(&self, type_bits: u32, properties: vk::MemoryPropertyFlags) -> Option<u32> {
-        for i in 0..self.memory_properties.memory_type_count {
-            if (type_bits & (1 << i)) != 0
+        (0..self.memory_properties.memory_type_count).find(|&i| (type_bits & (1 << i)) != 0
                 && self.memory_properties.memory_types[i as usize]
                     .property_flags
-                    .contains(properties)
-            {
-                return Some(i);
-            }
-        }
-        None
+                    .contains(properties))
     }
 
     fn alloc_memory(
@@ -144,7 +138,7 @@ impl GpuAllocator {
         let memory = unsafe {
             self.device
                 .allocate_memory(&info, None)
-                .map_err(|e| format!("allocate_memory failed: {:?}", e))?
+                .map_err(|e| format!("allocate_memory failed: {e:?}"))?
         };
 
         let mem_type = self.memory_properties.memory_types[type_index as usize];
@@ -181,7 +175,7 @@ impl GpuAllocator {
         let buffer = unsafe {
             self.device
                 .create_buffer(&create_info, None)
-                .map_err(|e| format!("create_buffer failed: {:?}", e))?
+                .map_err(|e| format!("create_buffer failed: {e:?}"))?
         };
         let requirements =
             unsafe { self.device.get_buffer_memory_requirements(buffer) };
@@ -198,7 +192,7 @@ impl GpuAllocator {
         unsafe {
             self.device
                 .bind_buffer_memory(buffer, allocation.memory, 0)
-                .map_err(|e| format!("bind_buffer_memory failed: {:?}", e))?;
+                .map_err(|e| format!("bind_buffer_memory failed: {e:?}"))?;
         }
         allocation.size = size;
 
@@ -240,7 +234,7 @@ impl GpuAllocator {
         let image = unsafe {
             self.device
                 .create_image(&image_info, None)
-                .map_err(|e| format!("create_image failed: {:?}", e))?
+                .map_err(|e| format!("create_image failed: {e:?}"))?
         };
         let requirements = unsafe { self.device.get_image_memory_requirements(image) };
 
@@ -256,7 +250,7 @@ impl GpuAllocator {
         unsafe {
             self.device
                 .bind_image_memory(image, allocation.memory, 0)
-                .map_err(|e| format!("bind_image_memory failed: {:?}", e))?;
+                .map_err(|e| format!("bind_image_memory failed: {e:?}"))?;
         }
         allocation.size = requirements.size;
 
@@ -276,7 +270,7 @@ impl GpuAllocator {
         let view = unsafe {
             self.device
                 .create_image_view(&view_info, None)
-                .map_err(|e| format!("create_image_view failed: {:?}", e))?
+                .map_err(|e| format!("create_image_view failed: {e:?}"))?
         };
         Ok((image, view, allocation))
     }
@@ -297,7 +291,7 @@ impl GpuAllocator {
                         allocation.size,
                         vk::MemoryMapFlags::empty(),
                     )
-                    .map_err(|e| format!("map_memory failed: {:?}", e))?
+                    .map_err(|e| format!("map_memory failed: {e:?}"))?
             };
         }
         Ok(unsafe { allocation.mapped.add(offset as usize) })
@@ -332,7 +326,7 @@ impl GpuAllocator {
         unsafe {
             self.device
                 .flush_mapped_memory_ranges(&[range])
-                .map_err(|e| format!("flush failed: {:?}", e))
+                .map_err(|e| format!("flush failed: {e:?}"))
         }
     }
 
@@ -355,7 +349,7 @@ impl GpuAllocator {
         unsafe {
             self.device
                 .invalidate_mapped_memory_ranges(&[range])
-                .map_err(|e| format!("invalidate failed: {:?}", e))
+                .map_err(|e| format!("invalidate failed: {e:?}"))
         }
     }
 

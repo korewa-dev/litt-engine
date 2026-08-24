@@ -1,7 +1,6 @@
 //! Scene node -- single entity in the scene graph.
 
 use litt_math::Vec3;
-use std::collections::HashMap;
 
 /// Scene node
 #[derive(Debug)]

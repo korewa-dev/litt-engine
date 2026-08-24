@@ -2,7 +2,7 @@
 
 use super::model::Model;
 use super::tensor::{InferenceResult, Tensor};
-use super::selector::{Backend, BackendKind, BackendSelector};
+use super::selector::{BackendKind, BackendSelector};
 use super::backend::{AIBackend, amd_xdna, intel_ai, hexagon, core_ml, cpu, vulkan_compute};
 
 /// The main AI execution context
@@ -108,7 +108,7 @@ impl AIContext {
             BackendKind::Cpu => {
                 BackendWrapper::Cpu(cpu::CpuBackend::new())
             }
-            _ => return Err(format!("Unsupported backend kind: {:?}", kind)),
+            _ => return Err(format!("Unsupported backend kind: {kind:?}")),
         };
 
         self.active_backend = Some(wrapper);
@@ -130,22 +130,22 @@ impl AIContext {
     /// Run inference, auto-selecting the best backend if needed
     pub fn run_auto(&mut self, model: &Model, inputs: &[Tensor]) -> Result<InferenceResult, String> {
         // Try NPU first, then GPU, then CPU
-        if let Ok(_) = self.init_backend(BackendKind::Npu(super::npu::NpuBackend::AmdXdna)) {
+        if self.init_backend(BackendKind::Npu(super::npu::NpuBackend::AmdXdna)).is_ok() {
             if let Ok(result) = self.run(model, inputs) {
                 return Ok(result);
             }
         }
-        if let Ok(_) = self.init_backend(BackendKind::Npu(super::npu::NpuBackend::IntelAiBoost)) {
+        if self.init_backend(BackendKind::Npu(super::npu::NpuBackend::IntelAiBoost)).is_ok() {
             if let Ok(result) = self.run(model, inputs) {
                 return Ok(result);
             }
         }
-        if let Ok(_) = self.init_backend(BackendKind::Gpu) {
+        if self.init_backend(BackendKind::Gpu).is_ok() {
             if let Ok(result) = self.run(model, inputs) {
                 return Ok(result);
             }
         }
-        if let Ok(_) = self.init_backend(BackendKind::Cpu) {
+        if self.init_backend(BackendKind::Cpu).is_ok() {
             return self.run(model, inputs);
         }
 

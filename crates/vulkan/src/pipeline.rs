@@ -31,7 +31,7 @@ impl PipelineCache {
         let cache = unsafe {
             device
                 .create_pipeline_cache(&info, None)
-                .map_err(|e| format!("Failed to create pipeline cache: {:?}", e))?
+                .map_err(|e| format!("Failed to create pipeline cache: {e:?}"))?
         };
         Ok(Self { cache, device: device.clone() })
     }
@@ -78,7 +78,7 @@ pub fn create_compute_pipeline(
     let shader_module = unsafe {
         device
             .create_shader_module(&shader_info, None)
-            .map_err(|e| format!("Failed to create shader module: {:?}", e))?
+            .map_err(|e| format!("Failed to create shader module: {e:?}"))?
     };
 
     // Pipeline layout
@@ -97,7 +97,7 @@ pub fn create_compute_pipeline(
     let layout = unsafe {
         device
             .create_pipeline_layout(&layout_info, None)
-            .map_err(|e| format!("Failed to create pipeline layout: {:?}", e))?
+            .map_err(|e| format!("Failed to create pipeline layout: {e:?}"))?
     };
 
     // Compute pipeline
@@ -113,7 +113,7 @@ pub fn create_compute_pipeline(
     };
     unsafe { device.destroy_shader_module(shader_module, None) };
     let pipelines =
-        result.map_err(|(_, e)| format!("Failed to create compute pipeline: {:?}", e))?;
+        result.map_err(|(_, e)| format!("Failed to create compute pipeline: {e:?}"))?;
 
     Ok(ComputePipeline { pipeline: pipelines[0], layout })
 }
@@ -139,7 +139,7 @@ pub fn create_graphics_pipeline(
     let shader_module = unsafe {
         device
             .create_shader_module(&shader_info, None)
-            .map_err(|e| format!("Failed to create shader module: {:?}", e))?
+            .map_err(|e| format!("Failed to create shader module: {e:?}"))?
     };
 
     // Pipeline layout
@@ -151,7 +151,7 @@ pub fn create_graphics_pipeline(
     let layout = unsafe {
         device
             .create_pipeline_layout(&layout_info, None)
-            .map_err(|e| format!("Failed to create pipeline layout: {:?}", e))?
+            .map_err(|e| format!("Failed to create pipeline layout: {e:?}"))?
     };
 
     // Vertex input
@@ -237,7 +237,7 @@ pub fn create_graphics_pipeline(
     };
     unsafe { device.destroy_shader_module(shader_module, None) };
     let pipelines =
-        result.map_err(|(_, e)| format!("Failed to create graphics pipeline: {:?}", e))?;
+        result.map_err(|(_, e)| format!("Failed to create graphics pipeline: {e:?}"))?;
 
     Ok(GraphicsPipeline { pipeline: pipelines[0], layout })
 }

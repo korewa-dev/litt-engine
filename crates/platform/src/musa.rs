@@ -42,7 +42,6 @@
 //! ```
 
 use ash::{vk, Device, Instance};
-use bytemuck::{Pod, Zeroable};
 
 // =============================================================================
 // Constants
@@ -191,7 +190,7 @@ impl MusaGpuInfo {
                 .memory_heaps
                 .iter()
                 .filter(|h| h.flags.contains(vk::MemoryHeapFlags::DEVICE_LOCAL))
-                .map(|h| h.size as u64)
+                .map(|h| h.size)
                 .sum();
 
             // Detect compute capability from device name
@@ -357,16 +356,14 @@ unsafe fn build_musa_compute_pipeline(
         .map_err(|e| MusaError::PipelineCreationFailed(format!("desc layout: {e:?}")))?;
 
     // Descriptor pool
-    let pool_sizes = vec![
-        vk::DescriptorPoolSize {
+    let pool_sizes = [vk::DescriptorPoolSize {
             ty: vk::DescriptorType::STORAGE_BUFFER,
             descriptor_count: 64,
         },
         vk::DescriptorPoolSize {
             ty: vk::DescriptorType::STORAGE_IMAGE,
             descriptor_count: 32,
-        },
-    ];
+        }];
     let pool_info = vk::DescriptorPoolCreateInfo {
         max_sets: 16,
         pool_size_count: pool_sizes.len() as u32,
@@ -608,16 +605,14 @@ impl MusaContext {
                 .map_err(|e| MusaError::VulkanInitFailed(format!("cmd pool: {e:?}")))?;
 
             // Descriptor pool (shared)
-            let pool_sizes = vec![
-                vk::DescriptorPoolSize {
+            let pool_sizes = [vk::DescriptorPoolSize {
                     ty: vk::DescriptorType::STORAGE_BUFFER,
                     descriptor_count: 128,
                 },
                 vk::DescriptorPoolSize {
                     ty: vk::DescriptorType::STORAGE_IMAGE,
                     descriptor_count: 64,
-                },
-            ];
+                }];
             let desc_pool_info = vk::DescriptorPoolCreateInfo {
                 max_sets: 32,
                 pool_size_count: pool_sizes.len() as u32,
@@ -766,7 +761,7 @@ impl MusaContext {
                 command_buffer_count: 1,
                 ..Default::default()
             };
-            let mut cmd_buffers = self
+            let cmd_buffers = self
                 .device
                 .allocate_command_buffers(&alloc_info)
                 .map_err(|e| MusaError::CommandBufferFailed(format!("{e:?}")))?;

@@ -6,10 +6,3 @@ description = "Networking for Litt Engine -- UDP/TCP transport, snapshots, repli
 
 [dependencies]
 litt-math = { path = "../math" }
-
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true

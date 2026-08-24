@@ -2,7 +2,7 @@
 //! Migrated to ash 0.38 (struct literals, no builders).
 
 use crate::allocator::GpuAllocator;
-use crate::ags::{AmgInfo, GpuProperties, GpuManager, GpuSelectionCriteria, AgsHints};
+use crate::ags::{AmgInfo, GpuProperties};
 
 /// Logical Vulkan device with all necessary handles
 pub struct VulkanDevice {
@@ -168,7 +168,7 @@ impl VulkanDevice {
 
         let device = instance
             .create_device(physical, &info, None)
-            .map_err(|e| format!("Failed to create device: {:?}", e))?;
+            .map_err(|e| format!("Failed to create device: {e:?}"))?;
 
         let swapchain_loader = ash::khr::swapchain::Device::new(instance, &device);
 
@@ -219,16 +219,10 @@ impl VulkanDevice {
         type_filter: u32,
         properties: vk::MemoryPropertyFlags,
     ) -> Option<u32> {
-        for i in 0..self.memory_properties.memory_type_count {
-            if (type_filter & (1 << i)) != 0
+        (0..self.memory_properties.memory_type_count).find(|&i| (type_filter & (1 << i)) != 0
                 && self.memory_properties.memory_types[i as usize]
                     .property_flags
-                    .contains(properties)
-            {
-                return Some(i);
-            }
-        }
-        None
+                    .contains(properties))
     }
 }
 

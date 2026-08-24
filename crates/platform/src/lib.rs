@@ -15,6 +15,10 @@ pub mod android;
 pub mod musa;
 pub mod nnapi;
 
+// OS event queue (window proc -> engine main loop)
+pub mod events;
+pub use events::{push_event, take_events, PlatformEvent};
+
 #[cfg(target_os = "windows")]
 pub use win32::Win32Window as PlatformWindow;
 #[cfg(target_os = "windows")]
@@ -103,6 +107,19 @@ impl Window {
         (self.size.width, self.size.height)
     }
 
+    /// Drain OS messages without blocking; updates close state.
+    pub fn pump_messages(&mut self) {
+        #[cfg(target_os = "windows")]
+        self.inner.pump_messages();
+        #[cfg(target_os = "linux")]
+        self.inner.pump_messages();
+    }
+
+    /// Take all platform events queued since the last call.
+    pub fn take_events(&self) -> Vec<PlatformEvent> {
+        events::take_events()
+    }
+
     #[cfg(target_os = "windows")]
     pub fn hwnd(&self) -> *mut std::ffi::c_void {
         self.inner.hwnd()
@@ -133,7 +150,7 @@ pub unsafe fn create_surface(
             ..Default::default()
         };
         w32.create_win32_surface(&info, None)
-            .map_err(|e| format!("Failed to create Win32 surface: {}", e))
+            .map_err(|e| format!("Failed to create Win32 surface: {e}"))
     }
 
     #[cfg(target_os = "linux")]

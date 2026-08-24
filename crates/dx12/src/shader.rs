@@ -15,7 +15,7 @@ pub fn find_dxc() -> Option<PathBuf> {
     let path_var = std::env::var_os("PATH")?;
     for dir in std::env::split_paths(&path_var) {
         for ext in exts {
-            let candidate = dir.join(format!("dxc{}", ext));
+            let candidate = dir.join(format!("dxc{ext}"));
             if candidate.is_file() {
                 return Some(candidate);
             }
@@ -33,8 +33,7 @@ pub fn compile_hlsl(source: &str, entry: &str, stage: &str) -> Result<Vec<u8>, S
         Some(dxc) => {
             let _ = Command::new(dxc).arg("--version").output();
             Err(format!(
-                "DXC found but DX12 pipeline not wired yet (target {})",
-                target
+                "DXC found but DX12 pipeline not wired yet (target {target})"
             ))
         }
         None => Err("dxc.exe not found on PATH".to_string()),

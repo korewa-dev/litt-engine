@@ -2,7 +2,6 @@
 //! Uses stb_truetype for rasterization.
 
 use super::handle::AssetHandle;
-use super::texture::Texture;
 
 /// A loaded font
 #[derive(Debug)]
@@ -21,7 +20,7 @@ impl Font {
     /// Load a font from file
     pub fn load_from_file(path: &str, scale: f32) -> Result<Self, String> {
         let data = std::fs::read(path)
-            .map_err(|e| format!("Failed to read font file '{}': {}", path, e))?;
+            .map_err(|e| format!("Failed to read font file '{path}': {e}"))?;
 
         // Parse basic font metrics from TTF/OTF
         // This is a simplified parser -- real implementation would use a proper font library

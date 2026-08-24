@@ -21,7 +21,6 @@ impl PipelineStateManager {
     /// Create a compute PSO from DXIL bytecode.
     pub fn create_compute(&mut self, _dxil: &[u8], _entry: &str) -> Dx12Result<PipelineState> {
         self.next_handle += 1;
-        let handle = PipelineState(self.next_handle);
         Err(Dx12Error::NotImplemented("D3D12ComputePipelineState creation"))
     }
 

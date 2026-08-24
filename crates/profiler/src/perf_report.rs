@@ -2,8 +2,8 @@
 //! Used for logging and debugging.
 
 use super::frame_timer::FrameTimer;
-use super::bottleneck::{BottleneckAnalyzer, BottleneckInfo};
-use super::fps_history::{FpsHistory, FpsStats};
+use super::bottleneck::BottleneckAnalyzer;
+use super::fps_history::FpsHistory;
 use super::memory_profiler::GpuMemoryStats;
 
 /// Performance report
@@ -79,7 +79,7 @@ impl PerfReport {
         for (name, pct) in bottleneck.timing.percentages() {
             let bar_len = (pct / 10.0) as usize;
             let bar = "#".repeat(bar_len);
-            report.lines.push(format!("  {:12} {:>6.1}%  {}", name, pct, bar));
+            report.lines.push(format!("  {name:12} {pct:>6.1}%  {bar}"));
         }
         report.lines.push(String::new());
 
@@ -127,7 +127,7 @@ impl PerfReport {
     /// Save report to file
     pub fn save(&self, path: &str) -> Result<(), String> {
         std::fs::write(path, self.to_string())
-            .map_err(|e| format!("Failed to save report: {}", e))?;
+            .map_err(|e| format!("Failed to save report: {e}"))?;
         Ok(())
     }
 }

@@ -25,6 +25,12 @@ pub use litt_net::*;
 pub mod graphics;
 pub use graphics::{GraphicsBackend, select_backend, get_gpu_info};
 
+// Headless editor core (interactive shell lives in the binary)
+pub mod editor;
+
+// SceneGraph -> pathtracer Scene deployment bridge
+pub mod world_bridge;
+
 // Deterministic replay recording/playback
 pub mod replay;
 

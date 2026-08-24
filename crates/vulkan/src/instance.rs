@@ -74,7 +74,7 @@ pub fn enumerate_adapters(
     let devices = unsafe {
         instance
             .enumerate_physical_devices()
-            .map_err(|e| format!("Failed to enumerate physical devices: {:?}", e))?
+            .map_err(|e| format!("Failed to enumerate physical devices: {e:?}"))?
     };
 
     let mut amd_devices: Vec<vk::PhysicalDevice> = Vec::new();
@@ -119,7 +119,7 @@ pub fn create_gpu_manager(
     let devices = unsafe {
         instance
             .enumerate_physical_devices()
-            .map_err(|e| format!("Failed to enumerate physical devices: {:?}", e))?
+            .map_err(|e| format!("Failed to enumerate physical devices: {e:?}"))?
     };
 
     let mut manager = GpuManager::new(criteria);

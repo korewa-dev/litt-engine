@@ -317,15 +317,16 @@ impl AGSContext {
                 }
 
                 let lib = lib.ok_or_else(|| "Failed to load AMD AGS library".to_string())?;
-                let init: Symbol<AGSInitFn> = lib.get(b"AGSInit")
-                    .map_err(|e| format!("Failed to get AGSInit: {}", e))?;
-                let init_fn = *init;
-                drop(init); // drop borrow on lib before moving it
+                let init_fn = {
+                    let init: Symbol<AGSInitFn> = lib.get(b"AGSInit")
+                        .map_err(|e| format!("Failed to get AGSInit: {e}"))?;
+                    *init
+                }; // symbol borrow ends here, before `lib` is moved into the context
 
                 let mut context: AGSContext = AGSContext { lib, version: (0, 0, 0, 0) };
                 let result = init_fn(&mut context as *mut _);
                 if result != AGSResult::AGS_SUCCESS {
-                    return Err(format!("AGSInit failed: {}", result));
+                    return Err(format!("AGSInit failed: {result}"));
                 }
 
                 Ok(context)
@@ -549,7 +550,7 @@ pub fn get_gpu_summary() -> Result<Vec<AGSAdapterInfo>, String> {
     for i in 0..count {
         match context.get_adapter_info(i) {
             Ok(info) => gpus.push(info),
-            Err(e) => eprintln!("Failed to get adapter info for GPU {}: {}", i, e),
+            Err(e) => eprintln!("Failed to get adapter info for GPU {i}: {e}"),
         }
     }
     

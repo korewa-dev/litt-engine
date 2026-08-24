@@ -2,7 +2,6 @@
 //! Represents a complete scene or level.
 
 use super::handle::AssetHandle;
-use super::manager::AssetManager;
 
 /// A scene asset
 #[derive(Debug)]

@@ -3,7 +3,6 @@
 
 use litt_math::Vec3;
 use super::handle::AssetHandle;
-use super::texture::Texture;
 
 /// Material type
 #[derive(Clone, Debug, PartialEq, Eq)]

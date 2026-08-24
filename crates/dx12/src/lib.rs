@@ -58,9 +58,9 @@ impl fmt::Display for Dx12Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Dx12Error::NotImplemented(op) => {
-                write!(f, "DX12 backend not implemented yet: {}", op)
+                write!(f, "DX12 backend not implemented yet: {op}")
             }
-            Dx12Error::InvalidParam(what) => write!(f, "invalid parameter: {}", what),
+            Dx12Error::InvalidParam(what) => write!(f, "invalid parameter: {what}"),
         }
     }
 }

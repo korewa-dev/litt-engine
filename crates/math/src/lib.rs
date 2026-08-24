@@ -11,9 +11,7 @@
 extern crate std;
 
 use bytemuck::{Pod, Zeroable};
-use core::ops::{Add, Sub, Mul, Div, Neg, AddAssign, SubAssign, MulAssign, DivAssign};
-use core::mem::MaybeUninit;
-use core::ptr;
+use core::ops::{Add, Sub, Mul, Div, Neg, AddAssign, SubAssign, MulAssign};
 
 // =============================================================================
 // Vector Types
@@ -308,7 +306,7 @@ impl Mul<Mat4> for Mat4 {
         let mut r = [0.0f32; 16];
         for i in 0..4 {
             for j in 0..4 {
-                r[i*4+j] = a[i*4+0]*b[0*4+j] + a[i*4+1]*b[1*4+j] + a[i*4+2]*b[2*4+j] + a[i*4+3]*b[3*4+j];
+                r[i*4+j] = a[i*4]*b[j] + a[i*4+1]*b[4+j] + a[i*4+2]*b[8+j] + a[i*4+3]*b[12+j];
             }
         }
         Self(r)
@@ -665,8 +663,8 @@ impl Camera {
 
     #[inline]
     pub fn ray_for_pixel(&self, px: f32, py: f32, width: f32, height: f32) -> Ray {
-        let ndc_x = (2.0 * px / width - 1.0);
-        let ndc_y = (1.0 - 2.0 * py / height);
+        let ndc_x = 2.0 * px / width - 1.0;
+        let ndc_y = 1.0 - 2.0 * py / height;
         let aspect = self.aspect;
 
         let ray_dir = Vec3(ndc_x / aspect, ndc_y, -1.0).normalized();

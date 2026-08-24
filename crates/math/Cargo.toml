@@ -12,10 +12,3 @@ bytemuck = { version = "1", features = ["derive", "extern_crate_alloc"] }
 [features]
 default = ["std"]
 std = []
-
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true

@@ -74,7 +74,7 @@ impl FpsHistory {
             graph.push('\n');
         }
 
-        graph.push_str(&format!("{:.0} fps", max_fps));
+        graph.push_str(&format!("{max_fps:.0} fps"));
         graph
     }
 

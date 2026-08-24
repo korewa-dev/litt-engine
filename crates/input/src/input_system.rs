@@ -2,7 +2,7 @@
 
 use super::input_state::InputState;
 use super::keyboard::Key;
-use super::mouse::{MouseState, MouseButton};
+use super::mouse::MouseButton;
 use super::gamepad::GamepadState;
 
 /// Input system -- bridges platform events to logical input
@@ -34,8 +34,8 @@ impl InputSystem {
     pub fn on_key_down(&mut self, key: Key) {
         if !self.state.keyboard.keys_down.contains(&key) {
             self.state.keyboard.keys_pressed.push(key);
+            self.state.keyboard.keys_down.push(key);
         }
-        self.state.keyboard.keys_down.push(key);
     }
 
     /// Process a keyboard key up event

@@ -257,7 +257,11 @@ impl Pool {
     }
 
     /// Free and drop a typed value
-    pub fn free_typed<T>(&mut self, ptr: *mut T) {
+    ///
+    /// # Safety
+    /// `ptr` must have been returned by [`Self::alloc_typed`] (or `alloc`)
+    /// for this pool, must not be dangling, and must not be freed twice.
+    pub unsafe fn free_typed<T>(&mut self, ptr: *mut T) {
         unsafe { ptr.drop_in_place() }
         self.free(ptr as *mut u8);
     }

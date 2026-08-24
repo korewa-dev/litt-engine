@@ -1,0 +1,1356 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "next_id": 47,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": []
+    },
+    {
+      "name": "Central_Plaza",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "hub",
+        "model:layout_main"
+      ]
+    },
+    {
+      "name": "POI_01",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [
+        26.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_01"
+      ]
+    },
+    {
+      "name": "POI_02",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [
+        8.03,
+        0.0,
+        24.73
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_02"
+      ]
+    },
+    {
+      "name": "POI_03",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -21.03,
+        0.0,
+        15.28
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_03"
+      ]
+    },
+    {
+      "name": "POI_04",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -21.03,
+        0.0,
+        -15.28
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_04"
+      ]
+    },
+    {
+      "name": "POI_05",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [
+        8.03,
+        0.0,
+        -24.73
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_05"
+      ]
+    },
+    {
+      "name": "Coin",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_01",
+      "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [
+        10.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_02",
+      "id": 9,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7.07,
+        0.0,
+        7.07
+      ],
+      "rotation": [
+        0.0,
+        0.3827,
+        0.0,
+        0.9239
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_03",
+      "id": 10,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        10.0
+      ],
+      "rotation": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_04",
+      "id": 11,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -7.07,
+        0.0,
+        7.07
+      ],
+      "rotation": [
+        0.0,
+        0.9239,
+        0.0,
+        0.3827
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_05",
+      "id": 12,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -10.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_06",
+      "id": 13,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -7.07,
+        0.0,
+        -7.07
+      ],
+      "rotation": [
+        0.0,
+        0.9239,
+        0.0,
+        -0.3827
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_07",
+      "id": 14,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -0.0,
+        0.0,
+        -10.0
+      ],
+      "rotation": [
+        0.0,
+        0.7071,
+        0.0,
+        -0.7071
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_08",
+      "id": 15,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7.07,
+        0.0,
+        -7.07
+      ],
+      "rotation": [
+        0.0,
+        0.3827,
+        0.0,
+        -0.9239
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_09",
+      "id": 16,
+      "parent": 0,
+      "children": [],
+      "position": [
+        13.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_10",
+      "id": 17,
+      "parent": 0,
+      "children": [],
+      "position": [
+        21.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_11",
+      "id": 18,
+      "parent": 0,
+      "children": [],
+      "position": [
+        4.02,
+        0.0,
+        12.36
+      ],
+      "rotation": [
+        0.0,
+        0.5878,
+        0.0,
+        0.809
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_12",
+      "id": 19,
+      "parent": 0,
+      "children": [],
+      "position": [
+        6.49,
+        0.0,
+        19.97
+      ],
+      "rotation": [
+        0.0,
+        0.5878,
+        0.0,
+        0.809
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_13",
+      "id": 20,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -10.52,
+        0.0,
+        7.64
+      ],
+      "rotation": [
+        0.0,
+        0.9511,
+        0.0,
+        0.309
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_14",
+      "id": 21,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -16.99,
+        0.0,
+        12.34
+      ],
+      "rotation": [
+        0.0,
+        0.9511,
+        0.0,
+        0.309
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Stalker",
+      "id": 22,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Stalker_01",
+      "id": 23,
+      "parent": 0,
+      "children": [],
+      "position": [
+        12.94,
+        0.0,
+        9.4
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Stalker_02",
+      "id": 24,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -4.94,
+        0.0,
+        15.22
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Festival_Banner",
+      "id": 25,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "goal",
+        "model:festival_banner"
+      ]
+    },
+    {
+      "name": "Ground_Pad",
+      "id": 26,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "floor",
+        "model:ground_pad"
+      ]
+    },
+    {
+      "name": "Checkpoint_01",
+      "id": 27,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        6.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_02",
+      "id": 28,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -18.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_03",
+      "id": 29,
+      "parent": 0,
+      "children": [],
+      "position": [
+        6.0,
+        0.0,
+        -22.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Bonfire_Plaza",
+      "id": 30,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        6.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi",
+        "model:bonfire"
+      ]
+    },
+    {
+      "name": "Bonfire_Courtyard",
+      "id": 31,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -18.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi",
+        "model:bonfire"
+      ]
+    },
+    {
+      "name": "Bonfire_Crypt_Road",
+      "id": 32,
+      "parent": 0,
+      "children": [],
+      "position": [
+        6.0,
+        0.0,
+        -22.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi",
+        "model:bonfire"
+      ]
+    },
+    {
+      "name": "Knight_Shrine_Sun",
+      "id": 33,
+      "parent": 0,
+      "children": [],
+      "position": [
+        23.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:knight"
+      ]
+    },
+    {
+      "name": "Knight_Shrine_Veil",
+      "id": 34,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -19.0,
+        0.0,
+        -13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:knight"
+      ]
+    },
+    {
+      "name": "Stalker_Rose_Walk",
+      "id": 35,
+      "parent": 0,
+      "children": [],
+      "position": [
+        16.0,
+        0.0,
+        16.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Stalker_Mist_Row",
+      "id": 36,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -4.0,
+        0.0,
+        20.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Stalker_Yew_Walk",
+      "id": 37,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -14.0,
+        0.0,
+        -18.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Estus_Behind_Sun",
+      "id": 38,
+      "parent": 0,
+      "children": [],
+      "position": [
+        27.5,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Estus_Behind_Garden",
+      "id": 39,
+      "parent": 0,
+      "children": [],
+      "position": [
+        9.5,
+        0.0,
+        26.3
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Estus_Behind_Crypt",
+      "id": 40,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -22.5,
+        0.0,
+        16.8
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Gem_Chapel_Step",
+      "id": 41,
+      "parent": 0,
+      "children": [],
+      "position": [
+        24.0,
+        0.0,
+        -2.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:gem"
+      ]
+    },
+    {
+      "name": "Gem_Well_Head",
+      "id": 42,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -21.0,
+        0.0,
+        -12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:gem"
+      ]
+    },
+    {
+      "name": "Central_Courtyard",
+      "id": 43,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        2.6,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "area",
+        "music:hollow_wind"
+      ]
+    },
+    {
+      "name": "Chapel_Approach",
+      "id": 44,
+      "parent": 0,
+      "children": [],
+      "position": [
+        26.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "area",
+        "music:frozen_chant"
+      ]
+    },
+    {
+      "name": "Crypt_Road",
+      "id": 45,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -21.0,
+        0.0,
+        15.3
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "area",
+        "music:dread_bell"
+      ]
+    },
+    {
+      "name": "Player_Start",
+      "id": 46,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "player",
+        "start"
+      ]
+    }
+  ]
+}

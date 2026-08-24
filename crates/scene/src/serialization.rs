@@ -41,6 +41,10 @@ pub struct SceneDto {
     pub root_id: u32,
     pub next_id: u32,
     pub nodes: Vec<NodeDto>,
+    /// Named world regions ("sections"). Optional so v1 files without
+    /// areas keep loading untouched.
+    #[serde(default)]
+    pub areas: Vec<crate::areas::AreaDef>,
 }
 
 impl SceneDto {
@@ -91,6 +95,7 @@ impl From<&SceneGraph> for SceneDto {
             root_id: g.root_id,
             next_id: g.next_id,
             nodes,
+            areas: crate::areas::AreaSystem::from_tagged_nodes(g).all().to_vec(),
         }
     }
 }
@@ -116,12 +121,29 @@ pub fn save_graph_json(graph: &SceneGraph) -> Result<String, String> {
 
 /// Deserialize a scene graph from JSON text.
 pub fn load_graph_json(json: &str) -> Result<SceneGraph, String> {
+    Ok(load_graph_and_areas_json(json)?.0)
+}
+
+/// Deserialize a scene graph plus its area definitions from JSON text.
+///
+/// Worlds that define zones only as `area`-tagged nodes (the enrichment
+/// convention: radius = `scale.x * 10`) get them derived here; an explicit
+/// `areas` block always wins.
+pub fn load_graph_and_areas_json(
+    json: &str,
+) -> Result<(SceneGraph, Vec<crate::areas::AreaDef>), String> {
     let dto: SceneDto = serde_json::from_str(json)
         .map_err(|e| format!("Scene JSON parse failed: {}", e))?;
     if dto.format != SceneDto::FORMAT {
         return Err(format!("Bad scene format '{}' (expected '{}')", dto.format, SceneDto::FORMAT));
     }
-    Ok(SceneGraph::from(&dto))
+    let graph = SceneGraph::from(&dto);
+    let areas = if dto.areas.is_empty() {
+        crate::areas::AreaSystem::from_tagged_nodes(&graph).all().to_vec()
+    } else {
+        dto.areas
+    };
+    Ok((graph, areas))
 }
 
 /// Save a scene graph to a `.json` file.
@@ -136,6 +158,15 @@ pub fn load_graph_file(path: &str) -> Result<SceneGraph, String> {
     let json = std::fs::read_to_string(Path::new(path))
         .map_err(|e| format!("Scene read '{}' failed: {}", path, e))?;
     load_graph_json(&json)
+}
+
+/// Load a scene graph plus its areas from a `.json` file.
+pub fn load_graph_and_areas_file(
+    path: &str,
+) -> Result<(SceneGraph, Vec<crate::areas::AreaDef>), String> {
+    let json = std::fs::read_to_string(Path::new(path))
+        .map_err(|e| format!("Scene read '{}' failed: {}", path, e))?;
+    load_graph_and_areas_json(&json)
 }
 
 #[cfg(test)]
@@ -186,5 +217,30 @@ mod tests {
     fn rejects_bad_format() {
         let r = load_graph_json("{\"format\":\"nope\"}");
         assert!(r.is_err());
+    }
+
+    #[test]
+    fn areas_roundtrip_and_legacy_files_load() {
+        let mut g = sample_graph();
+        let market = g.create_node("Market", Some(g.root_id));
+        g.get_mut(market).unwrap().position = Vec3::new(20.0, 0.0, 0.0);
+        g.get_mut(market).unwrap().scale = Vec3::new(2.5, 1.0, 1.0); // radius 25 via convention
+        g.get_mut(market).unwrap().add_tag("area");
+        g.get_mut(market).unwrap().add_tag("music:market");
+
+        let json = save_graph_json(&g).unwrap();
+        let (g2, areas) = load_graph_and_areas_json(&json).unwrap();
+        assert_eq!(areas.len(), 1);
+        assert_eq!(areas[0].name, "Market");
+        assert_eq!(areas[0].radius, 25.0);
+        assert!(areas[0].tags.contains(&"music:market".to_string()));
+        assert_eq!(g2.nodes.len(), g.nodes.len());
+
+        // A legacy file with no "areas" key must still load.
+        let (legacy_graph, legacy_areas) =
+            load_graph_and_areas_json("{\"format\":\"litt-scene\",\"version\":1,\"root_id\":0,\"next_id\":1,\"nodes\":[]}").unwrap();
+        assert!(legacy_areas.is_empty());
+        // Loader semantics: exactly what the file declares (no synthetic root).
+        assert_eq!(legacy_graph.nodes.len(), 0);
     }
 }

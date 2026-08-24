@@ -46,7 +46,7 @@ impl D3D12Allocator {
     }
 
     /// Allocate a buffer on a heap.
-    pub fn allocate_buffer(&mut self, size: u64, kind: HeapKind) -> Dx12Result<GpuAllocation> {
+    pub fn allocate_buffer(&mut self, size: u64, _kind: HeapKind) -> Dx12Result<GpuAllocation> {
         if size == 0 {
             return Err(Dx12Error::InvalidParam("buffer size must be > 0"));
         }

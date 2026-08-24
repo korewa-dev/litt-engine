@@ -8,10 +8,3 @@ description = "Configuration system for Litt Engine -- settings, presets, and pe
 litt-math = { path = "../math" }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
-
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true

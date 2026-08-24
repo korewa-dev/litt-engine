@@ -2,7 +2,7 @@
 //! GLSL -> SPIR-V (Vulkan), HLSL -> DXIL (DX12).
 
 use std::path::{Path, PathBuf};
-use super::handle::{AssetHandle, AssetType, AssetState};
+use super::handle::{AssetHandle, AssetState};
 
 /// Shader stage
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -125,19 +125,19 @@ impl Shader {
         let spv_path = Path::new(&out_dir).join("compiled.spv");
 
         std::fs::write("shader.glsl", glsl)
-            .map_err(|e| format!("Failed to write shader: {}", e))?;
+            .map_err(|e| format!("Failed to write shader: {e}"))?;
 
         let status = std::process::Command::new(&compiler)
-            .args(&["shader.glsl", "-o", spv_path.to_string_lossy().as_ref(), "-O3"])
+            .args(["shader.glsl", "-o", spv_path.to_string_lossy().as_ref(), "-O3"])
             .status()
-            .map_err(|e| format!("Failed to run compiler: {}", e))?;
+            .map_err(|e| format!("Failed to run compiler: {e}"))?;
 
         if !status.success() {
-            return Err(format!("GLSL compilation failed for '{}'", entry_point));
+            return Err(format!("GLSL compilation failed for '{entry_point}'"));
         }
 
         let spv_bytes = std::fs::read(&spv_path)
-            .map_err(|e| format!("Failed to read SPIR-V: {}", e))?;
+            .map_err(|e| format!("Failed to read SPIR-V: {e}"))?;
 
         // Convert bytes to u32 words
         if spv_bytes.len() % 4 != 0 {
@@ -159,7 +159,7 @@ impl Shader {
             .unwrap_or_else(|_| "dxcompiler.dll".to_string());
 
         let status = std::process::Command::new("dxc")
-            .args(&[
+            .args([
                 "-T", target,
                 "-E", entry_point,
                 "-O3",
@@ -169,12 +169,12 @@ impl Shader {
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
             .spawn()
-            .map_err(|e| format!("Failed to run dxcompiler: {}", e))?;
+            .map_err(|e| format!("Failed to run dxcompiler: {e}"))?;
 
         // In a real implementation, we'd pipe the HLSL source to stdin
         // and read DXIL from stdout
         let output = status.wait_with_output()
-            .map_err(|e| format!("dxcompiler failed: {}", e))?;
+            .map_err(|e| format!("dxcompiler failed: {e}"))?;
 
         if !output.status.success() {
             return Err(format!("HLSL compilation failed: {}", String::from_utf8_lossy(&output.stderr)));
@@ -197,14 +197,14 @@ impl Shader {
         // Check VULKAN_SDK
         if let Ok(sdk) = std::env::var("VULKAN_SDK") {
             for candidate in &candidates {
-                let path = Path::new(&sdk).join("bin").join(format!("{}.exe", candidate));
+                let path = Path::new(&sdk).join("bin").join(format!("{candidate}.exe"));
                 if path.exists() {
                     return Ok(path);
                 }
             }
         }
 
-        Err(format!("GLSL compiler not found (tried: {:?})", candidates))
+        Err(format!("GLSL compiler not found (tried: {candidates:?})"))
     }
 }
 
@@ -271,16 +271,16 @@ impl ShaderCompiler {
         let spv_path = Path::new(&out_dir).join(format!("{}_{}.spv", entry, hash_str(source)));
 
         if spv_path.exists() {
-            return Ok(Self::load_spirv(&spv_path)?);
+            return Self::load_spirv(&spv_path);
         }
 
         std::fs::write("shader.glsl", source)
-            .map_err(|e| format!("Failed to write shader: {}", e))?;
+            .map_err(|e| format!("Failed to write shader: {e}"))?;
 
         let output = std::process::Command::new(compiler)
-            .args(&["shader.glsl", "-o", spv_path.to_string_lossy().as_ref(), "-O3"])
+            .args(["shader.glsl", "-o", spv_path.to_string_lossy().as_ref(), "-O3"])
             .output()
-            .map_err(|e| format!("Failed to run compiler: {}", e))?;
+            .map_err(|e| format!("Failed to run compiler: {e}"))?;
 
         if !output.status.success() {
             return Err(format!("GLSL compilation failed: {}", String::from_utf8_lossy(&output.stderr)));
@@ -297,16 +297,16 @@ impl ShaderCompiler {
         let dxil_path = Path::new(&out_dir).join(format!("{}_{}.dxil", entry, hash_str(source)));
 
         if dxil_path.exists() {
-            return Ok(std::fs::read(&dxil_path).map_err(|e| e.to_string())?);
+            return std::fs::read(&dxil_path).map_err(|e| e.to_string());
         }
 
         let mut output = std::process::Command::new(compiler)
-            .args(&["-T", "ds_6_5", "-E", entry, "-O3", "-fdxil", "-"])
+            .args(["-T", "ds_6_5", "-E", entry, "-O3", "-fdxil", "-"])
             .stdin(std::process::Stdio::piped())
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
             .spawn()
-            .map_err(|e| format!("Failed to run dxcompiler: {}", e))?;
+            .map_err(|e| format!("Failed to run dxcompiler: {e}"))?;
 
         let mut child = output
             .stdin
@@ -314,11 +314,11 @@ impl ShaderCompiler {
             .ok_or("Failed to open stdin")?;
         use std::io::Write;
         child.write_all(source.as_bytes())
-            .map_err(|e| format!("Failed to write shader: {}", e))?;
+            .map_err(|e| format!("Failed to write shader: {e}"))?;
         drop(child);
 
         let output = output.wait_with_output()
-            .map_err(|e| format!("dxcompiler failed: {}", e))?;
+            .map_err(|e| format!("dxcompiler failed: {e}"))?;
 
         if !output.status.success() {
             return Err(format!("HLSL compilation failed: {}", String::from_utf8_lossy(&output.stderr)));
@@ -332,7 +332,7 @@ impl ShaderCompiler {
 
     fn load_spirv(path: &Path) -> Result<Vec<u32>, String> {
         let bytes = std::fs::read(path)
-            .map_err(|e| format!("Failed to read SPIR-V: {}", e))?;
+            .map_err(|e| format!("Failed to read SPIR-V: {e}"))?;
 
         if bytes.len() % 4 != 0 {
             return Err("SPIR-V data has invalid size".to_string());
@@ -358,7 +358,7 @@ fn find_in_path(name: &str) -> Option<std::path::PathBuf> {
     let path_var = std::env::var_os("PATH")?;
     for dir in std::env::split_paths(&path_var) {
         for ext in exts {
-            let candidate = dir.join(format!("{}{}", name, ext));
+            let candidate = dir.join(format!("{name}{ext}"));
             if candidate.is_file() {
                 return Some(candidate);
             }

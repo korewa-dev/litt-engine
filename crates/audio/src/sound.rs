@@ -28,13 +28,13 @@ impl Sound {
     pub fn load_wav(path: &str) -> Result<Self, String> {
         use std::io::Cursor;
         let data = std::fs::read(path)
-            .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
+            .map_err(|e| format!("Failed to read '{path}': {e}"))?;
         let cursor = Cursor::new(data);
         let mut reader = hound::WavReader::new(cursor)
-            .map_err(|e| format!("Failed to parse WAV: {}", e))?;
+            .map_err(|e| format!("Failed to parse WAV: {e}"))?;
         let spec = reader.spec();
         let samples: Vec<f32> = reader.samples::<f32>().collect::<Result<_, _>>()
-            .map_err(|e| format!("Failed to read WAV samples: {}", e))?;
+            .map_err(|e| format!("Failed to read WAV samples: {e}"))?;
         let duration_sec = samples.len() as f32 / spec.sample_rate as f32;
         let byte_data: Vec<u8> = samples.iter().flat_map(|&s| s.to_le_bytes()).collect();
         Ok(Self::new(path, byte_data, spec.sample_rate, spec.channels, spec.bits_per_sample))
@@ -43,7 +43,7 @@ impl Sound {
     /// Load an MP3 file
     pub fn load_mp3(path: &str) -> Result<Self, String> {
         let data = std::fs::read(path)
-            .map_err(|e| format!("Failed to read '{}': {}", path, e))?;
+            .map_err(|e| format!("Failed to read '{path}': {e}"))?;
 
         // Use minimp3 to decode MP3
         let mut decoder = minimp3::Decoder::new(std::io::Cursor::new(data));
@@ -62,7 +62,7 @@ impl Sound {
                     }
                 }
                 Err(minimp3::Error::Eof) => break,
-                Err(e) => return Err(format!("MP3 decode error: {}", e)),
+                Err(e) => return Err(format!("MP3 decode error: {e}")),
             }
         }
 

@@ -19,17 +19,59 @@ pub struct Win32Window {
     closed: bool,
 }
 
+/// Set by `window_proc` on WM_CLOSE/WM_QUIT. WM_DESTROY (posted by
+/// DestroyWindow) never carries WM_QUIT, so a plain message check would
+/// miss the X button.
+static CLOSE_REQUESTED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
 unsafe extern "system" fn window_proc(
     hwnd: *mut std::ffi::c_void,
     msg: u32,
     wparam: usize,
     lparam: isize,
 ) -> isize {
-    use windows_sys::Win32::UI::WindowsAndMessaging::{DefWindowProcW, DestroyWindow, WM_CLOSE, WM_QUIT};
+    use crate::events::{push_event, PlatformEvent};
+    use windows_sys::Win32::UI::WindowsAndMessaging::{
+        DefWindowProcW, DestroyWindow, WM_CHAR, WM_CLOSE, WM_KEYDOWN, WM_KEYUP,
+        WM_QUIT, WM_SIZE, WM_SYSKEYDOWN, WM_SYSKEYUP,
+    };
     match msg {
         WM_CLOSE | WM_QUIT => {
+            CLOSE_REQUESTED.store(true, std::sync::atomic::Ordering::SeqCst);
+            push_event(PlatformEvent::CloseRequested);
             DestroyWindow(hwnd);
             0
+        }
+        WM_KEYDOWN | WM_SYSKEYDOWN => {
+            let vk = wparam as u32;
+            // Bit 30 = previous key state -> set on auto-repeat.
+            let repeat = ((lparam as u32) & (1 << 30)) != 0;
+            if !repeat {
+                push_event(PlatformEvent::KeyDown { vk });
+            }
+            if msg == WM_SYSKEYDOWN {
+                DefWindowProcW(hwnd, msg, wparam, lparam)
+            } else {
+                0
+            }
+        }
+        WM_KEYUP | WM_SYSKEYUP => {
+            push_event(PlatformEvent::KeyUp { vk: wparam as u32 });
+            0
+        }
+        WM_CHAR => {
+            if let Some(ch) = char::from_u32(wparam as u32) {
+                push_event(PlatformEvent::Char(ch));
+            }
+            0
+        }
+        WM_SIZE => {
+            let w = (lparam as u32) & 0xFFFF;
+            let h = ((lparam as u32) >> 16) & 0xFFFF;
+            if w > 0 && h > 0 {
+                push_event(PlatformEvent::Resize { width: w, height: h });
+            }
+            DefWindowProcW(hwnd, msg, wparam, lparam)
         }
         _ => DefWindowProcW(hwnd, msg, wparam, lparam),
     }
@@ -40,9 +82,8 @@ impl Win32Window {
         use windows_sys::Win32::Graphics::Gdi::{CreateSolidBrush, HBRUSH};
         use windows_sys::Win32::System::LibraryLoader::GetModuleHandleW;
         use windows_sys::Win32::UI::WindowsAndMessaging::{
-            CreateWindowExW, DispatchMessageW, GetMessageW, LoadCursorW, RegisterClassExW,
-            ShowWindow, TranslateMessage, CS_HREDRAW, CS_VREDRAW, CW_USEDEFAULT, IDC_ARROW,
-            MSG, SW_SHOW, WNDCLASSEXW, WS_CAPTION, WS_OVERLAPPEDWINDOW, WS_THICKFRAME,
+            CreateWindowExW, LoadCursorW, RegisterClassExW,
+            ShowWindow, CS_HREDRAW, CS_VREDRAW, CW_USEDEFAULT, IDC_ARROW, SW_SHOW, WNDCLASSEXW, WS_CAPTION, WS_OVERLAPPEDWINDOW, WS_THICKFRAME,
         };
 
         let hinst = unsafe { GetModuleHandleW(ptr::null()) };
@@ -55,7 +96,7 @@ impl Win32Window {
 
         let wc = WNDCLASSEXW {
             cbSize: std::mem::size_of::<WNDCLASSEXW>() as u32,
-            style: (CS_HREDRAW | CS_VREDRAW) as u32,
+            style: (CS_HREDRAW | CS_VREDRAW),
             lpfnWndProc: Some(window_proc),
             cbClsExtra: 0,
             cbWndExtra: 0,
@@ -103,19 +144,22 @@ impl Win32Window {
 
     pub fn should_close(&self) -> bool {
         self.closed
+            || CLOSE_REQUESTED.load(std::sync::atomic::Ordering::SeqCst)
     }
 
     pub fn hwnd(&self) -> *mut std::ffi::c_void {
         self.hwnd
     }
 
-    /// Pump the Win32 message queue. Sets `closed` on WM_QUIT.
+    /// Pump the Win32 message queue without blocking. Sets `closed` on
+    /// WM_QUIT / close request so the frame loop keeps its cadence.
     pub fn pump_messages(&mut self) {
         use windows_sys::Win32::UI::WindowsAndMessaging::{
-            DispatchMessageW, GetMessageW, TranslateMessage, MSG, WM_QUIT,
+            DispatchMessageW, PeekMessageW, TranslateMessage, MSG, PM_REMOVE, WM_QUIT,
         };
         let mut msg: MSG = unsafe { std::mem::zeroed() };
-        while unsafe { GetMessageW(&mut msg, ptr::null_mut(), 0, 0) } > 0 {
+        // Drain everything currently queued; never wait for new messages.
+        while unsafe { PeekMessageW(&mut msg, ptr::null_mut(), 0, 0, PM_REMOVE) } > 0 {
             unsafe {
                 TranslateMessage(&msg);
                 DispatchMessageW(&msg);

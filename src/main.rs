@@ -42,8 +42,10 @@ pub mod graphics;
 pub mod template;
 mod app;
 mod debug;
+pub mod editor;
 mod logging;
 mod game_loop;
+pub mod world_bridge;
 
 use app::*;
 use logging::*;
@@ -52,6 +54,32 @@ use game_loop::*;
 /// Main entry point
 fn print_version() {
     println!("{} v{} (build {})", version::NAME, version::VERSION, version::GIT_COMMIT);
+}
+
+/// CLI dispatch: `litt edit [scene]` opens the editor; other args run the game.
+/// Returns Some(exit_code) when a subcommand consumed the invocation.
+fn run_cli() -> Option<i32> {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    match args.first().map(|s| s.as_str()) {
+        Some("edit") => {
+            let path = args.get(1).cloned().unwrap_or_else(|| "untitled.lscn.json".to_string());
+            print_version();
+            match editor::run_interactive(&path) {
+                Ok(()) => Some(0),
+                Err(e) => {
+                    eprintln!("editor failed: {}", e);
+                    Some(1)
+                }
+            }
+        }
+        Some("--help") | Some("-h") | Some("help") => {
+            println!("Usage: litt [edit <scene.lscn.json>]");
+            println!("  (no args)          run the game");
+            println!("  edit <scene>       open the scene editor (creates file when missing)");
+            Some(0)
+        }
+        _ => None,
+    }
 }
 
 #[cfg(target_os = "windows")]
@@ -116,6 +144,10 @@ fn main() -> std::process::ExitCode {
     #[cfg(feature = "log-std")]
     logging::init();
 
-    let code = unsafe { wWinMain(std::ptr::null_mut(), std::ptr::null_mut(), std::ptr::null_mut(), 1) };
+    if let Some(code) = run_cli() {
+        return std::process::ExitCode::from(code as u8);
+    }
+
+    let code = wWinMain(std::ptr::null_mut(), std::ptr::null_mut(), std::ptr::null_mut(), 1);
     std::process::ExitCode::from(code as u8)
 }

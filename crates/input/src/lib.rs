@@ -6,9 +6,11 @@ pub mod mouse;
 pub mod gamepad;
 pub mod input_state;
 pub mod input_system;
+pub mod platform_bridge;
 
 pub use keyboard::*;
 pub use mouse::*;
 pub use gamepad::*;
 pub use input_state::*;
 pub use input_system::*;
+pub use platform_bridge::*;

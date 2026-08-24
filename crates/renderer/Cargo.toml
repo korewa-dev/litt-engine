@@ -14,11 +14,3 @@ litt-math = { path = "../math" }
 litt-vulkan = { path = "../vulkan" }
 litt-fidelityfx = { path = "../fidelityfx" }
 litt-pathtracer = { path = "../pathtracer" }
-
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true
-

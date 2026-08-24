@@ -39,7 +39,7 @@ fn find_glsl_compiler() -> Option<PathBuf> {
     }
     if let Ok(sdk) = env::var("VULKAN_SDK") {
         for c in &candidates {
-            let p = Path::new(&sdk).join("bin").join(format!("{}.exe", c));
+            let p = Path::new(&sdk).join("bin").join(format!("{c}.exe"));
             if p.exists() { return Some(p); }
         }
     }
@@ -49,7 +49,7 @@ fn find_glsl_compiler() -> Option<PathBuf> {
 fn which(cmd: &str) -> Result<PathBuf, ()> {
     let path = env::var("PATH").unwrap_or_default();
     for dir in env::split_paths(&path) {
-        let p = dir.join(format!("{}.exe", cmd));
+        let p = dir.join(format!("{cmd}.exe"));
         if p.exists() { return Ok(p); }
         let p = dir.join(cmd);
         if p.exists() { return Ok(p); }

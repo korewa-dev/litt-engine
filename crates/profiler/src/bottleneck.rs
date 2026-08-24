@@ -1,7 +1,7 @@
 //! Bottleneck analysis -- identifies which system is limiting performance.
 //! Compares CPU, GPU, NPU, and Physics timings to find the slowest stage.
 
-use super::frame_timing::{FrameTimingBreakdown, BottleneckType};
+use super::frame_timing::FrameTimingBreakdown;
 
 /// Performance bottleneck analysis
 #[derive(Debug)]

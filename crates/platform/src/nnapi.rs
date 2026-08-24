@@ -11,7 +11,6 @@
 //! - Google Tensor G-series NPUs
 //! - Snapdragon 8-series NPUs
 
-use std::ffi::{CStr, CString};
 use std::os::raw::c_void;
 
 /// NNAPI error types
@@ -34,12 +33,12 @@ pub enum NnapiError {
 impl std::fmt::Display for NnapiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::LibraryNotFound(m) => write!(f, "NNAPI not available: {}", m),
-            Self::ModelLoadFailed(m) => write!(f, "Model load failed: {}", m),
-            Self::InferenceFailed(m) => write!(f, "Inference failed: {}", m),
-            Self::InvalidModel(m) => write!(f, "Invalid model: {}", m),
-            Self::OutOfMemory(m) => write!(f, "Out of memory: {}", m),
-            Self::DeviceUnavailable(m) => write!(f, "Device unavailable: {}", m),
+            Self::LibraryNotFound(m) => write!(f, "NNAPI not available: {m}"),
+            Self::ModelLoadFailed(m) => write!(f, "Model load failed: {m}"),
+            Self::InferenceFailed(m) => write!(f, "Inference failed: {m}"),
+            Self::InvalidModel(m) => write!(f, "Invalid model: {m}"),
+            Self::OutOfMemory(m) => write!(f, "Out of memory: {m}"),
+            Self::DeviceUnavailable(m) => write!(f, "Device unavailable: {m}"),
         }
     }
 }

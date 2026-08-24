@@ -14,10 +14,3 @@ libloading = "0.8"
 default = []
 # Enable debug logging
 debug = []
-
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true

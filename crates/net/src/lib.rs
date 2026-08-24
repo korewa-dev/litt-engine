@@ -83,7 +83,7 @@ impl Message {
             return None;
         }
         let total = u32::from_be_bytes([buf[0], buf[1], buf[2], buf[3]]) as usize;
-        if total < 2 || total > MAX_FRAME_SIZE || buf.len() < 4 + total {
+        if !(2..=MAX_FRAME_SIZE).contains(&total) || buf.len() < 4 + total {
             return None;
         }
         let topic = u16::from_be_bytes([buf[4], buf[5]]);
@@ -153,16 +153,16 @@ impl NetClient {
     pub fn connect(transport: Transport, addr: &str) -> Result<Self, String> {
         let remote = addr
             .to_socket_addrs()
-            .map_err(|e| format!("resolve '{}' failed: {}", addr, e))?
+            .map_err(|e| format!("resolve '{addr}' failed: {e}"))?
             .next()
-            .ok_or_else(|| format!("resolve '{}' produced no addresses", addr))?;
+            .ok_or_else(|| format!("resolve '{addr}' produced no addresses"))?;
 
         match transport {
             Transport::Tcp => {
                 let stream = TcpStream::connect(remote)
-                    .map_err(|e| format!("tcp connect {} failed: {}", remote, e))?;
+                    .map_err(|e| format!("tcp connect {remote} failed: {e}"))?;
                 let write_half = stream.try_clone()
-                    .map_err(|e| format!("stream clone failed: {}", e))?;
+                    .map_err(|e| format!("stream clone failed: {e}"))?;
                 let (tx, rx) = std::sync::mpsc::channel();
                 let reader = spawn_tcp_reader(stream, tx);
                 Ok(Self {
@@ -176,10 +176,10 @@ impl NetClient {
             }
             Transport::Udp => {
                 let socket = UdpSocket::bind("0.0.0.0:0")
-                    .map_err(|e| format!("udp bind failed: {}", e))?;
+                    .map_err(|e| format!("udp bind failed: {e}"))?;
                 socket
                     .connect(remote)
-                    .map_err(|e| format!("udp connect {} failed: {}", remote, e))?;
+                    .map_err(|e| format!("udp connect {remote} failed: {e}"))?;
                 let sock = Arc::new(socket);
                 let (tx, rx) = std::sync::mpsc::channel();
                 let reader_sock = sock.clone();
@@ -214,11 +214,11 @@ impl NetClient {
         if let Some(stream) = &mut self.tcp {
             stream
                 .write_all(&msg.encode_framed())
-                .map_err(|e| format!("tcp send failed: {}", e))
+                .map_err(|e| format!("tcp send failed: {e}"))
         } else if let Some(sock) = &self.udp {
             sock.send(&msg.encode_datagram())
                 .map(|_| ())
-                .map_err(|e| format!("udp send failed: {}", e))
+                .map_err(|e| format!("udp send failed: {e}"))
         } else {
             Err("client not connected".to_string())
         }
@@ -253,9 +253,9 @@ impl NetServer {
         match transport {
             Transport::Tcp => {
                 let listener = TcpListener::bind(addr)
-                    .map_err(|e| format!("tcp bind '{}' failed: {}", addr, e))?;
+                    .map_err(|e| format!("tcp bind '{addr}' failed: {e}"))?;
                 let local_addr = listener.local_addr()
-                    .map_err(|e| format!("local_addr failed: {}", e))?;
+                    .map_err(|e| format!("local_addr failed: {e}"))?;
 
                 let peers: PeerStreams = Arc::new(Mutex::new(Vec::new()));
                 let (tx, rx) = std::sync::mpsc::channel();
@@ -290,9 +290,9 @@ impl NetServer {
             }
             Transport::Udp => {
                 let socket = UdpSocket::bind(addr)
-                    .map_err(|e| format!("udp bind '{}' failed: {}", addr, e))?;
+                    .map_err(|e| format!("udp bind '{addr}' failed: {e}"))?;
                 let local_addr = socket.local_addr()
-                    .map_err(|e| format!("local_addr failed: {}", e))?;
+                    .map_err(|e| format!("local_addr failed: {e}"))?;
                 let sock = Arc::new(socket);
                 let udp_peers: Arc<Mutex<Vec<SocketAddr>>> = Arc::new(Mutex::new(Vec::new()));
 
@@ -387,7 +387,7 @@ impl NetServer {
             Some(sock) => sock
                 .send_to(&msg.encode_datagram(), peer)
                 .map(|_| ())
-                .map_err(|e| format!("udp send_to failed: {}", e)),
+                .map_err(|e| format!("udp send_to failed: {e}")),
             None => Err("send_to is UDP-only; use broadcast for TCP".to_string()),
         }
     }
@@ -544,13 +544,13 @@ mod tests {
         assert!(Message::decode_framed(&frame).is_none());
 
         // Even with the claimed body fully present
-        frame.extend(std::iter::repeat(0u8).take(64));
+        frame.extend(std::iter::repeat_n(0u8, 64));
         assert!(Message::decode_framed(&frame).is_none());
     }
 
     #[test]
     fn tcp_client_server_roundtrip() {
-        let mut server = NetServer::bind(Transport::Tcp, "127.0.0.1:0").unwrap();
+        let server = NetServer::bind(Transport::Tcp, "127.0.0.1:0").unwrap();
         let addr = server.local_addr().to_string();
 
         let mut client = NetClient::connect(Transport::Tcp, &addr).unwrap();
@@ -560,7 +560,7 @@ mod tests {
         assert_eq!(msg.as_text(), "hi from agent");
 
         // Wait until the acceptor registered the peer, then echo
-        let _ = wait_for(|| if server.peer_count() > 0 { Some(()) } else { None });
+        wait_for(|| if server.peer_count() > 0 { Some(()) } else { None });
         let sent = server.broadcast(&Message::text(topics::TEXT, "echo")).unwrap_or(0);
         assert_eq!(sent, 1);
 
@@ -591,7 +591,7 @@ mod tests {
             TransformSnapshot {
                 entity_id: 7,
                 position: [1.5, -2.25, 3.0],
-                rotation: [0.0, 0.70710678, 0.0, 0.70710678],
+                rotation: [0.0, std::f32::consts::FRAC_1_SQRT_2, 0.0, std::f32::consts::FRAC_1_SQRT_2],
                 scale: [1.0, 1.0, 1.0],
             },
             TransformSnapshot {

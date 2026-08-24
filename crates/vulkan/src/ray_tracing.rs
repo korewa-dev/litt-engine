@@ -154,7 +154,7 @@ impl BlasBuilder {
 
     /// Create the acceleration structure object (build must be recorded separately).
     pub unsafe fn build(
-        mut self,
+        self,
         device: &Device,
         rt_loader: &RtLoader,
         allocator: &mut GpuAllocator,
@@ -201,7 +201,7 @@ impl BlasBuilder {
 
         let blas = rt_loader
             .create_acceleration_structure(&blas_info, None)
-            .map_err(|e| format!("BLAS creation failed: {:?}", e))?;
+            .map_err(|e| format!("BLAS creation failed: {e:?}"))?;
 
         let info = vk::AccelerationStructureDeviceAddressInfoKHR {
             acceleration_structure: blas,
@@ -271,7 +271,7 @@ impl TlasInstance {
     pub fn new(transform: [f32; 12], custom_index: u32, mask: u32, blas_device_address: u64) -> Self {
         Self {
             transform,
-            instance_custom_index_and_mask: ((custom_index & 0x00FF_FFFF) << 0)
+            instance_custom_index_and_mask: ((custom_index & 0x00FF_FFFF))
                 | ((mask & 0xFF) << 24),
             instance_offset_and_flags: 0,
             acceleration_structure_reference: blas_device_address,
@@ -386,7 +386,7 @@ impl TlasBuilder {
         };
         let tlas = rt_loader
             .create_acceleration_structure(&tlas_info, None)
-            .map_err(|e| format!("TLAS creation failed: {:?}", e))?;
+            .map_err(|e| format!("TLAS creation failed: {e:?}"))?;
 
         let addr_info = vk::AccelerationStructureDeviceAddressInfoKHR {
             acceleration_structure: tlas,

@@ -1,7 +1,6 @@
 //! Gamepad input handling.
 //! Supports Xbox, PlayStation, and generic gamepads.
 
-use litt_math::Vec2;
 
 /// Gamepad button
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
