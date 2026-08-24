@@ -296,6 +296,17 @@
       "seed": 77,
       "about": "dark souls full game, big world with bosses and items",
       "built": "2026-08-24T18:23:28"
+    },
+    {
+      "name": "reef-rest",
+      "dir": "Project\\reef-rest",
+      "archetype": "naval_pirate",
+      "pattern": "hub_spoke",
+      "theme": "tropical_island",
+      "kit": "survivor",
+      "seed": 9,
+      "about": "cozy island farming tale, small game",
+      "built": "2026-08-24T18:56:02"
     }
   ]
 }

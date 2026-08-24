@@ -564,6 +564,24 @@ def main():
         sys.exit(1)
 
     tris = "?"
+    # native C validator (Stage-1 littcore) when built; Python fallback else
+    cli = REPO / "native" / "bin" / "littcli.exe"
+    if not cli.exists():
+        cli = REPO / "native" / "bin" / "littcli"
+    if not a.skip_validate:
+        if cli.exists():
+            import subprocess
+            vr = subprocess.run(
+                [str(cli), "validate", str(out), "--frames", "120"],
+                capture_output=True, text=True, timeout=60)
+            print(vr.stdout.strip())
+            if vr.returncode != 0:
+                print(json.dumps({"ok": False, "game": name,
+                                  "validator": "littcli"}, indent=2))
+                sys.exit(1)
+        else:
+            run(out / "play_native.py", "--project", str(out),
+                "--frames", "30", "--dummy")
     port = deploy_runtime(out, seed)
 
     # NOTES + ATTRIBUTION + manifest ---------------------------------------
