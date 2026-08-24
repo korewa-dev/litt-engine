@@ -38,12 +38,11 @@ const char *lv_mode_name(LvMode m) {
 }
 
 static void resolve_mode(const char *movement, const char *camera, LvConfig *c) {
-    /* runtime contract: platformer movement or side camera -> 2D5;
-     * top_down/isometric -> TOP; else 3D orbit. */
-    if (strstr(movement, "2_5d") || strstr(camera, "side"))
+    /* runtime contract (gameplay.rs:310-318): platformer movement or side
+     * camera -> 2D5; top_down/isometric CAMERA -> TOP; else 3D orbit. */
+    if (strstr(movement, "platformer") || strstr(camera, "side"))
         c->mode = LV_MODE_2D5;
-    else if (strstr(movement, "top_down") || strstr(movement, "isometric") ||
-             strstr(camera, "top_down"))
+    else if (strstr(camera, "top_down") || strstr(camera, "isometric"))
         c->mode = LV_MODE_TOP;
     else
         c->mode = LV_MODE_3D;

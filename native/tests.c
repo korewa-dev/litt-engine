@@ -66,12 +66,13 @@ int main(void) {
     /* ---- world: mode resolution + physics defaults ---- */
     {
         LvConfig c;
-        lv_config_from_state("{\"identity\":{\"movement\":\"top_down\",\"camera\":\"top\"}}", &c);
+        lv_config_from_state("{\"identity\":{\"movement\":\"free_roam\","
+                             "\"camera\":\"isometric\"}}", &c);
         CHECK(c.mode == LV_MODE_TOP && fabs(c.gravity - 22.0f) < 1e-5 &&
               fabs(c.buffer - 0.12f) < 1e-5,
               "world: TOP mode + default physics");
-        lv_config_from_state("{\"identity\":{\"movement\":\"side_scrolling_2_5d\"}}", &c);
-        CHECK(c.mode == LV_MODE_2D5, "world: 2_5d substring -> Side2D5");
+        lv_config_from_state("{\"identity\":{\"movement\":\"platformer_movement\"}}", &c);
+        CHECK(c.mode == LV_MODE_2D5, "world: platformer movement -> Side2D5");
 
         char st[512];
         snprintf(st, sizeof(st),
@@ -103,7 +104,7 @@ int main(void) {
             "]}");
         char state[256];
         snprintf(state, sizeof(state),
-            "{\"identity\":{\"movement\":\"top_down\"},"
+            "{\"identity\":{\"camera\":\"top_down\"},"
             "\"gameplay\":{\"physics\":{\"gravity\":22},\"lives\":3}}");
 
         LvSession s;
@@ -135,6 +136,45 @@ int main(void) {
         lv_session_free(&s);
         remove("t_scene.json");
         remove("t_floor.obj");
+    }
+
+    /* ---- regressions: CORE_AUDIT C1 (OBJ no trailing newline),
+     * M3 (astral-plane escapes), mode contract (M1/M2) ---- */
+    {
+        /* (a) OBJ whose last line has no trailing newline must not crash */
+        remove("t_nonl.obj");
+        write_file("t_nonl.obj", "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3");
+        LvModel m;
+        int rc = lv_obj_load("t_nonl.obj", &m);
+        CHECK(rc == 0, "obj: no trailing newline does not crash");
+        if (rc == 0) {
+            CHECK(m.count == 1 && m.meshes[0].in == 3,
+                  "obj: unterminated last line yields 1 face");
+            lv_model_free(&m);
+        }
+        remove("t_nonl.obj");
+
+        /* (b) \ud83d\ude00 decodes to real 4-byte UTF-8, not mojibake */
+        LvJson *j = lvj_parse("{\"e\":\"\\ud83d\\ude00\"}");
+        const char *em = lvj_str(lvj_get(j, "e"), NULL);
+        CHECK(em && (unsigned char)em[0] == 0xF0 && (unsigned char)em[1] == 0x9F &&
+              (unsigned char)em[2] == 0x98 && (unsigned char)em[3] == 0x80 &&
+              em[4] == 0,
+              "json: \\ud83d\\ude00 -> F0 9F 98 80");
+        lvj_free(j);
+
+        /* (c) mode resolution matches the runtime contract */
+        LvConfig c;
+        lv_config_from_state(
+            "{\"identity\":{\"movement\":\"platformer_movement\","
+            "\"camera\":\"third_person\"}}", &c);
+        CHECK(c.mode == LV_MODE_2D5,
+              "world: platformer_movement + third_person -> Side2D5");
+        lv_config_from_state(
+            "{\"identity\":{\"movement\":\"free_roam_movement\","
+            "\"camera\":\"third_person\"}}", &c);
+        CHECK(c.mode == LV_MODE_3D,
+              "world: free_roam_movement + third_person -> Orbit3D");
     }
 
     printf("\n%d failure(s)\n", failures);

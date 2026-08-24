@@ -24,7 +24,8 @@ import math
 from pathlib import Path
 
 from worldkit import (Rng, fbm, MeshBuilder, write_mtl_for, register_index,
-                      write_scene, write_state, append_log, load_theme, list_themes)
+                      write_scene, write_state, append_log, load_theme,
+                      list_themes, assert_origin_centered)
 
 HERE = Path(__file__).parent
 OBJECTIVES = {
@@ -80,7 +81,27 @@ def pattern_arena(rng, mats, size=14):
         pill.octahedron(round(px, 2), 3.5, round(pz, 2), 0.5)
     cen = k("center", mat_at(mats, "accent", "accent"))
     cen.pyramid(0, 0.15, 0, 2.0, 2.0, 2.8)
-    return [("Arena_Floor", [0, 0, 0], 0, ["level"])], mb
+    # --- game content: enemies + goal as instanced tagged nodes (props
+    # built AT ORIGIN, placed purely via node position) ---
+    extras = []   # (emit_name_or_None, ref_model, display_name, mb_or_None, pos, yaw, tags)
+    em = MeshBuilder(); ek = kit_factory(em)
+    ek("body", mat_at(mats, "detail", "detail")).box(0, 0.45, 0, 0.7, 0.45, 0.9)
+    ek("crest", mat_at(mats, "accent", "accent")).pyramid(0, 0.9, 0, 0.45, 0.65, 0.55)
+    assert_origin_centered(em)
+    for i in range(4):
+        a = math.pi / 4 * (2 * i + 1)   # diagonals: clear of pillars and center
+        ex, ez = round((size / 2.0) * math.cos(a), 2), round((size / 2.0) * math.sin(a), 2)
+        yaw = int(math.degrees(a + math.pi)) % 360   # face the ring center
+        extras.append(("aggro_small" if i == 0 else None, "aggro_small",
+                       "Aggro_Small_%02d" % (i + 1), em if i == 0 else None,
+                       [ex, 0, ez], yaw, ["enemy", "aggro_small"]))
+    gm = MeshBuilder(); gk = kit_factory(gm)
+    gk("gem", mat_at(mats, "accent", "accent")).octahedron(0, 0, 0, 0.45)
+    gk("ring", mat_at(mats, "structure", "structure")).cyl(0, -0.62, 0, 0.62, 0.62, 0.1, seg=12)
+    assert_origin_centered(gm)
+    extras.append(("goal_beacon", "goal_beacon", "Goal_Beacon", gm,
+                   [0, 3.6, 0], 0, ["goal"]))   # hovers over the center pyramid apex
+    return [("Arena_Floor", [0, 0, 0], 0, ["level"])], (mb, extras)
 
 def pattern_corridor(rng, mats, length=70):
     mb = MeshBuilder(); k = kit_factory(mb)
@@ -94,12 +115,28 @@ def pattern_corridor(rng, mats, length=70):
         ox = 6 + i * 7 + rng.uniform(-1.5, 1.5)
         if rng.uniform() > 0.5: ob.box(round(ox, 2), 0.7, round(rng.uniform(-2.2, 2.2), 2), 0.8, 0.7, 1.6)
         else: ob.cone(round(ox, 2), 0.5, round(rng.uniform(-2.2, 2.2), 2), 0.5, 1.0, seg=6)
-    co = k("pickups", mat_at(mats, "accent", "accent"))
+    # --- game content: pickups + goal OUT of the baked mesh, emitted as
+    # instanced tagged nodes via the hub_spoke extras convention so the
+    # engine can see them. Placement math is unchanged from when these were
+    # baked into layout_main; every prop mesh is built AT ORIGIN and placed
+    # purely via its node position. ---
+    extras = []   # (emit_name_or_None, ref_model, display_name, mb_or_None, pos, yaw, tags)
+    cm = MeshBuilder(); ck = kit_factory(cm)
+    ck("gem", mat_at(mats, "accent", "accent")).octahedron(0, 0, 0, 0.22)
+    assert_origin_centered(cm)
     for i in range(10):
-        co.octahedron(5 + i * (length - 10) / 9.0, 1.2, 0, 0.22)
-    po = k("goal", mat_at(mats, "accent", "accent"))
-    po.box(length - 1, 1.6, 0, 0.4, 3.2, 0.4)
-    return [("Corridor", [length / 2.0, 0, 0], 0, ["level"])], mb
+        cx = 5 + i * (length - 10) / 9.0          # same centers as the old baked run
+        extras.append(("coin" if i == 0 else None, "coin", "Coin_%02d" % (i + 1),
+                       cm if i == 0 else None, [cx, 1.2, 0], 0, ["pickup"]))
+    gm = MeshBuilder(); gk = kit_factory(gm)
+    gk("post", mat_at(mats, "accent", "accent")).box(0, 1.6, 0, 0.4, 3.2, 0.4)
+    gk("bar", mat_at(mats, "structure", "structure")).box(0, 3.05, 0, 1.4, 0.12, 0.14)
+    gk("cloth_l", mat_at(mats, "structure", "structure")).prism(-0.9, 2.45, 0, 0.28, 0.06, 0.55)
+    gk("cloth_r", mat_at(mats, "structure", "structure")).prism(0.9, 2.45, 0, 0.28, 0.06, 0.55)
+    assert_origin_centered(gm)
+    extras.append(("goal_banner", "goal_banner", "Goal_Banner", gm,
+                   [length - 1, 0, 0], 0, ["goal"]))
+    return [("Corridor", [length / 2.0, 0, 0], 0, ["level"])], (mb, extras)
 
 def pattern_hub(rng, mats, spokes=5, reach=26):
     mb = MeshBuilder(); k = kit_factory(mb)
@@ -182,7 +219,27 @@ def pattern_board(rng, mats, n=4):
             t = k("t", kinds[band])
             t.hex_tile(qx * 1.15, 0, qz * 1.15, 0.56, 0.14)
     placed = [("Board", [0, 0, 0], 0, ["board"])]
-    return placed, mb
+    # --- game content: pawns on the near rank + goal gate on the far edge
+    # (props built AT ORIGIN, placed purely via node position) ---
+    extras = []   # (emit_name_or_None, ref_model, display_name, mb_or_None, pos, yaw, tags)
+    tile_top = 0.14   # hex_tile(cx, 0, cz, 0.56, 0.14) top surface
+    pm = MeshBuilder(); pk = kit_factory(pm)
+    pk("base", mat_at(mats, "detail", "detail")).cyl(0, 0, 0, 0.15, 0.11, 0.42, seg=8)
+    pk("collar", mat_at(mats, "detail", "detail")).cyl(0, 0.42, 0, 0.10, 0.02, 0.10, seg=8)
+    assert_origin_centered(pm)
+    for j, qx in enumerate(range(-2, 3)):
+        px, pz = round(qx * 1.15, 2), round((n - 1) * 1.15, 2)
+        extras.append(("pawn" if j == 0 else None, "pawn", "Pawn_%02d" % (j + 1),
+                       pm if j == 0 else None, [px, tile_top, pz], 0,
+                       ["enemy", "piece"]))   # enemy = engine-visible; piece = tabletop flavor
+    gm = MeshBuilder(); gk = kit_factory(gm)
+    gk("post_l", mat_at(mats, "structure", "structure")).box(-1.0, 0.55, 0, 0.14, 0.55, 0.14)
+    gk("post_r", mat_at(mats, "structure", "structure")).box(1.0, 0.55, 0, 0.14, 0.55, 0.14)
+    gk("lintel", mat_at(mats, "accent", "accent")).box(0, 1.16, 0, 1.12, 0.08, 0.16)
+    assert_origin_centered(gm)
+    extras.append(("goal_gate", "goal_gate", "Goal_Gate", gm,
+                   [0, tile_top, -round(n * 1.15, 2)], 0, ["goal"]))
+    return placed, (mb, extras)
 
 def _catmull(p0, p1, p2, p3, t):
     t2 = t * t; t3 = t2 * t
@@ -364,8 +421,10 @@ def main():
     extra_prop = None
     if pattern == "hub_spoke":
         main_mb, poi_list, extras = payload
-    elif isinstance(payload, tuple):
+    elif pattern == "spline_track":
         main_mb, extra_prop = payload   # spline_track start gate mesh
+    elif isinstance(payload, tuple):
+        main_mb, extras = payload   # arena_ring / corridor_run / grid_board gameplay props
     else:
         main_mb = payload
     made = []

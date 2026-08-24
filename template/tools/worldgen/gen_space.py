@@ -3,6 +3,10 @@
 
 Derelict station, asteroid clumps, escape pods, star canopy over a void plane.
 Genre math: dart-thrown deterministic scatter (cookbook sec 6), Rng xorshift32.
+Instancing contract (audit item 15): ONE star mesh + N instance nodes,
+AST_VARIANTS asteroid variant meshes + instance nodes, ONE pod mesh + N pod
+nodes - OBJ count stays flat (~8) regardless of star count. Meshes are modeled
+at origin; every placement rides the node position only.
 Usage: python gen_space.py [--out-dir .] [--agent ai] [--prompt "..."]
 """
 import argparse
@@ -13,6 +17,7 @@ from worldkit import (Rng, MeshBuilder, write_mtl_for, register_index,
                       write_scene, write_state, append_log, save_prop)
 
 SEED_S = 4242
+AST_VARIANTS = 4   # shared asteroid meshes; instances pick one per node
 MATS = {
   "void_plane": (0.04, 0.055, 0.10), "star_white": (0.95, 0.96, 1.0),
   "star_blue": (0.55, 0.70, 1.0), "star_gold": (1.0, 0.85, 0.45),
@@ -59,10 +64,8 @@ def p_pod(p):
     shell = p("shell", "pod_orange"); shell.box(0, 0.5, 0, 0.45, 0.5, 0.65)
     port  = p("port", "star_blue");   port.box(0, 0.72, 0.5, 0.22, 0.16, 0.05)
 
-def p_star(color):
-    def fn(p):
-        s = p("glint", color); s.octahedron(0, 0.12, 0, 0.14)
-    return fn
+def p_star(p):
+    s = p("glint", "star_white"); s.octahedron(0, 0.12, 0, 0.14)
 
 def build(mb, fn):
     fn(Kit(mb))
@@ -91,36 +94,44 @@ def main():
     made.append("void_plane.obj")
     placed.append(("Void_Plane", [0, 0, 0], 0, ["backdrop", "terrain", "floor"]))
 
-    colors = ["star_white", "star_white", "star_white", "star_blue", "star_gold"]
+    # ONE star mesh, instanced N times (hub_spoke coin pattern): the shared
+    # glint octahedron carries an explicit model: tag so every node resolves
+    # to the single star.obj instead of one OBJ per star.
+    mb = build(MeshBuilder(), p_star)
+    save_prop(models, "star", mb, "materials", MATS, assets_dir)
+    made.append("star.obj")
     for i in range(a.stars):
-        c = colors[rng.next_u32() % len(colors)]
-        mb = build(MeshBuilder(), p_star(c))
-        name = "star_%03d" % i
-        obj_text, nv, nf = mb.to_obj(name, "materials")
-        (models / (name + ".obj")).write_text(obj_text, encoding="utf-8")
-        register_index(assets_dir, name, "models/" + name + ".obj")
         sx, sy, sz = round(rng.uniform(-90,90),2), round(rng.uniform(14,60),2), round(rng.uniform(-90,90),2)
-        placed.append((name, [sx, sy, sz], 0, ["backdrop","star"]))
-        made.append(name + ".obj")
+        placed.append(("Star_%03d" % i, [sx, sy, sz], 0, ["backdrop","star","model:star"]))
 
     mb = build(MeshBuilder(), p_station)
     save_prop(models, "derelict_station", mb, "materials", MATS, assets_dir)
     made.append("derelict_station.obj")
     placed.append(("Derelict_Station", [0, 0, 0], 0, ["poi", "salvage", "level", "hub"]))
 
-    for i in range(a.asteroids):
-        name = "asteroid_%02d" % (i+1)
+    # A few seeded asteroid VARIANT meshes, then one hazard node per asteroid.
+    variant_names = []
+    for v in range(1, AST_VARIANTS + 1):
+        name = "asteroid_v%02d" % v
         mb = build(MeshBuilder(), p_asteroid(rng))
         save_prop(models, name, mb, "materials", MATS, assets_dir)
         made.append(name + ".obj")
-        placed.append((name, [round(rng.uniform(-40,40),2), round(rng.uniform(0,8),2), round(rng.uniform(-40,40),2)], int(rng.uniform(0,360)), ["hazard"]))
+        variant_names.append(name)
+    for i in range(a.asteroids):
+        ref = variant_names[i % len(variant_names)]
+        ax, ay, az = round(rng.uniform(-40,40),2), round(rng.uniform(0,8),2), round(rng.uniform(-40,40),2)
+        placed.append(("Asteroid_%02d" % (i+1),
+                       [ax, ay, az], int(rng.uniform(0,360)),
+                       ["hazard", "model:" + ref]))
 
+    # Escape pods share ONE mesh; gameplay tags stay exactly as before.
+    mb = build(MeshBuilder(), p_pod)
+    save_prop(models, "escape_pod", mb, "materials", MATS, assets_dir)
+    made.append("escape_pod.obj")
     for i in range(a.pods):
-        name = "escape_pod_%02d" % (i+1)
-        mb = build(MeshBuilder(), p_pod)
-        save_prop(models, name, mb, "materials", MATS, assets_dir)
-        made.append(name + ".obj")
-        placed.append((name, [round(rng.uniform(-25,25),2), 0, round(rng.uniform(-25,25),2)], int(rng.uniform(0,360)), ["objective","salvage"]))
+        px, pz = round(rng.uniform(-25,25),2), round(rng.uniform(-25,25),2)
+        placed.append(("Escape_Pod_%02d" % (i+1), [px, 0, pz],
+                       int(rng.uniform(0,360)), ["objective","salvage","model:escape_pod"]))
 
     write_scene(root / "assets" / "scenes" / "world.lscn.json", placed, "void-drift")
     state = {
@@ -141,8 +152,11 @@ def main():
     write_state(root / "world_state.json", state)
     append_log(root / "LIVE_LOG.md", a.agent, a.prompt,
                "VOID DRIFT space-salvage world (seed %d)" % a.seed,
-               ["%d stars, %d asteroids, %d pods, derelict station, void plane" % (a.stars, a.asteroids, a.pods),
-                "%d scene nodes placed; gameplay spec in world_state.json" % len(placed)])
+               ["%d stars on 1 instanced mesh, %d asteroids on %d variant meshes, "
+                "%d pods on 1 mesh; station + void plane" %
+                (a.stars, a.asteroids, AST_VARIANTS, a.pods),
+                "%d scene nodes placed from only %d OBJ files (instancing)" %
+                (len(placed), len(made))])
     print("[voiddrift] ready: %d assets, %d scene nodes" % (len(made), len(placed)))
 
 if __name__ == "__main__":

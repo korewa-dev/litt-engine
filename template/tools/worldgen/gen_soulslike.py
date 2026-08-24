@@ -10,6 +10,7 @@ Genre math used (details: template/docs/genre_algorithms.md):
   - stamina economy + corpse-run encoded as data in world_state gameplay block
 """
 import argparse
+import datetime
 import math
 from pathlib import Path
 
@@ -38,7 +39,7 @@ def band(tri, seed):
     if fbm(mx*0.15, mz*0.15, seed+555, 3) > 0.74: return "scorched"
     return "ash_drift" if value_noise(mx*0.5, mz*0.5, seed+77) > 0.5 else "ash_field"
 
-# ------------------------------------------------------------------ prop kit
+
 def p_bonfire(p):
     ash = p("mound", "ash_mound");   ash.cyl(0, 0, 0, 0.95, 0.70, 0.22)
     steel = p("sword", "bonfire_steel")
@@ -83,6 +84,7 @@ def p_arch(p):
     st = p("stone", "ruin_stone")
     st.box(-2.6, 1.9, 0, 0.45, 1.9, 0.45)
     st.box( 2.6, 1.9, 0, 0.45, 1.9, 0.45)
+   
     st.box(0, 4.0, 0, 3.05, 0.30, 0.50)
 
 def p_pillar(rng):
@@ -128,27 +130,49 @@ def layout():
     for k in range(7):
         ex = rng.uniform(-14, 14); ez = rng.uniform(6, 58)
         items.append(("Soul_Ember_%02d" % (k+1), "soul_ember", [round(ex,2), 0, round(ez,2)], 0, ["pickup","souls"]))
-    for k in range(10):
-        tx = rng.uniform(-16, 16); tz = rng.uniform(4, 60)
-        if abs(tx) < 3.5 and tz < 46: tx += 6 * (1 if tx >= 0 else -1)
-        items.append(("Dead_Tree_%02d" % (k+1), "dead_tree", [round(tx,2), 0, round(tz,2)], int(rng.uniform(0,360)), ["decor"]))
-    for k in range(8):
-        gx = rng.pick([-1, 1]) * rng.uniform(2.2, 5.5); gz = 6 + k * 5.5
-        items.append(("Grave_%02d" % (k+1), "gravestone", [round(gx,2), 0, round(gz,2)], int(rng.uniform(-25,25)), ["decor","story"]))
-    for k in range(8):
-        a = 6.2831853 * k / 8
-        items.append(("Arena_Pillar_%02d" % (k+1), "broken_pillar",
-                      [round(11*math.sin(a),2), 0, round(62+11*math.cos(a),2)], int(k*45), ["arena","decor"]))
-    items.append(("Ruin_Arch", "arch", [0, 0, 38], 0, ["decor","story"]))
+    for k in range(9):
+        gx = rng.uniform(3.0, 5.8) * rng.pick([-1, 1])
+        gz = rng.uniform(7, 44)
+        items.append(("Grave_%02d" % (k+1), "grave", [round(gx,2), 0, round(gz,2)],
+                      int(rng.uniform(0, 360)), ["deco"]))
+    for k in range(6):
+        tx = rng.uniform(-18, 18); tz = rng.uniform(-8, 66)
+        items.append(("Dead_Tree_%02d" % (k+1), "dead_tree", [round(tx,2), 0, round(tz,2)],
+                      int(rng.uniform(0, 360)), ["deco"]))
+    for k in range(4):
+        px = rng.pick([-6.5, -4.5, 4.5, 6.5])
+        items.append(("Ruin_Pillar_%02d" % (k+1), "pillar", [px, 0, 50 + k*4], 0, ["deco"]))
+    items.append(("Ruin_Arch", "arch", [0, 0, 38], 90, ["deco", "gate_frame"]))
     return items
+
+
+# ------------------------------------------------------- mesh kit plumbing
+class Kit:
+    """kit("part", "mat") -> handle whose geometry ops emit into that group."""
+    def __init__(self, mb): self.mb = mb
+    def __call__(self, pname, mat):
+        self.mb.begin(pname, mat)
+        return PartHandle(self.mb)
+
+class PartHandle:
+    def __init__(self, mb): self.mb = mb
+    def tri(self, A,B,C): self.mb.tri(A,B,C)
+    def quad(self, A,B,C,D): self.mb.quad(A,B,C,D)
+    def box(self, *a): self.mb.box(*a)
+    def prism(self, *a): self.mb.roof_prism(*a)
+    def cyl(self, *a, **k): self.mb.cyl(*a, **k)
+    def cone(self, *a, **k): self.mb.cone(*a, **k)
+    def octahedron(self, *a): self.mb.octahedron(*a)
+
+def build(mb, fn):
+    fn(Kit(mb))
+    return mb
 
 # --------------------------------------------------------------------- main
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=".")
     ap.add_argument("--radius", type=int, default=2)
-    ap.add_argument("--seed-terrain", type=int, default=SEED_T)
-    ap.add_argument("--seed-scatter", type=int, default=SEED_S)
     ap.add_argument("--agent", default="ai-agent")
     ap.add_argument("--prompt", default=None)
     a = ap.parse_args()
@@ -157,94 +181,76 @@ def main():
     models.mkdir(parents=True, exist_ok=True)
     assets_dir = root / "assets"
     write_mtl_for(models, "materials", MATS)
+    made = []; placed = []; registry = []
 
-    made = []
-    coords = [(x, z) for x in range(-a.radius, a.radius+1)
-                       for z in range(-a.radius, a.radius+1)]
-    registry = []
-    for (x, z) in coords:
-        cid = "chunk_%d_%d" % (x, z)
-        mb = MeshBuilder()
-        emit_chunk(mb, "ash_field", x, z, CHUNK, RES, a.seed_terrain, height, lambda t: band(t, a.seed_terrain))
-        obj_text, nv, nf = mb.to_obj(cid, "materials")
-        p = models / (cid + ".obj")
-        if not p.exists():
-            p.write_text(obj_text, encoding="utf-8"); made.append(cid + ".obj")
-        registry.append((cid, "models/" + cid + ".obj"))
+    # --- terrain chunks (seamless: heights sampled in world space) ---------
+    # Hollow Road runs +Z, so chunk rows reach farther toward the boss arena.
+    band_fn = lambda tri: band(tri, SEED_T)
+    for x in range(-a.radius, a.radius + 1):
+        for z in range(-a.radius, a.radius + 3):
+            cid = "chunk_%d_%d" % (x, z)
+            mb = MeshBuilder()
+            emit_chunk(mb, "ash_field", x, z, CHUNK, RES, SEED_T, height, band_fn)
+            obj_text, nv, nf = mb.to_obj(cid, "materials")
+            p = models / (cid + ".obj")
+            if not p.exists():
+                p.write_text(obj_text, encoding="utf-8"); made.append(cid + ".obj")
+            registry.append((cid, "models/" + cid + ".obj"))
+            placed.append((cid, [x * CHUNK, 0, z * CHUNK], 0, ["terrain"]))
     for cid, rel in registry:
         register_index(assets_dir, cid, rel)
 
-    props = [
-      ("bonfire", p_bonfire), ("hollow", p_hollow),
-      ("dead_tree", p_dead_tree(Rng(SEED_S))), ("gravestone", p_grave(Rng(SEED_S+1))),
-      ("arch", p_arch), ("broken_pillar", p_pillar(Rng(SEED_S+2))),
-      ("fog_gate", p_fog_gate), ("boss_knight", p_boss_knight),
-      ("soul_ember", p_soul_ember), ("bloodstain", p_bloodstain),
-    ]
-    class PartHandle:
-        def __init__(self, mb): self.mb = mb
-        def tri(self, A,B,C): self.mb.tri(A,B,C)
-        def quad(self, A,B,C,D): self.mb.quad(A,B,C,D)
-        def box(self, *a): self.mb.box(*a)
-        def prism(self, *a): self.mb.roof_prism(*a)
-        def pyramid(self, *a): self.mb.pyramid(*a)
-        def cyl(self, *a, **k): self.mb.cyl(*a, **k)
-        def cone(self, *a, **k): self.mb.cone(*a, **k)
-        def octahedron(self, *a): self.mb.octahedron(*a)
-    class Kit:
-        """p("part_name", "material") -> handle emitting into that group."""
-        def __init__(self, mb): self.mb = mb
-        def __call__(self, pname, mat):
-            self.mb.begin(pname, mat)
-            return PartHandle(self.mb)
-    prop_names = []
-    for name, fn in props:
-        mb = MeshBuilder()
-        fn(Kit(mb))
-        p, kb, nf = save_prop(models, name, mb, "materials", MATS, assets_dir)
-        prop_names.append(name)
-        print("[emberfall] +%s.obj (%d tris, %.1f KB)" % (name, nf, kb))
+    # --- props (each unique model built once, shared by its scene nodes) ---
+    rng = Rng(SEED_S)
+    for name, fn in [("bonfire", p_bonfire), ("bloodstain", p_bloodstain),
+                     ("hollow", p_hollow), ("grave", p_grave(rng)),
+                     ("dead_tree", p_dead_tree(rng)), ("pillar", p_pillar(rng)),
+                     ("arch", p_arch), ("fog_gate", p_fog_gate),
+                     ("boss_knight", p_boss_knight), ("soul_ember", p_soul_ember)]:
+        save_prop(models, name, build(MeshBuilder(), fn), "materials", MATS, assets_dir)
+        made.append(name + ".obj")
 
-    placed = []
-    for nm, model, pos, yaw, tags in layout():
-        placed.append((nm, pos, yaw, tags + ["model:" + model]))
-    for cid, rel in registry:
-        cx, cz = cid.replace("chunk_", "").split("_")
-        placed.append((cid, [int(cx)*CHUNK, 0, int(cz)*CHUNK], 0, ["terrain"]))
+    # --- scene nodes from layout(), each prop grounded on the fBm surface ---
+    for nm, kind, pos, yaw, tags in layout():
+        y = round(height(pos[0], pos[2], SEED_T), 3)
+        placed.append((nm, [pos[0], y, pos[2]], yaw, list(tags), kind))
     write_scene(root / "assets" / "scenes" / "world.lscn.json", placed, "emberfall-hollow")
 
+    # --- world state LAST, then log ----------------------------------------
     state = {
       "format": "litt-live-state", "version": 1, "mode": "ai-exclusive",
       "theme": "emberfall-hollow",
-      "updated": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
-      "seed": {"terrain": a.seed_terrain, "scatter": a.seed_scatter},
+      "identity": {"movement": "soulslike third-person stamina sprint",
+                   "camera": "third-person orbit"},
+      "updated": datetime.datetime.now().isoformat(timespec="seconds"),
+      "seed": {"terrain": SEED_T, "scatter": SEED_S},
       "chunk_size": CHUNK, "radius": a.radius,
-      "camera": {"target": [0, 1, 2], "distance": 20},
+      "camera": {"target": [0, 1.5, 30], "distance": 30},
       "chunks": [{"id": c, "path": "assets/" + r,
                   "position": [int(c.split("_")[1])*CHUNK, 0, int(c.split("_")[2])*CHUNK]}
                  for c, r in registry],
       "palette": MATS,
       "gameplay": {
         "genre": "soulslike",
-        "objective": "Emberfall Hollow: kindle the bonfire, survive the road, face the Ashen Knight",
-        "enemy_aggro_m": 8.0,
+        "objective": "light the bonfire, fight up Hollow Road, cross the fog gate and fell the Ashen Knight",
         "corpse_run": True,
-        "spawn": [0.0, 0.0, 4.5],
-        "checkpoint": {"node": "Bonfire", "respawn_on_death": True},
-        "souls": {"pickups": 7, "corpse_run": "return to Bloodstain node to recover"},
-        "combat": {"stamina_max": 100, "roll_cost": 25, "attack_cost": 20, "regen_per_sec": 35},
-        "enemies": {"hollow_aggro_radius_m": 6, "boss": "Ashen Knight"},
-        "fog_gate": {"position": [0, 1.55, 46], "opens_on": "approach"}
-      }
+        "physics": {"gravity": -22.0, "jump_velocity": 8.0, "run_speed": 6.5,
+                    "coyote_time_s": 0.10, "jump_buffer_s": 0.12},
+        "enemy_aggro_m": 8.0, "kill_radius_m": 2.2, "interact_radius_m": 2.4,
+        "lives": 0, "score_goal": 1225,
+        "scoring": {"per_ember": 25, "checkpoint_light": 150, "boss_kill": 900},
+        "hazards": ["hollow ambushes along the road", "the Ashen Knight beyond the fog"],
+        "checkpoints": ["Bonfire"]}
     }
     write_state(root / "world_state.json", state)
     append_log(root / "LIVE_LOG.md", a.agent, a.prompt,
-               "EMBERFALL HOLLOW soulslike world -> radius %d (terrain seed %d, scatter seed %d)" % (a.radius, a.seed_terrain, a.seed_scatter),
-               ["re-themed %d terrain chunks to ash palette" % len(registry),
-                "props built: " + ", ".join(prop_names),
-                "scene nodes: %d (bonfire, 3 hollows, fog gate, boss arena, embers, graves)" % len(placed),
-                "gameplay spec written into world_state.json"])
-    print("[emberfall] world ready: %d chunks + %d prop types | state + scene + index updated" % (len(registry), len(prop_names)))
+               "EMBERFALL HOLLOW pocket-soulslike world (terrain seed %d, scatter seed %d)" % (SEED_T, SEED_S),
+               ["%d terrain chunks (%.0fm grid, res %d, road-extended +Z)" % (len(registry), CHUNK, RES),
+                "%d prop models, %d scene nodes; bonfire/corpse-run/fog-gate/boss contract in world_state.json"
+                % (len(made) - len(registry), len(placed))])
+    print("[emberfall] ready: %d chunks + %d assets | %d scene nodes"
+          % (len(registry), len(made), len(placed)))
 
 if __name__ == "__main__":
     main()
+...

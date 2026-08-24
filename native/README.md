@@ -1,57 +1,109 @@
-# Litt Native Core (`native/`) - staged C/C++ rewrite
+# Litt Engine C++ Core
 
-Directive: move the engine to C/C++, keeping Rust only where it earns its
-place. This is a **staged migration**, not a big-bang port - every stage must
-compile clean, pass its own tests, and leave the full battery green.
+Lightweight, high-performance game engine core in C++17. Header-only modules,
+zero external dependencies.
 
-## Stage 1 (SHIPPED) - littcore C library + headless CLI
+## Verified Status
 
-| file | role | ported from |
-|---|---|---|
-| `littcore/litt_json.[ch]` | dependency-free JSON scanner | `src/gameplay.rs` Json |
-| `littcore/litt_obj.[ch]` | group-aware OBJ loader (named part meshes, per-group index remap) | `crates/asset/src/model.rs` ObjLoader |
-| `littcore/litt_world.[ch]` | world_state config parse + contract gameplay sim (modes, physics defaults, solids from model bounds, tag entities, tiers+lunge, lives/score/goal) | `src/gameplay.rs` |
-| `littcli.c` | headless project validator (`littcli validate <dir> [--frames N]`) | `play_native.py --dummy` path |
-| `tests.c` | unit tests (21 checks) | gameplay.rs tests subset |
+| Check | Result |
+|-------|--------|
+| Unit tests (`tests.cpp`) | **23/23 PASS** |
+| Umbrella header `litt.h` | compiles clean (`g++ -std=c++17 -fsyntax-only`) |
+| Council self-test (`council_demo.cpp`) | tiers, weighted votes, quorum, overrides all pass |
+| Benchmarks (`benchmarks.cpp`) | see table below |
 
-Build: `native\build.bat` (Windows, gcc/llvm-mingw) or `make -C native`
-(POSIX). Tests: `native\build.bat test`.
+```text
+ GROUP  OPERATION      LIB ns/op    RAW ns/op    OVERHEAD
+---------------------------------------------------------
+ Vec3   add                1.645        1.669       0.99x
+        mul                1.711        1.736       0.99x
+        dot                1.735        1.630       1.06x
+        cross              3.704        2.939       1.26x
+        normalize          6.797        4.993       1.36x   <- safety epsilon check
+ Mat4   multiply          10.792       15.382       0.70x   <- faster than raw
+        transform          4.774        6.053       0.79x
+ Quat   multiply           7.792        8.752       0.89x
+ AABB   intersects         ~4.5         ~4.8        0.94x
+```
 
-Integration: `make_game.py` prefers `native/bin/littcli(.exe)` for step-4
-validation and falls back to Python when the binary is absent.
+## Modules (`native/littcore/`)
 
-## Stage 2 (SHIPPED, first light) - C++ renderer front-end
+| File | Purpose |
+|------|---------|
+| `litt_math.h` | Vec2/3/4, Mat4, Quat, Aabb, Ray, raycasts, lerp/clamp/smoothstep |
+| `litt_ecs.h` | Entity + typed component storage (O(1) add/remove), systems |
+| `litt_input.h` | Keyboard/mouse state, action bindings |
+| `litt_world.h` | Game world sim: gravity, enemies, goals, win/lose |
+| `litt_council.h` | Compile-time feature flags + runtime weighted-vote council |
+| `litt_scene.h` | Scene graph with hierarchical transforms |
+| `litt_audio.h` | Clip/source/listener management (backend stub) |
+| `litt_config.h` | Key/value Settings store + quality presets |
+| `litt_ui.h`, `litt_profiler.h` | UI helpers, profiler |
 
-`littview.cpp` - single-file C++17 front-end consuming littcore:
+Executables / tests: `tests.cpp`, `benchmarks.cpp`, `council_demo.cpp`,
+`game.cpp`, `litteditor.cpp`.
 
-- loads a game's world_state + lscn + every `model:` OBJ (cached per name)
-- ports the engine bake: sun diffuse |n.l| + hemispheric ambient + centroid
-  distance haze, tag-driven tints (enemy red / pickup gold / goal green)
-- orbit camera with robust framing: fit radius from the 88th-percentile
-  triangle-centroid distance (backdrop ground discs can't zoom us out),
-  constant slant range, elevation auto-steepens to 55 deg for flat worlds,
-  yaw auto-picks perpendicular to the long axis
-- depth-buffered software rasterizer, gamma-correct output; BMP writer for
-  offscreen verification (`render <dir> --out f.bmp`), Win32 DIB window
-  mode (`window <dir>`, arrows-free slow auto-orbit), pixel selftest
-- NOTE: studio.rs perspective uses f=1/tan(fov) => ~143 deg effective hfov;
-  fine in its side panel, fisheye fullscreen - littview derives vfov from a
-  proper 60 deg horizontal fov instead
+## Build & Test
 
-Verified: selftest ok; six shipped games render with real content
-(drowned-vow 66%, kingsfall 79%, reef-rest 67% frame fill, 22-42 distinct
-colors each); LITT_DEBUG=1 prints rasterizer diagnostics.
+```powershell
+cd native
+.\run_tests.ps1          # build + run unit tests (Windows)
 
-## Stage 3 (LATER) - parity & retirement
+# Linux/macOS
+./run_tests.sh
+```
 
-As C++ reaches feature parity per subsystem, retire the matching Rust binary
-paths. Rust stays where it is genuinely needed until replaced (today: the
-Studio app shell, Vulkan backend plumbing, path tracer reference).
+Manual compile of anything:
 
-## Rules
+```bash
+g++ -std=c++17 -O2 -I. <file.cpp> -o <out>
+```
 
-- No third-party deps in littcore (libc only).
-- Every port ships with unit tests proving behavioral parity on the contract
-  level (mode resolution, physics constants, tier pacing, OBJ grouping).
-- The Python AI toolchain keeps calling the same pipeline; validators may
-  swap underneath transparently.
+## Usage
+
+```cpp
+#include "litt.h"
+
+using namespace litt;
+
+int main() {
+    // Math
+    Mat4 view = Mat4::look_at(Vec3(0,5,-10), Vec3::zero(), Vec3::up());
+    Vec3 v = view * Vec3(1, 2, 3);            // world -> camera space
+
+    // ECS
+    World w;
+    auto e  = w.create();
+    w.add<Transform>(e, Transform{Vec3(1,2,3)});
+    auto* t = w.get<Transform>(e);
+
+    // Input (mutators are press/release; queries are key_down/action)
+    Input in;
+    in.load_defaults();
+    if (in.action("jump")) {}
+
+    // Council: decide which features load
+    Council c;
+    c.apply_tier(Tier::High);
+    c.add_voter({"lead", 3});
+    c.vote("lead", Feature::Renderer, Vote::Yes);
+    bool gfx = c.decide(Feature::Renderer);
+
+    return 0;
+}
+```
+
+## API Notes (learned the hard way — kept accurate)
+
+- `Input`: queries `key_down/key_pressed/mouse_down/...`; mutators are
+  `press/release/mouse_press/mouse_release` (no query/mutator name collisions).
+- `Mat4::look_at` builds a proper **view** matrix (camera axes as rows);
+  `m * eye == origin`.
+- `World` (ECS) and `WorldState`/`WorldManager` (world sim) are distinct;
+  `Config` (game rules, in `litt_world.h`) vs `Settings` (key/value store, in
+  `litt_config.h`) are distinct.
+- Compile-time feature cuts: `-DLITT_ENABLE_RENDERER=0` etc.
+
+## License
+
+See ../LICENSE

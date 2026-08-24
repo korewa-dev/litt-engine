@@ -60,8 +60,13 @@ static void utf8_put(char *b, size_t *len, unsigned cp) {
     else if (cp < 0x800) {
         b[(*len)++] = (char)(0xC0 | (cp >> 6));
         b[(*len)++] = (char)(0x80 | (cp & 0x3F));
-    } else {
+    } else if (cp < 0x10000) {
         b[(*len)++] = (char)(0xE0 | (cp >> 12));
+        b[(*len)++] = (char)(0x80 | ((cp >> 6) & 0x3F));
+        b[(*len)++] = (char)(0x80 | (cp & 0x3F));
+    } else {
+        b[(*len)++] = (char)(0xF0 | (cp >> 18));
+        b[(*len)++] = (char)(0x80 | ((cp >> 12) & 0x3F));
         b[(*len)++] = (char)(0x80 | ((cp >> 6) & 0x3F));
         b[(*len)++] = (char)(0x80 | (cp & 0x3F));
     }
@@ -91,13 +96,27 @@ static char *parse_str_raw(P *p) {
             case 'u': {
                 unsigned cp;
                 if (!hex4(p, &cp)) { free(buf); return NULL; }
-                /* surrogate pair */
-                if (cp >= 0xD800 && cp <= 0xDBFF && p->i + 1 < p->n &&
-                    p->s[p->i] == '\\' && p->s[p->i + 1] == 'u') {
-                    p->i += 2;
-                    unsigned lo;
-                    if (!hex4(p, &lo)) { free(buf); return NULL; }
-                    cp = 0x10000 + ((cp - 0xD800) << 10) + (lo - 0xDC00);
+                /* surrogate pairs: high+\uDC00-\uDFFF combines;
+                 * unpaired surrogates become U+FFFD, never raw-encoded
+                 * (avoids lo - 0xDC00 unsigned underflow). */
+                if (cp >= 0xD800 && cp <= 0xDBFF) {
+                    if (p->i + 1 < p->n && p->s[p->i] == '\\' &&
+                        p->s[p->i + 1] == 'u') {
+                        size_t save = p->i;
+                        p->i += 2;
+                        unsigned lo;
+                        if (!hex4(p, &lo)) { free(buf); return NULL; }
+                        if (lo >= 0xDC00 && lo <= 0xDFFF)
+                            cp = 0x10000 + ((cp - 0xD800) << 10) + (lo - 0xDC00);
+                        else {
+                            p->i = save;   /* not a pair: rewind, lone high */
+                            cp = 0xFFFD;
+                        }
+                    } else {
+                        cp = 0xFFFD;       /* lone high surrogate */
+                    }
+                } else if (cp >= 0xDC00 && cp <= 0xDFFF) {
+                    cp = 0xFFFD;           /* lone low surrogate */
                 }
                 utf8_put(buf, &len, cp);
                 break;

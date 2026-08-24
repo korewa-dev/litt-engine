@@ -25,6 +25,7 @@ MATS = {
   "die_white": (0.92, 0.92, 0.90)
 }
 PAWN_COLORS = ["pawn_red", "pawn_blue", "pawn_green", "pawn_gold", "pawn_violet", "pawn_black"]
+MOVE_COSTS = {"water": 0, "plains": 1, "forest": 2, "mountain": 3}  # 0 = blocked
 
 class Kit:
     def __init__(self, mb): self.mb = mb
@@ -38,13 +39,16 @@ class PartHandle:
     def cyl(self, *a, **k): self.mb.cyl(*a, **k)
     def prism(self, *a): self.mb.roof_prism(*a)
     def hex_tile(self, *a, **k): self.mb.hex_tile(*a, **k)
+    def octa(self, *a): self.mb.octahedron(*a)
 
 def build(mb, fn):
     fn(Kit(mb))
     return mb
 
 def tile_kind(q, r, seed):
-    n = fbm(q * 0.5 + 9, r * 0.5 + 9, seed)
+    # Scale/offsets chosen so the lattice hashes span [0,1): tiny inputs
+    # (q*0.5+9) hashed into one low bucket and produced all-water boards.
+    n = fbm(q * 3.1 + 40, r * 3.1 + 55, seed)
     if n < 0.34: return ("tile_water", 0.06)
     if n < 0.55: return ("tile_plains", 0.16)
     if n < 0.74: return ("tile_forest", 0.24)
@@ -68,7 +72,7 @@ def main():
     kit = Kit(mb)
     frame = kit("frame", "board_wood")
     frame.box(0, -0.09, 0, 6.6, 0.08, 5.9)
-    board_tiles = []
+    board_tiles = []   # (q, r, x, z, kind, h) - source for structured tiles
     for q in range(-3, 4):
         for r in range(-3, 4):
             if abs(q + r) > 3: continue
@@ -76,7 +80,7 @@ def main():
             z = HEX * 1.5 * r
             kind, h = tile_kind(q, r, a.seed)
             frame.hex_tile(x, 0, z, HEX * 0.96, h)
-            board_tiles.append((x, z, kind))
+            board_tiles.append((q, r, x, z, kind, h))
     name = "hex_board"
     obj_text, nv, nf = mb.to_obj(name, "materials")
     (models / (name + ".obj")).write_text(obj_text, encoding="utf-8")
@@ -85,26 +89,64 @@ def main():
     placed.append(("Hex_Board", [0, 0, 0], 0, ["board","tabletop"]))
 
     rng = Rng(a.seed + 1)
-    corners = sorted(board_tiles, key=lambda t: -(abs(t[0]) + abs(t[1])))[:6]
-    for i, (x, z, kind) in enumerate(corners):
+    corners = sorted(board_tiles, key=lambda t: -(abs(t[2]) + abs(t[3])))[:6]
+    # TRANSFORM CONVENTION: pawn/die meshes are modeled AT ORIGIN; the scene
+    # node's position alone carries the board placement (no double transform).
+    for i, (pq, pr, px, pz, kind, ph) in enumerate(corners):
         cname = "Pawn_%02d" % (i+1); cmat = PAWN_COLORS[i % len(PAWN_COLORS)]
         mb = MeshBuilder()
-        pawn = kit2 = None
         k = Kit(mb); pw = k("pawn", cmat)
-        pw.cyl(x, 0.1, z, 0.15, 0.11, 0.42, seg=8)
-        head = k("head", cmat); head.cyl(x, 0.52, z, 0.10, 0.02, 0.10, seg=8)
-        save_prop(models, cname, mb, "materials", MATS, assets_dir)
+        pw.cyl(0, 0.1, 0, 0.15, 0.11, 0.42, seg=8)
+        head = k("head", cmat); head.cyl(0, 0.52, 0, 0.10, 0.02, 0.10, seg=8)
+        save_prop(models, cname, mb, "materials", MATS, assets_dir,
+                  enforce_origin=True)
         made.append(cname + ".obj")
-        placed.append((cname, [round(x,3), 0, round(z,3)], 0, ["token","player"]))
+        placed.append((cname, [round(px,3), 0, round(pz,3)], 0,
+                       ["token","player"], cname))
 
     for i in range(2):
         dname = "Die_%02d" % (i+1)
         mb = MeshBuilder(); k = Kit(mb); d = k("cube", "die_white")
         dx = -0.7 + i * 1.4
-        d.box(dx, 0.26, 0.0, 0.16, 0.16, 0.16)
-        save_prop(models, dname, mb, "materials", MATS, assets_dir)
+        d.box(0, 0.26, 0, 0.16, 0.16, 0.16)      # modeled at origin
+        save_prop(models, dname, mb, "materials", MATS, assets_dir,
+                  enforce_origin=True)
         made.append(dname + ".obj")
-        placed.append((dname, [dx, 0, 0], int(rng.uniform(0, 90)), ["dice"]))
+        placed.append((dname, [dx, 0, 0], int(rng.uniform(0, 90)),
+                       ["dice"], dname))
+
+    # -- machine-readable win condition: tagged goal nodes at opposite edges,
+    # sharing ONE origin-centered banner mesh (instancing pattern).
+    north = min(board_tiles, key=lambda t: (t[3], abs(t[2]), t[2]))
+    south = max(board_tiles, key=lambda t: (t[3], -abs(t[2]), -t[2]))
+    mbg = MeshBuilder(); kg = Kit(mbg); gb = kg("banner", "pawn_gold")
+    gb.cyl(0, 0, 0, 0.05, 0.04, 0.85, seg=6)
+    gb.box(0, 0.70, 0, 0.34, 0.12, 0.03)
+    save_prop(models, "goal_banner", mbg, "materials", MATS, assets_dir,
+              enforce_origin=True)
+    made.append("goal_banner.obj")
+    for gname, gt, gyaw in (("Goal_North", north, 0),
+                            ("Goal_South", south, 180)):
+        placed.append((gname, [round(gt[2], 3), round(gt[5], 3), round(gt[3], 3)],
+                       gyaw, ["goal", "poi", "edge"], "goal_banner"))
+
+    # pickup gems: one origin-centered mesh instanced on free plains tiles
+    reserved = {(c[0], c[1]) for c in corners} | {(north[0], north[1]),
+                                                  (south[0], south[1])}
+    plains = [t for t in board_tiles
+              if t[5] == "tile_plains" and (t[0], t[1]) not in reserved]
+    gems = plains[:4] if len(plains) <= 4 else \
+        [plains[i * len(plains) // 4] for i in range(4)]
+    if gems:
+        mbt = MeshBuilder(); kt = Kit(mbt); tg = kt("gem", "pawn_gold")
+        tg.octa(0, 0.16, 0, 0.16)
+        save_prop(models, "token_gem", mbt, "materials", MATS, assets_dir,
+                  enforce_origin=True)
+        made.append("token_gem.obj")
+    for gi, gt in enumerate(gems):
+        placed.append(("Token_Gem_%02d" % (gi+1),
+                       [round(gt[2], 3), round(gt[5], 3), round(gt[3], 3)],
+                       0, ["pickup"], "token_gem"))
 
     write_scene(root / "assets" / "scenes" / "world.lscn.json", placed, "council-of-six")
     state = {
@@ -119,14 +161,23 @@ def main():
       "gameplay": {"genre": "tabletop_strategy",
                    "players": "2-6 (six pawn colors)",
                    "turn_structure": "roll d6 -> move -> resolve tile",
-                   "tiles": {"water": "blocked", "plains": "1 move", "forest": "2 moves", "mountain": "3 moves"},
+                   "tiles": [{"q": q, "r": r,
+                              "pos": [round(x, 3), round(z, 3)],
+                              "kind": kind.split("_", 1)[1],
+                              "cost": MOVE_COSTS[kind.split("_", 1)[1]]}
+                             for (q, r, x, z, kind, h) in board_tiles],
+                   "tiles_legend": {"water": "blocked", "plains": "1 move",
+                                    "forest": "2 moves", "mountain": "3 moves"},
+                   "goals": ["Goal_North", "Goal_South"],
                    "win_condition": "first to reach the opposite edge tile"}
     }
     write_state(root / "world_state.json", state)
     append_log(root / "LIVE_LOG.md", a.agent, a.prompt,
                "COUNCIL OF SIX hex tabletop board (seed %d)" % a.seed,
                ["37 hex tiles banded by fBm, 6 pawns, 2 dice, wooden frame",
-                "turn rules written into world_state.json"])
+                "goal banners tagged goal on opposite edges (machine-readable win)",
+                "per-tile kind + move cost emitted as structured gameplay.tiles",
+                "%d pickup gems instanced on plains tiles" % len(gems)])
     print("[tabletop] ready: %d assets, %d scene nodes" % (len(made), len(placed)))
 
 if __name__ == "__main__":
