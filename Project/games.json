@@ -307,6 +307,17 @@
       "seed": 9,
       "about": "cozy island farming tale, small game",
       "built": "2026-08-24T18:56:02"
+    },
+    {
+      "name": "gull-point",
+      "dir": "Project\\gull-point",
+      "archetype": "walking_simulator",
+      "pattern": "hub_spoke",
+      "theme": "deep_forest",
+      "kit": "souls",
+      "seed": 77,
+      "about": "misty lighthouse keeper mystery, small game",
+      "built": "2026-08-24T21:44:29"
     }
   ]
 }
