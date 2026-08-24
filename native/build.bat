@@ -16,6 +16,13 @@ set CFLAGS=-std=c11 -O2 -Wall -Wextra -I.
 %CC% bin\litt_json.o bin\litt_obj.o bin\litt_world.o bin\littcli_main.o -o bin\littcli.exe || exit /b 1
 echo [build] bin\littcli.exe OK
 
+rem Stage-2 C++ front-end (needs g++)
+where g++ >nul 2>nul && (
+    g++ -std=c++17 -O2 -Wall -Wextra -I. -c littview.cpp -o bin\littview_main.o || exit /b 1
+    g++ bin\litt_json.o bin\litt_obj.o bin\litt_world.o bin\littview_main.o -o bin\littview.exe -lgdi32 || exit /b 1
+    echo [build] bin\littview.exe OK
+)
+
 if "%1"=="test" (
     %CC% %CFLAGS% -c tests.c -o bin\tests_main.o || exit /b 1
     %CC% bin\litt_json.o bin\litt_obj.o bin\litt_world.o bin\tests_main.o -o bin\littcore_tests.exe || exit /b 1

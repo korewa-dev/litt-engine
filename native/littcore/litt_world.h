@@ -6,6 +6,10 @@
 #include "litt_json.h"
 #include "litt_obj.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum { LV_MODE_3D = 0, LV_MODE_TOP, LV_MODE_2D5 } LvMode;
 typedef enum { LV_TIER_MOOK = 0, LV_TIER_ELITE, LV_TIER_BOSS } LvTier;
 
@@ -73,4 +77,9 @@ void lv_step(LvSession *s, float dt, float f, float saxis, int jump_pressed);
 
 const char *lv_mode_name(LvMode m);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif
+

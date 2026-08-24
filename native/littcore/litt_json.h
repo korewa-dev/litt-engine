@@ -3,6 +3,10 @@
 #ifndef LITT_JSON_H
 #define LITT_JSON_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum {
     LJ_NULL = 0, LJ_BOOL, LJ_NUM, LJ_STR, LJ_ARR, LJ_OBJ
 };
@@ -26,5 +30,9 @@ int lvj_bool(const LvJson *v, int def);
 const char *lvj_str(const LvJson *v, const char *def);
 int lvj_arr_f3(const LvJson *v, float out[3]);
 void lvj_free(LvJson *v);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

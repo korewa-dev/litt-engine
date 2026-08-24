@@ -4,6 +4,10 @@
 #ifndef LITT_OBJ_H
 #define LITT_OBJ_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     char name[64];
     float *verts;      /* xyz triplets */
@@ -21,5 +25,9 @@ typedef struct {
 /* 0 = ok, nonzero = error (file unreadable / no faces). */
 int lv_obj_load(const char *path, LvModel *out);
 void lv_model_free(LvModel *m);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
