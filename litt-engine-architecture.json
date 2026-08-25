@@ -35,6 +35,12 @@
         "label": "Cross-Platform Support",
         "focus": ["platform", "vulkan", "renderer"],
         "note": "Multi-platform deployment across Windows, Linux, and Android"
+      },
+      {
+        "id": "agent-constraints",
+        "label": "AI Agent Constraint System",
+        "focus": ["tool-usage-law", "verification-sequence"],
+        "note": "Mandatory 4-step verification: glob -> read -> run -> report"
       }
     ]
   },
