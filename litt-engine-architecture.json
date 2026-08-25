@@ -41,6 +41,12 @@
         "label": "AI-Powered World Generation",
         "focus": ["agentic", "forge", "refine"],
         "note": "Generate, fuse, and refine multi-region games from text prompts"
+      },
+      {
+        "id": "agent-constraints",
+        "label": "AI Agent Constraint System",
+        "focus": ["tool-usage-law", "verification-sequence"],
+        "note": "Mandatory 4-step verification: glob -> read -> run -> report"
       }
     ]
   },
@@ -57,7 +63,9 @@
     { "id": "cli", "type": "frontend", "label": "Litt CLI", "sublabel": "litt.py", "pos": [500, 200], "size": [140, 60] },
     { "id": "studio", "type": "frontend", "label": "Litt Studio", "sublabel": "LittStudio.cs", "pos": [500, 300], "size": [140, 60] },
     { "id": "proof", "type": "quality", "label": "Native Proof Gate", "sublabel": "native_proof.py", "pos": [500, 400], "size": [140, 60] },
-    { "id": "validation", "type": "quality", "label": "Project Validation", "sublabel": "verify_project.py", "pos": [300, 500], "size": [140, 60] }
+    { "id": "validation", "type": "quality", "label": "Project Validation", "sublabel": "verify_project.py", "pos": [300, 500], "size": [140, 60] },
+    { "id": "tool-usage-law", "type": "constraint", "label": "Tool-Usage Law", "sublabel": "glob/read/run/report (AGENTS.md §2)", "pos": [500, 500], "size": [140, 60] },
+    { "id": "mirrors", "type": "constraint", "label": "Rule Mirrors", "sublabel": "11 files sync law to all AI platforms", "pos": [700, 100], "size": [140, 60] }
       }
     ]
   },
