@@ -1,73 +1,167 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="blue-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#61aaee;stop-opacity:1"/>
-      <stop offset="100%" style="stop-color:#4dabf7;stop-opacity:1"/>
+    <linearGradient id="cyan" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#00b8d4"/>
+      <stop offset="100%" style="stop-color:#00f0ff"/>
     </linearGradient>
-    <linearGradient id="amber-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffbb55;stop-opacity:1"/>
-      <stop offset="100%" style="stop-color:#ff922b;stop-opacity:1"/>
+    <linearGradient id="amber" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff922b"/>
+      <stop offset="100%" style="stop-color:#ffbb55"/>
     </linearGradient>
-    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="5" result="blur"/>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <!-- Transparent background -->
+  <!-- Transparent bg -->
   <rect width="512" height="512" fill="none"/>
 
-  <!-- Subtle border -->
-  <rect x="4" y="4" width="504" height="504" fill="none" stroke="#4dabf7" stroke-width="2" opacity="0.15"/>
+  <!-- Border -->
+  <rect x="6" y="6" width="500" height="500" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.3"/>
 
-  <!-- Corner accent dots -->
-  <circle cx="12" cy="12" r="4" fill="#4dabf7" opacity="0.24"/>
-  <circle cx="500" cy="12" r="4" fill="#4dabf7" opacity="0.24"/>
-  <circle cx="12" cy="500" r="4" fill="#4dabf7" opacity="0.24"/>
-  <circle cx="500" cy="500" r="4" fill="#4dabf7" opacity="0.24"/>
+  <!-- Corner brackets -->
+  <polyline points="10,30 10,10 30,10" fill="none" stroke="#00f0ff" stroke-width="2"/>
+  <polyline points="482,30 482,10 462,10" fill="none" stroke="#00f0ff" stroke-width="2"/>
+  <polyline points="10,482 10,462 30,462" fill="none" stroke="#00f0ff" stroke-width="2"/>
+  <polyline points="482,482 482,462 462,462" fill="none" stroke="#00f0ff" stroke-width="2"/>
 
-  <!-- ===== "L" MARK — centered in square ===== -->
-  <!-- Vertical bar -->
-  <rect x="164" y="80" width="32" height="280" fill="url(#blue-grad)"/>
-  <rect x="174" y="80" width="12" height="280" fill="#61aaee" opacity="0.7"/>
+  <!-- ===== TINY ENGINE CORE (bottom center) ===== -->
+  <!-- Gear teeth -->
+  <g stroke="#00f0ff" stroke-width="3" fill="none">
+    <line x1="256" y1="398" x2="256" y2="418"/>
+    <line x1="256" y1="398" x2="256" y2="418" transform="rotate(30,256,408)"/>
+    <line x1="256" y1="398" x2="256" y2="418" transform="rotate(60,256,408)"/>
+    <line x1="256" y1="398" x2="256" y2="418" transform="rotate(90,256,408)"/>
+    <line x1="256" y1="398" x2="256" y2="418" transform="rotate(120,256,408)"/>
+    <line x1="256" y1="398" x2="256" y2="418" transform="rotate(150,256,408)"/>
+  </g>
+  <!-- Core circles -->
+  <circle cx="256" cy="408" r="36" fill="#142850" stroke="#00f0ff" stroke-width="2"/>
+  <circle cx="256" cy="408" r="24" fill="#0f1932"/>
+  <circle cx="256" cy="408" r="14" fill="url(#cyan)"/>
+  <circle cx="256" cy="408" r="6" fill="#ff2d95" filter="url(#glow)"/>
 
-  <!-- Horizontal bar -->
-  <rect x="164" y="344" width="280" height="32" fill="url(#blue-grad)"/>
-  <rect x="164" y="354" width="280" height="12" fill="#61aaee" opacity="0.7"/>
+  <!-- ===== ENERGY BEAMS ===== -->
+  <g stroke-width="2" fill="none" opacity="0.6">
+    <line x1="256" y1="372" x2="240" y2="200" stroke="#00f0ff"/>
+    <line x1="256" y1="372" x2="260" y2="180" stroke="#00f0ff"/>
+    <line x1="256" y1="372" x2="256" y2="150" stroke="#00f0ff" stroke-width="3" opacity="0.9"/>
+    <line x1="256" y1="372" x2="272" y2="190" stroke="#00f0ff"/>
+    <line x1="256" y1="372" x2="290" y2="210" stroke="#00f0ff"/>
+  </g>
 
-  <!-- Corner join -->
-  <rect x="162" y="342" width="36" height="36" fill="url(#blue-grad)"/>
-  <rect x="172" y="348" width="16" height="26" fill="#61aaee" opacity="0.7"/>
+  <!-- ===== CITYSKYLINE ===== -->
+  <!-- Side building left -->
+  <rect x="60" y="260" width="70" height="152" fill="#141c30" stroke="#3c5080" stroke-width="1"/>
+  <g fill="#ffaa32">
+    <rect x="70" y="275" width="10" height="14" opacity="0.8"/>
+    <rect x="86" y="275" width="10" height="14" opacity="0.5"/>
+    <rect x="102" y="275" width="10" height="14" opacity="0.9"/>
+    <rect x="70" y="300" width="10" height="14" opacity="0.4"/>
+    <rect x="86" y="300" width="10" height="14" opacity="0.85"/>
+    <rect x="102" y="300" width="10" height="14" opacity="0.6"/>
+    <rect x="70" y="325" width="10" height="14" opacity="0.9"/>
+    <rect x="86" y="325" width="10" height="14" opacity="0.3"/>
+    <rect x="102" y="325" width="10" height="14" opacity="0.75"/>
+    <rect x="70" y="350" width="10" height="14" opacity="0.5"/>
+    <rect x="86" y="350" width="10" height="14" opacity="0.9"/>
+    <rect x="102" y="350" width="10" height="14" opacity="0.4"/>
+  </g>
 
-  <!-- Top tip glow -->
-  <circle cx="180" cy="64" r="16" fill="url(#amber-grad)" filter="url(#glow)"/>
-  <circle cx="180" cy="64" r="8" fill="#ffbb55"/>
+  <!-- Side building right -->
+  <rect x="382" y="280" width="70" height="132" fill="#141c30" stroke="#3c5080" stroke-width="1"/>
+  <g fill="#00f0ff">
+    <rect x="392" y="295" width="10" height="14" opacity="0.7"/>
+    <rect x="408" y="295" width="10" height="14" opacity="0.9"/>
+    <rect x="424" y="295" width="10" height="14" opacity="0.4"/>
+    <rect x="392" y="320" width="10" height="14" opacity="0.85"/>
+    <rect x="408" y="320" width="10" height="14" opacity="0.5"/>
+    <rect x="424" y="320" width="10" height="14" opacity="0.7"/>
+    <rect x="392" y="345" width="10" height="14" opacity="0.3"/>
+    <rect x="408" y="345" width="10" height="14" opacity="0.8"/>
+    <rect x="424" y="345" width="10" height="14" opacity="0.6"/>
+    <rect x="392" y="370" width="10" height="14" opacity="0.9"/>
+    <rect x="408" y="370" width="10" height="14" opacity="0.4"/>
+    <rect x="424" y="370" width="10" height="14" opacity="0.75"/>
+  </g>
 
-  <!-- Right tip glow -->
-  <circle cx="444" cy="360" r="16" fill="url(#amber-grad)" filter="url(#glow)"/>
-  <circle cx="444" cy="360" r="8" fill="#ffbb55"/>
+  <!-- Far side buildings -->
+  <rect x="20" y="320" width="40" height="92" fill="#101828" stroke="#2a3860" stroke-width="1"/>
+  <rect x="452" y="310" width="40" height="102" fill="#101828" stroke="#2a3860" stroke-width="1"/>
 
-  <!-- Scatter particles along vertical ray -->
-  <circle cx="180" cy="120" r="4" fill="#4dabf7" opacity="0.8"/>
-  <circle cx="180" cy="170" r="3" fill="#4dabf7" opacity="0.6"/>
-  <circle cx="180" cy="220" r="4" fill="#4dabf7" opacity="0.4"/>
-  <circle cx="180" cy="270" r="3" fill="#4dabf7" opacity="0.25"/>
+  <!-- ===== CENTRAL TOWER (powered by engine) ===== -->
+  <rect x="226" y="100" width="60" height="312" fill="#1a2848" stroke="#00f0ff" stroke-width="2"/>
+  <!-- Windows -->
+  <g>
+    <rect x="234" y="115" width="12" height="18" fill="#ffaa32" opacity="0.9"/>
+    <rect x="250" y="115" width="12" height="18" fill="#00f0ff" opacity="0.7"/>
+    <rect x="266" y="115" width="12" height="18" fill="#ffaa32" opacity="0.8"/>
+    <rect x="234" y="145" width="12" height="18" fill="#00f0ff" opacity="0.6"/>
+    <rect x="250" y="145" width="12" height="18" fill="#ffaa32" opacity="0.9"/>
+    <rect x="266" y="145" width="12" height="18" fill="#00f0ff" opacity="0.5"/>
+    <rect x="234" y="175" width="12" height="18" fill="#ffaa32" opacity="0.7"/>
+    <rect x="250" y="175" width="12" height="18" fill="#00f0ff" opacity="0.85"/>
+    <rect x="266" y="175" width="12" height="18" fill="#ffaa32" opacity="0.6"/>
+    <rect x="234" y="205" width="12" height="18" fill="#00f0ff" opacity="0.9"/>
+    <rect x="250" y="205" width="12" height="18" fill="#ffaa32" opacity="0.5"/>
+    <rect x="266" y="205" width="12" height="18" fill="#00f0ff" opacity="0.75"/>
+    <rect x="234" y="235" width="12" height="18" fill="#ffaa32" opacity="0.8"/>
+    <rect x="250" y="235" width="12" height="18" fill="#00f0ff" opacity="0.65"/>
+    <rect x="266" y="235" width="12" height="18" fill="#ffaa32" opacity="0.9"/>
+    <rect x="234" y="265" width="12" height="18" fill="#00f0ff" opacity="0.5"/>
+    <rect x="250" y="265" width="12" height="18" fill="#ffaa32" opacity="0.85"/>
+    <rect x="266" y="265" width="12" height="18" fill="#00f0ff" opacity="0.7"/>
+    <rect x="234" y="295" width="12" height="18" fill="#ffaa32" opacity="0.9"/>
+    <rect x="250" y="295" width="12" height="18" fill="#00f0ff" opacity="0.6"/>
+    <rect x="266" y="295" width="12" height="18" fill="#ffaa32" opacity="0.75"/>
+    <rect x="234" y="325" width="12" height="18" fill="#00f0ff" opacity="0.8"/>
+    <rect x="250" y="325" width="12" height="18" fill="#ffaa32" opacity="0.55"/>
+    <rect x="266" y="325" width="12" height="18" fill="#00f0ff" opacity="0.9"/>
+    <rect x="234" y="355" width="12" height="18" fill="#ffaa32" opacity="0.7"/>
+    <rect x="250" y="355" width="12" height="18" fill="#00f0ff" opacity="0.85"/>
+    <rect x="266" y="355" width="12" height="18" fill="#ffaa32" opacity="0.6"/>
+    <rect x="234" y="385" width="12" height="18" fill="#00f0ff" opacity="0.9"/>
+    <rect x="250" y="385" width="12" height="18" fill="#ffaa32" opacity="0.5"/>
+    <rect x="266" y="385" width="12" height="18" fill="#00f0ff" opacity="0.8"/>
+  </g>
 
-  <!-- Scatter particles along horizontal ray -->
-  <circle cx="220" cy="360" r="3" fill="#4dabf7" opacity="0.7"/>
-  <circle cx="280" cy="360" r="3" fill="#4dabf7" opacity="0.5"/>
-  <circle cx="340" cy="360" r="4" fill="#4dabf7" opacity="0.35"/>
-  <circle cx="400" cy="360" r="3" fill="#4dabf7" opacity="0.2"/>
+  <!-- Tower spire -->
+  <polygon points="246,100 256,40 266,100" fill="url(#cyan)" opacity="0.9"/>
+  <circle cx="256" cy="36" r="5" fill="#ff2d95" filter="url(#glow)"/>
 
-  <!-- Ray bounce 1: from corner up-right -->
-  <polyline points="180,380 220,340 260,340 260,300" fill="none" stroke="#ff922b" stroke-width="3" opacity="0.35" stroke-linejoin="miter"/>
-  <circle cx="260" cy="300" r="7" fill="#ff922b" opacity="0.5"/>
+  <!-- ===== GROUND ===== -->
+  <line x1="40" y1="412" x2="472" y2="412" stroke="#3c5080" stroke-width="2"/>
+  <g stroke="#3c5080" stroke-width="1" opacity="0.4">
+    <line x1="60" y1="412" x2="60" y2="430"/>
+    <line x1="100" y1="412" x2="100" y2="430"/>
+    <line x1="140" y1="412" x2="140" y2="430"/>
+    <line x1="180" y1="412" x2="180" y2="430"/>
+    <line x1="220" y1="412" x2="220" y2="430"/>
+    <line x1="260" y1="412" x2="260" y2="430"/>
+    <line x1="300" y1="412" x2="300" y2="430"/>
+    <line x1="340" y1="412" x2="340" y2="430"/>
+    <line x1="380" y1="412" x2="380" y2="430"/>
+    <line x1="420" y1="412" x2="420" y2="430"/>
+    <line x1="460" y1="412" x2="460" y2="430"/>
+  </g>
 
-  <!-- Ray bounce 2: from right tip upward -->
-  <polyline points="444,360 479,335 514,335 514,370" fill="none" stroke="#ff922b" stroke-width="2" opacity="0.25" stroke-linejoin="miter"/>
-  <circle cx="514" cy="370" r="6" fill="#ff922b" opacity="0.4"/>
-
-  <!-- Center alignment crosshair (subtle) -->
-  <line x1="256" y1="4" x2="256" y2="20" stroke="#4dabf7" stroke-width="1" opacity="0.1"/>
-  <line x1="4" y1="256" x2="20" y2="256" stroke="#4dabf7" stroke-width="1" opacity="0.1"/>
+  <!-- ===== FLOATING PARTICLES ===== -->
+  <g fill="#00f0ff" opacity="0.5">
+    <circle cx="120" cy="180" r="2"/>
+    <circle cx="160" cy="130" r="1.5"/>
+    <circle cx="380" cy="160" r="2"/>
+    <circle cx="420" cy="200" r="1.5"/>
+    <circle cx="200" cy="100" r="2"/>
+    <circle cx="320" cy="90" r="1.5"/>
+    <circle cx="280" cy="140" r="2"/>
+    <circle cx="150" cy="220" r="1.5"/>
+    <circle cx="360" cy="230" r="2"/>
+  </g>
+  <g fill="#ffaa32" opacity="0.4">
+    <circle cx="180" cy="160" r="1.5"/>
+    <circle cx="340" cy="120" r="2"/>
+    <circle cx="100" cy="200" r="1.5"/>
+    <circle cx="400" cy="180" r="2"/>
+  </g>
 </svg>
