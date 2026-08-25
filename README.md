@@ -1,7 +1,7 @@
 <!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # Litt Engine
 
-![Litt Engine Logo](./assets/logo.png)
+![Litt Engine Logo](./assets/logo-128.png)
 
 > A game engine designed exclusively for autonomous AI agents to build, control, and run fully-optimized games.
 >
