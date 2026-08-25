@@ -1,6 +1,6 @@
 @echo off
-rem Build littcore + littcli + tests with gcc (llvm-mingw). Usage:
-rem   build.bat          -> build lib objects + littcli.exe
+rem Build littcore + littcli + game + tests with gcc (llvm-mingw). Usage:
+rem   build.bat          -> build lib objects + littcli.exe + game.exe
 rem   build.bat test     -> build and run unit tests
 setlocal
 cd /d "%~dp0"
@@ -21,6 +21,13 @@ where g++ >nul 2>nul && (
     g++ -std=c++17 -O2 -Wall -Wextra -I. -c littview.cpp -o bin\littview_main.o || exit /b 1
     g++ bin\litt_json.o bin\litt_obj.o bin\litt_world.o bin\littview_main.o -o bin\littview.exe -lgdi32 || exit /b 1
     echo [build] bin\littview.exe OK
+)
+
+rem Game player binary (needs g++, optional if not present)
+where g++ >nul 2>nul && (
+    g++ -std=c++17 -O2 -Wall -Wextra -I. -c game.cpp -o bin\game_main.o || exit /b 1
+    g++ bin\litt_json.o bin\litt_obj.o bin\litt_world.o bin\game_main.o -o bin\game.exe -lgdi32 || exit /b 1
+    echo [build] bin\game.exe OK
 )
 
 if not "%1"=="test" goto :done

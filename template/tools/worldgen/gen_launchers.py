@@ -18,11 +18,12 @@ setlocal
 set "HERE=%~dp0"
 set "ROOT=%HERE%..\\..\\"
 if defined LITT_ENGINE set "EXE=%LITT_ENGINE%"
-if not defined EXE set "EXE=%ROOT%target\\x86_64-pc-windows-gnu\\release\\litt.exe"
-if not exist "%EXE%" set "EXE=%ROOT%target\\x86_64-pc-windows-gnu\\debug\\litt.exe"
-if not exist "%EXE%" set "EXE=%ROOT%target\\release\\litt.exe"
-if not exist "%EXE%" set "EXE=%ROOT%target\\debug\\litt.exe"
-"%EXE%" play "%HERE:~0,-1%"
+if not defined EXE set "EXE=%ROOT%native\\bin\\littview.exe"
+if not exist "%EXE%" (
+    echo [engine] littview.exe not found - run native/build.bat
+    goto :eof
+)
+"%EXE%" window "%HERE%assets\\scenes\\world.lscn.json"
 """
 
 SH = """#!/bin/sh
@@ -30,11 +31,9 @@ SH = """#!/bin/sh
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../../.." && pwd)"
 EXE="$LITT_ENGINE"
-[ -n "$EXE" ] || EXE="$ROOT/target/x86_64-pc-windows-gnu/release/litt"
-[ -x "$EXE" ] || EXE="$ROOT/target/x86_64-pc-windows-gnu/debug/litt"
-[ -x "$EXE" ] || EXE="$ROOT/target/release/litt"
-[ -x "$EXE" ] || EXE="$ROOT/target/debug/litt"
-exec "$EXE" play "$HERE"
+[ -n "$EXE" ] || EXE="$ROOT/native/bin/littview"
+[ -x "$EXE" ] || EXE="$ROOT/native/bin/littview"
+exec "$EXE" window "$HERE"
 """
 
 
