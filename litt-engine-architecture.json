@@ -64,10 +64,10 @@
     { "id": "studio", "type": "frontend", "label": "Litt Studio", "sublabel": "LittStudio.cs", "pos": [500, 300], "size": [140, 60] },
     { "id": "proof", "type": "quality", "label": "Native Proof Gate", "sublabel": "native_proof.py", "pos": [500, 400], "size": [140, 60] },
     { "id": "validation", "type": "quality", "label": "Project Validation", "sublabel": "verify_project.py", "pos": [300, 500], "size": [140, 60] },
-    { "id": "tool-usage-law", "type": "constraint", "label": "Tool-Usage Law", "sublabel": "glob/read/run/report (AGENTS.md §2)", "pos": [500, 500], "size": [140, 60] },
+    { "id": "tool-usage-law", "type": "constraint", "label": "Tool-Usage Law", "sublabel": "glob/read/run/report (AGENTS.md sec.2)", "pos": [500, 500], "size": [140, 60] },
     { "id": "mirrors", "type": "constraint", "label": "Rule Mirrors", "sublabel": "11 files sync law to all AI platforms", "pos": [700, 100], "size": [140, 60] }
   ]
-}
+},
   "components": [
     { "id": "application", "type": "frontend", "label": "Application", "sublabel": "main.rs entry point", "pos": [100, 100], "size": [140, 60] },
     { "id": "platform", "type": "backend", "label": "Platform Layer", "sublabel": "litt-platform", "pos": [100, 200], "size": [140, 60] },
