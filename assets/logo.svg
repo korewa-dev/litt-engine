@@ -1,97 +1,73 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <!-- Electric blue gradient -->
     <linearGradient id="blue-grad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" style="stop-color:#61aaee;stop-opacity:1"/>
       <stop offset="100%" style="stop-color:#4dabf7;stop-opacity:1"/>
     </linearGradient>
-    <!-- Amber gradient -->
     <linearGradient id="amber-grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#ffbb55;stop-opacity:1"/>
       <stop offset="100%" style="stop-color:#ff922b;stop-opacity:1"/>
     </linearGradient>
-    <!-- Glow filter -->
     <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="4" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
   <!-- Transparent background -->
   <rect width="512" height="512" fill="none"/>
 
-  <!-- Subtle grid -->
-  <g stroke="#4dabf7" stroke-width="1" opacity="0.06">
-    <line x1="0" y1="128" x2="512" y2="128"/>
-    <line x1="0" y1="256" x2="512" y2="256"/>
-    <line x1="0" y1="384" x2="512" y2="384"/>
-    <line x1="128" y1="0" x2="128" y2="512"/>
-    <line x1="256" y1="0" x2="256" y2="512"/>
-    <line x1="384" y1="0" x2="384" y2="512"/>
-  </g>
+  <!-- Subtle border -->
+  <rect x="4" y="4" width="504" height="504" fill="none" stroke="#4dabf7" stroke-width="2" opacity="0.15"/>
 
-  <!-- ===== "L" MARK — geometric ray path ===== -->
+  <!-- Corner accent dots -->
+  <circle cx="12" cy="12" r="4" fill="#4dabf7" opacity="0.24"/>
+  <circle cx="500" cy="12" r="4" fill="#4dabf7" opacity="0.24"/>
+  <circle cx="12" cy="500" r="4" fill="#4dabf7" opacity="0.24"/>
+  <circle cx="500" cy="500" r="4" fill="#4dabf7" opacity="0.24"/>
 
+  <!-- ===== "L" MARK — centered in square ===== -->
   <!-- Vertical bar -->
-  <rect x="130" y="80" width="28" height="160" fill="url(#blue-grad)"/>
-  <!-- Vertical core highlight -->
-  <rect x="138" y="80" width="12" height="160" fill="#61aaee"/>
-  <!-- Vertical edge highlight -->
-  <rect x="130" y="80" width="2" height="160" fill="rgba(255,255,255,0.24)"/>
+  <rect x="164" y="80" width="32" height="280" fill="url(#blue-grad)"/>
+  <rect x="174" y="80" width="12" height="280" fill="#61aaee" opacity="0.7"/>
 
   <!-- Horizontal bar -->
-  <rect x="130" y="220" width="160" height="28" fill="url(#blue-grad)"/>
-  <!-- Horizontal core highlight -->
-  <rect x="130" y="228" width="160" height="12" fill="#61aaee"/>
-  <!-- Horizontal edge highlight -->
-  <rect x="130" y="220" width="160" height="2" fill="rgba(255,255,255,0.24)"/>
+  <rect x="164" y="344" width="280" height="32" fill="url(#blue-grad)"/>
+  <rect x="164" y="354" width="280" height="12" fill="#61aaee" opacity="0.7"/>
 
-  <!-- Corner miter join -->
-  <rect x="128" y="218" width="32" height="32" fill="url(#blue-grad)"/>
-  <rect x="136" y="218" width="16" height="8" fill="#61aaee"/>
+  <!-- Corner join -->
+  <rect x="162" y="342" width="36" height="36" fill="url(#blue-grad)"/>
+  <rect x="172" y="348" width="16" height="26" fill="#61aaee" opacity="0.7"/>
 
-  <!-- Top tip glow (amber) -->
-  <circle cx="144" cy="72" r="12" fill="url(#amber-grad)" filter="url(#glow)"/>
-  <circle cx="144" cy="72" r="6" fill="#ffbb55"/>
+  <!-- Top tip glow -->
+  <circle cx="180" cy="64" r="16" fill="url(#amber-grad)" filter="url(#glow)"/>
+  <circle cx="180" cy="64" r="8" fill="#ffbb55"/>
 
-  <!-- Right tip glow (amber) -->
-  <circle cx="300" cy="234" r="12" fill="url(#amber-grad)" filter="url(#glow)"/>
-  <circle cx="300" cy="234" r="6" fill="#ffbb55"/>
+  <!-- Right tip glow -->
+  <circle cx="444" cy="360" r="16" fill="url(#amber-grad)" filter="url(#glow)"/>
+  <circle cx="444" cy="360" r="8" fill="#ffbb55"/>
 
-  <!-- Scatter particles along ray -->
-  <circle cx="144" cy="110" r="3" fill="#4dabf7" opacity="0.8"/>
-  <circle cx="144" cy="140" r="2.5" fill="#4dabf7" opacity="0.6"/>
-  <circle cx="144" cy="170" r="3" fill="#4dabf7" opacity="0.4"/>
-  <circle cx="144" cy="200" r="2" fill="#4dabf7" opacity="0.25"/>
+  <!-- Scatter particles along vertical ray -->
+  <circle cx="180" cy="120" r="4" fill="#4dabf7" opacity="0.8"/>
+  <circle cx="180" cy="170" r="3" fill="#4dabf7" opacity="0.6"/>
+  <circle cx="180" cy="220" r="4" fill="#4dabf7" opacity="0.4"/>
+  <circle cx="180" cy="270" r="3" fill="#4dabf7" opacity="0.25"/>
 
-  <circle cx="170" cy="234" r="2.5" fill="#4dabf7" opacity="0.7"/>
-  <circle cx="205" cy="234" r="2" fill="#4dabf7" opacity="0.5"/>
-  <circle cx="240" cy="234" r="3" fill="#4dabf7" opacity="0.35"/>
-  <circle cx="270" cy="234" r="2" fill="#4dabf7" opacity="0.2"/>
+  <!-- Scatter particles along horizontal ray -->
+  <circle cx="220" cy="360" r="3" fill="#4dabf7" opacity="0.7"/>
+  <circle cx="280" cy="360" r="3" fill="#4dabf7" opacity="0.5"/>
+  <circle cx="340" cy="360" r="4" fill="#4dabf7" opacity="0.35"/>
+  <circle cx="400" cy="360" r="3" fill="#4dabf7" opacity="0.2"/>
 
-  <!-- Ray bounce trail 1 (from corner) -->
-  <polyline points="144,238 174,208 204,208 204,178" fill="none" stroke="#ff922b" stroke-width="2" opacity="0.4" stroke-linejoin="miter"/>
-  <circle cx="204" cy="178" r="5" fill="#ff922b" opacity="0.6"/>
+  <!-- Ray bounce 1: from corner up-right -->
+  <polyline points="180,380 220,340 260,340 260,300" fill="none" stroke="#ff922b" stroke-width="3" opacity="0.35" stroke-linejoin="miter"/>
+  <circle cx="260" cy="300" r="7" fill="#ff922b" opacity="0.5"/>
 
-  <!-- Ray bounce trail 2 (from right tip) -->
-  <polyline points="300,234 325,214 350,214 350,244" fill="none" stroke="#ff922b" stroke-width="1.5" opacity="0.3" stroke-linejoin="miter"/>
-  <circle cx="350" cy="244" r="4" fill="#ff922b" opacity="0.5"/>
+  <!-- Ray bounce 2: from right tip upward -->
+  <polyline points="444,360 479,335 514,335 514,370" fill="none" stroke="#ff922b" stroke-width="2" opacity="0.25" stroke-linejoin="miter"/>
+  <circle cx="514" cy="370" r="6" fill="#ff922b" opacity="0.4"/>
 
-  <!-- ===== TYPOGRAPHY ===== -->
-  <text x="256" y="430" text-anchor="middle"
-    font-family="'Courier New', Courier, monospace"
-    font-size="52" font-weight="bold"
-    fill="#f0f2ff" letter-spacing="16">
-    LITT
-  </text>
-
-  <text x="256" y="475" text-anchor="middle"
-    font-family="'Courier New', Courier, monospace"
-    font-size="14"
-    fill="#7882a0" letter-spacing="8">
-    ENGINE
-  </text>
+  <!-- Center alignment crosshair (subtle) -->
+  <line x1="256" y1="4" x2="256" y2="20" stroke="#4dabf7" stroke-width="1" opacity="0.1"/>
+  <line x1="4" y1="256" x2="20" y2="256" stroke="#4dabf7" stroke-width="1" opacity="0.1"/>
 </svg>

@@ -4,15 +4,33 @@
   "description": "Machine-readable asset manifest. Agents: read this file to discover assets instead of scanning the tree.",
   "assets": [
     {
-      "id": "logo",
+      "id": "logo_icon",
       "type": "texture",
-      "path": "logo.png",
+      "path": "logo-icon.png",
       "loader": "litt_asset::texture"
     },
     {
       "id": "logo_svg",
       "type": "texture",
       "path": "logo.svg",
+      "loader": "litt_asset::texture"
+    },
+    {
+      "id": "logo_dark",
+      "type": "texture",
+      "path": "logo-dark.png",
+      "loader": "litt_asset::texture"
+    },
+    {
+      "id": "logo_128",
+      "type": "texture",
+      "path": "logo-128.png",
+      "loader": "litt_asset::texture"
+    },
+    {
+      "id": "logo_64",
+      "type": "texture",
+      "path": "logo-64.png",
       "loader": "litt_asset::texture"
     },
     {
@@ -50,24 +68,6 @@
       "type": "audio",
       "path": "audio/blip.wav",
       "loader": "litt_audio::sound::SoundData::load_wav / load_mp3"
-    },
-    {
-      "id": "logo_dark",
-      "type": "texture",
-      "path": "logo-dark.png",
-      "loader": "litt_asset::texture"
-    },
-    {
-      "id": "logo_128",
-      "type": "texture",
-      "path": "logo-128.png",
-      "loader": "litt_asset::texture"
-    },
-    {
-      "id": "logo_64",
-      "type": "texture",
-      "path": "logo-64.png",
-      "loader": "litt_asset::texture"
     }
   ]
 }
