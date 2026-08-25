@@ -11,6 +11,15 @@ unless the human explicitly asked for an ENGINE change. Reading anything is fine
 `native/ studio/ shaders/ include/ docs/ template/ assets/`
 are engine internals - not yours to touch.
 
+THE TOOL-USAGE LAW (mandatory): before claiming something is missing, broken,
+or non-existent, you MUST prove it with the tools actually present:
+1. glob — discover what files exist (pattern search, not assumed name)
+2. read — inspect actual file content
+3. run — invoke the tool and observe real output
+4. report — only then state what is present or absent
+If you skip this and report a gap, you are guessing. Re-verify any gap
+report from another agent before acting on it.
+
 ROUTING:
 - "develop" / "build a world/game" -> LIVE MODE: cd Project/live, read AI_RULES.md,
   watch: litt view live (native C++ orbit viewer)

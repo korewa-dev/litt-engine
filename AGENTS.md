@@ -12,6 +12,27 @@ is almost always to BUILD A GAME WORLD, not to modify the engine.
 > not create, modify, rename, "fix", reformat or delete ANYTHING outside
 > `Project/`.
 
+## The Tool-Usage Law (mandatory — overrides all other guidance)
+
+> Before claiming something is missing, broken, or non-existent, you MUST
+> prove it using the tools actually present in the repo. Never infer absence
+> from missing documentation or stale assumptions.
+>
+> The verification sequence is non-negotiable:
+> 1. **Glob** — use `glob` to discover what files actually exist (by pattern,
+>    not by assumed name)
+> 2. **Read** — use `read` to inspect the actual content of any file you
+>    reference
+> 3. **Run** — use `pwsh` to invoke the tool and observe the real output
+> 4. **Report** — only then can you state what is present or absent
+>
+> If you skip steps 1-3 and then report a gap, you have failed your duty.
+> The human will know you guessed. The human will correct you.
+>
+> **Anti-hallucination protocol**: when another agent reports a gap, re-verify
+> the claim using the sequence above before acting on it. Gaps are real, but
+> reported gaps are guesses until proven by tools.
+
 Engine internals — do not touch without an explicit engine-task instruction:
 
 ```
