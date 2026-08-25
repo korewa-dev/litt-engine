@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Neon glow filter -->
+    <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-magenta" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Gradient for ray beams -->
+    <linearGradient id="ray-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00f0ff;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#0080ff;stop-opacity:0.6"/>
+    </linearGradient>
+    <linearGradient id="ray-magenta" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff2d95;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#aa00ff;stop-opacity:0.6"/>
+    </linearGradient>
+    <!-- Background gradient -->
+    <radialGradient id="bg-grad" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#0a0a14;stop-opacity:1"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg-grad)"/>
+
+  <!-- Subtle grid lines (determinism / text-native theme) -->
+  <g opacity="0.06" stroke="#00f0ff" stroke-width="1">
+    <line x1="0" y1="128" x2="512" y2="128"/>
+    <line x1="0" y1="256" x2="512" y2="256"/>
+    <line x1="0" y1="384" x2="512" y2="384"/>
+    <line x1="128" y1="0" x2="128" y2="512"/>
+    <line x1="256" y1="0" x2="256" y2="512"/>
+    <line x1="384" y1="0" x2="384" y2="512"/>
+  </g>
+
+  <!-- ===== THE "L" — formed from intersecting path-tracing rays ===== -->
+
+  <!-- Horizontal ray (floor) -->
+  <polygon points="80,340 420,340 420,360 80,360" fill="url(#ray-cyan)" filter="url(#glow-cyan)" opacity="0.9"/>
+  <!-- Horizontal ray core -->
+  <polygon points="80,347 420,347 420,353 80,353" fill="#00f0ff" opacity="1"/>
+  <!-- Horizontal ray endpoint glow -->
+  <circle cx="420" cy="350" r="8" fill="#00f0ff" filter="url(#glow-cyan)"/>
+
+  <!-- Vertical ray (wall) -->
+  <polygon points="80,80 100,80 100,420 80,420" fill="url(#ray-magenta)" filter="url(#glow-magenta)" opacity="0.9"/>
+  <!-- Vertical ray core -->
+  <polygon points="87,80 93,80 93,420 87,420" fill="#ff2d95" opacity="1"/>
+  <!-- Vertical ray endpoint glow -->
+  <circle cx="90" cy="80" r="8" fill="#ff2d95" filter="url(#glow-magenta)"/>
+
+  <!-- Intersection node (ray bounce point) -->
+  <polygon points="70,330 90,330 90,370 70,370" fill="#0a0a14" stroke="#00f0ff" stroke-width="2"/>
+  <circle cx="80" cy="350" r="5" fill="#00f0ff" filter="url(#glow-cyan)"/>
+
+  <!-- Scatter particles (deterministic path-tracing) -->
+  <circle cx="130" cy="350" r="2.5" fill="#00f0ff" opacity="0.7"/>
+  <circle cx="170" cy="350" r="2" fill="#00f0ff" opacity="0.5"/>
+  <circle cx="220" cy="350" r="3" fill="#00f0ff" opacity="0.4"/>
+  <circle cx="280" cy="350" r="2" fill="#00f0ff" opacity="0.3"/>
+  <circle cx="340" cy="350" r="2.5" fill="#00f0ff" opacity="0.25"/>
+
+  <circle cx="90" cy="130" r="2.5" fill="#ff2d95" opacity="0.7"/>
+  <circle cx="90" cy="175" r="2" fill="#ff2d95" opacity="0.5"/>
+  <circle cx="90" cy="225" r="3" fill="#ff2d95" opacity="0.4"/>
+  <circle cx="90" cy="280" r="2" fill="#ff2d95" opacity="0.3"/>
+  <circle cx="90" cy="330" r="2.5" fill="#ff2d95" opacity="0.25"/>
+
+  <!-- Tracing path hint lines (ray bounces) -->
+  <polyline points="420,350 380,310 340,310 340,270 300,270 300,230"
+    fill="none" stroke="#00f0ff" stroke-width="1" opacity="0.2" stroke-dasharray="4,4"/>
+  <polyline points="90,80 130,40 170,40 170,100 230,100 230,160"
+    fill="none" stroke="#ff2d95" stroke-width="1" opacity="0.2" stroke-dasharray="4,4"/>
+
+  <!-- ===== TYPOGRAPHY ===== -->
+  <!-- "LITT" — monospace, clean -->
+  <text x="256" y="448" text-anchor="middle"
+    font-family="'Courier New', Courier, monospace"
+    font-size="42" font-weight="bold"
+    fill="#e0e0f0" letter-spacing="18">
+    LITT
+  </text>
+
+  <!-- Subtitle -->
+  <text x="256" y="475" text-anchor="middle"
+    font-family="'Courier New', Courier, monospace"
+    font-size="13"
+    fill="#4a4a6a" letter-spacing="6">
+    GAME ENGINE
+  </text>
+</svg>

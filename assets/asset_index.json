@@ -4,6 +4,18 @@
   "description": "Machine-readable asset manifest. Agents: read this file to discover assets instead of scanning the tree.",
   "assets": [
     {
+      "id": "logo",
+      "type": "texture",
+      "path": "logo.png",
+      "loader": "litt_asset::texture"
+    },
+    {
+      "id": "logo_svg",
+      "type": "texture",
+      "path": "logo.svg",
+      "loader": "litt_asset::texture"
+    },
+    {
       "id": "example_scene",
       "type": "scene",
       "path": "scenes/example.lscn.json",
