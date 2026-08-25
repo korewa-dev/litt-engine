@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # Contributing to Litt Engine
 
 Thank you for wanting to contribute. Litt Engine is a small, focused project  every PR is expected to earn its place.
@@ -13,10 +14,10 @@ Thank you for wanting to contribute. Litt Engine is a small, focused project  ev
 Run these commands to build and run:
 - git clone https://github.com/korewa-dev/litt-engine.git
 - cd litt-engine
-- cargo build --release
-- cargo run --release
+- native\build.bat            # Windows build (POSIX: make -C native)
+- native\bin\littview.exe     # sanity-run the viewer
 
-For DX12: cargo build --release --features dx12
+(The Rust feature builds were removed in CDR-007.)
 
 ## Code Style
 
@@ -39,8 +40,8 @@ Examples:
 ## PR Checklist
 
 - [ ] Branch is up to date with main
-- [ ] cargo fmt and cargo clippy pass
-- [ ] Tests pass (cargo test)
+- [ ] Native build is warning-clean
+- [ ] Tests pass (native\build.bat test)
 - [ ] Binary size target respected (< 1 MB dev build)
 - [ ] Documentation updated (README, subsystem docs, ROADMAP)
 - [ ] New subsystem gets its own docs/<folder>/README.md

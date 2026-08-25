@@ -49,14 +49,15 @@ constexpr const char* to_string(Platform p) noexcept {
 
 // --- quality tiers ----------------------------------------------------------
 /// Content/rendering quality tiers; the enum rank orders them low -> ultra.
-enum class Tier : uint8_t { Low = 0, Medium = 1, High = 2, Ultra = 3 };
+/// Named CouncilTier because litt_world.h claims litt::Tier for enemy ranks.
+enum class CouncilTier : uint8_t { Low = 0, Medium = 1, High = 2, Ultra = 3 };
 
-constexpr const char* to_string(Tier t) noexcept {
+constexpr const char* to_string(CouncilTier t) noexcept {
     switch (t) {
-        case Tier::Low:    return "low";
-        case Tier::Medium: return "medium";
-        case Tier::High:   return "high";
-        default:           return "ultra";
+        case CouncilTier::Low:    return "low";
+        case CouncilTier::Medium: return "medium";
+        case CouncilTier::High:   return "high";
+        default:                  return "ultra";
     }
 }
 
@@ -159,7 +160,7 @@ public:
      * Low keeps math+input; Medium adds ecs+physics; High adds renderer and
      * audio; Ultra enables everything.
      */
-    void apply_tier(Tier t) noexcept {
+    void apply_tier(CouncilTier t) noexcept {
         for (size_t i = 0; i < kFeatureCount; ++i)
             set_loaded(static_cast<Feature>(i),
                        tier_rank(static_cast<Feature>(i)) <= static_cast<int>(t));

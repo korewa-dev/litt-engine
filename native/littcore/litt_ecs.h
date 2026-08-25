@@ -53,11 +53,11 @@ struct Storage : StorageBase {
         if (e.id >= index.size()) return;
         EntityId idx = index[e.id];
         if (idx >= data.size()) return;
-        EntityId last = entities.back();
-        if (idx != last) {
-            data[idx] = std::move(data[last]);
-            entities[idx] = last;
-            index[last] = idx;
+        size_t last_pos = data.size() - 1;   // position of the swapped-in slot
+        if ((size_t)idx != last_pos) {
+            data[idx] = std::move(data[last_pos]);
+            entities[idx] = entities[last_pos];
+            index[entities[idx]] = idx;
         }
         data.pop_back();
         entities.pop_back();

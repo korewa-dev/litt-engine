@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # UIOverlaySystem
 
 > HUD, menus, debug overlays, and in-game console -- all driven by ECS components.

@@ -1,4 +1,4 @@
-﻿# NOTES - skyline-run
+# NOTES - skyline-run
 
 2.5D momentum platformer: physics-driven gap arcs, drone patrols over floating platforms, checkpoint flags, gem side-paths, mast banner finish.
 
@@ -8,7 +8,7 @@
 - props: gen_props.py --kit platformer (merged palette, no-clobber)
 - gameplay: enrich_game.py --brief brief.json --seed 91
 - validation: play_native.py --frames 30 --dummy (interactives > 0 required)
-- engine CI: cargo test --test example_worlds (zero missing models required)
+- engine CI: native validation - littcli validate (zero missing models required)
 
 ## Controls (native player)
 

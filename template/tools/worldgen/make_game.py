@@ -13,9 +13,15 @@ Two modes, exactly matching how humans ask:
      Agent may override any part: --archetype --pattern --theme --seed --name.
 
 Full pipeline per game (every step a shipped tool, zero hand-rolling):
-  gen_archetype/gen_platformer25d -> gen_props (kit) -> auto-authored brief
-  -> enrich_game -> OBJ/scene lint -> native validation -> viewer+players
-  deployed -> NOTES/ATTRIBUTION/LIVE_LOG -> Project/games.json manifest.
+   gen_<kind> (flagship dispatch or gen_archetype workhorse) -> gen_props
+   (kit) -> auto-authored brief -> enrich_game -> OBJ/scene lint -> native
+   proof gate (littcli validate assertions + littview render pixel proof)
+   -> viewer+players deployed -> NOTES/ATTRIBUTION/LIVE_LOG ->
+   Project/games.json manifest.
+
+Kinds (--kind): soulslike | space | tabletop | platformer25d route to their
+flagship generators with the user's seed/out-dir; the default archetype kind
+keeps the classic gen_archetype pipeline unchanged.
 
 Output: last stdout line is machine-readable JSON:
   {"ok":true,"game":"dead-mall","dir":"Project/dead-mall","tris":...}
@@ -23,10 +29,13 @@ Output: last stdout line is machine-readable JSON:
 import argparse
 import datetime
 import json
+import os
 import random
 import re
 import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -34,7 +43,10 @@ WORLDGEN = HERE / "worldgen" if (HERE / "worldgen").exists() else HERE.parent / 
 ASSETS_TOOLS = HERE if (HERE / "lint.py").exists() else HERE.parent / "assets"
 REPO = ASSETS_TOOLS.parent.parent.parent   # .../template/tools/assets -> engine root
 sys.path.insert(0, str(ASSETS_TOOLS))
+sys.path.insert(0, str(WORLDGEN))
 from lint import lint_game, solid_count  # noqa: E402
+from native_proof import proof_one_game  # noqa: E402  (assets/native_proof.py)
+from worldkit import Placement           # noqa: E402  (worldgen/worldkit.py)
 
 # --------------------------------------------------------------- intent map
 # Every archetype below is verified against `gen_archetype.py --list`.
@@ -66,6 +78,15 @@ PLATFORMER_ARCHES = {"kart_racer", "precision_action", "endless_runner",
                      "metroidvania"}
 SOULS_ARCHES = {"soulslike", "dungeon_crawler", "psychological_horror",
                 "naval_pirate", "walking_simulator"}
+
+# ITEM 7: flagship generator dispatch. --kind routes to the dedicated genre
+# generators; default "archetype" keeps the classic pipeline byte-identical.
+KINDS = ("soulslike", "space", "tabletop", "platformer25d", "archetype")
+KIND_GEN = {"soulslike": "gen_soulslike.py", "space": "gen_space.py",
+            "tabletop": "gen_tabletop.py",
+            "platformer25d": "gen_platformer25d.py"}
+KIND_KIT = {"soulslike": "souls", "space": "survivor",
+            "tabletop": "survivor", "platformer25d": "platformer"}
 
 
 def kit_for(arch):
@@ -171,6 +192,66 @@ def place_on(layout, frac, lift=1.2):
          layout["min"][2] + (layout["max"][2] - layout["min"][2]) * 0.5]
     p[a] = layout["min"][a] + (layout["max"][a] - layout["min"][a]) * frac
     return [round(p[0], 2), round(p[1], 2), round(p[2], 2)]
+
+
+# ITEM 9: collision-aware scatter of make_game's own extras.
+EXTRA_HALF_M = 0.6   # occupancy box half-extent per scattered extra
+EXTRA_TRIES = 10     # bounded deterministic re-rolls before dropping
+
+
+class ExtraPlacer:
+    """Keeps story-item/roster extra nodes from stacking on each other or on
+    brief anchors, via the worldkit.Placement AABB registry.
+
+    The derived walkable layout is registered as GROUND; every pre-existing
+    anchor (spawn/checkpoints/authored brief nodes) is registered SOLID. A
+    candidate that conflicts re-rolls along the spine a bounded number of
+    seeded times, then is dropped instead of overlapping. Same seed -> same
+    draw sequence -> byte-identical worlds."""
+
+    def __init__(self, layout, seed, anchors=()):
+        self.layout = layout
+        self.rng = random.Random("extras/%d" % seed)
+        self.dropped = 0
+        self.reg = Placement()
+        if not layout:
+            return
+        lo, hi = layout["min"], layout["max"]
+        self.reg.insert("<ground>", (lo[0], lo[2]), (hi[0], hi[2]),
+                        top=layout["top"], walkable=True)
+        for i, p in enumerate(anchors):
+            if not p:
+                continue
+            self.reg.insert("anchor:%02d" % i,
+                            (p[0] - EXTRA_HALF_M, p[2] - EXTRA_HALF_M),
+                            (p[0] + EXTRA_HALF_M, p[2] + EXTRA_HALF_M))
+
+    def place(self, name, frac, lift=1.2, tries=EXTRA_TRIES):
+        """Collision-free spine point for `name`, or None to drop it."""
+        if self.layout is None:
+            return None
+        lay = self.layout
+        cross = 0 if lay["axis"] == 2 else 2          # the deck's short axis
+        c_lo = lay["min"][cross] + EXTRA_HALF_M
+        c_hi = lay["max"][cross] - EXTRA_HALF_M
+        f = frac
+        blockers = "?"
+        for attempt in range(tries):
+            p = place_on(lay, min(max(f, 0.02), 0.98), lift=lift)
+            if attempt and c_hi > c_lo:               # widen across the deck,
+                p[cross] = round(                     # never off the walkable
+                    min(max(p[cross] + self.rng.uniform(-3.0, 3.0) * attempt,
+                            c_lo), c_hi), 2)
+            lo = (p[0] - EXTRA_HALF_M, p[2] - EXTRA_HALF_M)
+            hi = (p[0] + EXTRA_HALF_M, p[2] + EXTRA_HALF_M)
+            if self.reg.insert(name, lo, hi):
+                return p
+            blockers = ", ".join(list(self.reg.conflicts(lo, hi))[:3])
+            f = frac + self.rng.uniform(-0.09, 0.09) * (attempt + 1)
+        self.dropped += 1
+        print("[make] placement: dropped %r after %d spots (blocked by: %s)"
+              % (name, tries, blockers))
+        return None
 
 
 def brief_for(kit, theme, name, seed, prompt_text, layout=None):
@@ -345,6 +426,98 @@ def subprocess_run(args):
     return subprocess.run(args, capture_output=True, text=True)
 
 
+def _json_tail(text):
+    """Last {...} line of a tool's stdout (littcli validate reports JSON)."""
+    for ln in reversed((text or "").strip().splitlines()):
+        ln = ln.strip()
+        if ln.startswith("{"):
+            try:
+                return json.loads(ln)
+            except Exception:
+                continue
+    return {}
+
+
+def littcli_validate(game_dir, cli):
+    """Native C validator --frames 120. Same contract as before: prints the
+    report and exits 1 on nonzero exit code; returns the parsed JSON."""
+    vr = subprocess.run([str(cli), "validate", str(game_dir),
+                         "--frames", "120"],
+                        capture_output=True, text=True, timeout=60)
+    print(vr.stdout.strip())
+    if vr.returncode != 0:
+        print(json.dumps({"ok": False, "game": Path(game_dir).name,
+                          "validator": "littcli"}, indent=2))
+        sys.exit(1)
+    return _json_tail(vr.stdout)
+
+
+# ITEM 8: native proof gate thresholds (match template/tools/assets/native_proof.py)
+MIN_FILL_PCT = 1.5
+MIN_COLORS = 8
+
+
+def native_proof_gate(game_dir, name, cli, view, sim_json=None):
+    """Hard proof the freshly built game really plays and renders.
+
+    Render + pixel gating is delegated to native_proof.proof_one_game
+    (single source of truth shared with template/tools/assets/
+    native_proof.py - audit 5.1). make_game keeps its stricter sim
+    assertions on top: validate ok:true AND interactives > 0 AND
+    missing == 0.
+
+    Every failed assertion is printed by name; any failure exits nonzero.
+    Returns a small stats dict for the final machine-readable JSON line."""
+    gdir = Path(game_dir)
+    problems = []
+    js = sim_json
+
+    if js is None:
+        if not Path(cli).exists():
+            problems.append("littcli binary present at %s" % cli)
+        else:
+            vr = subprocess.run([str(cli), "validate", str(gdir),
+                                 "--frames", "120"],
+                                capture_output=True, text=True, timeout=60)
+            print(vr.stdout.strip())
+            js = _json_tail(vr.stdout)
+            if vr.returncode != 0:
+                problems.append("littcli validate exit 0 (got %s)"
+                                % vr.returncode)
+
+    rec = proof_one_game(gdir, cli, view, MIN_FILL_PCT, MIN_COLORS, sim=js)
+    if js is not None:   # same guard as before: sim asserts need a simulator
+        if rec["sim"] != "ok":
+            problems.append("validate ok:true (got %r)" % (js.get("ok"),))
+        n_inter = rec.get("interactives")
+        if not isinstance(n_inter, int) or n_inter <= 0:
+            problems.append("interactives > 0 (got %r)" % (n_inter,))
+        if rec.get("missing") != 0:
+            problems.append("missing == 0 (got %r)" % (rec.get("missing"),))
+    # proof_one_game's own render/binary findings; its generic sim line is
+    # skipped because make_game already reported it with the concrete value
+    problems.extend(p for p in rec.get("problems", [])
+                    if p != "validate ok:true")
+
+    if problems:
+        for p in problems:
+            print("[make] native-proof FAIL: expected %s" % p)
+        print(json.dumps({"ok": False, "game": name,
+                          "stage": "native-proof", "failed": problems},
+                         indent=2))
+        sys.exit(1)
+    print("[make] native-proof: PASS | ok=true solids=%s interactives=%s "
+          "missing=%s | fill=%.2f%% colors=%d (gates: fill>=%.1f%% "
+          "colors>=%d)"
+          % (js.get("solids"), rec.get("interactives"), rec.get("missing"),
+             rec.get("fill_pct", 0.0), rec.get("colors", 0),
+             MIN_FILL_PCT, MIN_COLORS))
+    return {"fill": round(rec.get("fill_pct", 0.0), 2),
+            "colors": rec.get("colors", 0),
+            "interactives": rec.get("interactives"),
+            "missing": rec.get("missing")}
+
+
 def deploy_runtime(game_dir, port_seed):
     g = Path(game_dir)
     (g / "viewer").mkdir(exist_ok=True)
@@ -392,13 +565,20 @@ def main():
     ap.add_argument("--weather", default=None,
                     help="clear|rain|snow (passed to gen_archetype)")
     ap.add_argument("--skip-validate", action="store_true")
+    ap.add_argument("--kind", default="archetype", choices=list(KINDS),
+                    help="generator family: flagship soulslike/space/"
+                         "tabletop/platformer25d generators, or the "
+                         "archetype workhorse (default = classic pipeline)")
+    ap.add_argument("--skip-native-proof", action="store_true",
+                    help="escape hatch: skip the validate+render proof gate")
     ap.add_argument("--scale", default=None, choices=["small", "medium", "full"],
                     help="story/content scope: small demo, medium game, "
                          "full RPG (acts/items/roster size)")
     a = ap.parse_args()
 
-    if not a.random and not a.about and not a.archetype:
-        ap.error("pass --random or --about \"description\"")
+    if (not a.random and not a.about and not a.archetype
+            and a.kind == "archetype"):
+        ap.error('pass --random or --about "description" (or --kind)')
 
     # scale from explicit flag, else read it out of the human's wording
     scale = a.scale
@@ -426,7 +606,8 @@ def main():
     arch = a.archetype or arch
     pat = a.pattern or pat
     theme = a.theme or theme
-    kit = a.kit or kit
+    kind = a.kind
+    kit = a.kit or (KIND_KIT[kind] if kind != "archetype" else kit)
     # 2D5 camera archetypes move on one axis only - curved spline decks drop
     # the player off the world. Force a straight pattern for side-view kits.
     if kit == "platformer" and pat in {"spline_track", "room_graph"}:
@@ -438,11 +619,18 @@ def main():
     if out.exists():
         name = name + "-%d" % (seed % 1000)
         out = Path(a.out_dir) if a.out_dir else REPO / "Project" / name
-    print("[make] building '%s' | %s/%s/%s kit=%s seed=%d -> %s"
-          % (name, arch, pat, theme, kit, seed, out))
+    print("[make] building '%s' | kind=%s %s/%s/%s kit=%s seed=%d -> %s"
+          % (name, kind, arch, pat, theme, kit, seed, out))
 
-    # ---- pipeline (each step a shipped tool) -----------------------------
-    if arch == "platformer25d":
+    # ---- geometry: kind-dispatched generators ----------------------------
+    # ITEM 7: flagship kinds run their dedicated generator with the user's
+    # seed/out-dir; default archetype path is exactly today's behavior.
+    prompt = a.about or ("random %s build" % kind)
+    if kind != "archetype":
+        common = ["--out-dir", str(out), "--seed", str(seed),
+                  "--agent", "ai-agent", "--prompt", prompt]
+        run(WORLDGEN / KIND_GEN[kind], *common)
+    elif arch == "platformer25d":
         # explicit opt-in to the true side-scroller generator
         run(WORLDGEN / "gen_platformer25d.py", "--out-dir", str(out),
             "--agent", "ai-agent", "--prompt", a.about or "random")
@@ -498,16 +686,27 @@ def main():
     eelite = have_any("stalker", "knight", "brute", emook)
     eboss = have_any("brute", "knight", "wraith", emook)
 
+    # ITEM 9: collision-aware scatter of this builder's OWN extras (story
+    # items + roster enemies). Authored brief anchors are registered first;
+    # conflicting candidates re-roll deterministically, then get dropped.
+    anchors = ([brief["spawn"]] if brief.get("spawn") else [])
+    anchors += list(brief.get("checkpoints") or [])
+    anchors += [n["pos"] for n in brief.get("nodes", []) if n.get("pos")]
+    placer = ExtraPlacer(layout, seed, anchors)
+
     existing = {n.get("name") for n in brief.get("nodes", [])}
     for i, it in enumerate(items):
         nm = "Item_%02d_%s" % (i, "".join(ch for ch in it["name"].title()
                                           if ch.isalnum())[:18])
         mdl = pickup_for[_model_for_rarity(it.get("rarity"))]
-        if nm in existing or not mdl or not layout:
+        if nm in existing or not mdl:
             continue
         frac = 0.14 + (0.72 * (i + 1)) / max(1, len(items))
+        ipos = placer.place(nm, min(frac, 0.9))
+        if ipos is None:
+            continue
         brief.setdefault("nodes", []).append({
-            "name": nm, "pos": place_on(layout, min(frac, 0.9)),
+            "name": nm, "pos": ipos,
             "tags": ["scoring", "model:%s" % mdl],
             "poi": "%s (%s)" % (it["name"], it["rarity"]),
         })
@@ -517,10 +716,13 @@ def main():
     for i, r in enumerate(bosses):
         nm = "Boss_%d_%s" % (i, "".join(ch for ch in r["name"]
                                         if ch.isalnum())[:16])
-        if layout and nm not in existing and eboss:
+        if nm not in existing and eboss:
+            bpos = placer.place(nm, 0.35 + 0.18 * i)
+            if bpos is None:
+                continue
             brief.setdefault("nodes", []).append({
                 "name": nm,
-                "pos": place_on(layout, 0.35 + 0.18 * i),
+                "pos": bpos,
                 "tags": ["enemy", "hazard", "model:%s" % eboss],
                 "poi": r["description"],
             })
@@ -533,18 +735,22 @@ def main():
                             "".join(ch for ch in r["name"]
                                     if ch.isalnum())[:16])
         mdl = eelite if role == "elite" else emook
-        if not layout or nm in existing or not mdl:
+        if nm in existing or not mdl:
             continue
         frac = 0.22 + (0.62 * (i + 1)) / max(1, len(others))
+        opos = placer.place(nm, min(frac, 0.86))
+        if opos is None:
+            continue
         brief.setdefault("nodes", []).append({
             "name": nm,
-            "pos": place_on(layout, min(frac, 0.86)),
+            "pos": opos,
             "tags": ["enemy", "model:%s" % mdl],
             "poi": r["description"],
         })
         existing.add(nm)
-    print("[make] story layer: %d items -> pickups, %d roster -> enemies"
-          % (len(items), len(roster)))
+    print("[make] story layer: %d items -> pickups, %d roster -> enemies "
+          "(collision placement dropped %d)"
+          % (len(items), len(roster), placer.dropped))
 
     brief_path = out / "brief.json"
     brief_path.write_text(json.dumps(brief, indent=2), encoding="utf-8")
@@ -566,55 +772,70 @@ def main():
     cli = REPO / "native" / "bin" / "littcli.exe"
     if not cli.exists():
         cli = REPO / "native" / "bin" / "littcli"
+    view = REPO / "native" / "bin" / "littview.exe"
+    if not view.exists():
+        view = REPO / "native" / "bin" / "littview"
+    sim_json = None
     if not a.skip_validate:
         if cli.exists():
-            import subprocess
-            vr = subprocess.run(
-                [str(cli), "validate", str(out), "--frames", "120"],
-                capture_output=True, text=True, timeout=60)
-            print(vr.stdout.strip())
-            if vr.returncode != 0:
-                print(json.dumps({"ok": False, "game": name,
-                                  "validator": "littcli"}, indent=2))
-                sys.exit(1)
+            sim_json = littcli_validate(out, cli)
         else:
             run(out / "play_native.py", "--project", str(out),
                 "--frames", "30", "--dummy")
+
+    # ITEM 8: native proof gate (validate assertions + rendered-pixel proof)
+    proof = None
+    if a.skip_native_proof:
+        print("[make] native-proof: SKIPPED (--skip-native-proof)")
+    else:
+        proof = native_proof_gate(out, name, cli, view, sim_json)
     deploy_runtime(out, seed)
+
+    proof_note = ("fill=%.2f%% colors=%d interactives=%s missing=%s"
+                  % (proof["fill"], proof["colors"], proof["interactives"],
+                     proof["missing"])) if proof else "skipped"
 
     # NOTES + ATTRIBUTION + manifest ---------------------------------------
     (out / "NOTES.md").write_text(
         "# NOTES - %s\n\n%s\n\n- built by: make_game.py (%s mode)\n"
-        "- archetype=%s pattern=%s theme=%s kit=%s seed=%d scale=%s\n"
-        "- lint: clean | solids nodes: %d\n"
+        "- kind=%s archetype=%s pattern=%s theme=%s kit=%s seed=%d scale=%s\n"
+        "- lint: clean | solids nodes: %d | native proof: %s\n"
         "- play: ENGINE.bat/.sh (Vulkan player) | VIEW.bat (C++ viewer)\n"
         "- story: story/story.md (+items.json, +roster.json)\n"
         % (name, (a.about or "random pick"), "about" if a.about else "random",
-           arch, pat, theme, kit, seed, scale, solids), encoding="utf-8")
+           kind, arch, pat, theme, kit, seed, scale, solids, proof_note),
+        encoding="utf-8")
     (out / "ATTRIBUTION.md").write_text(
         "# ATTRIBUTION - %s\n\nAll assets procedurally generated by Litt "
         "worldgen tools. No third-party content.\n" % name, encoding="utf-8")
 
     manifest_p = REPO / "Project/games.json"
-    try:
-        manifest = json.loads(manifest_p.read_text(encoding="utf-8"))
-    except Exception:
-        manifest = {"games": []}
-    manifest["games"] = [g for g in manifest["games"] if g["name"] != name]
-    try:
-        rel_dir = str(out.relative_to(REPO))
-    except ValueError:
-        rel_dir = str(out)
-    manifest["games"].append({
-        "name": name, "dir": rel_dir,
-        "archetype": arch, "pattern": pat, "theme": theme, "kit": kit,
-        "seed": seed, "about": a.about or "", "built":
-            datetime.datetime.now().isoformat(timespec="seconds")})
-    manifest_p.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    # Orchestrators (refine_game.py, world_forge.py) set LITT_NO_MANIFEST=1
+    # for their scratch builds; only the final deploy registers.
+    if os.environ.get("LITT_NO_MANIFEST") != "1":
+        try:
+            manifest = json.loads(manifest_p.read_text(encoding="utf-8"))
+        except Exception:
+            manifest = {"games": []}
+        manifest["games"] = [g for g in manifest["games"] if g["name"] != name]
+        try:
+            rel_dir = str(out.relative_to(REPO))
+        except ValueError:
+            rel_dir = str(out)
+        manifest["games"].append({
+            "name": name, "dir": rel_dir,
+            "archetype": arch, "pattern": pat, "theme": theme, "kit": kit,
+            "seed": seed, "about": a.about or "", "built":
+                datetime.datetime.now().isoformat(timespec="seconds")})
+        manifest_p.write_text(json.dumps(manifest, indent=2),
+                              encoding="utf-8")
 
-    print(json.dumps({"ok": True, "game": name, "dir": str(out),
-                      "objs": report["objs"], "solids_nodes": solids,
-                      "play": "ENGINE.bat/.sh", "view": "VIEW.bat"}))
+    final = {"ok": True, "game": name, "dir": str(out),
+             "objs": report["objs"], "solids_nodes": solids,
+             "play": "ENGINE.bat/.sh", "view": "VIEW.bat"}
+    if proof:
+        final["native_proof"] = proof
+    print(json.dumps(final))
 
 
 if __name__ == "__main__":

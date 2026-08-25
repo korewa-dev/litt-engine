@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # Binary Size Optimization Guide
 
 ## Target: Under 1 MB
@@ -20,8 +21,8 @@
 
 ## Verification
 ```bash
-cargo build --release
-ls -la target/release/litt
+native\build.bat          # Windows (POSIX: make -C native)
+ls -la native/bin
 ```
 
 ## Size Targets by Platform

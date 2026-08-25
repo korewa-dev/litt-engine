@@ -2,11 +2,17 @@
 """litt - one command to cook, serve and eat the whole engine pie.
 
     litt            status dashboard (games, builds, health)
-    litt build      [--full]  native C/C++ always; Rust too when --full
+    litt build                native C/C++ core only (no other toolchain)
     litt test                 C unit tests + viewer selftest + project audit
     litt proof                full native render+sim proof over shipped games
     litt new NAME   [...]     generate a new game (args pass to make_game)
-    litt play GAME            play a game in the Vulkan player
+    litt forge "PHRASE" [...] plan+compose a multi-region WorldForge world
+                              (--seed S --name N --regions K feed the planner,
+                               --out-dir D --force --skip-native-proof the
+                               composer; see CDR-011)
+    litt refine [...]         generate->prove->refine loop (args pass to
+                              refine_game.py, e.g. --kind space --base-seed 42)
+    litt play GAME            play a game via its ENGINE launcher
     litt view GAME            open the C++ orbit viewer
     litt bench [GAME]         rasterizer benchmark
     litt studio               build+launch the C# Litt Studio GUI
@@ -24,6 +30,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 NATIVE = REPO / "native"
 PROJECTS = REPO / "Project"
+WORLDFORGE = REPO / "template" / "tools" / "worldgen"
 IS_WIN = os.name == "nt"
 
 
@@ -49,13 +56,6 @@ def cmd_status():
     cli = exe("littcli")
     view = exe("littview")
     print("native core : %s" % ("built" if cli and view else "MISSING - run: litt build"))
-    eng = None
-    for cand in ([REPO / "target/x86_64-pc-windows-gnu/release/litt.exe"] if IS_WIN else []) \
-            + [REPO / "target/release/litt", REPO / "target/debug/litt"]:
-        if Path(str(cand) + (".exe" if IS_WIN else "")).exists():
-            eng = cand
-            break
-    print("engine (Rust): %s" % (eng or "not built (optional; 'litt build --full')"))
     games = sorted(p for p in PROJECTS.iterdir()
                    if p.is_dir() and (p / "world_state.json").exists())
     print("games       : %d (%d shippable)\n" % (
@@ -82,33 +82,24 @@ def cmd_status():
     return 0
 
 
-def cmd_build(full=False):
-    print("[1/2] native C/C++ core...")
+def cmd_build():
+    print("[1/1] native C/C++ core...")
     if IS_WIN:
         r = run(["cmd", "/c", str(NATIVE / "build.bat")])
     else:
         r = run(["make", "-C", str(NATIVE)])
     if r.returncode:
         print(r.stdout, r.stderr)
-        return r.returncode
-    if full:
-        cargo = shutil.which("cargo")
-        if not cargo:
-            print("cargo not found - skipping Rust engine "
-                  "(install https://rustup.rs for the Vulkan player)")
-            return 0
-        print("[2/2] Rust engine (--release)...")
-        r = run([cargo, "build", "--release"], cwd=REPO)
-        return r.returncode
-    print("(Rust engine skipped - use 'litt build --full' for it)")
-    return 0
+    return r.returncode
 
 
 def cmd_test():
     fails = []
     print("== C unit tests ==")
     if IS_WIN:
-        r = run(["cmd", "/c", "%s test" % (NATIVE / "build.bat")])
+        # invoke the .bat directly (arg-list form): survives repo paths
+        # containing spaces; going through `cmd /c` mangles the quoting
+        r = run([str(NATIVE / "build.bat"), "test"])
         if r.returncode:
             fails.append("c-tests")
     else:
@@ -144,6 +135,114 @@ def cmd_new(args):
     return run([sys.executable, script] + args).returncode
 
 
+# ------------------------------------------------------------- worldforge
+def _stream(cmd):
+    """run cmd, streaming its output live; return (returncode, captured)"""
+    p = subprocess.Popen([str(c) for c in cmd], stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT, text=True,
+                         encoding="utf-8", errors="replace")
+    lines = []
+    for ln in p.stdout:
+        sys.stdout.write(ln)
+        lines.append(ln)
+    p.wait()
+    return p.returncode, "".join(lines)
+
+
+def _plan_flags(args):
+    """split litt forge args -> (about words, planner flags, composer flags).
+
+    Defensive against the documented CLI only (CDR-011): planner takes
+    --about/--seed/--name/--regions/--out, composer takes a spec path plus
+    --out-dir/--force/--skip-native-proof. Unknown words join the phrase.
+    """
+    about, plan_args, comp_args = [], [], []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        nxt = args[i + 1] if i + 1 < len(args) else None
+        if a in ("--seed", "--name", "--regions", "--out") and nxt:
+            plan_args += [a, nxt]
+            i += 2
+        elif a == "--out-dir" and nxt:
+            comp_args += [a, nxt]
+            i += 2
+        elif a in ("--force", "--skip-native-proof"):
+            comp_args += [a]
+            i += 1
+        else:
+            about.append(a)
+            i += 1
+    return about, plan_args, comp_args
+
+
+def _find_spec(plan_out, plan_args):
+    """locate the spec the planner just wrote: --out wins, then its last-JSON
+    stdout hint, then the conventional default paths."""
+    if "--out" in plan_args:
+        p = Path(plan_args[plan_args.index("--out") + 1])
+        return p if p.exists() else None
+    tail = plan_out.strip().splitlines()
+    if tail:
+        try:  # planners may print {.. "spec": ..} as their last line
+            js = __import__("json").loads(tail[-1])
+            for k in ("spec", "spec_path", "world_spec", "out", "path"):
+                v = js.get(k) if isinstance(js, dict) else None
+                if isinstance(v, str) and Path(v).exists():
+                    return Path(v)
+        except Exception:
+            pass
+    here = Path.cwd()
+    for cand in (here / "world_spec.json", REPO / "world_spec.json",
+                 WORLDFORGE / "world_spec.json"):
+        if cand.exists():
+            return cand
+    return None
+
+
+def cmd_forge(args):
+    """WorldForge (CDR-011): one phrase -> planner spec -> fused world."""
+    plan = WORLDFORGE / "world_planner.py"
+    comp = WORLDFORGE / "world_forge.py"
+    missing = [p.name for p in (plan, comp) if not p.exists()]
+    if missing:
+        print("worldforge landing shortly - missing %s" % ", ".join(missing),
+              file=sys.stderr)
+        return 2
+    about, plan_args, comp_args = _plan_flags(args)
+    if not about:
+        print('usage: litt forge "one line about the world" '
+              '[--seed S] [--name N] [--regions K] [--out-dir D]',
+              file=sys.stderr)
+        return 2
+    print('[forge 1/2] planning spec for "%s"' % " ".join(about))
+    code, out = _stream([sys.executable, plan, "--about",
+                         " ".join(about)] + plan_args)
+    if code:
+        print("[forge] planner failed (%d)" % code, file=sys.stderr)
+        return code or 1
+    spec = _find_spec(out, plan_args)
+    if not spec:
+        print("[forge] no world_spec.json found after planning "
+              "(pin it with --out PATH)", file=sys.stderr)
+        return 1
+    print("[forge 2/2] composing fused world from %s" % spec)
+    code, _ = _stream([sys.executable, comp, str(spec)] + comp_args)
+    if code:
+        print("[forge] composer failed (%d)" % code, file=sys.stderr)
+        return code or 1
+    return 0
+
+
+def cmd_refine(args):
+    """refine loop (CDR-010): pass-through to refine_game.py."""
+    script = WORLDFORGE / "refine_game.py"
+    if not script.exists():
+        print("refine loop landing shortly", file=sys.stderr)
+        return 2
+    return run([sys.executable, script] + args).returncode
+
+
 def _game_dir(name):
     g = PROJECTS / name
     if not (g / "world_state.json").exists():
@@ -152,28 +251,9 @@ def _game_dir(name):
     return g
 
 
-def _engine_exe():
-    """the Rust Vulkan player if built, else None"""
-    cands = []
-    if IS_WIN:
-        cands += [REPO / "target/x86_64-pc-windows-gnu/release/litt.exe",
-                  REPO / "target/x86_64-pc-windows-gnu/debug/litt.exe"]
-    cands += [REPO / "target/release/litt", REPO / "target/debug/litt"]
-    for c in cands:
-        p = Path(str(c) + (".exe" if IS_WIN else ""))
-        if p.exists():
-            return p
-    return None
-
-
 def cmd_play(name):
     g = _game_dir(name)
-    eng = _engine_exe()
-    if not eng:
-        print("Rust player not built (litt build --full) - "
-              "opening the C++ viewer instead")
-        return cmd_view([name])
-    # ENGINE launchers resolve $LITT_ENGINE/release/debug themselves;
+    # ENGINE launchers resolve the player binary themselves;
     # detach so the CLI returns
     if IS_WIN:
         subprocess.Popen(["cmd", "/c", "start", "", str(g / "ENGINE.bat")],
@@ -263,7 +343,6 @@ def cmd_doctor():
         ("gcc", shutil.which("gcc")),
         ("g++", shutil.which("g++")),
         ("cc/make", shutil.which("make") or shutil.which("nmake")),
-        ("cargo (rust player)", shutil.which("cargo")),
         ("csc (C# studio)", _find_csc()),
         ("git", shutil.which("git")),
     ]
@@ -273,10 +352,7 @@ def cmd_doctor():
         if path:
             print("%-24s OK   %s" % (name, path))
         else:
-            need = {
-                "cargo (rust player)": "install via https://rustup.rs",
-            }.get(name, "")
-            print("%-24s --   %s" % (name, need))
+            print("%-24s --   %s" % (name, ""))
     cli, view = exe("littcli"), exe("littview")
     print("%-24s %s" % ("native core",
                         "OK   built" if cli and view else "MISSING - litt build"))
@@ -291,10 +367,12 @@ def main():
     rest = argv[1:]
     table = {
         "status": lambda: cmd_status(),
-        "build": lambda: cmd_build("--full" in rest or "-f" in rest),
+        "build": lambda: cmd_build(),
         "test": lambda: cmd_test(),
         "proof": lambda: cmd_proof(),
         "new": lambda: cmd_new(rest),
+        "forge": lambda: cmd_forge(rest),
+        "refine": lambda: cmd_refine(rest),
         "play": lambda: cmd_play(rest[0]),
         "view": lambda: cmd_view(rest),
         "bench": lambda: cmd_bench(rest),

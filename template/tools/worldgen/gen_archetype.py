@@ -25,7 +25,7 @@ from pathlib import Path
 
 from worldkit import (Rng, fbm, MeshBuilder, write_mtl_for, register_index,
                       write_scene, write_state, append_log, load_theme,
-                      list_themes, assert_origin_centered)
+                      list_themes, assert_origin_centered, mesh_centroid)
 
 HERE = Path(__file__).parent
 OBJECTIVES = {
@@ -136,7 +136,19 @@ def pattern_corridor(rng, mats, length=70):
     assert_origin_centered(gm)
     extras.append(("goal_banner", "goal_banner", "Goal_Banner", gm,
                    [length - 1, 0, 0], 0, ["goal"]))
-    return [("Corridor", [length / 2.0, 0, 0], 0, ["level"])], (mb, extras)
+    # AUDIT 2.2 fix - CHOSEN APPROACH: pivot-relative rebuild (the
+    # platformer25d track_x pattern). The level mesh used to bake world-x
+    # (0..length) into floor/wall/obstacle vertices while the Corridor node
+    # sat at [length/2, 0, 0]; transform-applying consumers rendered AND
+    # simulated it ~2x displaced. The mesh is translated so its vertex
+    # centroid hugs the origin and the NODE carries the whole placement;
+    # world-space layout is unchanged (node + relative verts == old verts).
+    # Identity-node fallback rejected: it would leave baked coords in the
+    # OBJ and fail the centroid-at-origin gate.
+    cen = mesh_centroid(mb)
+    mb.translate(-cen[0], 0.0, -cen[2])
+    return [("Corridor", [round(cen[0], 3), 0, round(cen[2], 3)], 0,
+            ["level"])], (mb, extras)
 
 def pattern_hub(rng, mats, spokes=5, reach=26):
     mb = MeshBuilder(); k = kit_factory(mb)
@@ -148,15 +160,20 @@ def pattern_hub(rng, mats, spokes=5, reach=26):
         dx, dz = math.cos(a), math.sin(a)
         for t in range(4, reach, 3):
             pa.box(round(dx * t, 2), 0.08, round(dz * t, 2), 1.5, 0.16, 1.5)
+    # POI stones: built AT ORIGIN (audit item 6 - they used to bake the
+    # spoke-end coords into vertices AND set node.position to the same
+    # numbers, double-transforming under transform-applying consumers);
+    # the node position alone carries placement now.
     poi = []
     for s in range(spokes):
         a = 2.0 * math.pi * s / spokes
         ex, ez = math.cos(a) * reach, math.sin(a) * reach
         pm = MeshBuilder(); pk = kit_factory(pm)
         st = pk("stone", mat_at(mats, "detail", "detail"))
-        st.cyl(ex, 0.9, ez, 1.0, 0.8, 1.8, seg=8)
+        st.cyl(0, 0.9, 0, 1.0, 0.8, 1.8, seg=8)
         top = pk("cap", mat_at(mats, "accent", "accent"))
-        top.octahedron(ex, 2.3, ez, 0.7)
+        top.octahedron(0, 2.3, 0, 0.7)
+        assert_origin_centered(pm)
         poi.append((pm, "POI_%02d" % (s + 1), [round(ex, 2), 0, round(ez, 2)]))
     dec = k("scatter", mat_at(mats, "detail", "detail"))
     for i in range(14):
@@ -177,6 +194,7 @@ def pattern_hub(rng, mats, spokes=5, reach=26):
     extras = []   # (emit_name_or_None, ref_model, display_name, mb_or_None, pos, yaw, tags)
     cm = MeshBuilder(); ck = kit_factory(cm)
     ck("gem", mat_at(mats, "accent", "accent")).octahedron(0, 0.55, 0, 0.28)
+    assert_origin_centered(cm)
     extras.append(("coin", "coin", "Coin", cm, [0, 0, 0], 0, ["pickup"]))
     coin_n = 0
     for i in range(8):
@@ -195,15 +213,22 @@ def pattern_hub(rng, mats, spokes=5, reach=26):
     sm = MeshBuilder(); sk = kit_factory(sm)
     sk("body", mat_at(mats, "detail", "detail")).box(0, 0.9, 0, 0.5, 1.8, 0.5)
     sk("hood", mat_at(mats, "accent", "accent")).pyramid(0, 1.9, 0, 0.6, 0.6, 0.7)
+    assert_origin_centered(sm)
     extras.append(("stalker", "stalker", "Stalker", sm, [0, 0, 0], 0, ["enemy"]))
     for i in range(2):
         a3 = 2.0 * math.pi * (i + 0.5) / spokes
         extras.append((None, "stalker", "Stalker_%02d" % (i + 1), None,
                        [round(16 * math.cos(a3), 2), 0, round(16 * math.sin(a3), 2)], 0, ["enemy"]))
+    # festival banner: AT ORIGIN (audit item 6 - pole/cloth used to bake
+    # reach+4 into vertices while the node sat at [0, 0, 0]); the node
+    # position now carries the spoke-0 end placement. Cloth re-centered on
+    # the pole so the mesh hugs the origin per the transform convention.
     bm = MeshBuilder(); bk = kit_factory(bm)
-    bk("pole", mat_at(mats, "structure", "structure")).cyl(reach + 4, 0.0, 0, 0.09, 0.07, 4.6, seg=8)
-    bk("cloth", mat_at(mats, "accent", "accent")).prism(reach + 4, 3.4, 0.75, 0.06, 0.7, 1.1)
-    extras.append(("festival_banner", "festival_banner", "Festival_Banner", bm, [0, 0, 0], 0, ["goal"]))
+    bk("pole", mat_at(mats, "structure", "structure")).cyl(0, 0.0, 0, 0.09, 0.07, 4.6, seg=8)
+    bk("cloth", mat_at(mats, "accent", "accent")).prism(0, 3.4, 0, 0.06, 0.7, 1.1)
+    assert_origin_centered(bm)
+    extras.append(("festival_banner", "festival_banner", "Festival_Banner", bm,
+                   [reach + 4, 0, 0], 0, ["goal"]))
     placed = [("Central_Plaza", [0, 0, 0], 0, ["hub"])]
     return placed, (mb, poi, extras)
 
@@ -245,85 +270,344 @@ def _catmull(p0, p1, p2, p3, t):
     t2 = t * t; t3 = t2 * t
     return tuple(0.5 * ((2 * p1[i]) + (-p0[i] + p2[i]) * t + (2 * p0[i] - 5 * p1[i] + 4 * p2[i] - p3[i]) * t2 + (-p0[i] + 3 * p1[i] - 3 * p2[i] + p3[i]) * t3) for i in range(2))
 
+# --- spline input conditioning (audit item 5): duplicate / near-duplicate
+# control points and collinear runs used to be able to degenerate the closed
+# Catmull-Rom loop (zero-length segments); every stage below is guarded ---
+
+TRACK_CTRL_MIN_SEP = 0.5   # m; control points closer than this are dropped
+SAMPLE_MIN_SEG = 0.05      # m; sampled segments shorter than this are skipped
+TRACK_MAX_SAMPLES = 240    # hard clamp on emitted road samples
+
+def condition_points(points, min_sep):
+    """Deterministic input conditioning: drop non-finite points and any
+    point closer than min_sep to the last accepted one (first of every
+    near-duplicate run wins). Never raises on degenerate input."""
+    out = []
+    for p in points:
+        if not (math.isfinite(p[0]) and math.isfinite(p[1])):
+            continue
+        if out and math.hypot(p[0] - out[-1][0], p[1] - out[-1][1]) < min_sep:
+            continue
+        out.append((float(p[0]), float(p[1])))
+    return out
+
+def unit_tangent(p, q):
+    """Normalized p->q direction, or None when the segment is degenerate
+    (zero-length or non-finite) - callers skip instead of dividing by ~0."""
+    dx, dz = q[0] - p[0], q[1] - p[1]
+    ln = math.hypot(dx, dz)
+    if not math.isfinite(ln) or ln < 1e-9:
+        return None
+    return (dx / ln, dz / ln)
+
+def thin_polyline(samples, min_seg=SAMPLE_MIN_SEG, cap=TRACK_MAX_SAMPLES):
+    """Condition a sampled polyline: finite points only, zero-length
+    segments removed via the guarded unit tangent, count clamped to cap."""
+    kept = []
+    for p in samples:
+        if len(kept) >= cap:
+            break
+        if not (math.isfinite(p[0]) and math.isfinite(p[1])):
+            continue
+        if kept and unit_tangent(kept[-1], p) is None:
+            continue
+        kept.append((float(p[0]), float(p[1])))
+    return kept
+
+def track_control_points(rng, count=6, spread=30.0, attempts=8):
+    """Seeded control points conditioned to >=4 accepted points
+    TRACK_CTRL_MIN_SEP apart; seeded retries first, then a canonical ring
+    fallback that is well-conditioned by construction."""
+    for _ in range(attempts):
+        pts = condition_points(
+            [(rng.uniform(-spread, spread), rng.uniform(-spread, spread))
+             for _ in range(count)], TRACK_CTRL_MIN_SEP)
+        if len(pts) >= 4:
+            return pts
+    return [(round(spread * 0.8 * math.cos(2.0 * math.pi * i / count), 3),
+             round(spread * 0.8 * math.sin(2.0 * math.pi * i / count), 3))
+            for i in range(count)]
+
+def sample_closed_spline(ctrl, per_segment=10):
+    """Closed Catmull-Rom through CONDITIONED control points; degenerate
+    samples skipped by thin_polyline, segment count clamped. Finite output
+    for any finite control input."""
+    n = len(ctrl)
+    raw = []
+    for i in range(n):
+        p0, p1 = ctrl[(i - 1) % n], ctrl[i]
+        p2, p3 = ctrl[(i + 1) % n], ctrl[(i + 2) % n]
+        for s in range(per_segment):
+            raw.append(_catmull(p0, p1, p2, p3, s / float(per_segment)))
+    return thin_polyline(raw)
+
 def pattern_track(rng, mats):
-    ctrl = [(rng.uniform(-30, 30), rng.uniform(-30, 30)) for _ in range(6)]
-    pts = []
-    for i in range(6):
-        p0, p1, p2, p3 = ctrl[(i - 1) % 6], ctrl[i], ctrl[(i + 1) % 6], ctrl[(i + 2) % 6]
-        for s in range(10):
-            pts.append(_catmull(p0, p1, p2, p3, s / 10.0))
+    pts = sample_closed_spline(track_control_points(rng))
     mb = MeshBuilder(); k = kit_factory(mb)
     rd = k("road", mat_at(mats, "ground", "ground"))
-    for j, (x, z) in enumerate(pts):
+    for x, z in pts:
         rd.box(round(x, 2), 0.06, round(z, 2), 0.95, 0.12, 0.95)
     cp = k("checkpoints", mat_at(mats, "accent", "accent"))
-    for j in range(0, len(pts), len(pts) // 4):
+    step = max(1, len(pts) // 4)   # guard: range() step must stay >= 1
+    for j in range(0, len(pts), step):
         x, z = pts[j]
         cp.box(round(x, 2), 1.2, round(z, 2), 0.3, 2.4, 0.3)
     # start gate: its OWN mesh so the Start_Line node's model:start_line
-    # reference resolves (dangling refs break runtimes)
+    # reference resolves (dangling refs break runtimes). Built AT ORIGIN -
+    # audit item 6 class fix: the gate used to bake sx/sz into its vertices
+    # while the Start_Line node carried the same coords (double transform).
     sx, sz = round(pts[0][0], 2), round(pts[0][1], 2)
     sm = MeshBuilder(); sk = kit_factory(sm)
     posts = sk("gate_posts", mat_at(mats, "structure", "structure"))
-    posts.box(sx - 1.6, 1.5, sz, 0.28, 3.0, 0.28)
-    posts.box(sx + 1.6, 1.5, sz, 0.28, 3.0, 0.28)
+    posts.box(-1.6, 1.5, 0, 0.28, 3.0, 0.28)
+    posts.box(1.6, 1.5, 0, 0.28, 3.0, 0.28)
     bar = sk("gate_bar", mat_at(mats, "accent", "accent"))
-    bar.box(sx, 3.05, sz, 3.6, 0.34, 0.3)
+    bar.box(0, 3.05, 0, 3.6, 0.34, 0.3)
+    assert_origin_centered(sm)
     placed = [("Track_Loop", [0, 0, 0], 0, ["track"]),
               ("Start_Line", [sx, 0, sz], 0, ["start", "poi"])]
     return placed, (mb, sm)
 
+# --- room_graph connectivity (audit item 4): picking rooms with
+# rng.uniform() > 0.25 never guaranteed corridor reachability - isolated
+# rooms left loot unreachable. These helpers plan doorways + L-shaped
+# linking corridors over room centers and PROVE reachability by BFS before
+# any geometry is emitted. ---
+
+def _edge_key(a, b):
+    """Canonical undirected key for a cell-pair edge (wall doorway)."""
+    return (a, b) if a <= b else (b, a)
+
+def choose_rooms(rng, cols=3, rows=3, keep_above=0.25):
+    """Seed-selected room cells in scan order (same draws as the original
+    inline picker, extracted so probes can reproduce the selection)."""
+    return [(cx, cz) for cx in range(cols) for cz in range(rows)
+            if rng.uniform() > keep_above]
+
+def corridor_cells(a, b):
+    """Cell-wise L-path a -> b (x leg first, then z), endpoints included.
+    Legs always run along room-center rows/columns, so every wall crossing
+    lands inside that wall's standard central door gap."""
+    out = [a]
+    cx, cz = a
+    while cx != b[0]:
+        cx += 1 if b[0] > cx else -1
+        out.append((cx, cz))
+    while cz != b[1]:
+        cz += 1 if b[1] > cz else -1
+        out.append((cx, cz))
+    return out
+
+def plan_room_connectivity(chosen):
+    """Doorways + corridor links making every chosen room reachable.
+
+    Returns (portals, links): portals is the set of normalized cell-pair
+    edges that must ship with a wall gap (adjacent chosen rooms plus every
+    perimeter a linking corridor threads); links is a minimal list of
+    (i, j) room-index pairs needing an L-corridor, built by greedy
+    closest-pair merging of connected components (= MST over room centers,
+    ties broken deterministically by index)."""
+    n = len(chosen)
+    idx = {}
+    for i, c in enumerate(chosen):
+        idx[c] = i
+    portals = set()
+    adj = [[] for _ in range(n)]
+    for i, (cx, cz) in enumerate(chosen):
+        for nb in ((cx + 1, cz), (cx - 1, cz), (cx, cz + 1), (cx, cz - 1)):
+            j = idx.get(nb)
+            if j is not None:
+                portals.add(_edge_key((cx, cz), nb))
+                adj[i].append(j)
+    comp = [-1] * n
+    ncomp = 0
+    for s in range(n):
+        if comp[s] != -1:
+            continue
+        comp[s] = ncomp
+        stack = [s]
+        while stack:
+            u = stack.pop()
+            for v in adj[u]:
+                if comp[v] == -1:
+                    comp[v] = ncomp
+                    stack.append(v)
+        ncomp += 1
+    links = []
+    while ncomp > 1:
+        best = None
+        for i in range(n):
+            for j in range(i + 1, n):
+                if comp[i] == comp[j]:
+                    continue
+                d = (abs(chosen[i][0] - chosen[j][0])
+                     + abs(chosen[i][1] - chosen[j][1]))
+                key = (d, i, j)
+                if best is None or key < best:
+                    best = key
+        _, i, j = best
+        links.append((i, j))
+        dead, live = comp[j], comp[i]
+        for k in range(n):
+            if comp[k] == dead:
+                comp[k] = live
+        ncomp -= 1
+    return portals, links
+
+def room_reachability(chosen, portals, links):
+    """BFS over the room+corridor adjacency about to be emitted. Rooms are
+    nodes 0..n-1; every link adds one corridor node joined to both endpoint
+    rooms and to any chosen room whose wall the L-path threads. Returns the
+    sorted list of reached room ids; callers assert full coverage BEFORE
+    emitting geometry."""
+    n = len(chosen)
+    idx = {}
+    for i, c in enumerate(chosen):
+        idx[c] = i
+    cset = set(chosen)
+    graph = [[] for _ in range(n + len(links))]
+    for a, b in portals:
+        if a in idx and b in idx:
+            graph[idx[a]].append(idx[b])
+            graph[idx[b]].append(idx[a])
+    for ci, (i, j) in enumerate(links):
+        cn = n + ci
+        graph[i].append(cn)
+        graph[cn].append(i)
+        graph[j].append(cn)
+        graph[cn].append(j)
+        prev = None
+        for cell in corridor_cells(chosen[i], chosen[j]):
+            if prev is not None and (prev in cset or cell in cset):
+                for c in (prev, cell):
+                    if c in idx:
+                        graph[idx[c]].append(cn)
+                        graph[cn].append(idx[c])
+            prev = cell
+    seen = [False] * len(graph)
+    seen[0] = True
+    queue = [0]
+    head = 0
+    while head < len(queue):
+        u = queue[head]
+        head += 1
+        for v in graph[u]:
+            if not seen[v]:
+                seen[v] = True
+                queue.append(v)
+    return sorted(i for i in range(n) if seen[i])
+
 def pattern_rooms(rng, mats, cols=3, rows=3):
     mb = MeshBuilder(); k = kit_factory(mb)
     CW, RW, RW2 = 12.0, 9.0, 9.0
-    chosen = [(cx, cz) for cx in range(cols) for cz in range(rows) if rng.uniform() > 0.25]
+    chosen = choose_rooms(rng, cols, rows)
+    if not chosen:                       # pathological all-walls roll
+        chosen = [(cols // 2, rows // 2)]
+    portals, links = plan_room_connectivity(chosen)
+    # reachability proof BEFORE emitting: planning is constructive, this is
+    # the seatbelt assert demanded by the audit item
+    reached = room_reachability(chosen, portals, links)
+    if len(reached) != len(chosen):
+        raise RuntimeError(
+            "room_graph: planned layout leaves rooms unreachable: %r of %r"
+            % (reached, chosen))
+    cset = set(chosen)
     fl = k("floors", mat_at(mats, "ground", "ground"))
     for cx, cz in chosen:
         x0, z0 = cx * CW, cz * RW2
         fl.box(x0 + CW / 2.0, 0.05, z0 + RW2 / 2.0, CW / 2.0 - 0.5, 0.1, RW2 / 2.0 - 0.5)
+    # linking corridors: 1.8 m walkway tiles flush with the room floors;
+    # every threaded perimeter registers a doorway portal consumed below
+    corr = 0.9                            # half-width of corridor tiles
+    for i, j in links:
+        prev = None
+        for cell in corridor_cells(chosen[i], chosen[j]):
+            if prev is not None:
+                if prev in cset or cell in cset:
+                    portals.add(_edge_key(prev, cell))
+                px, pz = prev[0] * CW + CW / 2.0, prev[1] * RW2 + RW2 / 2.0
+                qx, qz = cell[0] * CW + CW / 2.0, cell[1] * RW2 + RW2 / 2.0
+                fl.box(round((px + qx) / 2.0, 2), 0.05, round((pz + qz) / 2.0, 2),
+                       round(abs(qx - px) / 2.0 + corr, 2), 0.1,
+                       round(abs(qz - pz) / 2.0 + corr, 2))
+            prev = cell
     wa = k("walls", mat_at(mats, "structure", "structure"))
-    looted = []
-    for idx, (cx, cz) in enumerate(chosen):
+    for cx, cz in chosen:
         x0, z0 = cx * CW, cz * RW2
         for side, (nx, nz) in enumerate([(cx + 1, cz), (cx - 1, cz), (cx, cz + 1), (cx, cz - 1)]):
-            linked = (nx, nz) in chosen
-            mid = 1.5
-            segs = [(-mid + 0.0)] if False else None
+            door = _edge_key((cx, cz), (nx, nz)) in portals
             if side == 0:
                 wx = x0 + CW
-                if linked:
+                if door:
                     wa.box(wx, 1.2, z0 + RW2 * 0.25, 0.3, 1.2, RW2 * 0.25)
                     wa.box(wx, 1.2, z0 + RW2 * 0.75, 0.3, 1.2, RW2 * 0.25)
                 else:
                     wa.box(wx, 1.2, z0 + RW2 / 2.0, 0.3, 1.2, RW2 / 2.0)
             elif side == 1:
                 wx = x0
-                if linked:
+                if door:
                     wa.box(wx, 1.2, z0 + RW2 * 0.25, 0.3, 1.2, RW2 * 0.25)
                     wa.box(wx, 1.2, z0 + RW2 * 0.75, 0.3, 1.2, RW2 * 0.25)
                 else:
                     wa.box(wx, 1.2, z0 + RW2 / 2.0, 0.3, 1.2, RW2 / 2.0)
             elif side == 2:
                 wz = z0 + RW2
-                if linked:
+                if door:
                     wa.box(x0 + CW * 0.25, 1.2, wz, CW * 0.25, 1.2, 0.3)
                     wa.box(x0 + CW * 0.75, 1.2, wz, CW * 0.25, 1.2, 0.3)
                 else:
                     wa.box(x0 + CW / 2.0, 1.2, wz, CW / 2.0, 1.2, 0.3)
             else:
                 wz = z0
-                if linked:
+                if door:
                     wa.box(x0 + CW * 0.25, 1.2, wz, CW * 0.25, 1.2, 0.3)
                     wa.box(x0 + CW * 0.75, 1.2, wz, CW * 0.25, 1.2, 0.3)
                 else:
                     wa.box(x0 + CW / 2.0, 1.2, wz, CW / 2.0, 1.2, 0.3)
+    # gameplay wiring via the item-3 extras convention: baked-in loot
+    # octahedra become instanced pickup nodes the engine can see (baseline
+    # littcli validate scored interactives:0 / ok:false without this), plus
+    # one goal-tagged exit gate in the last chosen room. Prop meshes are
+    # built AT ORIGIN; node positions carry placement only.
+    extras = []
+    looted = []
+    gm = None
+    for idx, (cx, cz) in enumerate(chosen):
+        x0, z0 = cx * CW, cz * RW2
         if rng.uniform() > 0.5 or idx == len(chosen) - 1:
-            lt = k("loot_" + str(idx), mat_at(mats, "accent", "accent"))
             lx = x0 + CW * rng.uniform(0.3, 0.7); lz = z0 + RW2 * rng.uniform(0.3, 0.7)
-            lt.octahedron(round(lx, 2), 0.8, round(lz, 2), 0.35)
+            if gm is None:
+                gm = MeshBuilder(); gk = kit_factory(gm)
+                gk("gem", mat_at(mats, "accent", "accent")).octahedron(0, 0.8, 0, 0.35)
+                assert_origin_centered(gm)
+            extras.append(("loot_gem" if not looted else None, "loot_gem",
+                           "Loot_Gem_%02d" % (len(looted) + 1),
+                           gm if not looted else None,
+                           [round(lx, 2), 0, round(lz, 2)], 0, ["pickup"]))
             looted.append(idx)
-    placed = [("Dungeon", [cols * CW / 2.0, 0, rows * RW2 / 2.0], 0, ["level"])]
-    return placed, mb
+    xm = MeshBuilder(); xk = kit_factory(xm)
+    xp = xk("exit_frame", mat_at(mats, "structure", "structure"))
+    xp.box(-0.8, 0.9, 0, 0.18, 0.9, 0.18)
+    xp.box(0.8, 0.9, 0, 0.18, 0.9, 0.18)
+    xl = xk("exit_lintel", mat_at(mats, "accent", "accent"))
+    xl.box(0, 1.85, 0, 0.95, 0.12, 0.2)
+    xs = xk("exit_core", mat_at(mats, "accent", "accent"))
+    xs.octahedron(0, 1.1, 0, 0.45)
+    assert_origin_centered(xm)
+    ex, ez = chosen[-1][0] * CW + CW / 2.0, chosen[-1][1] * RW2 + RW2 / 2.0
+    extras.append(("exit_gate", "exit_gate", "Exit_Gate", xm,
+                   [round(ex, 2), 0, round(ez, 2)], 0, ["goal"]))
+    # AUDIT 2.2 fix - same pivot-relative approach as corridor_run (see the
+    # comment there): floors/walls/corridors used to bake cell-offset coords
+    # while the Dungeon node carried [cols*CW/2, 0, rows*RW2/2] - a double
+    # transform. The mesh re-centers on its OWN vertex centroid (chosen
+    # rooms can cluster off grid-center, so the centroid - not the grid
+    # middle - is the honest pivot) and the node carries that placement.
+    cen = mesh_centroid(mb)
+    mb.translate(-cen[0], 0.0, -cen[2])
+    placed = [("Dungeon", [round(cen[0], 3), 0, round(cen[2], 3)], 0,
+               ["level"])]
+    return placed, (mb, extras)
 
 PATTERNS = {
   "arena_ring": pattern_arena, "corridor_run": pattern_corridor,

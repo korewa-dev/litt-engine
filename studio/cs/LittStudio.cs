@@ -11,6 +11,8 @@
 // - dark theme, game grid with live mode/entity data from littcli
 // - "New World" drives template/tools/worldgen/make_game.py with a
 //   seed field so results are reproducible
+// - "Forge" drives tools/litt.py forge (CDR-011 WorldForge) on the same
+//   about-line: one phrase -> multi-region fused world
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -65,7 +67,8 @@ public class MainForm : Form
 {
     readonly List<GameInfo> _games = new();
     DataGridView _grid;
-    Button _playBtn, _viewBtn, _proofBtn, _newBtn, _benchBtn, _refreshBtn;
+    Button _playBtn, _viewBtn, _proofBtn, _newBtn, _forgeBtn,
+           _benchBtn, _refreshBtn;
     TextBox _seedBox, _aboutBox;
     PictureBox _preview;
     StatusStrip _status;
@@ -108,7 +111,7 @@ public class MainForm : Form
         });
         left.Controls.Add(new Label
         {
-            Text = "C/C++ core  ·  C# cockpit  ·  Rust player (optional)",
+            Text = "C/C++ core  ·  C# cockpit",
             ForeColor = Color.FromArgb(150, 145, 155),
             AutoSize = true,
             Margin = new Padding(2, 0, 0, 10),
@@ -189,9 +192,12 @@ public class MainForm : Form
         _seedBox = new TextBox { Width = 110, Text = "" };
         _newBtn = Btn("🍳 Cook it", 110);
         _newBtn.Click += (s, e) => NewWorld();
+        _forgeBtn = Btn("⚒ Forge", 110);
+        _forgeBtn.Click += (s, e) => ForgeWorld();
         row.Controls.Add(new Label { Text = "seed ", AutoSize = true, ForeColor = Color.Gainsboro });
         row.Controls.Add(_seedBox);
         row.Controls.Add(_newBtn);
+        row.Controls.Add(_forgeBtn);
         right.Controls.Add(row);
 
         right.Controls.Add(SideLabel("TIP"));
@@ -393,6 +399,28 @@ public class MainForm : Form
         };
         Process.Start(psi);
         Status("world cooking in background - hit Refresh in a minute");
+    }
+
+    void ForgeWorld()
+    {
+        string about = _aboutBox.Text.Trim();
+        if (about.Length == 0 || about.StartsWith("one line"))
+        {
+            Status("give me one line about the world");
+            return;
+        }
+        string seedArg = uint.TryParse(_seedBox.Text, out var sd)
+            ? $"--seed {sd}" : "";
+        var script = Path.Combine(LittStudio.Repo, "tools", "litt.py");
+        Status("forging multi-region world...");
+        var psi = new ProcessStartInfo("python",
+            $"\"{script}\" forge \"{about}\" {seedArg}")
+        {
+            WorkingDirectory = LittStudio.Repo,
+            UseShellExecute = false,
+        };
+        Process.Start(psi);
+        Status("multi-region world forging in background - hit Refresh in a bit");
     }
 
     void Bench()

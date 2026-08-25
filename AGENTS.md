@@ -1,8 +1,9 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # AGENTS.md — AI Agent Entry Point. Read BEFORE writing anything.
 
-You are looking at **Litt Engine**: an ultra-lightweight Rust game engine
-designed to be *driven by an AI*. Your job here is almost always to BUILD A
-GAME WORLD, not to modify the engine.
+You are looking at **Litt Engine**: an ultra-lightweight C/C++ game engine
+with Python worldgen tooling, designed to be *driven by an AI*. Your job here
+is almost always to BUILD A GAME WORLD, not to modify the engine.
 
 ## The One Rule
 
@@ -14,8 +15,7 @@ GAME WORLD, not to modify the engine.
 Engine internals — do not touch without an explicit engine-task instruction:
 
 ```
-crates/  src/  shaders/  include/  docs/  template/  assets/
-examples/  build.rs  Cargo.toml  Cargo.lock
+native/  studio/  shaders/  include/  docs/  template/  assets/
 ```
 
 Reading them is fine and encouraged. Writing to them is not yours to decide.
@@ -49,7 +49,7 @@ read last 30 lines of LIVE_LOG.md   # what previous sessions did
 read assets/asset_index.json
 ```
 
-4. Only NOW build: expand via `python tools/live_landscape.py --radius N --seed S ...`
+4. Only NOW build: expand via `python Project/live/tools/live_landscape.py --radius N --seed S ...`
    or your own script following `template/docs/procedural_asset_math.md`.
 5. Log every action to `LIVE_LOG.md`. Rewrite `world_state.json` LAST, after all
    files exist on disk (viewers poll it).
@@ -95,6 +95,20 @@ ATTRIBUTION.md, and registers the game in `Project/games.json`. Its last
 stdout line is machine-readable JSON. Override anything with --name,
 --seed, --archetype, --pattern, --theme, --kit.
 
+**ONE-PHRASE MULTI-REGION WORLD — WorldForge (CDR-011):**
+
+```bash
+litt forge "any phrase"
+# -> multi-region fused world via litt.worldforge/1 spec
+```
+
+world_planner.py decomposes the phrase into an explicit, hand-editable
+litt.worldforge/1 spec (2-5 regions: generator/archetype/pattern/theme/role/
+links); world_forge.py fuses them into ONE playable game (namespaced assets,
+portal links on region boundaries, spawn + objective chain, lint + littcli +
+native proof gates). Re-roll / fail-forward loop: `litt refine --kind <kind>
+--base-seed <seed>`.
+
 **STUDIO WINDOW — `litt studio [game]`:** real native window (Vulkan) with a
 chat panel on the left and a live orbiting viewport of the loaded world.
 Chat commands run the same tools in background jobs and hot-reload the view:
@@ -118,11 +132,10 @@ python Project/<name>/play_native.py --project Project/<name> \
     --frames 30 --dummy                                                       # 4. native validation
 ```
 
-Step 4 must print `interactives` > 0 and `solids` > 0 (platformers). Then add
-the game name to the GAMES list in `tests/example_worlds.rs` and run
-`cargo test --test example_worlds` — the engine itself must deploy your world
-with **zero missing models** before you may call it done. Hand-rolled box
-rooms instead of this pipeline are a rules violation.
+Step 4 must print `interactives` > 0 and `solids` > 0 (platformers). Then run
+`native/bin/littcli validate Project/<name> --frames 120` — the engine itself
+must deploy your world with **zero missing models** before you may call it
+done. Hand-rolled box rooms instead of this pipeline are a rules violation.
 
 **AI-generated assets:** textures may come from Stable Diffusion via
 `template/tools/assets/gen_texture.py` (A1111-compatible server, or labeled
@@ -154,4 +167,5 @@ Tool-specific copies of the core rules live in `CLAUDE.md`, `GEMINI.md`,
 `.clinerules`, `.roorules`, `.rules`, `.github/copilot-instructions.md`,
 `.idx/airules.md`, `.kiro/steering/`, `.continue/rules/`.
 This file is canonical - if you change the rules, update the mirrors too
-(see `docs/agent-entry-points.md`).
+(see `docs/agent-entry-points.md`). All mirrors are CDR-007-clean: they
+describe the C/C++ + Python-worldgen stack only.

@@ -1,0 +1,189 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "cyberpunk_neon",
+  "updated": "2026-08-25T02:28:42",
+  "seed": {
+    "archetype_seed": 77,
+    "worldforge_seed": 77
+  },
+  "chunk_size": 0,
+  "radius": 0,
+  "camera": {
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "distance": 30
+  },
+  "chunks": [],
+  "palette": {
+    "neon_pink": [
+      1,
+      0.1,
+      0.55
+    ],
+    "neon_cyan": [
+      0.1,
+      0.95,
+      0.95
+    ],
+    "wet_asphalt": [
+      0.08,
+      0.09,
+      0.12
+    ],
+    "dark_glass": [
+      0.12,
+      0.16,
+      0.22
+    ],
+    "holo_yellow": [
+      0.95,
+      0.9,
+      0.2
+    ],
+    "ground": [
+      0.38,
+      0.44,
+      0.34
+    ]
+  },
+  "identity": {
+    "archetype": "precision_action",
+    "camera": "side_scrolling",
+    "combat": "precision_parry_combat",
+    "movement": "parkour_movement",
+    "structure": "linear_world",
+    "pacing": "high_intensity",
+    "pattern": "corridor_run",
+    "theme": "cyberpunk_neon"
+  },
+  "environment": {
+    "sky": {
+      "type": "clear",
+      "top_color": [
+        0.35,
+        0.55,
+        0.9
+      ],
+      "horizon_color": [
+        0.75,
+        0.85,
+        0.95
+      ],
+      "cloud_layers": [
+        {
+          "density": 0.15,
+          "height": 120,
+          "speed": 0.25
+        }
+      ]
+    },
+    "sun": {
+      "azimuth_deg": 135.0,
+      "elevation_deg": 62
+    },
+    "lighting": {
+      "global_light_intensity": 1.0,
+      "ambient_light_color": [
+        0.5,
+        0.52,
+        0.55
+      ],
+      "shadow_softness": 0.5,
+      "time_of_day": "noon"
+    },
+    "fog": {
+      "density": 0.01,
+      "height": 30,
+      "haze": 0.4
+    },
+    "weather": {
+      "type": "clear",
+      "wind_speed": 0.25,
+      "particle_density": 0.0
+    },
+    "notes": [
+      "night, emissive neon against near-black"
+    ]
+  },
+  "gameplay": {
+    "genre": "precision_action",
+    "objective": "1. start: survive the neon rooftop corridor 'neon-corridor', then head through the portal 2. finale: salvage the derelict 'void-station' and complete the finale",
+    "procgen_rules": [
+      "gauntlet rhythm spacing, checkpoint per screen"
+    ],
+    "ai_behavior": "frame-perfect telegraphs",
+    "environment_types": [
+      "trap_gauntlets",
+      "one_screen_arenas"
+    ],
+    "enemy_aggro_m": 9.0,
+    "corpse_run": true,
+    "spawn": [
+      12.73,
+      4.2,
+      0.0
+    ],
+    "scoring": {
+      "coins": 25
+    },
+    "physics": {
+      "gravity": 26,
+      "run_speed": 5.5,
+      "coyote_time_s": 0.1
+    },
+    "side_objectives": [
+      "Kindle every bonfire in one run",
+      "Bank 800 points before the gate",
+      "Never die twice to the same knight"
+    ],
+    "roster": [
+      {
+        "name": "Hollow Knight",
+        "behavior": "guards the mid-court shrine; lunge inside 3 m"
+      },
+      {
+        "name": "Garden Stalker",
+        "behavior": "patrols the long road; drops chase at 12 m"
+      }
+    ]
+  },
+  "meta": {
+    "enriched_seed": 77,
+    "worldforge": {
+      "schema": "litt.worldforge/1",
+      "spawn_region": "neon-corridor",
+      "regions": [
+        {
+          "id": "neon-corridor",
+          "generator": "archetype",
+          "role": "start",
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "theme": "cyberpunk_neon",
+          "seed": 77
+        },
+        {
+          "id": "void-station",
+          "generator": "space",
+          "role": "finale",
+          "origin": [
+            120.0,
+            0.0,
+            0.0
+          ],
+          "theme": "space_station_core",
+          "seed": 78
+        }
+      ],
+      "portals": 2
+    }
+  }
+}

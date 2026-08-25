@@ -66,14 +66,13 @@ struct AudioSource {
     }
     
     void update(float dt) {
-        if (state == AudioState::Playing) {
-            currentTime += dt * pitch;
-            if (currentTime >= clip->duration()) {
-                if (loop) {
-                    currentTime = 0.0f;
-                } else {
-                    state = AudioState::Stopped;
-                }
+        if (state != AudioState::Playing || !clip) return;  // null-clip guard
+        currentTime += dt * pitch;
+        if (currentTime >= clip->duration()) {
+            if (loop) {
+                currentTime = 0.0f;
+            } else {
+                state = AudioState::Stopped;
             }
         }
     }
@@ -155,7 +154,7 @@ public:
             source.second->update(dt);
         }
         for (auto& listener : listeners_) {
-            // Update listener state
+            (void)listener; // Update listener state
         }
     }
     
@@ -176,7 +175,7 @@ private:
     int bufferFrames_ = 2048;
     float masterVolume_ = 1.0f;
     
-    void loadAudioFile(const std::string& path, AudioClip& clip) {
+    void loadAudioFile(const std::string&, AudioClip& clip) {
         // Simplified - would use actual audio library
         clip.sampleRate = sampleRate_;
         clip.channels = 2;

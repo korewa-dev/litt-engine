@@ -77,7 +77,10 @@ def main():
             if not p.exists():
                 p.write_text(obj_text, encoding="utf-8"); made.append(cid + ".obj")
             registry.append((cid, "models/" + cid + ".obj"))
-            placed.append((cid, [x * a.chunk_size, 0, z * a.chunk_size], 0, ["terrain"]))
+            # AUDIT 2.1 fix: emit_chunk bakes WORLD-space vertices by design,
+            # so per worldkit's documented rule the chunk node MUST sit at
+            # identity [0,0,0] - never offset both verts and node.
+            placed.append((cid, [0, 0, 0], 0, ["terrain"]))
     for cid, rel in registry:
         register_index(assets_dir, cid, rel)
 
@@ -96,8 +99,8 @@ def main():
       "seed": {"terrain": a.seed},
       "chunk_size": a.chunk_size, "radius": a.radius,
       "camera": {"target": [0, 1, 0], "distance": 24},
-      "chunks": [{"id": c, "path": "assets/" + r,
-                  "position": [int(c.split("_")[1])*a.chunk_size, 0, int(c.split("_")[2])*a.chunk_size]}
+      # chunk verts are world-space; nodes/state sit at identity (audit 2.1)
+      "chunks": [{"id": c, "path": "assets/" + r, "position": [0, 0, 0]}
                  for c, r in registry],
       "palette": PALETTE,
       "gameplay": GAMEPLAY,

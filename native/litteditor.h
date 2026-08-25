@@ -2,6 +2,7 @@
 // Pure C++17, Vulkan-based rendering, integrated chat system
 
 #pragma once
+#include <cstdint>
 #include <windows.h>
 #include <vulkan/vulkan.h>
 #include <string>
@@ -200,9 +201,11 @@ struct Gizmo {
     static const Vec3 ZColor;
 };
 
-const Vec3 Gizmo::XColor = {1.0f, 0.2f, 0.2f};
-const Vec3 Gizmo::YColor = {0.2f, 1.0f, 0.2f};
-const Vec3 Gizmo::ZColor = {0.2f, 0.2f, 1.0f};
+// C++17 inline variables: defining static members in a header without
+// `inline` is an ODR violation as soon as two TUs include this file.
+inline const Vec3 Gizmo::XColor = {1.0f, 0.2f, 0.2f};
+inline const Vec3 Gizmo::YColor = {0.2f, 1.0f, 0.2f};
+inline const Vec3 Gizmo::ZColor = {0.2f, 0.2f, 1.0f};
 
 // =============================================================================
 // Scene Tree Node

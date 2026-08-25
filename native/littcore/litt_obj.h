@@ -15,6 +15,12 @@ typedef struct {
     unsigned *idx;
     int in;            /* index count */
     float bmin[3], bmax[3];
+    /* ASSET_AUDIT 4.1/4.2: per-usemtl-group material resolved from the
+     * mtllib-linked MTL file. Flat Kd albedo + Ke emission only; has_* is
+     * 0 when no MTL/material applies so callers keep their own fallback
+     * tinting. map_* textures are deliberately not parsed yet. */
+    float kd[3], ke[3];
+    unsigned char has_kd, has_ke;
 } LvMesh;
 
 typedef struct {

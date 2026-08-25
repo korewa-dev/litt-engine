@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # Litt Engine -- Roadmap
 
 A tiny feature-rich game engine with DX12/Vulkan support for AMD RDNA,
@@ -7,7 +8,7 @@ Intel Arc, Moore Threads MUSA, and NPU-equipped devices.
 
 | Area | State |
 | --- | --- |
-| Workspace build | `cargo check --workspace` clean (21 crates, ash 0.38) |
+| Workspace build | removed with the Rust stack (CDR-007); C/C++ core under native/ |
 | Vulkan backend | Real compute + RT pipelines, hand-rolled GpuAllocator |
 | GAL translation layer | Logical device + command replay (Phase 17, tests green) |
 | DX12 backend | Interface-complete stub hub (COM backend pending) |
@@ -415,7 +416,7 @@ Intel Arc, Moore Threads MUSA, and NPU-equipped devices.
 - [x] `crates/pathtracer/src/tracer.rs`  capture image views from `allocate_image()` instead of discarding with `_prefix`
 - [x] `accumulation_buffer.view`, `velocity_buffer.view`, `output_buffer.view` now properly set
 - [x] Path tracer dispatch now actually writes to the accumulation buffer (was silently skipped)
-- [x] `fidelityfx/Cargo.toml`  fixed `build = "build.rs"` moved from `[dependencies]` to `[package]` level
+- [x] fidelityfx manifest: fixed build-script registration moved from dependencies to package level
 
 ### Vulkan Infrastructure
 - [x] `CommandPool::begin_single_time_commands()`  allocates + begins a one-shot command buffer
@@ -437,7 +438,7 @@ Intel Arc, Moore Threads MUSA, and NPU-equipped devices.
 - [x] `crates/renderer/src/renderer.rs`  image layout transitions before compute passes
 - [x] `crates/ui/src/hud.rs`  path trace debug overlay
 - [x] `src/app.rs`  camera state + path pipeline field
-- [x] `crates/fidelityfx/Cargo.toml`  fixed build script registration
+- [x] fidelityfx manifest: fixed build script registration
 - [x] Workspace: 20 crates, 0 Rust compilation errors
 
 ---
@@ -476,7 +477,7 @@ Intel Arc, Moore Threads MUSA, and NPU-equipped devices.
 - [x] `crates/platform/src/shaders/musa_dotprod.comp`  GLSL compute shader
 - [x] `crates/platform/src/shaders/musa_vectoradd.comp`  GLSL compute shader
 - [x] `crates/platform/build.rs`  GLSLSPIR-V build step
-- [x] `crates/platform/Cargo.toml`  `build = "build.rs"` registered
+- [x] platform manifest: build script registered
 - [x] `README.md`  MUSA status updated to  Complete
 - [x] Workspace: 20 crates, 0 Rust compilation errors
 
@@ -504,7 +505,7 @@ Intel Arc, Moore Threads MUSA, and NPU-equipped devices.
 
 ### Build System
 - [x] `crates/physics/build.rs`  GLSLSPIR-V compilation for 4 RDNA shaders
-- [x] `crates/physics/Cargo.toml`  `build = "build.rs"` registered
+- [x] physics manifest: build script registered
 
 ### PhysicsSystem Integration
 - [x] `PhysicsSystem::rdna_tier: RDNAPhysicsTier` field added
@@ -774,8 +775,8 @@ selected -- Vulkan today, DX12/AMD AGS adapters next.
 
 ### Deliverables
 - [x] `crates/gal` -- 8 modules, workspace feature `gal`
-- [x] Root `Cargo.toml` -- `litt-gal` optional dependency + `gal` feature
-- [x] `cargo check --workspace` clean with and without the feature
+- [x] Root manifest -- litt-gal optional dependency + gal feature
+- [x] workspace check clean with and without the feature
 *Last updated: 22-08-2026*
 
 ---
@@ -847,7 +848,7 @@ deterministic replay recording. All implemented with real, tested code
       metadata roundtrip, hash stability (6/6)
 
 ### Verification
-- [x] `cargo check` clean: litt-net, litt-scene, litt-asset, litt-ai,
+- [x] crate checks clean: litt-net, litt-scene, litt-asset, litt-ai,
       litt-renderer, root `litt` lib
 - [x] 19/19 new unit tests pass (TCP/UDP over real loopback sockets)
 *Last updated: 22-08-2026*

@@ -93,6 +93,21 @@ TEST(mat4_lookat) {
     ASSERT_FLOAT_EQ(t.z, 0.0f);
 }
 
+TEST(mat4_lookat_orientation) {
+    // Regression: look_at used to build its forward axis as (target - eye),
+    // which mirrored X and pointed view-space +Z at the scene - everything in
+    // front of the camera got negative clip w through perspective (m[11]=-1)
+    // and was culled. GL convention: camera looks down -Z.
+    Vec3 eye(0, 0, 10), target(0, 0, 0), up(0, 1, 0);
+    Mat4 v = Mat4::look_at(eye, target, up);
+    Vec3 p = v * Vec3(1, 0, 5);          // right of and in front of camera
+    ASSERT(p.x > 0.0f);                  // world +X is screen-right
+    ASSERT(p.z < 0.0f);                  // ahead of camera => negative z
+    Mat4 pr = Mat4::perspective(60.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+    Vec4 c = pr * Vec4(p.x, p.y, p.z, 1.0f);
+    ASSERT(c.w > 0.0f);                  // visible point has positive clip w
+}
+
 TEST(quat_identity) {
     Quat q = Quat::identity();
     Vec3 v(1, 0, 0);
@@ -213,9 +228,33 @@ TEST(system_update) {
     };
     auto sys = std::make_unique<TestSystem>();
     w.add_system(std::move(sys));
-    
+
     w.update(0.1f);
     // System should have been called
+}
+
+TEST(component_swap_remove_stress) {
+    // Regression: Storage::remove used the BACK ENTITY ID as a data index,
+    // so after any remove+add cycle it moved from data[id] - out of bounds.
+    World w;
+    auto e0 = w.create(), e1 = w.create(), e2 = w.create();
+    w.add<Transform>(e0, Transform{Vec3(0, 0, 0)});
+    w.add<Transform>(e1, Transform{Vec3(1, 1, 1)});
+    w.add<Transform>(e2, Transform{Vec3(2, 2, 2)});
+    w.remove<Transform>(e1);                       // swap e2 into slot 1
+    auto e3 = w.create();                          // id 3 >= data size 2
+    w.add<Transform>(e3, Transform{Vec3(3, 3, 3)});
+    w.remove<Transform>(e2);                       // old code: data[3] OOB move
+    ASSERT(w.get<Transform>(e0)->position == Vec3(0, 0, 0));
+    ASSERT(w.get<Transform>(e3)->position == Vec3(3, 3, 3));
+    ASSERT(w.get<Transform>(e1) == nullptr);
+    ASSERT(w.get<Transform>(e2) == nullptr);
+    int count = 0;
+    w.query<Transform>([&count](Entity, Transform* t) {
+        ASSERT(t != nullptr);
+        count++;
+    });
+    ASSERT(count == 2);
 }
 
 // ============================================================================
@@ -265,6 +304,7 @@ int main() {
     RUN(mat4_translation);
     RUN(mat4_perspective);
     RUN(mat4_lookat);
+    RUN(mat4_lookat_orientation);
     RUN(quat_identity);
     RUN(quat_rotation);
     RUN(aabb_contains);
@@ -281,6 +321,7 @@ int main() {
     RUN(multiple_components);
     RUN(query);
     RUN(system_update);
+    RUN(component_swap_remove_stress);
     
     printf("\n[Input]\n");
     RUN(input_key);

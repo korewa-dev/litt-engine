@@ -54,6 +54,16 @@ def tile_kind(q, r, seed):
     if n < 0.74: return ("tile_forest", 0.24)
     return ("tile_mountain", 0.36)
 
+def tile_top_at(board_tiles, x, z):
+    """Top height of the board tile nearest (x, z); ties break by tile
+    order (deterministic). Audit 3.2: props ground on board_tiles data."""
+    best, bd = None, None
+    for t in board_tiles:
+        d = (t[2] - x) ** 2 + (t[3] - z) ** 2
+        if bd is None or d < bd:
+            best, bd = t, d
+    return best[5]
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=".")
@@ -92,6 +102,8 @@ def main():
     corners = sorted(board_tiles, key=lambda t: -(abs(t[2]) + abs(t[3])))[:6]
     # TRANSFORM CONVENTION: pawn/die meshes are modeled AT ORIGIN; the scene
     # node's position alone carries the board placement (no double transform).
+    # AUDIT 3.2: node y is the TILE-TOP height from board_tiles - pawns used
+    # to sit at y=0 and bury up to 0.36 m into mountain tiles.
     for i, (pq, pr, px, pz, kind, ph) in enumerate(corners):
         cname = "Pawn_%02d" % (i+1); cmat = PAWN_COLORS[i % len(PAWN_COLORS)]
         mb = MeshBuilder()
@@ -101,7 +113,7 @@ def main():
         save_prop(models, cname, mb, "materials", MATS, assets_dir,
                   enforce_origin=True)
         made.append(cname + ".obj")
-        placed.append((cname, [round(px,3), 0, round(pz,3)], 0,
+        placed.append((cname, [round(px,3), round(ph,3), round(pz,3)], 0,
                        ["token","player"], cname))
 
     for i in range(2):
@@ -112,7 +124,9 @@ def main():
         save_prop(models, dname, mb, "materials", MATS, assets_dir,
                   enforce_origin=True)
         made.append(dname + ".obj")
-        placed.append((dname, [dx, 0, 0], int(rng.uniform(0, 90)),
+        # audit 3.2: dice rest on the nearest tile's top surface too
+        dy = round(tile_top_at(board_tiles, dx, 0.0), 3)
+        placed.append((dname, [dx, dy, 0], int(rng.uniform(0, 90)),
                        ["dice"], dname))
 
     # -- machine-readable win condition: tagged goal nodes at opposite edges,

@@ -3,6 +3,7 @@
 
 #pragma once
 #include "litt_math.h"
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -55,11 +56,11 @@ public:
     virtual ~UIElementBase() = default;
     virtual void render() = 0;
     virtual void update(float dt) = 0;
-    virtual void onMouseDown(const Vec2& pos) {}
-    virtual void onMouseUp(const Vec2& pos) {}
-    virtual void onMouseMove(const Vec2& pos) {}
-    virtual void onKeyPress(char key) {}
-    
+    virtual void onMouseDown(const Vec2&) {}
+    virtual void onMouseUp(const Vec2&) {}
+    virtual void onMouseMove(const Vec2&) {}
+    virtual void onKeyPress(char) {}
+
     UIRect& rect() { return rect_; }
     const UIRect& rect() const { return rect_; }
     
@@ -88,19 +89,19 @@ public:
     void render() override {
         // Render button
     }
-    
-    void update(float dt) override {
+
+    void update(float) override {
         // Update button state
     }
-    
+
     void onMouseDown(const Vec2& pos) override {
         if (rect_.contains(pos)) {
             pressed_ = true;
             if (onClickCallback_) onClickCallback_();
         }
     }
-    
-    void onMouseUp(const Vec2& pos) override {
+
+    void onMouseUp(const Vec2&) override {
         pressed_ = false;
     }
     
@@ -126,8 +127,8 @@ public:
     void render() override {
         // Render text
     }
-    
-    void update(float dt) override {}
+
+    void update(float) override {}
     
 private:
     std::string text_;
@@ -156,8 +157,8 @@ public:
     void render() override {
         // Render slider
     }
-    
-    void update(float dt) override {
+
+    void update(float) override {
         // Update slider
     }
     

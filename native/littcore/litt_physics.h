@@ -52,13 +52,11 @@ public:
     int root = -1;
     
     void addBody(PhysicsBody* body) {
-        Node n;
-        n.body = body;
-        n.bounds = body->aabb;
-        n.isLeaf = true;
         bodies.push_back(body);
-        root = (int)nodes.size();
-        nodes.push_back(n);
+        // NOTE: sweep-and-prune over `bodies` is the active broadphase. The
+        // AABB-tree node array below is reserved for future work; we
+        // deliberately do NOT append a node here any more, because removed
+        // bodies left dangling pointers in it forever.
     }
     
     void removeBody(PhysicsBody* body) {
@@ -228,7 +226,7 @@ public:
         // Narrow phase
         narrowPhase.contacts.clear();
         for (auto& [a, b] : pairs) {
-            Contact contact;
+            NarrowPhase::Contact contact;
             if (narrowPhase.testAabbAabb(a->aabb, b->aabb, contact)) {
                 contact.bodyA = a;
                 contact.bodyB = b;
@@ -278,14 +276,6 @@ private:
             if (!b->isStatic) b->velocity += impulse * b->inverseMass;
         }
     }
-    
-    struct Contact {
-        Vec3 normal;
-        float depth;
-        Vec3 point;
-        PhysicsBody* bodyA;
-        PhysicsBody* bodyB;
-    };
 };
 
 } // namespace litt

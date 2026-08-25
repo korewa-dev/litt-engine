@@ -58,7 +58,13 @@ struct FrameStats {
 class Profiler {
 public:
     Profiler() = default;
-    
+
+    /// Process-wide profiler for the LITT_PROFILE convenience macro.
+    static Profiler& instance() {
+        static Profiler p;
+        return p;
+    }
+
     void startFrame() {
         frameTimer_.start();
     }
@@ -141,9 +147,11 @@ public:
     }
     
     void printReport() const {
+        // Guard the empty history: frameTimes_.back() on an empty vector is UB.
+        float last = frameTimes_.empty() ? 0.0f : frameTimes_.back();
         std::cout << "=== Profiler Report ===" << std::endl;
-        std::cout << "Frame Time: " << frameTimes_.back() << " ms" << std::endl;
-        std::cout << "FPS: " << (frameTimes_.empty() ? 0 : 1000.0f / frameTimes_.back()) << std::endl;
+        std::cout << "Frame Time: " << last << " ms" << std::endl;
+        std::cout << "FPS: " << (last > 0.0f ? 1000.0f / last : 0.0f) << std::endl;
         std::cout << "Draw Calls: " << drawCalls_ << std::endl;
         std::cout << "Triangles: " << triangles_ << std::endl;
         std::cout << "Vertices: " << vertices_ << std::endl;

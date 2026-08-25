@@ -36,7 +36,7 @@ SOULS = dict(
 SPACE = dict(
     adj=["quantum", "derelict", "nebular", "void-touched", "ionized",
          "orbital", "stellar", "fractured"],
-    noun=["signal", "wreck", "beacon", "protocol", "anomaly", "cargo",
+    noun=["signal", "wreck", "beacon", "protocol", "anomaly", "freight",
           "jumpgate", "chorus", "drift"],
     place=["Station", "Drift", "Nebula", "Yard", "Gate", "Halo", "Belt"],
     boss=["ARCHON-9", "the Salvage Queen", "Null-Captain Vess",

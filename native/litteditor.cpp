@@ -45,7 +45,10 @@ public:
             history.clear();
             add_system("Chat cleared");
         } else if (cmd.find("/load") == 0) {
-            add_system("Loading: " + cmd.substr(6));
+            // Guard the substring: bare "/load" made substr(6) throw
+            // std::out_of_range and kill the process.
+            std::string arg = cmd.length() > 6 ? cmd.substr(6) : "";
+            add_system(arg.empty() ? "Usage: /load <file>" : "Loading: " + arg);
         } else if (cmd == "/reset") {
             add_system("Scene reset");
         } else {

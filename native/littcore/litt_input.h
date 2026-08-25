@@ -10,15 +10,17 @@ namespace litt {
 
 enum class Key : int {
     Unknown = 0,
+    Enter = 13, Tab = 9,
     Space = 32,
     A = 65, B = 66, C = 67, D = 68, E = 69, F = 70, G = 71, H = 72,
     I = 73, J = 74, K = 75, L = 76, M = 77, N = 78, O = 79, P = 80, Q = 81, R = 82,
     S = 83, T = 84, U = 85, V = 86, W = 87, X = 88, Y = 89, Z = 90,
     Left = 256, Right = 257, Up = 258, Down = 259,
-    Escape = 256, Enter = 13, Tab = 9,
+    // Distinct values: these previously collided with Left/Right, so pressing
+    // an arrow also registered Escape/Shift.
+    Escape = 260, Shift = 261, Ctrl = 262, Alt = 263,
     F1 = 290, F2 = 291, F3 = 292, F4 = 293, F5 = 294, F6 = 295,
-    F7 = 296, F8 = 297, F9 = 298, F10 = 299, F11 = 300, F12 = 301,
-    Shift = 257, Ctrl = 341, Alt = 342
+    F7 = 296, F8 = 297, F9 = 298, F10 = 299, F11 = 300, F12 = 301
 };
 
 enum class Mouse : int { Left = 0, Right = 1, Middle = 2 };
@@ -50,8 +52,23 @@ public:
     }
     
     void update() {
-        just_ = keys_;
-        mjust_ = mkeys_;
+        // Edge detection: "just" = down now but not down at the previous
+        // update(). Copying keys_ verbatim made key_pressed fire every frame
+        // a key was held, breaking press-edge semantics (jump, UI clicks).
+        just_.clear();
+        for (const auto& kv : keys_) {
+            auto prev = prev_keys_.find(kv.first);
+            if (kv.second && (prev == prev_keys_.end() || !prev->second))
+                just_[kv.first] = true;
+        }
+        prev_keys_ = keys_;
+        mjust_.clear();
+        for (const auto& kv : mkeys_) {
+            auto prev = prev_mkeys_.find(kv.first);
+            if (kv.second && (prev == prev_mkeys_.end() || !prev->second))
+                mjust_[kv.first] = true;
+        }
+        prev_mkeys_ = mkeys_;
         mdx_ = mdy_ = 0;
         mscl_ = 0;
     }
@@ -80,8 +97,10 @@ public:
     
 private:
     std::unordered_map<int, bool> keys_;
+    std::unordered_map<int, bool> prev_keys_;
     std::unordered_map<int, bool> just_;
     std::unordered_map<int, bool> mkeys_;
+    std::unordered_map<int, bool> prev_mkeys_;
     std::unordered_map<int, bool> mjust_;
     double mx_ = 0, my_ = 0, mdx_ = 0, mdy_ = 0;
     double mscl_ = 0;

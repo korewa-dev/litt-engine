@@ -16,6 +16,9 @@
 #ifndef MATH_EPS
 #define MATH_EPS 1e-6f
 #endif
+#ifndef LITT_MATH_DEG2RAD
+#define LITT_MATH_DEG2RAD (MATH_PI / 180.0f)
+#endif
 
 namespace litt {
 
@@ -128,6 +131,11 @@ struct alignas(16) Vec3 {
         float angle = std::acos(cos_a);
         if (angle < MATH_EPS) return normalized();
         float sin_a = std::sin(angle);
+        if (sin_a < MATH_EPS) {
+            // Antipodal (or near-180 deg): slerp denominator ~0; fall back to
+            // a normalized lerp so the result stays finite.
+            return lerp(b, t).normalized();
+        }
         float s0 = std::sin((1.0f - t) * angle) / sin_a;
         float s1 = std::sin(t * angle) / sin_a;
         return *this * s0 + b * s1;
@@ -203,7 +211,11 @@ struct alignas(16) Mat4 {
     }
     
     static Mat4 look_at(const Vec3& eye, const Vec3& target, const Vec3& up) {
-        Vec3 z = (target - eye).normalized();
+        // Right-handed OpenGL convention: z points BACKWARD (eye - target) so
+        // the view rows are [x; y; z] with camera space looking down -Z. This
+        // pairs correctly with perspective()'s m[11] = -1 (a point in front of
+        // the camera gets negative view z and positive clip w).
+        Vec3 z = (eye - target).normalized();
         Vec3 x = up.cross(z).normalized();
         Vec3 y = z.cross(x);
         Mat4 r;
@@ -388,7 +400,6 @@ struct alignas(16) Quat {
         Quat n = normalized();
         float sy = 2*(n.w*n.y - n.z*n.x);
         float cx = 1-2*(n.y*n.y + n.z*n.z);
-        float cy = 1-2*(n.x*n.x + n.z*n.z);
         float cz = 1-2*(n.x*n.x + n.y*n.y);
         float sx = 2*(n.w*n.x + n.y*n.z);
         float sz = 2*(n.w*n.z + n.x*n.y);
@@ -488,6 +499,7 @@ inline Vec3 barycentric(const Vec3& p, const Vec3& a, const Vec3& b, const Vec3&
     float d00 = v0.dot(v0), d01 = v0.dot(v1), d11 = v1.dot(v1);
     float d20 = v2.dot(v0), d21 = v2.dot(v1);
     float denom = d00 * d11 - d01 * d01;
+    if (std::fabs(denom) < 1e-12f) return Vec3::zero(); // degenerate triangle
     float v = (d11 * d20 - d01 * d21) / denom;
     float w = (d00 * d21 - d01 * d20) / denom;
     return {1 - v - w, v, w};
@@ -541,5 +553,13 @@ inline HitInfo ray_triangle(const Ray& r, const Vec3& v0, const Vec3& v1, const 
     }
     return {};
 }
+
+// f-suffixed aliases: legacy naming used by litt_renderer.h / litt_obj_cpp.h.
+// Same types, not distinct concepts, so CDR-002's distinct-name rule holds.
+using Vec2f = Vec2;
+using Vec3f = Vec3;
+using Vec4f = Vec4;
+using Mat4f = Mat4;
+using Aabbf = Aabb;
 
 } // namespace litt

@@ -1,5 +1,3 @@
-/target/
-/Cargo.lock
 *.spv
 *.vulkan
 *.cache
@@ -12,7 +10,7 @@
 *.lib
 *.pdb
 # NOTE: no global *.obj here - Wavefront OBJ models are shipped game assets
-# (build intermediates live under /target/ which is already ignored)
+# (build intermediates live under native/build which is already ignored)
 *.ilk
 *.exp
 *.dmp
@@ -24,7 +22,6 @@
 build/
 out/
 
-# nested cargo build dirs (any depth)
-target/
-
 __pycache__/
+native/bin/*.o
+native/bin/windows/

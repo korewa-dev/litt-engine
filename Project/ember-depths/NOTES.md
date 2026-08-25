@@ -1,4 +1,4 @@
-﻿# NOTES - ember-depths
+# NOTES - ember-depths
 
 2D top-down roguelite arena survivor: six escalating waves of Ember Wraiths and Ash Brutes, four brazier checkpoints, gem economy, spike hazards.
 
@@ -8,7 +8,7 @@
 - props: gen_props.py --kit survivor (merged palette, no-clobber)
 - gameplay: enrich_game.py --brief brief.json --seed 77
 - validation: play_native.py --frames 30 --dummy (interactives > 0 required)
-- engine CI: cargo test --test example_worlds (zero missing models required)
+- engine CI: native validation - littcli validate (zero missing models required)
 
 ## Controls (native player)
 

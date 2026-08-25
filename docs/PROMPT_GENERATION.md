@@ -208,7 +208,6 @@ Must cover:
 - UDP client/server: packet structure, sequencing, acknowledgment
 - Snapshot interpolation: how client reconciles server state with local prediction
 - ECS replication: which components are replicated, authority model (server-owned vs client-owned)
-- WebSocket backend: browser target support via `wasm-bindgen`
 - `SteamNetworkingSockets` optional module: when it's available vs bare UDP
 - `NetworkEntity` component: entity ID, replication mask, server timestamp
 - Latency compensation: client-side prediction, server reconciliation, lag compensation for shooting

@@ -1,0 +1,63 @@
+{
+  "about": "a cyberpunk city with a haunted estate",
+  "name": "forge-e2e-b",
+  "objective_chain_hint": [
+    "1. start: spawn at 'r01-cyberpunk-neon' (cyberpunk_neon), then head on",
+    "2. middle: cross 'r02-retro-scifi' (retro_scifi walking_simulator)",
+    "3. finale: final objective at 'r03-haunted-estate' (haunted_estate open_world_survival): complete the finale"
+  ],
+  "regions": [
+    {
+      "archetype": "city_builder",
+      "generator": "archetype",
+      "id": "r01-cyberpunk-neon",
+      "links": [
+        "r02-retro-scifi"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "pattern": "grid_board",
+      "role": "start",
+      "size": 46,
+      "theme": "cyberpunk_neon"
+    },
+    {
+      "archetype": "walking_simulator",
+      "generator": "archetype",
+      "id": "r02-retro-scifi",
+      "links": [
+        "r03-haunted-estate"
+      ],
+      "origin": [
+        60,
+        0,
+        0
+      ],
+      "pattern": "corridor_run",
+      "role": "middle",
+      "size": 54,
+      "theme": "retro_scifi"
+    },
+    {
+      "archetype": "open_world_survival",
+      "generator": "archetype",
+      "id": "r03-haunted-estate",
+      "links": [],
+      "origin": [
+        130,
+        0,
+        0
+      ],
+      "pattern": "hub_spoke",
+      "role": "finale",
+      "size": 64,
+      "theme": "haunted_estate"
+    }
+  ],
+  "schema": "litt.worldforge/1",
+  "seed": 3,
+  "spawn_region": "r01-cyberpunk-neon"
+}

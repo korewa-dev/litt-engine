@@ -5,6 +5,10 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef _MSC_VER
+#define strncasecmp _strnicmp   /* n9: no POSIX strncasecmp under MSVC */
+#endif
+
 #define KILL_PLANE_Y (-14.0f)
 #define DEAD_FREEZE_S 0.7f
 #define ENEMY_SPEED 3.2f
@@ -48,6 +52,12 @@ static void resolve_mode(const char *movement, const char *camera, LvConfig *c) 
         c->mode = LV_MODE_3D;
 }
 
+/* n12 belt-and-braces: a finite stored number or the default. The scanner
+ * already rejects non-finite tokens; this guards future callers. */
+static double jnum(const LvJson *v, double def) {
+    return (v && v->kind == LJ_NUM && isfinite(v->num)) ? v->num : def;
+}
+
 int lv_config_from_state(const char *text, LvConfig *out) {
     memset(out, 0, sizeof(*out));
     /* defaults mirror the reference runtime */
@@ -64,7 +74,7 @@ int lv_config_from_state(const char *text, LvConfig *out) {
     out->mode = LV_MODE_3D;
     snprintf(out->objective, sizeof(out->objective), "%s", "explore the world");
 
-    LvJson *root = lvj_parse(text);
+    LvJson *root = lvj_parse_strict(text);   /* n10: validate path rejects garbage */
     if (!root) return 1;
 
     const LvJson *id = lvj_get(root, "identity");
@@ -79,19 +89,23 @@ int lv_config_from_state(const char *text, LvConfig *out) {
     if (gp) {
         const LvJson *ph = lvj_get(gp, "physics");
         if (ph) {
-            out->gravity = (float)lvj_num(lvj_get(ph, "gravity"), out->gravity);
-            out->jump_v = (float)lvj_num(lvj_get(ph, "jump_velocity"), out->jump_v);
-            out->run_speed = (float)lvj_num(lvj_get(ph, "run_speed"), out->run_speed);
-            out->coyote = (float)lvj_num(lvj_get(ph, "coyote_time_s"), out->coyote);
-            float jb = (float)lvj_num(lvj_get(ph, "jump_buffer_s"), -1.0f);
-            out->buffer = jb > 0 ? jb : out->coyote + 0.02f;
+            out->gravity = (float)jnum(lvj_get(ph, "gravity"), out->gravity);
+            out->jump_v = (float)jnum(lvj_get(ph, "jump_velocity"), out->jump_v);
+            out->run_speed = (float)jnum(lvj_get(ph, "run_speed"), out->run_speed);
+            out->coyote = (float)jnum(lvj_get(ph, "coyote_time_s"), out->coyote);
+            /* m1: presence test, not sign test - an explicit 0 disables
+             * buffering exactly as authored. */
+            const LvJson *jbv = lvj_get(ph, "jump_buffer_s");
+            out->buffer = (jbv && jbv->kind == LJ_NUM)
+                              ? (float)jnum(jbv, out->buffer)
+                              : out->coyote + 0.02f;
         }
-        out->enemy_aggro = (float)lvj_num(lvj_get(gp, "enemy_aggro_m"), out->enemy_aggro);
-        out->kill_m = (float)lvj_num(lvj_get(gp, "kill_radius_m"), out->kill_m);
-        out->interact_m = (float)lvj_num(lvj_get(gp, "interact_radius_m"), out->interact_m);
-        double lives = lvj_num(lvj_get(gp, "lives"), 0.0);
+        out->enemy_aggro = (float)jnum(lvj_get(gp, "enemy_aggro_m"), out->enemy_aggro);
+        out->kill_m = (float)jnum(lvj_get(gp, "kill_radius_m"), out->kill_m);
+        out->interact_m = (float)jnum(lvj_get(gp, "interact_radius_m"), out->interact_m);
+        double lives = jnum(lvj_get(gp, "lives"), 0.0);
         if (lives > 0) out->lives = (int)lives;
-        double goal = lvj_num(lvj_get(gp, "score_goal"), 0.0);
+        double goal = jnum(lvj_get(gp, "score_goal"), 0.0);
         if (goal > 0) out->score_goal = (unsigned)goal;
         out->corpse_run = lvj_bool(lvj_get(gp, "corpse_run"), 0);
         const LvJson *sc = lvj_get(gp, "scoring");
@@ -102,12 +116,15 @@ int lv_config_from_state(const char *text, LvConfig *out) {
         /* some states keep physics at top level */
         const LvJson *ph = lvj_get(root, "physics");
         if (ph) {
-            out->gravity = (float)lvj_num(lvj_get(ph, "gravity"), out->gravity);
-            out->jump_v = (float)lvj_num(lvj_get(ph, "jump_velocity"), out->jump_v);
-            out->run_speed = (float)lvj_num(lvj_get(ph, "run_speed"), out->run_speed);
-            out->coyote = (float)lvj_num(lvj_get(ph, "coyote_time_s"), out->coyote);
-            float jb = (float)lvj_num(lvj_get(ph, "jump_buffer_s"), -1.0f);
-            out->buffer = jb > 0 ? jb : out->coyote + 0.02f;
+            out->gravity = (float)jnum(lvj_get(ph, "gravity"), out->gravity);
+            out->jump_v = (float)jnum(lvj_get(ph, "jump_velocity"), out->jump_v);
+            out->run_speed = (float)jnum(lvj_get(ph, "run_speed"), out->run_speed);
+            out->coyote = (float)jnum(lvj_get(ph, "coyote_time_s"), out->coyote);
+            /* m1: same presence test at top level */
+            const LvJson *jbv = lvj_get(ph, "jump_buffer_s");
+            out->buffer = (jbv && jbv->kind == LJ_NUM)
+                              ? (float)jnum(jbv, out->buffer)
+                              : out->coyote + 0.02f;
         }
     }
 
@@ -115,12 +132,16 @@ int lv_config_from_state(const char *text, LvConfig *out) {
     return 0;
 }
 
-static void ent_push(LvSession *s, LvEnt e) {
+static int ent_push(LvSession *s, LvEnt e) {
     if (s->ent_count == s->ent_cap) {
-        s->ent_cap = s->ent_cap ? s->ent_cap * 2 : 32;
-        s->ents = realloc(s->ents, sizeof(LvEnt) * (size_t)s->ent_cap);
+        int nc = s->ent_cap ? s->ent_cap * 2 : 32;
+        LvEnt *ne = realloc(s->ents, sizeof(LvEnt) * (size_t)nc);
+        if (!ne) return 1;               /* m4 */
+        s->ents = ne;
+        s->ent_cap = nc;
     }
     s->ents[s->ent_count++] = e;
+    return 0;
 }
 
 static int solid_push(LvSession *s, LvAabb a) {
@@ -131,9 +152,12 @@ static int solid_push(LvSession *s, LvAabb a) {
     return 0;
 }
 
-/* world-space AABB of one model: union of mesh bounds scaled+translated */
-static int model_aabb(const char *models_dir, const char *name, float scale,
-                      const float pos[3], LvAabb *out, long *tris) {
+/* world-space AABB of one model: union of mesh bounds scaled+translated.
+ * n11: per-axis scale; m5: negative scale orders min/max so mirrored
+ * nodes cannot produce inside-out solids. */
+static int model_aabb(const char *models_dir, const char *name,
+                      const float scale[3], const float pos[3],
+                      LvAabb *out, long *tris) {
     char path[1024];
     snprintf(path, sizeof(path), "%s/%s.obj", models_dir, name);
     LvModel m;
@@ -143,8 +167,10 @@ static int model_aabb(const char *models_dir, const char *name, float scale,
         LvMesh *me = &m.meshes[i];
         *tris += me->in / 3;
         for (int k = 0; k < 3; k++) {
-            float lo = me->bmin[k] * scale + pos[k];
-            float hi = me->bmax[k] * scale + pos[k];
+            float p0 = me->bmin[k] * scale[k] + pos[k];
+            float p1 = me->bmax[k] * scale[k] + pos[k];
+            float lo = p0 < p1 ? p0 : p1;
+            float hi = p0 < p1 ? p1 : p0;
             if (lo < out->min[k]) out->min[k] = lo;
             if (hi > out->max[k]) out->max[k] = hi;
         }
@@ -165,17 +191,19 @@ int lv_session_create(const char *state_text, const char *scene_path,
     fseek(f, 0, SEEK_SET);
     if (sz <= 0) { fclose(f); return 1; }
     char *buf = malloc((size_t)sz + 1);
+    if (!buf) { fclose(f); return 1; }   /* m4 */
     size_t rd = fread(buf, 1, (size_t)sz, f);
     fclose(f);
     buf[rd] = 0;
 
-    LvJson *scene = lvj_parse(buf);
+    LvJson *scene = lvj_parse_strict(buf);   /* n10: validate path strict */
     free(buf);
     if (!scene) return 1;
 
     out->spawn[0] = 0; out->spawn[1] = 1.2f; out->spawn[2] = 4;
     const LvJson *nodes = lvj_get(scene, "nodes");
     int have_spawn = 0;
+    int oom = 0;                         /* m4 */
 
     if (nodes && nodes->kind == LJ_ARR) {
         for (int i = 0; i < nodes->count; i++) {
@@ -184,11 +212,12 @@ int lv_session_create(const char *state_text, const char *scene_path,
             if (!lvj_bool(lvj_get(n, "visible"), 1)) continue;
             const char *name = lvj_str(lvj_get(n, "name"), "?");
             const LvJson *tags = lvj_get(n, "tags");
-            float pos[3] = { 0, 0, 0 }, scale = 1.0f;
+            float pos[3] = { 0, 0, 0 }, scl[3] = { 1, 1, 1 };
             lvj_arr_f3(lvj_get(n, "position"), pos);
             const LvJson *sj = lvj_get(n, "scale");
-            if (sj && sj->kind == LJ_ARR && sj->count >= 1)
-                scale = (float)lvj_num(lvj_at(sj, 0), 1.0);
+            if (sj && sj->kind == LJ_ARR)
+                for (int k = 0; k < 3 && k < sj->count; k++)   /* n11: all axes */
+                    scl[k] = (float)jnum(lvj_at(sj, k), 1.0);
 
             /* spawn */
             if (!have_spawn && has_tag(tags, "player")) {
@@ -217,8 +246,8 @@ int lv_session_create(const char *state_text, const char *scene_path,
                  has_tag(tags, "hub") || has_tag(tags, "terrain")) && mdl) {
                 LvAabb a;
                 long tris = 0;
-                if (!model_aabb(models_dir, mdl, scale, pos, &a, &tris)) {
-                    solid_push(out, a);
+                if (!model_aabb(models_dir, mdl, scl, pos, &a, &tris)) {
+                    if (!oom && solid_push(out, a)) oom = 1;   /* m4 */
                     out->tri_count += tris;
                 } else {
                     out->missing_models++;
@@ -247,12 +276,18 @@ int lv_session_create(const char *state_text, const char *scene_path,
                     else
                         e.tier = LV_TIER_MOOK;
                 }
-                ent_push(out, e);
+                if (!oom && ent_push(out, e)) oom = 1;   /* m4 */
             }
         }
     }
 
     lvj_free(scene);
+
+    if (oom) {                           /* m4: clean error, nothing leaked */
+        lv_session_free(out);
+        memset(out, 0, sizeof(*out));
+        return 1;
+    }
 
     out->pos[0] = out->spawn[0];
     out->pos[1] = out->spawn[1];
@@ -400,6 +435,10 @@ void lv_step(LvSession *s, float dt, float f, float saxis, int jump_pressed) {
             s->pos[1] = s->spawn[1];
             s->pos[2] = s->spawn[2];
             s->vel[0] = s->vel[1] = s->vel[2] = 0;
+            /* n5: stale jump state must not survive a teleport */
+            s->grounded = 0;
+            s->coyote_t = 0;
+            s->buf_t = 0;
         }
         return;
     }
@@ -460,6 +499,10 @@ void lv_step(LvSession *s, float dt, float f, float saxis, int jump_pressed) {
         s->pos[1] = s->spawn[1];
         s->pos[2] = s->spawn[2];
         s->vel[1] = 0;
+        /* n5: same stale-timer reset as the freeze-expiry teleport */
+        s->grounded = 0;
+        s->coyote_t = 0;
+        s->buf_t = 0;
     }
 
     sweep(s, dt);

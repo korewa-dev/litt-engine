@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # PhysicsSystem
 
 > GPU-accelerated rigid body physics with multi-tier hardware support.

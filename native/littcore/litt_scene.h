@@ -130,7 +130,7 @@ public:
         return "{}";
     }
     
-    bool deserializeFromJson(const std::string& json) {
+    bool deserializeFromJson(const std::string&) {
         // Implementation would parse JSON and create nodes
         return true;
     }
@@ -173,17 +173,20 @@ public:
         return currentScene;
     }
     
-    void update(float dt) {
+    void update(float) {
         if (currentScene) {
             currentScene->update();
         }
     }
     
     void unloadScene(const std::string& name) {
-        scenes.erase(name);
-        if (currentScene && currentScene->serializeToJson() == scenes[name]->serializeToJson()) {
-            currentScene = nullptr;
-        }
+        // Previous version did scenes[name] AFTER erase(), which
+        // default-constructed a null unique_ptr and dereferenced it (crash),
+        // and left currentScene dangling when the active scene was removed.
+        auto it = scenes.find(name);
+        if (it == scenes.end()) return;
+        if (currentScene == it->second.get()) currentScene = nullptr;
+        scenes.erase(it);
     }
     
     void clearAll() {

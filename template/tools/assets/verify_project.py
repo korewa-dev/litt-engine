@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """verify_project.py - HARD audit that a Litt game project actually works.
 
-Checks everything any consumer (native player, Rust engine, C++ viewer,
+Checks everything any consumer (native player, C++ viewer,
 Studio) needs. Exit code 0 == the project is provably consumable.
 
 Usage:

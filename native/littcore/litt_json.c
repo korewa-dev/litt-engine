@@ -80,7 +80,12 @@ static char *parse_str_raw(P *p) {
     if (!buf) return NULL;
     while (p->i < p->n && p->s[p->i] != '"') {
         char c = p->s[p->i++];
-        if (len + 8 > cap) { cap *= 2; buf = realloc(buf, cap); if (!buf) return NULL; }
+        if (len + 8 > cap) {
+            char *nb = realloc(buf, cap * 2); /* m4: keep old ptr to free */
+            if (!nb) { free(buf); return NULL; }
+            buf = nb;
+            cap *= 2;
+        }
         if (c == '\\') {
             if (p->i >= p->n) { free(buf); return NULL; }
             char e = p->s[p->i++];
@@ -196,30 +201,65 @@ static LvJson *parse_value(P *p) {
         char *s = parse_str_raw(p);
         if (!s) { p->depth--; return NULL; }
         v = v_new(LJ_STR);
+        if (!v) { free(s); p->depth--; return NULL; }
         v->str = s;
-    } else if (!strncmp(p->s + p->i, "true", (size_t)(p->n - p->i < 4 ? p->n - p->i : 4))) {
-        p->i += 4; v = v_new(LJ_BOOL); v->boolean = 1;
-    } else if (!strncmp(p->s + p->i, "false", (size_t)(p->n - p->i < 5 ? p->n - p->i : 5))) {
-        p->i += 5; v = v_new(LJ_BOOL);
-    } else if (!strncmp(p->s + p->i, "null", (size_t)(p->n - p->i < 4 ? p->n - p->i : 4))) {
-        p->i += 4; v = v_new(LJ_NULL);
+    } else if (p->n - p->i >= 4 && !memcmp(p->s + p->i, "true", 4)) {
+        /* m2: full literal required - "tru" at end-of-input no longer parses */
+        p->i += 4;
+        v = v_new(LJ_BOOL);
+        if (!v) { p->depth--; return NULL; }
+        v->boolean = 1;
+    } else if (p->n - p->i >= 5 && !memcmp(p->s + p->i, "false", 5)) {
+        p->i += 5;
+        v = v_new(LJ_BOOL);
+        if (!v) { p->depth--; return NULL; }
+    } else if (p->n - p->i >= 4 && !memcmp(p->s + p->i, "null", 4)) {
+        p->i += 4;
+        v = v_new(LJ_NULL);
+        if (!v) { p->depth--; return NULL; }
     } else {
-        /* number */
-        size_t start = p->i;
-        if (p->i < p->n && (p->s[p->i] == '-' || p->s[p->i] == '+')) p->i++;
-        while (p->i < p->n && (isdigit((unsigned char)p->s[p->i]) || p->s[p->i] == '.' ||
-               p->s[p->i] == 'e' || p->s[p->i] == 'E' || p->s[p->i] == '+' || p->s[p->i] == '-'))
-            p->i++;
-        if (p->i == start) { p->depth--; return NULL; }
+        /* m3: strict JSON number grammar
+         * -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
+         * rejects leading '+', bare '.', trailing '.', leading zeros and
+         * strtod's hex extension; over-long tokens fail instead of being
+         * silently truncated; non-finite results (strtod overflow, n12)
+         * fail the parse. */
+        size_t start = p->i, q = p->i;
+        int intok = 0;
+        if (q < p->n && p->s[q] == '-') q++;
+        if (q < p->n && p->s[q] == '0') {
+            q++;
+            intok = 1;
+        } else if (q < p->n && p->s[q] >= '1' && p->s[q] <= '9') {
+            while (q < p->n && isdigit((unsigned char)p->s[q])) q++;
+            intok = 1;
+        }
+        if (intok && q < p->n && p->s[q] == '.') {
+            q++;
+            size_t frac = 0;
+            while (q < p->n && isdigit((unsigned char)p->s[q])) { q++; frac++; }
+            if (!frac) intok = 0;
+        }
+        if (intok && q < p->n && (p->s[q] == 'e' || p->s[q] == 'E')) {
+            q++;
+            if (q < p->n && (p->s[q] == '+' || p->s[q] == '-')) q++;
+            size_t expon = 0;
+            while (q < p->n && isdigit((unsigned char)p->s[q])) { q++; expon++; }
+            if (!expon) intok = 0;
+        }
+        if (!intok) { p->depth--; return NULL; }
         char tmp[64];
-        size_t len = p->i - start;
-        if (len >= sizeof(tmp)) len = sizeof(tmp) - 1;
+        size_t len = q - start;
+        if (len >= sizeof(tmp)) { p->depth--; return NULL; } /* never truncate */
         memcpy(tmp, p->s + start, len);
         tmp[len] = 0;
         char *end = NULL;
         double d = strtod(tmp, &end);
         if (!end || *end) { p->depth--; return NULL; }
+        if (!isfinite(d)) { p->depth--; return NULL; }       /* n12 */
+        p->i = q;
         v = v_new(LJ_NUM);
+        if (!v) { p->depth--; return NULL; }
         v->num = d;
     }
     p->depth--;
@@ -230,6 +270,16 @@ LvJson *lvj_parse(const char *text) {
     if (!text) return NULL;
     P p = { text, 0, strlen(text), 0 };
     LvJson *v = parse_value(&p);
+    return v;
+}
+
+LvJson *lvj_parse_strict(const char *text) {
+    if (!text) return NULL;
+    P p = { text, 0, strlen(text), 0 };
+    LvJson *v = parse_value(&p);
+    if (!v) return NULL;
+    skip_ws(&p);
+    if (p.i != p.n) { lvj_free(v); return NULL; } /* n10: trailing garbage */
     return v;
 }
 

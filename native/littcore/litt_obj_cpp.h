@@ -3,8 +3,10 @@
 
 #pragma once
 #include "litt_math.h"
+#include <cstdint>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <memory>
 #include <fstream>
 #include <sstream>
@@ -170,9 +172,6 @@ public:
                     face.indices.push_back(idx);
                 }
                 raw_faces.push_back(face);
-            }
-            else if (prefix == "vt") {
-                // Skip texture coordinate line (already handled)
             }
             else if (prefix == "mtllib") {
                 // Material library
@@ -383,10 +382,12 @@ private:
                 if (!current_mat.name.empty()) {
                     materials[current_mat.name] = current_mat;
                 }
-                // Start new material
-                iss >> current_mat.name;
+                // Reset FIRST, then read the new name. The old order read the
+                // name and then wiped it with the reset, so every material
+                // after the first was silently stored under an empty key
+                // (i.e., dropped).
                 current_mat = ObjMaterial();
-                current_mat.name = current_mat.name;
+                iss >> current_mat.name;
             }
             else if (prefix == "Ka") {
                 float r, g, b;

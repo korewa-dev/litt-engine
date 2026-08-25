@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # Litt Engine
 
 > A game engine designed exclusively for autonomous AI agents to build, control, and run fully-optimized games.
@@ -116,7 +117,7 @@ lands, the same recorded commands run there unchanged. Enable with the
 workspace feature flag:
 
 ```sh
-cargo build -p litt --features gal
+# removed with the Rust stack (CDR-007)
 ```
 
 ### Vulkan Backend (`litt-vulkan`)
@@ -347,13 +348,6 @@ litt view reef-rest  # C++ orbit viewer (--shot f.bmp for a still)
 litt proof           # sim + render + pixel-content proof, all games
 litt test            # C tests + viewer selftest + project audit
 litt doctor          # toolchain health check
-```
-
-### Classic Rust path (optional)
-
-```bash
-cargo build --release
-cargo run --release
 ```
 
 ### Environment Variables

@@ -13,7 +13,7 @@
 
 - Human prompt: "make a live.exe inside Project/live/viewer, separate program, moddable for GUI makers; linux/android versions too; no litt.exe in releases"
 - Files written (all inside Project/live/viewer/):
-  - Cargo.toml (standalone, empty [workspace] to detach from engine, ZERO dependencies)
+  - standalone manifest (empty-workspace marker detaching from engine, ZERO dependencies) [file later removed from repo, CDR-007]
   - src/main.rs (~260 lines, std-only read-only HTTP server; GET-only contract enforced, 405 on writes)
   - README.md (usage + endpoints)
   - GUI_INSTRUCTIONS.md (special instructions for GUI developers; observation-only contract, data files, extension points)

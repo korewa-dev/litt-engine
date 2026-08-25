@@ -57,6 +57,72 @@ def validate_scene(scene_path, models_dir=None):
     return dangling
 
 
+def obj_vertex_centroid_xz(path):
+    """Mean (x, z) over all 'v' lines of one OBJ (cheap streaming parse);
+    None when the file has no parsable vertices."""
+    sx = sz = 0.0
+    n = 0
+    for ln in Path(path).read_text(encoding="utf-8").splitlines():
+        t = ln.strip()
+        if t.startswith("v "):
+            p = t.split()
+            try:
+                sx += float(p[1])
+                sz += float(p[3])
+                n += 1
+            except (IndexError, ValueError):
+                return None
+    if not n:
+        return None
+    return (sx / n, sz / n)
+
+
+def lint_double_transform(scene_path, models_dir=None,
+                          node_off_tol=0.5, centroid_tol=1.5):
+    """Audit 2.3 origin guard: warn when a NON-terrain scene node sits more
+    than `node_off_tol` away from the origin (|x| or |z|) while an OBJ it
+    references carries its own vertex centroid further than `centroid_tol`
+    from origin - the baked-world-coords + node-offset double-transform
+    smell that renders/sims displace ~2x. Centroid distance is measured in
+    the x/z plane to match worldkit's base-center convention (tall meshes
+    legitimately ride up y). Terrain-tagged nodes are the SANCTIONED
+    exception: emit_chunk bakes WORLD-space vertices by design and chunk
+    nodes must sit at identity anyway. Returns warning strings (empty ==
+    clean); callers fold them into their problems list."""
+    import json
+    import math
+    scene = Path(scene_path)
+    if not scene.exists():
+        return []
+    models_dir = Path(models_dir) if models_dir else \
+        scene.parent.parent / "models"
+    d = json.loads(scene.read_text(encoding="utf-8"))
+    out = []
+    for n in d.get("nodes", []):
+        tags = n.get("tags", [])
+        if "terrain" in tags:
+            continue  # sanctioned terrain-chunk exception
+        refs = [t[6:] for t in tags if t.startswith("model:") and t[6:]]
+        pos = n.get("position") or [0, 0, 0]
+        if not refs or len(pos) < 3:
+            continue
+        off = max(abs(float(pos[0])), abs(float(pos[2])))
+        if off <= node_off_tol:
+            continue
+        for ref in refs:
+            cxz = obj_vertex_centroid_xz(models_dir / (ref + ".obj"))
+            if cxz is None:
+                continue
+            dist = math.sqrt(cxz[0] * cxz[0] + cxz[1] * cxz[1])
+            if dist > centroid_tol:
+                out.append(
+                    "node %s -> %s.obj: possible double-transform "
+                    "(node xz offset %.2f but OBJ vertex centroid is "
+                    "%.2f from its own origin)" % (n.get("name"), ref,
+                                                   off, dist))
+    return out
+
+
 def lint_game(game_dir):
     """Lint every OBJ + the scene of a whole project. Returns dict report."""
     g = Path(game_dir)
@@ -69,6 +135,9 @@ def lint_game(game_dir):
     scene = g / "assets" / "scenes" / "world.lscn.json"
     if scene.exists():
         report["dangling_refs"] = validate_scene(scene, models)
+        # audit 2.3: static double-transform smell check, same problems list
+        for w in lint_double_transform(scene, models):
+            report["problems"].append("scene: %s" % w)
     return report
 
 

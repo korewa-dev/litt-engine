@@ -15,7 +15,6 @@ Networking for multiplayer and synchronization.
 | Windows  | Winsock + SteamNetworkingSockets |
 | Linux    | Raw socket APIs |
 | Android | Custom TCP/IP stack |
-| WebGL   | WebSocket (wasm-bindgen) |
 
 ## Degradation
 

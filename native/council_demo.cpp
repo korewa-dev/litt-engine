@@ -9,8 +9,8 @@
 #include <cstdio>
 
 using litt::Council;
+using litt::CouncilTier;
 using litt::Feature;
-using litt::Tier;
 using litt::Vote;
 
 static void feature_line(const char* tag, const Council& c, Feature f) {
@@ -31,7 +31,7 @@ int main() {
     std::printf("platform          : %s\n\n", litt::to_string(litt::host_platform()));
 
     // --- quality tiers --------------------------------------------------------
-    for (Tier t : {Tier::Low, Tier::Medium, Tier::High, Tier::Ultra}) {
+    for (CouncilTier t : {CouncilTier::Low, CouncilTier::Medium, CouncilTier::High, CouncilTier::Ultra}) {
         Council c;
         c.apply_tier(t);
         std::printf("tier %-6s loads :", litt::to_string(t));

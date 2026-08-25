@@ -38,6 +38,13 @@ verified against design_rules.json.
 
 ## Generator fleet
 
+One-command (preferred — dispatches the whole pipeline incl. native proof):
+
+    python make_game.py --kind {soulslike|space|tabletop|platformer25d|archetype} \
+        [--name N] [--seed S] [--archetype A] [--pattern P] [--theme T] [--about "phrase"]
+    python make_game.py --random                      # fully random game
+    # add --skip-native-proof to bypass the pixel gate; last stdout line is JSON
+
 Flagships (bespoke, richer):
 
     python gen_soulslike.py      # bonfire / fog gate / boss arena / corpse run

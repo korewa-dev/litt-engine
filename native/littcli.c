@@ -19,6 +19,7 @@ static int read_file(const char *path, char **out) {
     fseek(f, 0, SEEK_SET);
     if (sz <= 0) { fclose(f); return 1; }
     char *buf = malloc((size_t)sz + 1);
+    if (!buf) { fclose(f); return 1; }   /* m4 */
     size_t rd = fread(buf, 1, (size_t)sz, f);
     fclose(f);
     buf[rd] = 0;
@@ -69,8 +70,11 @@ int main(int argc, char **argv) {
     }
 
     int interactives = s.ent_count;
+    /* n8: Side2D5/TOP worlds are unplayable without any solid ground */
+    int need_solids = s.cfg.mode == LV_MODE_2D5 || s.cfg.mode == LV_MODE_TOP;
     int ok = interactives > 0 && s.missing_models == 0 &&
-             nan_check == nan_check; /* NaN guard */
+             nan_check == nan_check &&          /* NaN guard */
+             (!need_solids || s.solid_count > 0);
 
     printf("[native] rendered %d frames | %ld tris | %d solids | %d interactives\n",
            frames, s.tri_count, s.solid_count, interactives);

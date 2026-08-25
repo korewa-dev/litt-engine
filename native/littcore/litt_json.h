@@ -23,6 +23,9 @@ struct LvJson {
 };
 
 LvJson *lvj_parse(const char *text);
+/* Strict variant: additionally rejects any trailing garbage after the root
+ * value (whitespace allowed). Used by validation/config paths. */
+LvJson *lvj_parse_strict(const char *text);
 const LvJson *lvj_get(const LvJson *v, const char *key);
 const LvJson *lvj_at(const LvJson *v, int i);
 double lvj_num(const LvJson *v, double def);

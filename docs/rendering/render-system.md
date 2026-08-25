@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # RenderSystem
 
 > ECS-driven rendering pipeline bridging entity components to GPU command buffers.

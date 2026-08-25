@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # Litt Engine ECS Architecture
 
 ## Overview
@@ -6,15 +7,8 @@ The ECS (Entity Component System) architecture for Litt Engine provides a data-o
 
 ## Crate Structure
 
-```
-crates/ecs/
- Cargo.toml
- README.md
- src/
-    lib.rs      # Core ECS implementation
- examples/
-     basic.rs    # Usage example
-```
+(Rust crate tree removed with the Rust stack - CDR-007; the C/C++ port lives
+under `native/littcore/`)
 
 ## Core Components
 
@@ -72,6 +66,6 @@ camera.update(&mut world, 0.016);
 ## Testing
 
 ```bash
-cargo test -p litt-ecs
+native/build.bat test   # engine tests now live under native/
 ```
 

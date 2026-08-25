@@ -148,7 +148,11 @@ struct WorldState {
 class WorldManager {
 public:
     WorldState state;
-    
+
+    static constexpr unsigned kInfiniteLives = 0xFFFFFFFFu;
+
+    WorldManager() { sync_lives(); }
+
     bool load(const std::string& path) {
         std::ifstream f(path);
         if (!f.is_open()) return false;
@@ -190,7 +194,7 @@ public:
             }
             if ((e.flags & WorldEntity::Enemy) && dist < state.cfg.kill_dist) {
                 e.alive = 0;
-                if (state.lives > 0) state.lives--;
+                if (state.lives != kInfiniteLives && state.lives > 0) state.lives--;
             }
         }
         
@@ -201,8 +205,10 @@ public:
             }
         }
         
-        // Lose
-        if (state.lives <= 0) state.game_over = 1;
+        // Lose: finite-lives games only. The infinite marker (cfg.lives < 0)
+        // previously fell through as unsigned 0 and set game_over on the very
+        // first tick of an unconfigured world.
+        if (state.lives == 0) state.game_over = 1;
     }
     
     void input(const Input& in) {
@@ -228,14 +234,31 @@ public:
     std::string serialize() const {
         std::ostringstream o;
         o << "{\"pos\":[" << state.pos.x << "," << state.pos.y << "," << state.pos.z << "],"
-          << "\"score\":" << state.score << ",\"lives\":" << state.lives << "}";
+          << "\"score\":" << state.score
+          << ",\"lives\":" << (state.lives == kInfiniteLives ? -1 : (int)state.lives)
+          << "}";
         return o.str();
     }
-    
+
 private:
+    void sync_lives() {
+        state.lives = state.cfg.lives < 0 ? kInfiniteLives : (unsigned)state.cfg.lives;
+    }
+
     bool parse_json(const std::string& s) {
-        // Simple JSON parser
-        return false;
+        // Persistence document written by serialize(): {"pos":[x,y,z],
+        // "score":N,"lives":N}. Parsed with the C JSON scanner already pulled
+        // in by this header's contract half.
+        LvJson *r = lvj_parse(s.c_str());
+        if (!r) return false;
+        float p[3] = {state.pos.x, state.pos.y, state.pos.z};
+        lvj_arr_f3(lvj_get(r, "pos"), p);
+        state.pos = Vec3(p[0], p[1], p[2]);
+        state.score = (unsigned)lvj_num(lvj_get(r, "score"), (double)state.score);
+        state.cfg.lives = (int)lvj_num(lvj_get(r, "lives"), (double)state.cfg.lives);
+        sync_lives();
+        lvj_free(r);
+        return true;
     }
 };
 

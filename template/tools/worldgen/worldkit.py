@@ -24,7 +24,11 @@ vertices BY DESIGN (seamless chunking) and must sit at node.position
 PLACEMENT REGISTRY: worldkit.Placement tracks occupied x/z footprints,
 rejects overlapping placements, and snaps props onto walkable surfaces
 (ground_y / reserve_spot). Pass placement=reg to write_scene() to
-collision-validate whole scenes before they hit disk. Every iteration order
+collision-validate whole scenes before they hit disk. Terrain conditioning
+(CDR-009 principle 3): register_height_field() attaches fBm callables or
+sampled grids to named regions; query_height(x, z) samples them and
+ground_y() falls back to the field when no walkable surface covers a
+point. Every iteration order
 is insertion order (plain dicts, no sets) - output bytes never depend on
 hash randomization. Surfaces split into GROUND (walkable=True - provides
 bbox-top Y, never blocks) and SOLID (walkable=False - occupies space,
@@ -105,6 +109,10 @@ class Placement:
     dict, never a set), so results never depend on Python's hash
     randomization: same calls, same world, byte-identical output.
 
+    A terrain height-field registry (register_height_field / query_height)
+    rides along on the same object so ground snapping can consult the real
+    fBm surface instead of bbox tops only.
+
     Example:
         reg = worldkit.Placement()
         reg.insert("plaza", (-8, -8), (8, 8), top=0.2, walkable=True)  # ground
@@ -119,6 +127,9 @@ class Placement:
     def __init__(self):
         # name -> [min_x, min_z, max_x, max_z, top_y, walkable, blocks]
         self._items = {}
+        # name -> (kind, payload, min_x, min_z, max_x, max_z); kind is
+        # "fn" (payload = f(x, z) -> y) or "grid" (payload = rows of rows)
+        self._heights = {}
 
     def insert(self, name, min_xy, max_xy, top=0.0, walkable=False,
                blocks=None):
@@ -169,7 +180,9 @@ class Placement:
 
     def ground_y(self, x, z, default=0.0):
         """Ground-snap helper: bbox-top Y of the highest WALKABLE surface
-        covering (x, z); `default` when no walkable surface covers it."""
+        covering (x, z). Falls back to the registered terrain height field
+        (query_height) when no walkable surface covers the point, and to
+        `default` only when neither a surface nor a field knows the ground."""
         best, found = default, False
         for o in self._items.values():
             if not o[5]:
@@ -177,7 +190,82 @@ class Placement:
             if o[0] <= x <= o[2] and o[1] <= z <= o[3]:
                 if not found or o[4] > best:
                     best, found = o[4], True
+        if not found:
+            h = self.query_height(x, z)
+            if h is not None:
+                return h
         return best
+
+    def register_height_field(self, name, fn_or_grid, bounds):
+        """Attach a terrain-height source to a named x/z region (audit 3.1
+        substrate; CDR-009 principle 3).
+
+        fn_or_grid is EITHER a callable f(x, z) -> y sampled in world space
+        (an emit_chunk-style fBm height function) OR a sampled GRID: equal-
+        length rows where grid[j][i] is the height at (min_x + i*dx,
+        min_z + j*dz) - exactly the res+1 lattice emit_chunk samples, edges
+        included; query_height() bilinearly interpolates inside cells.
+        Grids must be >= 2x2, rectangular and finite; callable results must
+        be finite too (ValueError otherwise - no silent hover). bounds are
+        ((min_x, min_z), (max_x, max_z)), normalized like insert().
+        Returns True on success, False when `name` is already registered.
+        Later registrations WIN: the query scans insertion order and keeps
+        the last region covering (x, z), so a patch can deterministically
+        override base terrain."""
+        if name in self._heights:
+            return False
+        (ax, az), (bx, bz) = bounds
+        x0, x1 = (float(ax), float(bx)) if ax <= bx else (float(bx), float(ax))
+        z0, z1 = (float(az), float(bz)) if az <= bz else (float(bz), float(az))
+        for v in (x0, x1, z0, z1):
+            if not math.isfinite(v):
+                raise ValueError(
+                    "register_height_field: non-finite bound for %r" % (name,))
+        if x1 <= x0 or z1 <= z0:
+            raise ValueError(
+                "register_height_field: degenerate region for %r" % (name,))
+        if callable(fn_or_grid):
+            self._heights[name] = ("fn", fn_or_grid, x0, z0, x1, z1)
+            return True
+        rows = fn_or_grid
+        if (not isinstance(rows, (list, tuple)) or len(rows) < 2
+                or any(not isinstance(r, (list, tuple)) or len(r) < 2
+                       for r in rows)):
+            raise ValueError("register_height_field: grid must be >= 2x2 "
+                             "lists of numbers (%r)" % (name,))
+        ncols = len(rows[0])
+        if any(len(r) != ncols for r in rows):
+            raise ValueError(
+                "register_height_field: ragged grid (%r)" % (name,))
+        for r in rows:
+            for v in r:
+                if not math.isfinite(float(v)):
+                    raise ValueError("register_height_field: non-finite "
+                                     "grid value (%r)" % (name,))
+        self._heights[name] = ("grid",
+                               [[float(v) for v in r] for r in rows],
+                               x0, z0, x1, z1)
+        return True
+
+    def query_height(self, x, z):
+        """Sampled terrain height at (x, z); None when NO registered region
+        covers the point (documented default behavior - callers choose the
+        fallback, ground_y() pairs this with its own). The last registered
+        field covering the point wins (see register_height_field)."""
+        x, z = float(x), float(z)
+        hit = None
+        for kind, payload, x0, z0, x1, z1 in self._heights.values():
+            if not (x0 <= x <= x1 and z0 <= z <= z1):
+                continue
+            if kind == "fn":
+                h = float(payload(x, z))
+                if not math.isfinite(h):
+                    raise ValueError("query_height: height fn returned "
+                                     "non-finite at (%r, %r)" % (x, z))
+                hit = h
+            else:
+                hit = _grid_sample(payload, x0, z0, x1, z1, x, z)
+        return hit
 
     def contains(self, x, z):
         """True when ANY registered walkable surface covers (x, z)."""
@@ -195,6 +283,7 @@ class Placement:
         """Faithful deterministic copy - safe to mutate for trial runs."""
         dup = Placement()
         dup._items = {k: list(v) for k, v in self._items.items()}
+        dup._heights = dict(self._heights)
         return dup
 
     def names(self):
@@ -209,6 +298,21 @@ class Placement:
 
     def __contains__(self, name):
         return name in self._items
+
+def _grid_sample(grid, x0, z0, x1, z1, x, z):
+    """Bilinear sample of a rectangular grid spanning [x0,x1]x[z0,z1].
+    grid[j][i] sits on the inclusive lattice edges (min + i*dx / min +
+    j*dz) - exactly the res+1 lattice emit_chunk samples per axis."""
+    rows, cols = len(grid), len(grid[0])
+    fx = (x - x0) * (cols - 1) / (x1 - x0)
+    fz = (z - z0) * (rows - 1) / (z1 - z0)
+    i0 = min(max(int(math.floor(fx)), 0), cols - 2)
+    j0 = min(max(int(math.floor(fz)), 0), rows - 2)
+    tx = min(max(fx - i0, 0.0), 1.0)
+    tz = min(max(fz - j0, 0.0), 1.0)
+    top = grid[j0][i0] * (1.0 - tx) + grid[j0][i0 + 1] * tx
+    bot = grid[j0 + 1][i0] * (1.0 - tx) + grid[j0 + 1][i0 + 1] * tx
+    return top * (1.0 - tz) + bot * tz
 
 def center_box(cx, cz, w, d):
     """AABB (min_xy, max_xy) from a center point + FULL width (x) / depth (z)."""

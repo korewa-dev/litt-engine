@@ -101,6 +101,81 @@ def test_reserve_spot():
     assert off_deck == [50.0, 2.0, 50.0]                  # y_default fallback
 
 
+def test_query_height_fn_and_ground_fallback():
+    reg = wk.Placement()
+    assert reg.query_height(0, 0) is None            # nothing registered
+    assert reg.register_height_field(
+        "t", lambda x, z: 1.0 + 0.5 * x, ((-10, -10), (10, 10))) is True
+    # duplicate name refused, state untouched (mirrors Placement.insert)
+    assert reg.register_height_field("t", lambda x, z: 9.9,
+                                     ((-10, -10), (10, 10))) is False
+    assert approx(reg.query_height(0, 0), 1.0)
+    assert approx(reg.query_height(4, -3), 3.0)
+    assert reg.query_height(11, 0) is None           # outside the region
+    assert reg.query_height(-11, 0) is None
+    # ground_y falls back to the field where no walkable surface covers...
+    assert approx(reg.ground_y(2, 0), 2.0)
+    # ...but a walkable surface still wins where it exists...
+    assert reg.insert("deck", (-1, -1), (1, 1), top=5.0, walkable=True)
+    assert approx(reg.ground_y(0, 0), 5.0)
+    assert approx(reg.ground_y(2, 0), 2.0)           # off-deck: field again
+    # ...and `default` applies only when neither surface nor field knows
+    assert reg.ground_y(50, 50, default=-7.0) == -7.0
+
+
+def test_query_height_grid_and_override():
+    grid = [[0.0, 1.0, 2.0],
+            [0.5, 1.5, 2.5]]                          # rows=z(2), cols=x(3)
+    reg = wk.Placement()
+    assert reg.register_height_field("g", grid, ((0, 0), (2, 1))) is True
+    assert approx(reg.query_height(0, 0), 0.0)        # lattice corner exact
+    assert approx(reg.query_height(2, 1), 2.5)        # far corner exact
+    assert approx(reg.query_height(1, 0), 1.0)        # edge midpoint lerp
+    assert approx(reg.query_height(0.5, 0.5), 0.75)   # cell bilinear centre
+    assert reg.query_height(-0.01, 0) is None         # exclusive outside
+    # later registrations override earlier ones (documented last-match-wins)
+    assert reg.register_height_field("patch", lambda x, z: 100.0,
+                                     ((0, 0), (1, 1))) is True
+    assert approx(reg.query_height(0.5, 0.5), 100.0)  # patch wins inside
+    assert approx(reg.query_height(1.5, 0.5), 1.75)   # grid outside patch
+
+
+def test_register_height_field_validation_and_clone():
+    reg = wk.Placement()
+    bad = [
+        ("nf", lambda x, z: 0.0, ((0, 0), (float("inf"), 1)),
+         "non-finite bound"),
+        ("dg", lambda x, z: 0.0, ((0, 0), (0, 1)), "degenerate region"),
+        ("small", [[5.0]], ((-1, -1), (1, 1)), "grid below 2x2"),
+        ("ragged", [[1.0, 2.0], [3.0]], ((-1, -1), (1, 1)), "ragged rows"),
+        ("nanv", [[0.0, float("nan")], [0.0, 0.0]], ((-1, -1), (1, 1)),
+         "non-finite grid value"),
+        ("str", "not a surface", ((-1, -1), (1, 1)),
+         "neither fn nor grid"),
+    ]
+    for nm, arg, bnds, why in bad:
+        try:
+            reg.register_height_field(nm, arg, bnds)
+            raise AssertionError("validation must reject: %s" % why)
+        except ValueError:
+            pass
+    assert len(reg._heights) == 0                     # failures never mutate
+    reg.register_height_field("hills", lambda x, z: 2.0,
+                              ((-50, -50), (50, 50)))
+    pos = wk.reserve_spot(reg, "Chest_01", 3.0, 4.0, 1.0, 1.0, lift=0.5)
+    assert pos == [3.0, 2.5, 4.0]                     # reserve_spot snaps too
+    dup = reg.clone()
+    assert approx(dup.query_height(3, 4), 2.0)        # clone carries fields
+    # non-finite callable results fail loudly at query time
+    reg.register_height_field("hole", lambda x, z: float("nan"),
+                              ((20, 20), (30, 30)))
+    try:
+        reg.query_height(25, 25)
+        raise AssertionError("non-finite fn result must raise")
+    except ValueError:
+        pass
+
+
 def make_box(mb_like_center):
     mb = wk.MeshBuilder()
     mb.begin("p", "m")

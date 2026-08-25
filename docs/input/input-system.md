@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # InputSystem
 
 > Input aggregation, mapping, and ECS integration for keyboard, mouse, and gamepad.

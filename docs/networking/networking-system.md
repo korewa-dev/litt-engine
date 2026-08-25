@@ -1,3 +1,4 @@
+<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # NetworkingSystem
 
 > UDP client/server, WebSocket, and ECS entity replication for multiplayer.
@@ -108,33 +109,6 @@ pub struct ReplicationMask {
 | UI elements | Client | N/A (local only) |
 
 ---
-
-## WebSocket Backend
-
-For browser targets via `wasm-bindgen`:
-
-```rust
-#[cfg(target_arch = "wasm32")]
-mod websocket {
-    use wasm_bindgen::prelude::*;
-
-    pub struct WsClient {
-        ws: js_sys::WebSocket,
-        reconnect_timer: Option<js_sys::TimeoutId>,
-    }
-
-    impl WsClient {
-        pub fn connect(url: &str) -> Self {
-            // Connect to WebSocket server
-            // Handle onopen, onmessage, onclose
-        }
-
-        pub fn send(&mut self, packet: &Packet) {
-            self.ws.send_with_str(&serde_json::to_string(packet).unwrap());
-        }
-    }
-}
-```
 
 ---
 

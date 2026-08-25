@@ -194,26 +194,43 @@ struct Scene {
         const LvJson *nodes = lvj_get(root, "nodes");
         if (!nodes) { lvj_free(root); return false; }
 
-        // material palette per tag family (matches engine materials)
-        auto tint_of = [&](const LvJson *tags, float out[3]) {
+        // material palette per tag family (matches engine materials);
+        // `tagged` reports whether a gameplay family matched (grey default
+        // otherwise) - MTL Kd multiplies real tag tints but REPLACES the
+        // grey default (ASSET_AUDIT 4.1)
+        auto tint_of = [&](const LvJson *tags, float out[3], bool *tagged) {
             out[0] = out[1] = out[2] = 0.62f;
-            if (has_tag(tags, "enemy")) { out[0] = 0.78f; out[1] = 0.26f; out[2] = 0.24f; }
-            else if (has_tag(tags, "hazard")) { out[0] = 0.85f; out[1] = 0.45f; out[2] = 0.12f; }
-            else if (has_tag(tags, "checkpoint")) { out[0] = 0.95f; out[1] = 0.75f; out[2] = 0.25f; }
+            *tagged = false;
+            if (has_tag(tags, "enemy")) { *tagged = true;
+                out[0] = 0.78f; out[1] = 0.26f; out[2] = 0.24f; }
+            else if (has_tag(tags, "hazard")) { *tagged = true;
+                out[0] = 0.85f; out[1] = 0.45f; out[2] = 0.12f; }
+            else if (has_tag(tags, "checkpoint")) { *tagged = true;
+                out[0] = 0.95f; out[1] = 0.75f; out[2] = 0.25f; }
             else if (has_tag(tags, "scoring") || has_tag(tags, "pickup") ||
                      has_tag(tags, "token") || has_tag(tags, "objective")) {
+                *tagged = true;
                 out[0] = 0.98f; out[1] = 0.82f; out[2] = 0.20f;
             } else if (has_tag(tags, "goal") || has_tag(tags, "win")) {
+                *tagged = true;
                 out[0] = 0.35f; out[1] = 0.85f; out[2] = 0.45f;
             }
         };
 
         // pass 1: gather transformed triangles with albedo*tint, track bounds
-        struct Raw { V3 p[3], n; float alb[3]; };
+        struct Raw { V3 p[3], n; float alb[3]; float ke[3]; };
         std::vector<Raw> raws;
         float mn[3] = {1e9f, 1e9f, 1e9f}, mx[3] = {-1e9f, -1e9f, -1e9f};
-        // parsed models live for the whole render (no per-node reload)
-        std::unordered_map<std::string, LvModel> cache;
+        // parsed models live for the whole render (no per-node reload).
+        // RAII wrapper (audit m6): LvModel owns malloc'd verts/idx but has no
+        // destructor; without this, every load() call - and every window-mode
+        // hot-reload - leaked the whole model cache.
+        struct ModelCache {
+            std::unordered_map<std::string, LvModel> map;
+            ~ModelCache() {
+                for (auto &kv : map) lv_model_free(&kv.second);
+            }
+        } cache;
 
         for (int i = 0; i < nodes->count; i++) {
             const LvJson *n = lvj_at(nodes, i);
@@ -221,33 +238,40 @@ struct Scene {
             const LvJson *tags = lvj_get(n, "tags");
             const char *mdl = model_of(tags);
             if (!mdl) continue;
-            float pos[3] = {0, 0, 0}, scl = 1.0f, rot[4] = {0, 0, 0, 1};
+            float pos[3] = {0, 0, 0}, scl[3] = {1, 1, 1}, rot[4] = {0, 0, 0, 1};
             lvj_arr_f3(lvj_get(n, "position"), pos);
             const LvJson *sj = lvj_get(n, "scale");
-            if (sj && sj->kind == LJ_ARR && sj->count >= 1)
-                scl = (float)lvj_num(lvj_at(sj, 0), 1.0f);
+            if (sj && sj->kind == LJ_ARR && sj->count >= 1) {
+                // Full [sx,sy,sz] support (audit n11); a single-element array
+                // keeps its legacy meaning of a uniform scale.
+                float s0 = (float)lvj_num(lvj_at(sj, 0), 1.0f);
+                scl[0] = scl[1] = scl[2] = s0;
+                if (sj->count >= 2) scl[1] = (float)lvj_num(lvj_at(sj, 1), s0);
+                if (sj->count >= 3) scl[2] = (float)lvj_num(lvj_at(sj, 2), s0);
+            }
             const LvJson *rj = lvj_get(n, "rotation");
             if (rj && rj->kind == LJ_ARR && rj->count >= 4)
                 for (int k = 0; k < 4; k++) rot[k] = (float)lvj_num(lvj_at(rj, k), rot[k]);
             float yaw = quat_yaw(rot);
 
             std::string key(mdl);
-            if (cache.find(key) == cache.end()) {
+            if (cache.map.find(key) == cache.map.end()) {
                 char p2[1024];
                 snprintf(p2, sizeof(p2), "%s/%s.obj", models, mdl);
                 LvModel m;
                 if (lv_obj_load(p2, &m)) {
-                    cache[key] = LvModel{nullptr, 0};
+                    cache.map[key] = LvModel{nullptr, 0};
                     missing++;
                     continue;
                 }
-                cache[key] = m;
+                cache.map[key] = m;
             }
-            const LvModel &m = cache[key];
+            const LvModel &m = cache.map[key];
             if (!m.meshes) { missing++; continue; }
 
             float tint[3];
-            tint_of(tags, tint);
+            bool tagged = false;
+            tint_of(tags, tint, &tagged);
             float cy = cosf(yaw), sy = sinf(yaw);
             for (int mi = 0; mi < m.count; mi++) {
                 const LvMesh *me = &m.meshes[mi];
@@ -255,8 +279,9 @@ struct Scene {
                     Raw r;
                     for (int k = 0; k < 3; k++) {
                         unsigned ix = me->idx[t + k] * 3;
-                        float x = me->verts[ix] * scl, y = me->verts[ix + 1] * scl,
-                              z = me->verts[ix + 2] * scl;
+                        float x = me->verts[ix] * scl[0],
+                              y = me->verts[ix + 1] * scl[1],
+                              z = me->verts[ix + 2] * scl[2];
                         r.p[k] = {pos[0] + x * cy + z * sy,
                                   pos[1] + y,
                                   pos[2] - x * sy + z * cy};
@@ -275,9 +300,20 @@ struct Scene {
                     // per-mesh albedo from part height band (part shading)
                     float shade =
                         0.55f + 0.4f * fabsf(me->bmin[1]) / (fabsf(me->bmax[1]) + 1.f);
-                    r.alb[0] = tint[0] * shade;
-                    r.alb[1] = tint[1] * shade;
-                    r.alb[2] = tint[2] * shade;
+                    // ASSET_AUDIT 4.1: authored MTL Kd reaches pixels at
+                    // last. Gameplay-tagged nodes keep their tag tint as a
+                    // multiplier; untagged parts REPLACE the grey default.
+                    // No MTL / no material name -> today's tint behavior.
+                    float base[3] = {tint[0], tint[1], tint[2]};
+                    if (me->has_kd)
+                        for (int k = 0; k < 3; k++)
+                            base[k] = (me->kd[k] < 0 ? 0 : me->kd[k] > 1 ? 1
+                                      : me->kd[k]) * (tagged ? tint[k] : 1.f);
+                    r.alb[0] = base[0] * shade;
+                    r.alb[1] = base[1] * shade;
+                    r.alb[2] = base[2] * shade;
+                    for (int k = 0; k < 3; k++)
+                        r.ke[k] = me->has_ke ? me->ke[k] : 0.0f;
                     raws.push_back(r);
                 }
             }
@@ -354,7 +390,8 @@ struct Scene {
             Tri t;
             t.p[0] = r.p[0]; t.p[1] = r.p[1]; t.p[2] = r.p[2];
             for (int k = 0; k < 3; k++)
-                t.col[k] = fminf(1, c[k] + (horizon[k] - c[k]) * haze);
+                t.col[k] = fminf(1, c[k] + (horizon[k] - c[k]) * haze +
+                                     r.ke[k]);   // 4.2: additive emissive glow
             tris.push_back(t);
         }
         return true;
@@ -419,6 +456,10 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
     };
     for (const Tri &t : sc.tris) {
         float sx[3], sy[3], sz[3], sw[3];
+        // Audit n2 (accepted limitation): any vertex with w < near gate drops
+        // the WHOLE triangle, so large ground/wall triangles pop as the camera
+        // closes in. Proper fix is near-plane clipping/interpolation, which a
+        // preview rasterizer skips on purpose.
         bool behind = false;
         for (int k = 0; k < 3; k++) {
             sw[k] = xf(t.p[k], &sx[k], &sy[k], &sz[k]);
@@ -450,10 +491,17 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
             if (dbg) rej_area++;
             continue;
         }
-        int minx = (int)fmaxf(0, floorf(fminf(fminf(hx[0], hx[1]), hx[2])));
-        int maxx = (int)fminf(fb.w - 1, ceilf(fmaxf(fmaxf(hx[0], hx[1]), hx[2])));
-        int miny = (int)fmaxf(0, floorf(fminf(fminf(hy[0], hy[1]), hy[2])));
-        int maxy = (int)fminf(fb.h - 1, ceilf(fmaxf(fmaxf(hy[0], hy[1]), hy[2])));
+        // Clamp in the FLOAT domain before casting (audit m8): a projected
+        // coordinate beyond int range converted with UB under the old
+        // cast-then-clamp order.
+        int minx = (int)fminf(fmaxf(floorf(fminf(fminf(hx[0], hx[1]), hx[2])), 0.f),
+                              (float)(fb.w - 1));
+        int maxx = (int)fmaxf(fminf(ceilf(fmaxf(fmaxf(hx[0], hx[1]), hx[2])),
+                              (float)(fb.w - 1)), 0.f);
+        int miny = (int)fminf(fmaxf(floorf(fminf(fminf(hy[0], hy[1]), hy[2])), 0.f),
+                              (float)(fb.h - 1));
+        int maxy = (int)fmaxf(fminf(ceilf(fmaxf(fmaxf(hy[0], hy[1]), hy[2])),
+                              (float)(fb.h - 1)), 0.f);
         if (minx > maxx || miny > maxy) {
             if (dbg) rej_bbox++;
             continue;
@@ -481,6 +529,11 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
             float *rowz = &fb.depth[(size_t)y * fb.w];
             for (int x = minx; x <= maxx; x++) {
                 float w2 = 1.0f - w0 - w1;
+                // Audit n1 (accepted limitation): no top-left fill rule, so
+                // pixels exactly on a shared edge pass w >= 0 in BOTH adjacent
+                // triangles and are drawn twice. Harmless for opaque
+                // single-color fills under the z-test (second writer wins only
+                // if strictly closer); add an edge bias only if seams appear.
                 if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
                     float z = w0 * sz[0] + w1 * sz[1] + w2 * sz[2];
                     if (z < rowz[x]) {
@@ -513,6 +566,13 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
 #endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+// Audit m7: DefWindowProcA never turns WM_DESTROY into WM_QUIT, so closing
+// the window with X left an invisible render loop spinning at 100% CPU.
+static LRESULT CALLBACK view_wndproc(HWND h, UINT m, WPARAM w, LPARAM l) {
+    if (m == WM_DESTROY) PostQuitMessage(0);
+    return DefWindowProcA(h, m, w, l);
+}
+
 static int run_window(const char *dir) {
     Scene sc;
     if (!sc.load(dir)) {
@@ -521,7 +581,7 @@ static int run_window(const char *dir) {
     }
     WNDCLASSA wc;
     ZeroMemory(&wc, sizeof(wc));
-    wc.lpfnWndProc = DefWindowProcA;
+    wc.lpfnWndProc = view_wndproc;
     wc.hInstance = GetModuleHandleA(NULL);
     wc.lpszClassName = "LittView";
     RegisterClassA(&wc);

@@ -1,248 +1,6 @@
 {
   "games": [
     {
-      "name": "neon-garden",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\mg_test\\rnd",
-      "archetype": "bullet_hell",
-      "pattern": "arena_ring",
-      "theme": "arctic_expanse",
-      "kit": "survivor",
-      "seed": 42,
-      "about": "",
-      "built": "2026-08-24T04:46:11"
-    },
-    {
-      "name": "hollow-crossing",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\survival_horror",
-      "archetype": "survival_horror",
-      "pattern": "corridor_run",
-      "theme": "haunted_estate",
-      "kit": "souls",
-      "seed": 8050,
-      "about": "survival_horror test",
-      "built": "2026-08-24T05:29:53"
-    },
-    {
-      "name": "grim-bastion",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\kart_racer",
-      "archetype": "kart_racer",
-      "pattern": "spline_track",
-      "theme": "modern_city_night",
-      "kit": "platformer",
-      "seed": 1805,
-      "about": "kart_racer test",
-      "built": "2026-08-24T05:29:53"
-    },
-    {
-      "name": "hollow-verge",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\dungeon_crawler",
-      "archetype": "dungeon_crawler",
-      "pattern": "room_graph",
-      "theme": "underground_caves",
-      "kit": "souls",
-      "seed": 2044,
-      "about": "dungeon_crawler test",
-      "built": "2026-08-24T05:29:54"
-    },
-    {
-      "name": "wired-reach",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\soulslike",
-      "archetype": "soulslike",
-      "pattern": "hub_spoke",
-      "theme": "haunted_estate",
-      "kit": "souls",
-      "seed": 8688,
-      "about": "soulslike test",
-      "built": "2026-08-24T05:29:55"
-    },
-    {
-      "name": "neon-spire",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\precision_action",
-      "archetype": "precision_action",
-      "pattern": "corridor_run",
-      "theme": "cyberpunk_neon",
-      "kit": "platformer",
-      "seed": 1115,
-      "about": "precision_action test",
-      "built": "2026-08-24T05:29:57"
-    },
-    {
-      "name": "sunken-bastion",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\metroidvania",
-      "archetype": "metroidvania",
-      "pattern": "corridor_run",
-      "theme": "deep_forest",
-      "kit": "platformer",
-      "seed": 3929,
-      "about": "metroidvania test",
-      "built": "2026-08-24T05:29:59"
-    },
-    {
-      "name": "broken-verge",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\grid_tactics",
-      "archetype": "grid_tactics",
-      "pattern": "grid_board",
-      "theme": "minimalist_abstract",
-      "kit": "survivor",
-      "seed": 7737,
-      "about": "grid_tactics test",
-      "built": "2026-08-24T05:30:00"
-    },
-    {
-      "name": "ash-bastion",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\open_world_western",
-      "archetype": "open_world_western",
-      "pattern": "arena_ring",
-      "theme": "wild_west_frontier",
-      "kit": "survivor",
-      "seed": 4991,
-      "about": "open_world_western test",
-      "built": "2026-08-24T05:30:01"
-    },
-    {
-      "name": "silent-fall",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\naval_pirate",
-      "archetype": "naval_pirate",
-      "pattern": "hub_spoke",
-      "theme": "tropical_island",
-      "kit": "survivor",
-      "seed": 8008,
-      "about": "naval_pirate test",
-      "built": "2026-08-24T05:30:02"
-    },
-    {
-      "name": "neon-expanse",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\psychological_horror",
-      "archetype": "psychological_horror",
-      "pattern": "corridor_run",
-      "theme": "haunted_estate",
-      "kit": "souls",
-      "seed": 7407,
-      "about": "psychological_horror test",
-      "built": "2026-08-24T05:30:03"
-    },
-    {
-      "name": "sunken-verge",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\narrative_adventure",
-      "archetype": "narrative_adventure",
-      "pattern": "arena_ring",
-      "theme": "post_apocalypse",
-      "kit": "souls",
-      "seed": 7038,
-      "about": "narrative_adventure test",
-      "built": "2026-08-24T05:30:04"
-    },
-    {
-      "name": "iron-vault",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\extraction_shooter",
-      "archetype": "extraction_shooter",
-      "pattern": "room_graph",
-      "theme": "military_outpost",
-      "kit": "survivor",
-      "seed": 4007,
-      "about": "extraction_shooter test",
-      "built": "2026-08-24T05:30:05"
-    },
-    {
-      "name": "silent-reach",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\open_world_survival",
-      "archetype": "open_world_survival",
-      "pattern": "arena_ring",
-      "theme": "post_apocalypse",
-      "kit": "survivor",
-      "seed": 7665,
-      "about": "open_world_survival test",
-      "built": "2026-08-24T05:30:05"
-    },
-    {
-      "name": "broken-depths",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\tactical_shooter",
-      "archetype": "tactical_shooter",
-      "pattern": "grid_board",
-      "theme": "minimalist_abstract",
-      "kit": "survivor",
-      "seed": 6506,
-      "about": "tactical_shooter test",
-      "built": "2026-08-24T05:30:06"
-    },
-    {
-      "name": "crimson-spire",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\roguelite",
-      "archetype": "roguelite",
-      "pattern": "grid_board",
-      "theme": "dark_fantasy",
-      "kit": "survivor",
-      "seed": 2275,
-      "about": "roguelite test",
-      "built": "2026-08-24T05:30:07"
-    },
-    {
-      "name": "ash-expanse",
-      "dir": "C:\\Users\\roika\\AppData\\Local\\Temp\\arch_farm\\bullet_hell",
-      "archetype": "bullet_hell",
-      "pattern": "arena_ring",
-      "theme": "dark_fantasy",
-      "kit": "platformer",
-      "seed": 3675,
-      "about": "bullet_hell test",
-      "built": "2026-08-24T05:30:08"
-    },
-    {
-      "name": "grim-march",
-      "dir": "Project\\grim-march",
-      "archetype": "precision_action",
-      "pattern": "corridor_run",
-      "theme": "cyberpunk_neon",
-      "kit": "platformer",
-      "seed": 8345,
-      "about": "neon rooftop precision jumps",
-      "built": "2026-08-24T05:30:58"
-    },
-    {
-      "name": "neon-vault",
-      "dir": "Project\\neon-vault",
-      "archetype": "dungeon_crawler",
-      "pattern": "room_graph",
-      "theme": "underground_caves",
-      "kit": "souls",
-      "seed": 3347,
-      "about": "haunted mansion dungeon crawl",
-      "built": "2026-08-24T05:30:59"
-    },
-    {
-      "name": "crimson-fall-860",
-      "dir": "Project\\crimson-fall-860",
-      "archetype": "dungeon_crawler",
-      "pattern": "room_graph",
-      "theme": "underground_caves",
-      "kit": "souls",
-      "seed": 860,
-      "about": "haunted mansion dungeon crawl",
-      "built": "2026-08-24T10:09:02"
-    },
-    {
-      "name": "ash-reach-951",
-      "dir": "Project\\ash-reach-951",
-      "archetype": "precision_action",
-      "pattern": "spline_track",
-      "theme": "cyberpunk_neon",
-      "kit": "platformer",
-      "seed": 7951,
-      "about": "neon rooftop precision jumps",
-      "built": "2026-08-24T10:09:04"
-    },
-    {
-      "name": "crimson-fall-114",
-      "dir": "Project\\crimson-fall-114",
-      "archetype": "dungeon_crawler",
-      "pattern": "room_graph",
-      "theme": "underground_caves",
-      "kit": "souls",
-      "seed": 114,
-      "about": "haunted mansion dungeon crawl",
-      "built": "2026-08-24T10:09:25"
-    },
-    {
       "name": "crimson-fall",
       "dir": "Project\\crimson-fall",
       "archetype": "dungeon_crawler",
@@ -318,6 +76,49 @@
       "seed": 77,
       "about": "misty lighthouse keeper mystery, small game",
       "built": "2026-08-24T21:44:29"
+    },
+    {
+      "name": "worldforge-demo",
+      "dir": "Project\\worldforge-demo",
+      "worldforge": true,
+      "regions": {
+        "r01-egyptian-desert": {
+          "generator": "archetype",
+          "theme": "egyptian_desert",
+          "role": "start",
+          "seed": 5,
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "r02-tropical-island": {
+          "generator": "archetype",
+          "theme": "tropical_island",
+          "role": "middle",
+          "seed": 6,
+          "origin": [
+            70.0,
+            0.0,
+            0.0
+          ]
+        },
+        "r03-desert-dunes": {
+          "generator": "archetype",
+          "theme": "desert_dunes",
+          "role": "finale",
+          "seed": 7,
+          "origin": [
+            140.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "spawn_region": "r01-egyptian-desert",
+      "about": "an ancient egyptian tomb raid",
+      "built": "2026-08-25T02:40:09"
     }
   ]
 }

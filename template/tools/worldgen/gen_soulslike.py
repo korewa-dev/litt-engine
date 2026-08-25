@@ -148,7 +148,11 @@ def layout(rng, reg):
     def put(nm, kind, x, z, yaw, tags, w, d):
         pos = reserve_spot(reg, nm, round(float(x), 2), round(float(z), 2), w, d)
         if pos is not None:
-            items.append((nm, [pos[0], pos[2]], yaw, list(tags), kind))
+            # footprint tuple = write_scene's (half_w, half_d); identical x/z
+            # bounds to the reserve_spot insert, so the placement=reg batch
+            # validation below re-passes idempotently (audit item 3.4).
+            items.append((nm, [pos[0], pos[2]], yaw, list(tags), kind,
+                          (w / 2.0, d / 2.0)))
         return pos is not None
 
     # fixed story anchors first, so seeded scatter must route around them
@@ -267,7 +271,11 @@ def main():
             if not p.exists():
                 p.write_text(obj_text, encoding="utf-8"); made.append(cid + ".obj")
             registry.append((cid, "models/" + cid + ".obj"))
-            placed.append((cid, [x * CHUNK, 0, z * CHUNK], 0, ["terrain"]))
+            # AUDIT 2.1 fix: emit_chunk bakes WORLD-space vertices by design
+            # (seamless chunking), so per worldkit's documented rule the
+            # chunk node MUST sit at identity - never offset both the verts
+            # and the node, or consumers double-transform (~2x) the terrain.
+            placed.append((cid, [0, 0, 0], 0, ["terrain"]))
     for cid, rel in registry:
         register_index(assets_dir, cid, rel)
 
@@ -295,11 +303,24 @@ def main():
         made.append(name + ".obj")
 
     # --- scene nodes: registry-placed layout grounded on the fBm surface ---
+    # AUDIT 3.1: the fBm surface is registered ONCE as a height field on the
+    # placement registry (bounds = the full chunked terrain extent); scatter
+    # snapping inside layout() (reserve_spot -> ground_y) and the node
+    # grounding below all route through query_height instead of re-deriving
+    # the field locally per emit.
     reg = Placement()
-    for nm, xz, yaw, tags, kind in layout(rng, reg):
-        y = round(height(xz[0], xz[1], seed_t), 3)
-        placed.append((nm, [xz[0], y, xz[1]], yaw, tags, kind))
-    write_scene(root / "assets" / "scenes" / "world.lscn.json", placed, "emberfall-hollow")
+    reg.register_height_field(
+        "emberfall_terrain", lambda wx, wz: height(wx, wz, seed_t),
+        ((-a.radius * CHUNK, -a.radius * CHUNK),
+         ((a.radius + 1) * CHUNK, (a.radius + 3) * CHUNK)))
+    for nm, xz, yaw, tags, kind, fp in layout(rng, reg):
+        h = reg.query_height(xz[0], xz[1])
+        y = round(h, 3) if h is not None else 0.0
+        placed.append((nm, [xz[0], y, xz[1]], yaw, tags, kind, fp))
+    # AUDIT 3.4: hand the populated registry to write_scene so every
+    # footprinted node batch-validates against it before hitting disk.
+    write_scene(root / "assets" / "scenes" / "world.lscn.json", placed,
+                "emberfall-hollow", placement=reg)
 
     # --- world state LAST, then log ----------------------------------------
     state = {
@@ -311,8 +332,9 @@ def main():
       "seed": {"input": a.seed, "terrain": seed_t, "scatter": seed_s},
       "chunk_size": CHUNK, "radius": a.radius,
       "camera": {"target": [0, 1.5, 30], "distance": 30},
-      "chunks": [{"id": c, "path": "assets/" + r,
-                  "position": [int(c.split("_")[1])*CHUNK, 0, int(c.split("_")[2])*CHUNK]}
+      # chunk verts are world-space; nodes AND this state block sit at
+      # identity (audit 2.1) - play_native offsets chunk meshes by these.
+      "chunks": [{"id": c, "path": "assets/" + r, "position": [0, 0, 0]}
                  for c, r in registry],
       "palette": MATS,
       "gameplay": {

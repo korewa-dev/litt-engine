@@ -191,7 +191,7 @@
       "props": [
         "dome_habitat: half sphere approximated by short wide cylinder + cone cap",
         "antenna_array: mast + cross boxes",
-        "cargo_crate: banded box",
+        "freight_crate: banded box",
         "airlock_ring: thin cyl ring"
       ],
       "env_notes": [
