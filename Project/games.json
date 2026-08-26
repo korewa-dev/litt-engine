@@ -119,6 +119,28 @@
       "spawn_region": "r01-egyptian-desert",
       "about": "an ancient egyptian tomb raid",
       "built": "2026-08-25T02:40:09"
+    },
+    {
+      "name": "four-districts",
+      "dir": "Project\\four-districts",
+      "archetype": "bullet_hell",
+      "pattern": "arena_ring",
+      "theme": "arctic_expanse",
+      "kit": "survivor",
+      "seed": 42,
+      "about": "four districts city exploration",
+      "built": "2026-08-26T00:33:55"
+    },
+    {
+      "name": "four-districts-234",
+      "dir": "Project\\four-districts",
+      "archetype": "metroidvania",
+      "pattern": "arena_ring",
+      "theme": "dark_fantasy",
+      "kit": "platformer",
+      "seed": 1234,
+      "about": "four districts city exploration",
+      "built": "2026-08-26T00:36:31"
     }
   ]
 }

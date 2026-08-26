@@ -12,6 +12,26 @@ is almost always to BUILD A GAME WORLD, not to modify the engine.
 > not create, modify, rename, "fix", reformat or delete ANYTHING outside
 > `Project/`.
 
+## The Integrity Law (mandatory — prevents confusion and wasted tokens)
+
+> Every project MUST have ONE coherent identity: one archetype, one pattern,
+> one theme, one seed. Never generate a project twice with different settings.
+> Before creating or modifying ANY Project/<game>/ directory, you MUST:
+>
+> 1. **Check existence**: `ls Project/<name>/` or `test -d Project/<name>`
+>    - If it exists, READ its `world_state.json` and `brief.json` first
+>    - If the human wants changes, MODIFY in place; never regenerate from scratch
+>    - If it doesn't exist, CREATE it once with the EXPLICIT requested settings
+> 2. **Verify coherence**: after any edit, confirm `world_state.json` and
+>    `brief.json` agree on archetype, pattern, theme, and seed
+> 3. **Log once**: write ONE entry in `LIVE_LOG.md`, not multiple conflicting ones
+>
+> **Anti-confusion rules**:
+> - NEVER create `four-districts` then `four-districts-234` for the same request
+> - NEVER overwrite a project's `world_state.json` with a different archetype
+> - If the human says "four districts city exploration", that's ONE project with ONE identity
+> - If the human wants a DIFFERENT version, they must explicitly say so (e.g., "make a dark fantasy version")
+
 ## The Tool-Usage Law (mandatory — overrides all other guidance)
 
 > Before claiming something is missing, broken, or non-existent, you MUST
@@ -49,6 +69,12 @@ Reading them is fine and encouraged. Writing to them is not yours to decide.
 | "create <game> as a separate project" | **→ NEW GAME** (below) |
 | fix an engine bug / add engine feature / refactor crate X | Engine task: state it, then read `docs/ARCHITECTURE.md` before touching code |
 | a question / explanation only | Answer. Write nothing anywhere. |
+
+**Before any NEW GAME creation, you MUST**:
+1. Check `ls Project/` to see if it already exists
+2. Read `Project/<name>/world_state.json` if it exists
+3. Ask the human: "This project exists with archetype X, theme Y. Do you want to modify it or create a new one?"
+4. Only create if the human explicitly says "create" or "new"
 
 If genuinely ambiguous between routes: choose LIVE MODE, say so out loud, continue.
 

@@ -1,0 +1,60 @@
+{
+  "objective": "four-districts: explore the four districts of the city, uncover the Great Fracture mystery",
+  "side_objectives": [
+    "Visit all four districts",
+    "Collect the lost ledger from North District",
+    "Find the ancient forge in South District",
+    "Reach the summit banner in East District"
+  ],
+  "physics": {
+    "gravity": 20,
+    "jump_velocity": 10,
+    "run_speed": 6,
+    "coyote_time_s": 0.1
+  },
+  "lives": 3,
+  "enemy_aggro_m": 3.0,
+  "corpse_run": false,
+  "scoring": {
+    "coins": 10
+  },
+  "roster": [
+    {
+      "name": "City Guard",
+      "behavior": "patrols district borders;警觉 intruders"
+    }
+  ],
+  "spawn": [
+    0.0,
+    2.0,
+    0.0
+  ],
+  "checkpoints": [
+    [
+      0.0,
+      2.0,
+      0.0
+    ],
+    [
+      0.0,
+      2.0,
+      -30.0
+    ],
+    [
+      0.0,
+      2.0,
+      30.0
+    ],
+    [
+      30.0,
+      2.0,
+      0.0
+    ],
+    [
+      -30.0,
+      2.0,
+      0.0
+    ]
+  ],
+  "nodes": []
+}

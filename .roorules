@@ -16,6 +16,17 @@ or non-existent, you MUST prove it with the tools actually present:
 If you skip this and report a gap, you are guessing. Re-verify any gap
 report from another agent before acting on it.
 
+THE INTEGRITY LAW (mandatory — prevents confusion): every project MUST have
+ONE coherent identity: one archetype, one pattern, one theme, one seed.
+Before creating or modifying ANY Project/<game>/ directory:
+1. Check existence — if it exists, READ world_state.json and brief.json first
+2. If the human wants changes, MODIFY in place; never regenerate from scratch
+3. Verify coherence — world_state.json and brief.json must agree on archetype/pattern/theme/seed
+4. Log once — ONE entry in LIVE_LOG.md, not multiple conflicting ones
+NEVER create "four-districts" then "four-districts-234" for the same request.
+NEVER overwrite a project with a different archetype. If the human wants a
+DIFFERENT version, they must explicitly say so (e.g., "make a dark fantasy version").
+
 ROUTING:
 - "develop" / "build a world/game" -> LIVE MODE: cd Project/live, read AI_RULES.md,
   watch: litt view live (native C++ orbit viewer)

@@ -1,0 +1,152 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "next_id": 12,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      "position": [0, 0, 0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": []
+    },
+    {
+      "name": "Central_Plaza",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["hub", "model:layout_main"]
+    },
+    {
+      "name": "North_District",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [0.0, 0.0, -50.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["district", "north", "model:poi_01"]
+    },
+    {
+      "name": "South_District",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [0.0, 0.0, 50.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["district", "south", "model:poi_02"]
+    },
+    {
+      "name": "East_District",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [50.0, 0.0, 0.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["district", "east", "model:poi_03"]
+    },
+    {
+      "name": "West_District",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [-50.0, 0.0, 0.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["district", "west", "model:poi_04"]
+    },
+    {
+      "name": "North_Keepers_Hall",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [0.0, 2.0, -60.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["npc", "north_keeper", "model:poi_05"]
+    },
+    {
+      "name": "South_Forge",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [0.0, 2.0, 60.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["npc", "south_overseer", "model:goal_beacon"]
+    },
+    {
+      "name": "East_Garden",
+      "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [60.0, 2.0, 0.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["npc", "east_matriarch", "model:brazier"]
+    },
+    {
+      "name": "West_Club",
+      "id": 9,
+      "parent": 0,
+      "children": [],
+      "position": [-60.0, 2.0, 0.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["npc", "west_promoter", "model:festival_banner"]
+    },
+    {
+      "name": "Charter_Hall_Entrance",
+      "id": 10,
+      "parent": 0,
+      "children": [],
+      "position": [0.0, -5.0, 0.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["quest", "underground", "model:heart"]
+    },
+    {
+      "name": "District_Tokens",
+      "id": 11,
+      "parent": 0,
+      "children": [],
+      "position": [0.0, 1.0, 0.0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "visible": true,
+      "layer": 0,
+      "tags": ["collectible", "token"]
+    }
+  ]
+}
