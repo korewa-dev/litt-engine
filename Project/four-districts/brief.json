@@ -1,60 +1,753 @@
 {
-  "objective": "four-districts: explore the four districts of the city, uncover the Great Fracture mystery",
+  "objective": "four-districts-678: hold the modern city day arena against the Legion - six waves, then the sky opens",
   "side_objectives": [
-    "Visit all four districts",
-    "Collect the lost ledger from North District",
-    "Find the ancient forge in South District",
-    "Reach the summit banner in East District"
+    "Light every brazier before wave three",
+    "Reach 600 points without a death"
   ],
   "physics": {
-    "gravity": 20,
-    "jump_velocity": 10,
-    "run_speed": 6,
+    "gravity": 24,
+    "run_speed": 6.5,
     "coyote_time_s": 0.1
   },
   "lives": 3,
-  "enemy_aggro_m": 3.0,
+  "score_goal": 600,
+  "enemy_aggro_m": 8.5,
   "corpse_run": false,
   "scoring": {
-    "coins": 10
+    "coins": 25
   },
+  "waves": [
+    {
+      "at_score": 0,
+      "note": "wave 1"
+    },
+    {
+      "at_score": 150,
+      "note": "wave 2"
+    },
+    {
+      "at_score": 300,
+      "note": "wave 3"
+    },
+    {
+      "at_score": 450,
+      "note": "wave 4"
+    },
+    {
+      "at_score": 600,
+      "note": "wave 5"
+    },
+    {
+      "at_score": 750,
+      "note": "wave 6"
+    }
+  ],
   "roster": [
     {
-      "name": "City Guard",
-      "behavior": "patrols district borders;警觉 intruders"
+      "name": "Ember Wraith",
+      "behavior": "fast ring-dodger, dives when aggroed"
+    },
+    {
+      "name": "Ash Brute",
+      "behavior": "slow tank guarding gates"
     }
   ],
   "spawn": [
     0.0,
-    2.0,
+    4.2,
     0.0
   ],
   "checkpoints": [
     [
-      0.0,
-      2.0,
-      0.0
+      9.9,
+      0,
+      3.1
     ],
     [
-      0.0,
-      2.0,
-      -30.0
-    ],
-    [
-      0.0,
-      2.0,
-      30.0
-    ],
-    [
-      30.0,
-      2.0,
-      0.0
-    ],
-    [
-      -30.0,
-      2.0,
-      0.0
+      -7.4,
+      0,
+      -6.9
     ]
   ],
-  "nodes": []
+  "nodes": [
+    {
+      "name": "Wraith_N",
+      "pos": [
+        0.0,
+        0,
+        -8.0
+      ],
+      "tags": [
+        "enemy",
+        "model:wraith"
+      ]
+    },
+    {
+      "name": "Wraith_E",
+      "pos": [
+        8.0,
+        0,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:wraith"
+      ]
+    },
+    {
+      "name": "Brute_Gate",
+      "pos": [
+        0.0,
+        0,
+        11.5
+      ],
+      "tags": [
+        "enemy",
+        "model:brute"
+      ]
+    },
+    {
+      "name": "Gem_NE",
+      "pos": [
+        3.5,
+        0,
+        3.5
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:gem"
+      ]
+    },
+    {
+      "name": "Heart_W",
+      "pos": [
+        -3.0,
+        0,
+        2.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:heart"
+      ]
+    },
+    {
+      "name": "Item_00_MoonlitCrown",
+      "pos": [
+        -53.76,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Moonlit Crown (common)"
+    },
+    {
+      "name": "Item_01_VerdantRiddle",
+      "pos": [
+        -49.92,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Verdant Riddle (uncommon)"
+    },
+    {
+      "name": "Item_02_AncientRiddle",
+      "pos": [
+        -46.08,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ancient Riddle (common)"
+    },
+    {
+      "name": "Item_03_VerdantWarden",
+      "pos": [
+        -42.24,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Verdant Warden (uncommon)"
+    },
+    {
+      "name": "Item_04_GildedBriar",
+      "pos": [
+        -38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Gilded Briar (uncommon)"
+    },
+    {
+      "name": "Item_05_ForgottenBlade",
+      "pos": [
+        -34.56,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forgotten Blade (common)"
+    },
+    {
+      "name": "Item_06_MoonlitBlade",
+      "pos": [
+        -30.72,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Moonlit Blade (legendary)"
+    },
+    {
+      "name": "Item_07_GildedProphecy",
+      "pos": [
+        -26.88,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Gilded Prophecy (common)"
+    },
+    {
+      "name": "Item_08_ForgottenRiddle",
+      "pos": [
+        -23.04,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forgotten Riddle (common)"
+    },
+    {
+      "name": "Item_09_ThornboundChalice",
+      "pos": [
+        -19.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Thornbound Chalice (rare)"
+    },
+    {
+      "name": "Item_10_AncientProphecy",
+      "pos": [
+        -15.36,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Ancient Prophecy (rare)"
+    },
+    {
+      "name": "Item_11_WyrmSungRiddle",
+      "pos": [
+        -11.52,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Wyrm-Sung Riddle (uncommon)"
+    },
+    {
+      "name": "Item_12_WyrmSungGrove",
+      "pos": [
+        -7.68,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Wyrm-Sung Grove (rare)"
+    },
+    {
+      "name": "Item_13_VerdantCrown",
+      "pos": [
+        -3.84,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Verdant Crown (uncommon)"
+    },
+    {
+      "name": "Item_14_ThornboundCrown",
+      "pos": [
+        12.95,
+        4.2,
+        2.17
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Thornbound Crown (common)"
+    },
+    {
+      "name": "Item_15_ForgottenWarden",
+      "pos": [
+        3.84,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Forgotten Warden (legendary)"
+    },
+    {
+      "name": "Item_16_GildedCrown",
+      "pos": [
+        2.38,
+        4.2,
+        1.34
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Gilded Crown (uncommon)"
+    },
+    {
+      "name": "Item_17_MoonlitProphecy",
+      "pos": [
+        11.52,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Moonlit Prophecy (uncommon)"
+    },
+    {
+      "name": "Item_18_ForgottenCrown",
+      "pos": [
+        15.36,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forgotten Crown (uncommon)"
+    },
+    {
+      "name": "Item_19_MoonlitGrove",
+      "pos": [
+        19.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Moonlit Grove (legendary)"
+    },
+    {
+      "name": "Item_20_ThornboundWarden",
+      "pos": [
+        23.04,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Thornbound Warden (common)"
+    },
+    {
+      "name": "Item_21_MoonlitBriar",
+      "pos": [
+        26.88,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Moonlit Briar (uncommon)"
+    },
+    {
+      "name": "Item_22_AncientBriar",
+      "pos": [
+        30.72,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Ancient Briar (legendary)"
+    },
+    {
+      "name": "Item_23_WyrmSungCrown",
+      "pos": [
+        34.56,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Wyrm-Sung Crown (uncommon)"
+    },
+    {
+      "name": "Item_24_AncientChalice",
+      "pos": [
+        38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Ancient Chalice (rare)"
+    },
+    {
+      "name": "Item_25_VerdantChalice",
+      "pos": [
+        42.24,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Verdant Chalice (legendary)"
+    },
+    {
+      "name": "Item_26_ForgottenChalice",
+      "pos": [
+        46.08,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Forgotten Chalice (rare)"
+    },
+    {
+      "name": "Item_27_MoonlitRiddle",
+      "pos": [
+        49.92,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Moonlit Riddle (rare)"
+    },
+    {
+      "name": "Item_28_GildedRiddle",
+      "pos": [
+        53.76,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Gilded Riddle (common)"
+    },
+    {
+      "name": "Item_29_VerdantBlade",
+      "pos": [
+        57.6,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Verdant Blade (common)"
+    },
+    {
+      "name": "Boss_0_HighWardenElucie",
+      "pos": [
+        -31.4,
+        4.2,
+        -2.32
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:brute"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Boss_1_theThornQueen",
+      "pos": [
+        5.87,
+        4.2,
+        -2.79
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:brute"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Boss_2_theThornQueenanc",
+      "pos": [
+        24.38,
+        4.2,
+        2.33
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:brute"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Boss_3_HighWardenElucie",
+      "pos": [
+        62.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:brute"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Elite_00_TheAncientBlade",
+      "pos": [
+        -36.53,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Elite_01_TheForgottenRidd",
+      "pos": [
+        -28.27,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Mook_02_MoonlitCrown",
+      "pos": [
+        -14.13,
+        4.2,
+        -1.02
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Guards loot caches along the route."
+    },
+    {
+      "name": "Mook_03_VerdantRiddle",
+      "pos": [
+        -12.86,
+        4.2,
+        0.57
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Guards loot caches along the route."
+    },
+    {
+      "name": "Mook_04_MoonlitProphecy",
+      "pos": [
+        -30.85,
+        4.2,
+        2.86
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Slow to anger, slow to forget."
+    },
+    {
+      "name": "Mook_05_ThornboundWarden",
+      "pos": [
+        -2.62,
+        4.2,
+        -5.27
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    },
+    {
+      "name": "Mook_06_GildedProphecy",
+      "pos": [
+        13.07,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Slow to anger, slow to forget."
+    },
+    {
+      "name": "Mook_07_ForgottenChalice",
+      "pos": [
+        21.33,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    },
+    {
+      "name": "Mook_08_GildedWarden",
+      "pos": [
+        52.38,
+        4.2,
+        -3.04
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Slow to anger, slow to forget."
+    },
+    {
+      "name": "Mook_09_ForgottenWarden",
+      "pos": [
+        37.6,
+        4.2,
+        -2.36
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Guards loot caches along the route."
+    },
+    {
+      "name": "Mook_10_ThornboundBriar1",
+      "pos": [
+        57.76,
+        4.2,
+        -2.24
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Another of the endless."
+    },
+    {
+      "name": "Mook_11_GildedBlade2",
+      "pos": [
+        76.8,
+        4.2,
+        -5.6
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Another of the endless."
+    }
+  ],
+  "zones": [
+    {
+      "name": "Modern City Day Arena",
+      "pos": [
+        0.0,
+        0,
+        0.0
+      ],
+      "radius": 15,
+      "tags": [
+        "music:ember_dread"
+      ]
+    }
+  ],
+  "_prompt": "open world city exploration four districts"
 }

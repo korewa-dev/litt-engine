@@ -1,40 +1,100 @@
 {
-  "roster": [
-    {
-      "name": "North Keeper",
-      "role": "npc",
-      "hp_hint": 0,
-      "description": "The guardian of the Financial Quarter. Stern but fair."
-    },
-    {
-      "name": "South Overseer",
-      "role": "npc",
-      "hp_hint": 0,
-      "description": "Rules the Industrial Zone with an iron hand."
-    },
-    {
-      "name": "East Matriarch",
-      "role": "npc",
-      "hp_hint": 0,
-      "description": "Protects the Residential Gardens and their secrets."
-    },
-    {
-      "name": "West Promoter",
-      "role": "npc",
-      "hp_hint": 0,
-      "description": "Hosts the parties and knows everyone's business."
-    },
-    {
-      "name": "City Watch Patrol",
-      "role": "mook",
-      "hp_hint": 30,
-      "description": "Maintains order in the central plaza."
-    },
-    {
-      "name": "District Enforcer",
-      "role": "elite",
-      "hp_hint": 80,
-      "description": "Controls access between districts."
-    }
-  ]
+ "roster": [
+  {
+   "name": "High Warden Elucien",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "the Thorn Queen",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "the Thorn Queen, ancient",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "High Warden Elucien, gilded",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "The Ancient Blade",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Forgotten Riddle",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "Moonlit Crown",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Verdant Riddle",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Moonlit Prophecy",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Thornbound Warden",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  },
+  {
+   "name": "Gilded Prophecy",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Forgotten Chalice",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  },
+  {
+   "name": "Gilded Warden",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Forgotten Warden",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Thornbound Briar 1",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Another of the endless."
+  },
+  {
+   "name": "Gilded Blade 2",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Another of the endless."
+  }
+ ]
 }

@@ -3,9 +3,9 @@
   "version": 1,
   "mode": "ai-exclusive",
   "theme": "modern_city_day",
-  "updated": "2026-08-26T00:36:48",
+  "updated": "2026-08-26T01:45:31",
   "seed": {
-    "archetype_seed": 1234
+    "archetype_seed": 5678
   },
   "chunk_size": 0,
   "radius": 0,
@@ -53,18 +53,12 @@
   "identity": {
     "archetype": "open_world_realistic",
     "camera": "third_person",
-    "combat": null,
-    "movement": "free_roam_movement",
-    "structure": "hub_spoke_world",
-    "pacing": "slow_paced",
+    "combat": "real_time_combat",
+    "movement": "vehicle_movement",
+    "structure": "open_world",
+    "pacing": "cinematic_pacing",
     "pattern": "hub_spoke",
-    "theme": "modern_city_day",
-    "districts": [
-      { "name": "North District", "tag": "financial", "position": [0, 0, -50], "color": [0.4, 0.5, 0.7] },
-      { "name": "South District", "tag": "industrial", "position": [0, 0, 50], "color": [0.6, 0.5, 0.4] },
-      { "name": "East District", "tag": "residential", "position": [50, 0, 0], "color": [0.4, 0.6, 0.4] },
-      { "name": "West District", "tag": "entertainment", "position": [-50, 0, 0], "color": [0.7, 0.4, 0.6] }
-    ]
+    "theme": "modern_city_day"
   },
   "environment": {
     "sky": {
@@ -117,7 +111,7 @@
   },
   "gameplay": {
     "genre": "open_world_realistic",
-    "objective": "collect the coins, dodge the stalkers, reach the festival banner",
+    "objective": "four-districts-678: hold the modern city day arena against the Legion - six waves, then the sky opens",
     "procgen_rules": [
       "district grid with landmark anchors every 200 m"
     ],
@@ -125,6 +119,65 @@
     "environment_types": [
       "district_grids",
       "traffic_arrows"
+    ],
+    "enemy_aggro_m": 8.5,
+    "corpse_run": false,
+    "spawn": [
+      0.0,
+      4.2,
+      0.0
+    ],
+    "lives": 3,
+    "scoring": {
+      "coins": 25
+    },
+    "physics": {
+      "gravity": 24,
+      "run_speed": 6.5,
+      "coyote_time_s": 0.1
+    },
+    "side_objectives": [
+      "Light every brazier before wave three",
+      "Reach 600 points without a death"
+    ],
+    "waves": [
+      {
+        "at_score": 0,
+        "note": "wave 1"
+      },
+      {
+        "at_score": 150,
+        "note": "wave 2"
+      },
+      {
+        "at_score": 300,
+        "note": "wave 3"
+      },
+      {
+        "at_score": 450,
+        "note": "wave 4"
+      },
+      {
+        "at_score": 600,
+        "note": "wave 5"
+      },
+      {
+        "at_score": 750,
+        "note": "wave 6"
+      }
+    ],
+    "roster": [
+      {
+        "name": "Ember Wraith",
+        "behavior": "fast ring-dodger, dives when aggroed"
+      },
+      {
+        "name": "Ash Brute",
+        "behavior": "slow tank guarding gates"
+      }
     ]
+  },
+  "meta": {
+    "enriched_seed": 5678
   }
 }
