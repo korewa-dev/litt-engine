@@ -4,6 +4,30 @@
   "description": "example-village-style manifest for the live world",
   "assets": [
     {
+      "id": "hollow",
+      "type": "model",
+      "path": "models/hollow.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "gravestone",
+      "type": "model",
+      "path": "models/gravestone.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "broken_pillar",
+      "type": "model",
+      "path": "models/broken_pillar.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "boss_knight",
+      "type": "model",
+      "path": "models/boss_knight.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
       "id": "chunk_-2_-2",
       "type": "model",
       "path": "models/chunk_-2_-2.obj",
@@ -31,6 +55,18 @@
       "id": "chunk_-2_2",
       "type": "model",
       "path": "models/chunk_-2_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_3",
+      "type": "model",
+      "path": "models/chunk_-2_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_4",
+      "type": "model",
+      "path": "models/chunk_-2_4.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
@@ -64,6 +100,18 @@
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
+      "id": "chunk_-1_3",
+      "type": "model",
+      "path": "models/chunk_-1_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_4",
+      "type": "model",
+      "path": "models/chunk_-1_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
       "id": "chunk_0_-2",
       "type": "model",
       "path": "models/chunk_0_-2.obj",
@@ -91,6 +139,18 @@
       "id": "chunk_0_2",
       "type": "model",
       "path": "models/chunk_0_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_3",
+      "type": "model",
+      "path": "models/chunk_0_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_4",
+      "type": "model",
+      "path": "models/chunk_0_4.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
@@ -124,6 +184,18 @@
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
+      "id": "chunk_1_3",
+      "type": "model",
+      "path": "models/chunk_1_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_4",
+      "type": "model",
+      "path": "models/chunk_1_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
       "id": "chunk_2_-2",
       "type": "model",
       "path": "models/chunk_2_-2.obj",
@@ -154,15 +226,57 @@
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
+      "id": "chunk_2_3",
+      "type": "model",
+      "path": "models/chunk_2_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_4",
+      "type": "model",
+      "path": "models/chunk_2_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
       "id": "bonfire",
       "type": "model",
       "path": "models/bonfire.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
-      "id": "hollow",
+      "id": "stalker",
       "type": "model",
-      "path": "models/hollow.obj",
+      "path": "models/stalker.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "knight",
+      "type": "model",
+      "path": "models/knight.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "estus_flask",
+      "type": "model",
+      "path": "models/estus_flask.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "banner",
+      "type": "model",
+      "path": "models/banner.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "bloodstain",
+      "type": "model",
+      "path": "models/bloodstain.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "grave",
+      "type": "model",
+      "path": "models/grave.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
@@ -172,9 +286,9 @@
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
-      "id": "gravestone",
+      "id": "pillar",
       "type": "model",
-      "path": "models/gravestone.obj",
+      "path": "models/pillar.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
@@ -184,33 +298,15 @@
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
-      "id": "broken_pillar",
-      "type": "model",
-      "path": "models/broken_pillar.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
       "id": "fog_gate",
       "type": "model",
       "path": "models/fog_gate.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     },
     {
-      "id": "boss_knight",
-      "type": "model",
-      "path": "models/boss_knight.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
       "id": "soul_ember",
       "type": "model",
       "path": "models/soul_ember.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
-      "id": "bloodstain",
-      "type": "model",
-      "path": "models/bloodstain.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     }
   ]

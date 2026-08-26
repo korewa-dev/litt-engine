@@ -49,3 +49,17 @@
 - props built: bonfire, hollow, dead_tree, gravestone, arch, broken_pillar, fog_gate, boss_knight, soul_ember, bloodstain
 - scene nodes: 66 (bonfire, 3 hollows, fog gate, boss arena, embers, graves)
 - gameplay spec written into world_state.json
+---
+
+## 2026-08-26 12:00 - ACTION by ai-agent (AI)
+- prompt: (autonomous generation)
+- action: EMBERFALL HOLLOW pocket-soulslike world (seed 42 -> terrain 803958421, scatter 3744518811)
+- 35 terrain chunks (16m grid, res 12, road-extended +Z)
+- -13 prop models (gen_props souls kit + bespoke dressing), 41 scene nodes; bonfire/corpse-run/fog-gate/boss contract in world_state.json
+---
+
+## 2026-08-26 12:04 - ACTION by ai-agent (AI)
+- prompt: (autonomous generation)
+- action: EMBERFALL HOLLOW pocket-soulslike world (seed 42 -> terrain 803958421, scatter 3744518811)
+- 35 terrain chunks (16m grid, res 12, road-extended +Z)
+- -23 prop models (gen_props souls kit + bespoke dressing), 41 scene nodes; bonfire/corpse-run/fog-gate/boss contract in world_state.json

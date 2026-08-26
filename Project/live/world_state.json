@@ -3,245 +3,340 @@
   "version": 1,
   "mode": "ai-exclusive",
   "theme": "emberfall-hollow",
-  "updated": "2026-08-23T20:11:28",
+  "identity": {
+    "movement": "soulslike third-person stamina sprint",
+    "camera": "third-person orbit"
+  },
+  "updated": "2026-08-26T12:04:46",
   "seed": {
-    "terrain": 666,
-    "scatter": 2077
+    "input": 42,
+    "terrain": 803958421,
+    "scatter": 3744518811
   },
   "chunk_size": 16.0,
   "radius": 2,
   "camera": {
     "target": [
       0,
-      1,
-      2
+      1.5,
+      30
     ],
-    "distance": 20
+    "distance": 30
   },
   "chunks": [
     {
       "id": "chunk_-2_-2",
       "path": "assets/models/chunk_-2_-2.obj",
       "position": [
-        -32.0,
         0,
-        -32.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_-2_-1",
       "path": "assets/models/chunk_-2_-1.obj",
       "position": [
-        -32.0,
         0,
-        -16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_-2_0",
       "path": "assets/models/chunk_-2_0.obj",
       "position": [
-        -32.0,
         0,
-        0.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_-2_1",
       "path": "assets/models/chunk_-2_1.obj",
       "position": [
-        -32.0,
         0,
-        16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_-2_2",
       "path": "assets/models/chunk_-2_2.obj",
       "position": [
-        -32.0,
         0,
-        32.0
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_3",
+      "path": "assets/models/chunk_-2_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_4",
+      "path": "assets/models/chunk_-2_4.obj",
+      "position": [
+        0,
+        0,
+        0
       ]
     },
     {
       "id": "chunk_-1_-2",
       "path": "assets/models/chunk_-1_-2.obj",
       "position": [
-        -16.0,
         0,
-        -32.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_-1_-1",
       "path": "assets/models/chunk_-1_-1.obj",
       "position": [
-        -16.0,
         0,
-        -16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_-1_0",
       "path": "assets/models/chunk_-1_0.obj",
       "position": [
-        -16.0,
         0,
-        0.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_-1_1",
       "path": "assets/models/chunk_-1_1.obj",
       "position": [
-        -16.0,
         0,
-        16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_-1_2",
       "path": "assets/models/chunk_-1_2.obj",
       "position": [
-        -16.0,
         0,
-        32.0
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_3",
+      "path": "assets/models/chunk_-1_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_4",
+      "path": "assets/models/chunk_-1_4.obj",
+      "position": [
+        0,
+        0,
+        0
       ]
     },
     {
       "id": "chunk_0_-2",
       "path": "assets/models/chunk_0_-2.obj",
       "position": [
-        0.0,
         0,
-        -32.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_0_-1",
       "path": "assets/models/chunk_0_-1.obj",
       "position": [
-        0.0,
         0,
-        -16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_0_0",
       "path": "assets/models/chunk_0_0.obj",
       "position": [
-        0.0,
         0,
-        0.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_0_1",
       "path": "assets/models/chunk_0_1.obj",
       "position": [
-        0.0,
         0,
-        16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_0_2",
       "path": "assets/models/chunk_0_2.obj",
       "position": [
-        0.0,
         0,
-        32.0
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_3",
+      "path": "assets/models/chunk_0_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_4",
+      "path": "assets/models/chunk_0_4.obj",
+      "position": [
+        0,
+        0,
+        0
       ]
     },
     {
       "id": "chunk_1_-2",
       "path": "assets/models/chunk_1_-2.obj",
       "position": [
-        16.0,
         0,
-        -32.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_1_-1",
       "path": "assets/models/chunk_1_-1.obj",
       "position": [
-        16.0,
         0,
-        -16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_1_0",
       "path": "assets/models/chunk_1_0.obj",
       "position": [
-        16.0,
         0,
-        0.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_1_1",
       "path": "assets/models/chunk_1_1.obj",
       "position": [
-        16.0,
         0,
-        16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_1_2",
       "path": "assets/models/chunk_1_2.obj",
       "position": [
-        16.0,
         0,
-        32.0
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_3",
+      "path": "assets/models/chunk_1_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_4",
+      "path": "assets/models/chunk_1_4.obj",
+      "position": [
+        0,
+        0,
+        0
       ]
     },
     {
       "id": "chunk_2_-2",
       "path": "assets/models/chunk_2_-2.obj",
       "position": [
-        32.0,
         0,
-        -32.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_2_-1",
       "path": "assets/models/chunk_2_-1.obj",
       "position": [
-        32.0,
         0,
-        -16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_2_0",
       "path": "assets/models/chunk_2_0.obj",
       "position": [
-        32.0,
         0,
-        0.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_2_1",
       "path": "assets/models/chunk_2_1.obj",
       "position": [
-        32.0,
         0,
-        16.0
+        0,
+        0
       ]
     },
     {
       "id": "chunk_2_2",
       "path": "assets/models/chunk_2_2.obj",
       "position": [
-        32.0,
         0,
-        32.0
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_3",
+      "path": "assets/models/chunk_2_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_4",
+      "path": "assets/models/chunk_2_4.obj",
+      "position": [
+        0,
+        0,
+        0
       ]
     }
   ],
@@ -329,31 +424,31 @@
   },
   "gameplay": {
     "genre": "soulslike",
-    "checkpoint": {
-      "node": "Bonfire",
-      "respawn_on_death": true
+    "objective": "light the bonfire, fight up Hollow Road, cross the fog gate and fell the Ashen Knight",
+    "corpse_run": true,
+    "physics": {
+      "gravity": -22.0,
+      "jump_velocity": 8.0,
+      "run_speed": 6.5,
+      "coyote_time_s": 0.1,
+      "jump_buffer_s": 0.12
     },
-    "souls": {
-      "pickups": 7,
-      "corpse_run": "return to Bloodstain node to recover"
+    "enemy_aggro_m": 8.0,
+    "kill_radius_m": 2.2,
+    "interact_radius_m": 2.4,
+    "lives": 0,
+    "score_goal": 1225,
+    "scoring": {
+      "per_ember": 25,
+      "checkpoint_light": 150,
+      "boss_kill": 900
     },
-    "combat": {
-      "stamina_max": 100,
-      "roll_cost": 25,
-      "attack_cost": 20,
-      "regen_per_sec": 35
-    },
-    "enemies": {
-      "hollow_aggro_radius_m": 6,
-      "boss": "Ashen Knight"
-    },
-    "fog_gate": {
-      "position": [
-        0,
-        1.55,
-        46
-      ],
-      "opens_on": "approach"
-    }
+    "hazards": [
+      "hollow ambushes along the road",
+      "the Ashen Knight beyond the fog"
+    ],
+    "checkpoints": [
+      "Bonfire"
+    ]
   }
 }

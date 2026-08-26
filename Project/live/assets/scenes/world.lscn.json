@@ -2,7 +2,7 @@
   "format": "litt-scene",
   "version": 1,
   "root_id": 0,
-  "next_id": 67,
+  "next_id": 77,
   "nodes": [
     {
       "name": "Root",
@@ -74,7 +74,17 @@
         63,
         64,
         65,
-        66
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76
       ],
       "position": [
         0,
@@ -97,13 +107,993 @@
       "tags": []
     },
     {
-      "name": "Bonfire",
+      "name": "chunk_-2_-2",
       "id": 1,
       "parent": 0,
       "children": [],
       "position": [
         0.0,
         0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-2_-2"
+      ]
+    },
+    {
+      "name": "chunk_-2_-1",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-2_-1"
+      ]
+    },
+    {
+      "name": "chunk_-2_0",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-2_0"
+      ]
+    },
+    {
+      "name": "chunk_-2_1",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-2_1"
+      ]
+    },
+    {
+      "name": "chunk_-2_2",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-2_2"
+      ]
+    },
+    {
+      "name": "chunk_-2_3",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-2_3"
+      ]
+    },
+    {
+      "name": "chunk_-2_4",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-2_4"
+      ]
+    },
+    {
+      "name": "chunk_-1_-2",
+      "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-1_-2"
+      ]
+    },
+    {
+      "name": "chunk_-1_-1",
+      "id": 9,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-1_-1"
+      ]
+    },
+    {
+      "name": "chunk_-1_0",
+      "id": 10,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-1_0"
+      ]
+    },
+    {
+      "name": "chunk_-1_1",
+      "id": 11,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-1_1"
+      ]
+    },
+    {
+      "name": "chunk_-1_2",
+      "id": 12,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-1_2"
+      ]
+    },
+    {
+      "name": "chunk_-1_3",
+      "id": 13,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-1_3"
+      ]
+    },
+    {
+      "name": "chunk_-1_4",
+      "id": 14,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_-1_4"
+      ]
+    },
+    {
+      "name": "chunk_0_-2",
+      "id": 15,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_0_-2"
+      ]
+    },
+    {
+      "name": "chunk_0_-1",
+      "id": 16,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_0_-1"
+      ]
+    },
+    {
+      "name": "chunk_0_0",
+      "id": 17,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_0_0"
+      ]
+    },
+    {
+      "name": "chunk_0_1",
+      "id": 18,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_0_1"
+      ]
+    },
+    {
+      "name": "chunk_0_2",
+      "id": 19,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_0_2"
+      ]
+    },
+    {
+      "name": "chunk_0_3",
+      "id": 20,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_0_3"
+      ]
+    },
+    {
+      "name": "chunk_0_4",
+      "id": 21,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_0_4"
+      ]
+    },
+    {
+      "name": "chunk_1_-2",
+      "id": 22,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_1_-2"
+      ]
+    },
+    {
+      "name": "chunk_1_-1",
+      "id": 23,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_1_-1"
+      ]
+    },
+    {
+      "name": "chunk_1_0",
+      "id": 24,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_1_0"
+      ]
+    },
+    {
+      "name": "chunk_1_1",
+      "id": 25,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_1_1"
+      ]
+    },
+    {
+      "name": "chunk_1_2",
+      "id": 26,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_1_2"
+      ]
+    },
+    {
+      "name": "chunk_1_3",
+      "id": 27,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_1_3"
+      ]
+    },
+    {
+      "name": "chunk_1_4",
+      "id": 28,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_1_4"
+      ]
+    },
+    {
+      "name": "chunk_2_-2",
+      "id": 29,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_2_-2"
+      ]
+    },
+    {
+      "name": "chunk_2_-1",
+      "id": 30,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_2_-1"
+      ]
+    },
+    {
+      "name": "chunk_2_0",
+      "id": 31,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_2_0"
+      ]
+    },
+    {
+      "name": "chunk_2_1",
+      "id": 32,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_2_1"
+      ]
+    },
+    {
+      "name": "chunk_2_2",
+      "id": 33,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_2_2"
+      ]
+    },
+    {
+      "name": "chunk_2_3",
+      "id": 34,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_2_3"
+      ]
+    },
+    {
+      "name": "chunk_2_4",
+      "id": 35,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "terrain",
+        "model:chunk_2_4"
+      ]
+    },
+    {
+      "name": "Bonfire",
+      "id": 36,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.221,
         2.0
       ],
       "rotation": [
@@ -126,13 +1116,42 @@
       ]
     },
     {
+      "name": "Player_Start",
+      "id": 37,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.221,
+        4.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "player",
+        "start",
+        "model:bonfire"
+      ]
+    },
+    {
       "name": "Bloodstain",
-      "id": 2,
+      "id": 38,
       "parent": 0,
       "children": [],
       "position": [
         2.2,
-        0.0,
+        0.215,
         5.0
       ],
       "rotation": [
@@ -155,20 +1174,20 @@
       ]
     },
     {
-      "name": "Hollow_01",
-      "id": 3,
+      "name": "Ruin_Arch",
+      "id": 39,
       "parent": 0,
       "children": [],
       "position": [
-        -4.0,
         0.0,
-        14.0
+        0.202,
+        38.0
       ],
       "rotation": [
         0.0,
-        0.1305,
+        0.7071,
         0.0,
-        0.9914
+        0.7071
       ],
       "scale": [
         1,
@@ -178,77 +1197,19 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "enemy",
-        "aggro_small",
-        "model:hollow"
-      ]
-    },
-    {
-      "name": "Hollow_02",
-      "id": 4,
-      "parent": 0,
-      "children": [],
-      "position": [
-        5.0,
-        0.0,
-        22.0
-      ],
-      "rotation": [
-        0.0,
-        -0.1736,
-        0.0,
-        0.9848
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "enemy",
-        "aggro_small",
-        "model:hollow"
-      ]
-    },
-    {
-      "name": "Hollow_03",
-      "id": 5,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -2.0,
-        0.0,
-        31.0
-      ],
-      "rotation": [
-        0.0,
-        0.342,
-        0.0,
-        0.9397
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "enemy",
-        "aggro_small",
-        "model:hollow"
+        "deco",
+        "gate_frame",
+        "model:arch"
       ]
     },
     {
       "name": "Fog_Gate",
-      "id": 6,
+      "id": 40,
       "parent": 0,
       "children": [],
       "position": [
         0.0,
-        0.0,
+        0.201,
         46.0
       ],
       "rotation": [
@@ -272,12 +1233,12 @@
     },
     {
       "name": "Ashen_Knight",
-      "id": 7,
+      "id": 41,
       "parent": 0,
       "children": [],
       "position": [
         0.0,
-        0.0,
+        0.191,
         62.0
       ],
       "rotation": [
@@ -296,18 +1257,304 @@
       "tags": [
         "boss",
         "aggro_large",
-        "model:boss_knight"
+        "model:knight"
+      ]
+    },
+    {
+      "name": "Banner_Gate_L",
+      "id": 42,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -2.0,
+        0.416,
+        45.2
+      ],
+      "rotation": [
+        0.0,
+        -0.1305,
+        0.0,
+        0.9914
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Banner_Gate_R",
+      "id": 43,
+      "parent": 0,
+      "children": [],
+      "position": [
+        2.0,
+        0.198,
+        45.2
+      ],
+      "rotation": [
+        0.0,
+        0.1305,
+        0.0,
+        0.9914
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Banner_Arena_L",
+      "id": 44,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -3.5,
+        0.567,
+        56.5
+      ],
+      "rotation": [
+        0.0,
+        -0.1736,
+        0.0,
+        0.9848
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Banner_Arena_R",
+      "id": 45,
+      "parent": 0,
+      "children": [],
+      "position": [
+        3.5,
+        0.195,
+        56.5
+      ],
+      "rotation": [
+        0.0,
+        0.1736,
+        0.0,
+        0.9848
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Estus_01",
+      "id": 46,
+      "parent": 0,
+      "children": [],
+      "position": [
+        2.01,
+        0.215,
+        3.21
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "souls",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Estus_02",
+      "id": 47,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -1.68,
+        0.383,
+        43.6
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "souls",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Estus_03",
+      "id": 48,
+      "parent": 0,
+      "children": [],
+      "position": [
+        1.36,
+        0.191,
+        58.12
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "souls",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Hollow_01",
+      "id": 49,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -2.22,
+        0.449,
+        11.74
+      ],
+      "rotation": [
+        0.0,
+        0.3746,
+        0.0,
+        -0.9272
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "aggro_small",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Hollow_02",
+      "id": 50,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -1.14,
+        0.306,
+        26.72
+      ],
+      "rotation": [
+        0.0,
+        0.9659,
+        0.0,
+        -0.2588
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "aggro_small",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Hollow_03",
+      "id": 51,
+      "parent": 0,
+      "children": [],
+      "position": [
+        2.24,
+        0.205,
+        39.01
+      ],
+      "rotation": [
+        0.0,
+        0.1392,
+        0.0,
+        0.9903
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "aggro_small",
+        "model:stalker"
       ]
     },
     {
       "name": "Soul_Ember_01",
-      "id": 8,
+      "id": 52,
       "parent": 0,
       "children": [],
       "position": [
-        -10.34,
-        0.0,
-        16.71
+        1.83,
+        0.215,
+        0.7
       ],
       "rotation": [
         0.0,
@@ -330,42 +1577,13 @@
     },
     {
       "name": "Soul_Ember_02",
-      "id": 9,
+      "id": 53,
       "parent": 0,
       "children": [],
       "position": [
-        -13.99,
-        0.0,
-        40.29
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "pickup",
-        "souls",
-        "model:soul_ember"
-      ]
-    },
-    {
-      "name": "Soul_Ember_03",
-      "id": 10,
-      "parent": 0,
-      "children": [],
-      "position": [
-        4.36,
-        0.0,
-        51.85
+        0.94,
+        0.203,
+        37.62
       ],
       "rotation": [
         0.0,
@@ -388,13 +1606,13 @@
     },
     {
       "name": "Soul_Ember_04",
-      "id": 11,
+      "id": 54,
       "parent": 0,
       "children": [],
       "position": [
-        1.69,
-        0.0,
-        10.94
+        -1.87,
+        0.398,
+        61.36
       ],
       "rotation": [
         0.0,
@@ -417,13 +1635,13 @@
     },
     {
       "name": "Soul_Ember_05",
-      "id": 12,
+      "id": 55,
       "parent": 0,
       "children": [],
       "position": [
-        0.5,
-        0.0,
-        44.41
+        -0.9,
+        0.291,
+        0.05
       ],
       "rotation": [
         0.0,
@@ -446,13 +1664,13 @@
     },
     {
       "name": "Soul_Ember_06",
-      "id": 13,
+      "id": 56,
       "parent": 0,
       "children": [],
       "position": [
-        1.0,
-        0.0,
-        30.76
+        0.98,
+        0.202,
+        36.42
       ],
       "rotation": [
         0.0,
@@ -475,13 +1693,13 @@
     },
     {
       "name": "Soul_Ember_07",
-      "id": 14,
+      "id": 57,
       "parent": 0,
       "children": [],
       "position": [
-        -3.19,
-        0.0,
-        26.97
+        0.34,
+        0.2,
+        47.46
       ],
       "rotation": [
         0.0,
@@ -503,300 +1721,20 @@
       ]
     },
     {
-      "name": "Dead_Tree_01",
-      "id": 15,
-      "parent": 0,
-      "children": [],
-      "position": [
-        4.23,
-        0.0,
-        16.07
-      ],
-      "rotation": [
-        0.0,
-        0.829,
-        0.0,
-        0.5592
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
-      "name": "Dead_Tree_02",
-      "id": 16,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.32,
-        0.0,
-        52.84
-      ],
-      "rotation": [
-        0.0,
-        0.2588,
-        0.0,
-        0.9659
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
-      "name": "Dead_Tree_03",
-      "id": 17,
-      "parent": 0,
-      "children": [],
-      "position": [
-        6.39,
-        0.0,
-        39.74
-      ],
-      "rotation": [
-        0.0,
-        0.9613,
-        0.0,
-        0.2756
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
-      "name": "Dead_Tree_04",
-      "id": 18,
-      "parent": 0,
-      "children": [],
-      "position": [
-        9.3,
-        0.0,
-        59.57
-      ],
-      "rotation": [
-        0.0,
-        0.8829,
-        0.0,
-        0.4695
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
-      "name": "Dead_Tree_05",
-      "id": 19,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.31,
-        0.0,
-        50.16
-      ],
-      "rotation": [
-        0.0,
-        0.9998,
-        0.0,
-        -0.0175
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
-      "name": "Dead_Tree_06",
-      "id": 20,
-      "parent": 0,
-      "children": [],
-      "position": [
-        3.79,
-        0.0,
-        34.94
-      ],
-      "rotation": [
-        0.0,
-        0.2756,
-        0.0,
-        0.9613
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
-      "name": "Dead_Tree_07",
-      "id": 21,
-      "parent": 0,
-      "children": [],
-      "position": [
-        11.75,
-        0.0,
-        28.15
-      ],
-      "rotation": [
-        0.0,
-        0.9636,
-        0.0,
-        -0.2672
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
-      "name": "Dead_Tree_08",
-      "id": 22,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -9.07,
-        0.0,
-        12.17
-      ],
-      "rotation": [
-        0.0,
-        0.2924,
-        0.0,
-        0.9563
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
-      "name": "Dead_Tree_09",
-      "id": 23,
-      "parent": 0,
-      "children": [],
-      "position": [
-        14.89,
-        0.0,
-        34.63
-      ],
-      "rotation": [
-        0.0,
-        0.2164,
-        0.0,
-        0.9763
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
-      "name": "Dead_Tree_10",
-      "id": 24,
-      "parent": 0,
-      "children": [],
-      "position": [
-        4.37,
-        0.0,
-        11.71
-      ],
-      "rotation": [
-        0.0,
-        0.6088,
-        0.0,
-        -0.7934
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "model:dead_tree"
-      ]
-    },
-    {
       "name": "Grave_01",
-      "id": 25,
+      "id": 58,
       "parent": 0,
       "children": [],
       "position": [
-        -5.38,
-        0.0,
-        6.0
+        -4.62,
+        0.668,
+        35.38
       ],
       "rotation": [
         0.0,
-        0.0262,
+        0.1994,
         0.0,
-        0.9997
+        0.9799
       ],
       "scale": [
         1,
@@ -806,171 +1744,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "decor",
-        "story",
-        "model:gravestone"
+        "deco",
+        "model:grave"
       ]
     },
     {
       "name": "Grave_02",
-      "id": 26,
+      "id": 59,
       "parent": 0,
       "children": [],
       "position": [
-        -3.11,
-        0.0,
-        11.5
-      ],
-      "rotation": [
-        0.0,
-        -0.1132,
-        0.0,
-        0.9936
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "story",
-        "model:gravestone"
-      ]
-    },
-    {
-      "name": "Grave_03",
-      "id": 27,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -3.45,
-        0.0,
-        17.0
-      ],
-      "rotation": [
-        0.0,
-        0.0175,
-        0.0,
-        0.9998
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "story",
-        "model:gravestone"
-      ]
-    },
-    {
-      "name": "Grave_04",
-      "id": 28,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -2.5,
-        0.0,
-        22.5
-      ],
-      "rotation": [
-        0.0,
-        0.1219,
-        0.0,
-        0.9925
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "story",
-        "model:gravestone"
-      ]
-    },
-    {
-      "name": "Grave_05",
-      "id": 29,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -2.85,
-        0.0,
-        28.0
-      ],
-      "rotation": [
-        0.0,
-        0.1045,
-        0.0,
-        0.9945
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "story",
-        "model:gravestone"
-      ]
-    },
-    {
-      "name": "Grave_06",
-      "id": 30,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -5.11,
-        0.0,
-        33.5
-      ],
-      "rotation": [
-        0.0,
-        0.0698,
-        0.0,
-        0.9976
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "story",
-        "model:gravestone"
-      ]
-    },
-    {
-      "name": "Grave_07",
-      "id": 31,
-      "parent": 0,
-      "children": [],
-      "position": [
-        3.98,
-        0.0,
-        39.0
+        6.22,
+        0.206,
+        10.43
       ],
       "rotation": [
         0.0,
         0.165,
         0.0,
-        0.9863
+        -0.9863
       ],
       "scale": [
         1,
@@ -980,802 +1772,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "decor",
-        "story",
-        "model:gravestone"
+        "deco",
+        "model:grave"
       ]
     },
     {
-      "name": "Grave_08",
-      "id": 32,
-      "parent": 0,
-      "children": [],
-      "position": [
-        3.35,
-        0.0,
-        44.5
-      ],
-      "rotation": [
-        0.0,
-        -0.0785,
-        0.0,
-        0.9969
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "story",
-        "model:gravestone"
-      ]
-    },
-    {
-      "name": "Arena_Pillar_01",
-      "id": 33,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.0,
-        0.0,
-        73.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "arena",
-        "decor",
-        "model:broken_pillar"
-      ]
-    },
-    {
-      "name": "Arena_Pillar_02",
-      "id": 34,
-      "parent": 0,
-      "children": [],
-      "position": [
-        7.78,
-        0.0,
-        69.78
-      ],
-      "rotation": [
-        0.0,
-        0.3827,
-        0.0,
-        0.9239
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "arena",
-        "decor",
-        "model:broken_pillar"
-      ]
-    },
-    {
-      "name": "Arena_Pillar_03",
-      "id": 35,
-      "parent": 0,
-      "children": [],
-      "position": [
-        11.0,
-        0.0,
-        62.0
-      ],
-      "rotation": [
-        0.0,
-        0.7071,
-        0.0,
-        0.7071
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "arena",
-        "decor",
-        "model:broken_pillar"
-      ]
-    },
-    {
-      "name": "Arena_Pillar_04",
-      "id": 36,
-      "parent": 0,
-      "children": [],
-      "position": [
-        7.78,
-        0.0,
-        54.22
-      ],
-      "rotation": [
-        0.0,
-        0.9239,
-        0.0,
-        0.3827
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "arena",
-        "decor",
-        "model:broken_pillar"
-      ]
-    },
-    {
-      "name": "Arena_Pillar_05",
-      "id": 37,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.0,
-        0.0,
-        51.0
-      ],
-      "rotation": [
-        0.0,
-        1.0,
-        0.0,
-        0.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "arena",
-        "decor",
-        "model:broken_pillar"
-      ]
-    },
-    {
-      "name": "Arena_Pillar_06",
-      "id": 38,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -7.78,
-        0.0,
-        54.22
-      ],
-      "rotation": [
-        0.0,
-        0.9239,
-        0.0,
-        -0.3827
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "arena",
-        "decor",
-        "model:broken_pillar"
-      ]
-    },
-    {
-      "name": "Arena_Pillar_07",
-      "id": 39,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -11.0,
-        0.0,
-        62.0
-      ],
-      "rotation": [
-        0.0,
-        0.7071,
-        0.0,
-        -0.7071
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "arena",
-        "decor",
-        "model:broken_pillar"
-      ]
-    },
-    {
-      "name": "Arena_Pillar_08",
-      "id": 40,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -7.78,
-        0.0,
-        69.78
-      ],
-      "rotation": [
-        0.0,
-        0.3827,
-        0.0,
-        -0.9239
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "arena",
-        "decor",
-        "model:broken_pillar"
-      ]
-    },
-    {
-      "name": "Ruin_Arch",
-      "id": 41,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.0,
-        0.0,
-        38.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "decor",
-        "story",
-        "model:arch"
-      ]
-    },
-    {
-      "name": "chunk_-2_-2",
-      "id": 42,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -32.0,
-        0.0,
-        -32.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_-2_-1",
-      "id": 43,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -32.0,
-        0.0,
-        -16.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_-2_0",
-      "id": 44,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -32.0,
-        0.0,
-        0.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_-2_1",
-      "id": 45,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -32.0,
-        0.0,
-        16.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_-2_2",
-      "id": 46,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -32.0,
-        0.0,
-        32.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_-1_-2",
-      "id": 47,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -16.0,
-        0.0,
-        -32.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_-1_-1",
-      "id": 48,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -16.0,
-        0.0,
-        -16.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_-1_0",
-      "id": 49,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -16.0,
-        0.0,
-        0.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_-1_1",
-      "id": 50,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -16.0,
-        0.0,
-        16.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_-1_2",
-      "id": 51,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -16.0,
-        0.0,
-        32.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_0_-2",
-      "id": 52,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.0,
-        0.0,
-        -32.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_0_-1",
-      "id": 53,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.0,
-        0.0,
-        -16.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_0_0",
-      "id": 54,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_0_1",
-      "id": 55,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.0,
-        0.0,
-        16.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_0_2",
-      "id": 56,
-      "parent": 0,
-      "children": [],
-      "position": [
-        0.0,
-        0.0,
-        32.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_1_-2",
-      "id": 57,
-      "parent": 0,
-      "children": [],
-      "position": [
-        16.0,
-        0.0,
-        -32.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_1_-1",
-      "id": 58,
-      "parent": 0,
-      "children": [],
-      "position": [
-        16.0,
-        0.0,
-        -16.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_1_0",
-      "id": 59,
-      "parent": 0,
-      "children": [],
-      "position": [
-        16.0,
-        0.0,
-        0.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "terrain"
-      ]
-    },
-    {
-      "name": "chunk_1_1",
+      "name": "Grave_03",
       "id": 60,
       "parent": 0,
       "children": [],
       "position": [
-        16.0,
-        0.0,
-        16.0
+        -4.71,
+        0.677,
+        39.23
       ],
       "rotation": [
         0.0,
+        0.2419,
         0.0,
-        0.0,
-        1.0
+        0.9703
       ],
       "scale": [
         1,
@@ -1785,24 +1800,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "terrain"
+        "deco",
+        "model:grave"
       ]
     },
     {
-      "name": "chunk_1_2",
+      "name": "Grave_04",
       "id": 61,
       "parent": 0,
       "children": [],
       "position": [
-        16.0,
-        0.0,
-        32.0
+        5.18,
+        0.206,
+        21.32
       ],
       "rotation": [
         0.0,
+        0.454,
         0.0,
-        0.0,
-        1.0
+        0.891
       ],
       "scale": [
         1,
@@ -1812,24 +1828,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "terrain"
+        "deco",
+        "model:grave"
       ]
     },
     {
-      "name": "chunk_2_-2",
+      "name": "Grave_05",
       "id": 62,
       "parent": 0,
       "children": [],
       "position": [
-        32.0,
-        0.0,
-        -32.0
+        3.68,
+        0.205,
+        23.87
       ],
       "rotation": [
         0.0,
+        0.5948,
         0.0,
-        0.0,
-        1.0
+        0.8039
       ],
       "scale": [
         1,
@@ -1839,24 +1856,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "terrain"
+        "deco",
+        "model:grave"
       ]
     },
     {
-      "name": "chunk_2_-1",
+      "name": "Grave_06",
       "id": 63,
       "parent": 0,
       "children": [],
       "position": [
-        32.0,
-        0.0,
-        -16.0
+        4.0,
+        0.204,
+        42.59
       ],
       "rotation": [
         0.0,
+        0.2588,
         0.0,
-        0.0,
-        1.0
+        -0.9659
       ],
       "scale": [
         1,
@@ -1866,24 +1884,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "terrain"
+        "deco",
+        "model:grave"
       ]
     },
     {
-      "name": "chunk_2_0",
+      "name": "Grave_07",
       "id": 64,
       "parent": 0,
       "children": [],
       "position": [
-        32.0,
-        0.0,
-        0.0
+        5.91,
+        0.207,
+        27.88
       ],
       "rotation": [
         0.0,
+        0.5446,
         0.0,
-        0.0,
-        1.0
+        -0.8387
       ],
       "scale": [
         1,
@@ -1893,24 +1912,25 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "terrain"
+        "deco",
+        "model:grave"
       ]
     },
     {
-      "name": "chunk_2_1",
+      "name": "Grave_08",
       "id": 65,
       "parent": 0,
       "children": [],
       "position": [
-        32.0,
-        0.0,
-        16.0
+        -5.41,
+        0.738,
+        42.26
       ],
       "rotation": [
         0.0,
+        0.7373,
         0.0,
-        0.0,
-        1.0
+        -0.6756
       ],
       "scale": [
         1,
@@ -1920,18 +1940,215 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "terrain"
+        "deco",
+        "model:grave"
       ]
     },
     {
-      "name": "chunk_2_2",
+      "name": "Dead_Tree_01",
       "id": 66,
       "parent": 0,
       "children": [],
       "position": [
-        32.0,
+        3.04,
+        0.205,
+        20.24
+      ],
+      "rotation": [
         0.0,
-        32.0
+        0.9903,
+        0.0,
+        0.1392
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:dead_tree"
+      ]
+    },
+    {
+      "name": "Dead_Tree_02",
+      "id": 67,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -4.21,
+        0.64,
+        53.03
+      ],
+      "rotation": [
+        0.0,
+        0.8788,
+        0.0,
+        -0.4772
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:dead_tree"
+      ]
+    },
+    {
+      "name": "Dead_Tree_03",
+      "id": 68,
+      "parent": 0,
+      "children": [],
+      "position": [
+        10.89,
+        0.194,
+        34.98
+      ],
+      "rotation": [
+        0.0,
+        0.0785,
+        0.0,
+        -0.9969
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:dead_tree"
+      ]
+    },
+    {
+      "name": "Dead_Tree_04",
+      "id": 69,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -16.81,
+        1.007,
+        4.56
+      ],
+      "rotation": [
+        0.0,
+        0.8829,
+        0.0,
+        -0.4695
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:dead_tree"
+      ]
+    },
+    {
+      "name": "Dead_Tree_05",
+      "id": 70,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -6.99,
+        0.826,
+        -0.06
+      ],
+      "rotation": [
+        0.0,
+        0.6428,
+        0.0,
+        -0.766
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:dead_tree"
+      ]
+    },
+    {
+      "name": "Dead_Tree_06",
+      "id": 71,
+      "parent": 0,
+      "children": [],
+      "position": [
+        3.69,
+        0.209,
+        5.82
+      ],
+      "rotation": [
+        0.0,
+        0.9969,
+        0.0,
+        0.0785
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:dead_tree"
+      ]
+    },
+    {
+      "name": "Dead_Tree_07",
+      "id": 72,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -7.96,
+        0.879,
+        40.68
+      ],
+      "rotation": [
+        0.0,
+        0.8141,
+        0.0,
+        0.5807
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:dead_tree"
+      ]
+    },
+    {
+      "name": "Ruin_Pillar_01",
+      "id": 73,
+      "parent": 0,
+      "children": [],
+      "position": [
+        6.5,
+        0.197,
+        50.0
       ],
       "rotation": [
         0.0,
@@ -1947,7 +2164,92 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "terrain"
+        "deco",
+        "model:pillar"
+      ]
+    },
+    {
+      "name": "Ruin_Pillar_02",
+      "id": 74,
+      "parent": 0,
+      "children": [],
+      "position": [
+        6.5,
+        0.194,
+        54.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:pillar"
+      ]
+    },
+    {
+      "name": "Ruin_Pillar_03",
+      "id": 75,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -6.5,
+        0.807,
+        58.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:pillar"
+      ]
+    },
+    {
+      "name": "Ruin_Pillar_04",
+      "id": 76,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -4.5,
+        0.665,
+        62.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "deco",
+        "model:pillar"
       ]
     }
   ]
