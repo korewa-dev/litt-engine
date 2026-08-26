@@ -348,9 +348,8 @@ class MeshBuilder:
     """Groups of triangles -> Wavefront OBJ. Cookbook sections 1-4."""
 
     def __init__(self):
-        self.v, self.vn, self.groups = [], [], []
+        self.v, self.vn, self.vt, self.groups = [], [], [], []
         self._cur = None
-
     def begin(self, name, material):
         self._cur = {"name": name, "mat": material, "faces": []}
         self.groups.append(self._cur)
@@ -362,13 +361,23 @@ class MeshBuilder:
         self.v.append([p[0], p[1], p[2]])
         return len(self.v)
 
-    def tri(self, A, B, C):
+    def _vidx(self, p):
+        """Vertex index for a corner (appends; no dedup - mirrors tri())."""
+        return self._vi(p) - 1
+
+    def _face_normal(self, A, B, C):
         u = [B[i]-A[i] for i in range(3)]
         w = [C[i]-A[i] for i in range(3)]
         n = [u[1]*w[2]-u[2]*w[1], u[2]*w[0]-u[0]*w[2], u[0]*w[1]-u[1]*w[0]]
         l = math.sqrt(sum(c*c for c in n)) or 1.0
-        self.vn.append([c/l for c in n])
-        ni = len(self.vn)
+        return [c/l for c in n]
+
+    def _nidx(self, n):
+        self.vn.append(n)
+        return len(self.vn) - 1
+
+    def tri(self, A, B, C):
+        ni = self._nidx(self._face_normal(A, B, C))
         ia, ib, ic = self._vi(A), self._vi(B), self._vi(C)
         self._cur["faces"].append("f %d//%d %d//%d %d//%d" % (ia,ni,ib,ni,ic,ni))
 
@@ -388,11 +397,46 @@ class MeshBuilder:
         return self
 
     def box(self, cx, cy, cz, hx, hy, hz):
+        # UV convention: each face maps its two tangent axes to u/v scaled
+        # by the face's own dimensions (1 unit = 1 meter) so world-scale
+        # texturing stays uniform across differently sized boxes.
+        faces = (
+            ((1, 2), (hx, hz)),   # +x / -x sides
+            ((0, 2), (hx, hz)),   # top / bottom
+            ((0, 1), (hx, hy)),   # +z / -z front/back
+        )
         p = lambda sx, sy, sz: [cx+sx*hx, cy+sy*hy, cz+sz*hz]
-        c = [p(1,-1,-1),p(1,-1,1),p(1,1,1),p(1,1,-1),
-             p(-1,-1,-1),p(-1,-1,1),p(-1,1,1),p(-1,1,-1)]
-        for q in ([0,3,2,1],[4,5,6,7],[2,3,7,6],[0,1,5,4],[1,2,6,5],[0,4,7,3]):
-            self.quad(c[q[0]], c[q[1]], c[q[2]], c[q[3]])
+        corners = [p(1,-1,-1),p(1,-1,1),p(1,1,1),p(1,1,-1),
+                   p(-1,-1,-1),p(-1,-1,1),p(-1,1,1),p(-1,1,-1)]
+        quads = ([0,3,2,1],[4,5,6,7],[2,3,7,6],[0,1,5,4],[1,2,6,5],[0,4,7,3])
+        for qi, q in enumerate(quads):
+            axis_pair, dims = faces[qi // 2]
+            self.quad_uv(corners[q[0]], corners[q[1]],
+                         corners[q[2]], corners[q[3]], axis_pair, dims)
+
+    def quad_uv(self, a, b, c, d, axes=(0, 2), scale=(1.0, 1.0)):
+        """Quad with planar UVs projected onto `axes`, meters * scale."""
+        ai, bi = axes
+        su, sv = scale
+
+        def _uv(pt):
+            return [pt[ai] * su, pt[bi] * sv]
+
+        self.tri_uv(a, b, c, _uv(a), _uv(b), _uv(c))
+        self.tri_uv(a, c, d, _uv(a), _uv(c), _uv(d))
+
+    def tri_uv(self, a, b, c, uva, uvb, uvc):
+        """Triangle with explicit per-corner UVs (index-based vt table)."""
+        base = len(self.vt)
+        self.vt.append(list(uva))
+        self.vt.append(list(uvb))
+        self.vt.append(list(uvc))
+        ia = self._vidx(a); ib = self._vidx(b); ic = self._vidx(c)
+        ni = self._nidx(self._face_normal(a, b, c))
+        f = ["%d/%d/%d" % (ia + 1, base + 1, ni + 1),
+             "%d/%d/%d" % (ib + 1, base + 2, ni + 1),
+             "%d/%d/%d" % (ic + 1, base + 3, ni + 1)]
+        self.groups[-1]["faces"].extend(f)
 
     def roof_prism(self, cx, base_y, cz, rx, rz, rh):
         L0=[cx-rx,base_y,cz-rz]; L1=[cx-rx,base_y,cz+rz]
@@ -477,6 +521,7 @@ class MeshBuilder:
                "# kit: template/tools/worldgen/",
                "mtllib %s.mtl" % mtllib, "o %s" % name]
         out += ["v %s %s %s" % (fnum(p[0]), fnum(p[1]), fnum(p[2])) for p in self.v]
+        out += ["vt %s %s" % (fnum(t[0]), fnum(t[1])) for t in self.vt]
         out += ["vn %s %s %s" % (fnum(n[0]), fnum(n[1]), fnum(n[2])) for n in self.vn]
         for g in self.groups:
             if not g["faces"]:

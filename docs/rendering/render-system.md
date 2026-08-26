@@ -62,6 +62,7 @@ flowchart LR
 | Transparent Render | Translucent materials, particles | `Renderable`, `Transform`, `Mesh`, `Material` |
 | UI Overlay | HUD, menus, debug overlays | `UIOverlay`, `UIText`, `UIButton` |
 | Post-Process | FidelityFX (FSR, CAS, denoise) | -- |
+| Dither | Surface-Stable Fractal Dithering (optional) | `Renderable`, `Transform`, `Mesh`, `Material` |
 | Present | Swapchain present | -- |
 
 ---

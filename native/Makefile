@@ -5,6 +5,7 @@ CC  ?= cc
 CFLAGS = -std=c11 -O2 -Wall -Wextra -I.
 CXXFLAGS = -std=c++17 -O2 -Wall -Wextra -I.
 CORE = littcore/litt_json.c littcore/litt_obj.c littcore/litt_world.c
+DITHER = littcore/litt_dither.cpp littcore/litt_dither_renderer.cpp
 
 all: bin/littcli bin/littview
 
@@ -37,7 +38,15 @@ test: bin/litt_json.o bin/litt_obj.o bin/litt_world.o tests.c
 selftest: bin/littview
 	cd bin && ./littview selftest
 
+# Dither3D demo
+bin/dither3d_demo: bin/litt_json.o bin/litt_obj.o bin/litt_world.o litt_dither.o litt_dither_renderer.o dither3d_demo.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	@echo "[build] bin/dither3d_demo OK"
+
+dither3d_demo: bin/dither3d_demo
+
 clean:
 	rm -rf bin
 
-.PHONY: all test selftest clean
+.PHONY: all test selftest clean dither3d_demo

@@ -9,6 +9,7 @@
 #pragma once
 #include "litt_math.h"
 #include "litt_ecs.h"
+#include "litt_dither.h"
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -72,6 +73,9 @@ struct RenderMaterial {
     std::shared_ptr<void> texture;
     bool transparent = false;
     bool double_sided = false;
+
+    // Dither3D settings
+    DitherMaterial dither;
 };
 
 // =============================================================================
@@ -403,6 +407,42 @@ private:
 
     std::vector<std::shared_ptr<RenderLight>> lights_;
     std::vector<std::shared_ptr<RenderCamera>> cameras_;
+
+    // =============================================================================
+    // Dither3D Integration
+    // =============================================================================
+
+    DitherMaterial dither_material_;
+    DitherAssetManager dither_assets_;
+
+    void enable_dither(DitherColorMode mode = DitherColorMode::Grayscale,
+                       DitherPattern pattern = DitherPattern::P8x8) {
+        dither_material_.enabled = true;
+        dither_material_.color_mode = mode;
+        dither_material_.pattern = pattern;
+        dither_assets_.generate_textures();
+    }
+
+    void disable_dither() {
+        dither_material_.enabled = false;
+    }
+
+    void set_dither_scale(float scale) {
+        dither_material_.scale = scale;
+    }
+
+    void set_dither_mode(DitherColorMode mode) {
+        dither_material_.color_mode = mode;
+    }
+
+    void set_dither_params(float scale, float size_var, float contrast,
+                          DitherColorMode mode, DitherPattern pattern) {
+        dither_material_.scale = scale;
+        dither_material_.size_variability = size_var;
+        dither_material_.contrast = contrast;
+        dither_material_.color_mode = mode;
+        dither_material_.pattern = pattern;
+    }
 };
 
 } // namespace litt

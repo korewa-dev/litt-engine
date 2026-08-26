@@ -18,8 +18,10 @@ typedef struct {
     /* ASSET_AUDIT 4.1/4.2: per-usemtl-group material resolved from the
      * mtllib-linked MTL file. Flat Kd albedo + Ke emission only; has_* is
      * 0 when no MTL/material applies so callers keep their own fallback
-     * tinting. map_* textures are deliberately not parsed yet. */
+     * tinting. uv table: u,v pairs parallel to verts (uv[i*2..i*2+1] for
+     * vertex i); NULL when the mesh has no texture coordinates. */
     float kd[3], ke[3];
+    float *uvs;        /* uv triplets->pairs, vn entries or NULL */
     unsigned char has_kd, has_ke;
 } LvMesh;
 

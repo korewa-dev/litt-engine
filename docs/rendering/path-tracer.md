@@ -37,6 +37,7 @@ pub struct PathTracerBuffers {
 | Miss | `shaders/pathtracer/miss.rmiss.glsl` | Background color |
 | Tonemap | `shaders/compute/tonemap.comp.glsl` | HDR to LDR |
 | TAA | `shaders/compute/taa.comp.glsl` | Temporal accumulation |
+| Dither3D | `shaders/dither3d/mesh.frag.glsl` | Surface-stable fractal dithering |
 
 ## Render Pipeline
 

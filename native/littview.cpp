@@ -74,6 +74,36 @@ static float quat_yaw(const float q[4]) {
                   1.0f - 2.0f * (q[1] * q[1] + q[2] * q[2]));
 }
 
+// --------------------------------------------------------- dither3d
+// Bayer-pattern dithering (ported from Dither3D)
+namespace dither3d {
+enum DitherMode { DITHER_OFF = 0, DITHER_BAYER_2X2, DITHER_BAYER_4X4, DITHER_BAYER_8X8 };
+static const uint8_t bayer_8x8[64] = {
+    0,  48, 12, 60, 3, 51, 15, 63,
+    32, 16, 44, 28, 35, 19, 47, 31,
+    8,  56, 4,  52, 11, 59, 7,  55,
+    40, 24, 36, 20, 43, 27, 39, 23,
+    2,  50, 14, 62, 1,  49, 13, 61,
+    34, 18, 46, 30, 33, 17, 45, 29,
+    10, 58, 6,  54, 9,  57, 5,  53,
+    42, 26, 38, 22, 41, 25, 37, 21
+};
+static inline uint8_t bayer_dither(int x, int y, DitherMode m) {
+    if (m == DITHER_BAYER_2X2) return (y & 1) * 2 + (x & 1);
+    if (m == DITHER_BAYER_4X4) return (y & 3) * 4 + (x & 3);
+    return bayer_8x8[(y & 7) * 8 + (x & 7)];
+}
+static inline void apply_dither(uint8_t &r, uint8_t &g, uint8_t &b,
+                                 int x, int y, DitherMode m) {
+    if (m == DITHER_OFF) return;
+    uint8_t d = bayer_dither(x, y, m);
+    uint8_t off = (d * 255) / 63 - 31;
+    int cr = (int)r + off; if (cr < 0) cr = 0; if (cr > 255) cr = 255; r = (uint8_t)cr;
+    int cg = (int)g + off; if (cg < 0) cg = 0; if (cg > 255) cg = 255; g = (uint8_t)cg;
+    int cb = (int)b + off; if (cb < 0) cb = 0; if (cb > 255) cb = 255; b = (uint8_t)cb;
+}
+} // namespace dither3d
+
 // ------------------------------------------------------------ framebuffer
 struct FB {
     int w = 0, h = 0;
@@ -416,7 +446,8 @@ struct Scene {
 };
 
 // ------------------------------------------------------------- rasterizer
-static void render(const Scene &sc, FB &fb, float angle, float hmul) {
+static void render(const Scene &sc, FB &fb, float angle, float hmul,
+                   dither3d::DitherMode dither = dither3d::DITHER_OFF) {
     const bool dbg = getenv("LITT_DEBUG") != NULL;
     float dbg_hx_min = 1e9f, dbg_hx_max = -1e9f;
     float dbg_hy_min = 1e9f, dbg_hy_max = -1e9f;
@@ -538,7 +569,16 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul) {
                     float z = w0 * sz[0] + w1 * sz[1] + w2 * sz[2];
                     if (z < rowz[x]) {
                         rowz[x] = z;
-                        rowp[x] = color;
+                        // Apply Dither3D dithering
+                        unsigned c = color;
+                        if (dither != dither3d::DITHER_OFF) {
+                            uint8_t r = (c >> 16) & 0xFF;
+                            uint8_t g = (c >> 8) & 0xFF;
+                            uint8_t b = c & 0xFF;
+                            dither3d::apply_dither(r, g, b, x, y, dither);
+                            c = 0xFF000000u | (r << 16) | (g << 8) | b;
+                        }
+                        rowp[x] = c;
                         if (dbg) dbg_px++;
                     }
                 }
@@ -717,12 +757,18 @@ int main(int argc, char **argv) {
     float yaw = -1000.0f, hgt = 1.0f; // yaw<0 => auto (perpendicular to long axis)
     int W = 960, H = 540;
     const char *out = "frame.bmp";
+    dither3d::DitherMode dither = dither3d::DITHER_OFF;
     for (int i = 3; i + 1 < argc; i += 2) {
         if (!strcmp(argv[i], "--yaw")) yaw = (float)atof(argv[i + 1]);
         else if (!strcmp(argv[i], "--hgt")) hgt = (float)atof(argv[i + 1]);
         else if (!strcmp(argv[i], "--w")) W = atoi(argv[i + 1]);
         else if (!strcmp(argv[i], "--h")) H = atoi(argv[i + 1]);
         else if (!strcmp(argv[i], "--out")) out = argv[i + 1];
+        else if (!strcmp(argv[i], "--dither")) {
+            if (!strcmp(argv[i + 1], "2x2")) dither = dither3d::DITHER_BAYER_2X2;
+            else if (!strcmp(argv[i + 1], "4x4")) dither = dither3d::DITHER_BAYER_4X4;
+            else dither = dither3d::DITHER_BAYER_8X8;
+        }
     }
 
     if (mode == "window") return run_window(dir);
@@ -747,7 +793,7 @@ int main(int argc, char **argv) {
         double t0 = now_s();
         for (int i = 0; i < frames; i++) {
             fb.clear();
-            render(sc, fb, yaw + i * 0.02f, hgt);
+            render(sc, fb, yaw + i * 0.02f, hgt, dither);
         }
         double dt = now_s() - t0;
         printf("{\"bench\":true,\"frames\":%d,\"ms_per_frame\":%.3f,"
@@ -756,7 +802,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    render(sc, fb, yaw, hgt);
+    render(sc, fb, yaw, hgt, dither);
     if (!write_bmp(out, fb)) {
         fprintf(stderr, "[littview] cannot write %s\n", out);
         return 1;

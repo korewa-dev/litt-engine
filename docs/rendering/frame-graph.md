@@ -22,6 +22,7 @@ flowchart TD
 | Transparent Render | Translucent materials, particles | `Renderable`, `Transform`, `Mesh`, `Material` |
 | UI Overlay | HUD, menus, debug overlays | `UIOverlay`, `UIText`, `UIButton` |
 | Post-Process | FidelityFX (FSR, CAS, denoise) | -- |
+| Dither | Surface-Stable Fractal Dithering (optional) | -- |
 | Present | Swapchain present | -- |
 
 ## Shader Compilation
@@ -42,6 +43,8 @@ All shaders are compiled at build time via `build.rs`:
 | miss | `shaders/pathtracer/miss.rmiss.glsl` | Vulkan |
 | mesh vert | `shaders/mesh.vert.glsl` | Both |
 | mesh frag | `shaders/mesh.frag.glsl` | Both |
+| mesh vert (dither) | `shaders/dither3d/mesh.vert.glsl` | Both |
+| mesh frag (dither) | `shaders/dither3d/mesh.frag.glsl` | Both |
 | tonemap | `shaders/compute/tonemap.comp.glsl` | Both |
 | TAA | `shaders/compute/taa.comp.glsl` | Both |
 | FSR 3 create | `shaders/fidelityfx/fsr3_create.comp.glsl` | Both |
