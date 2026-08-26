@@ -2,7 +2,7 @@
   "format": "litt-scene",
   "version": 1,
   "root_id": 0,
-  "next_id": 83,
+  "next_id": 82,
   "nodes": [
     {
       "name": "Root",
@@ -790,9 +790,9 @@
       "parent": 0,
       "children": [],
       "position": [
-        -35.2,
-        4.2,
-        0.0
+        9.9,
+        0.0,
+        3.1
       ],
       "rotation": [
         0.0,
@@ -818,9 +818,9 @@
       "parent": 0,
       "children": [],
       "position": [
-        3.2,
-        4.2,
-        0.0
+        -7.4,
+        0.0,
+        -6.9
       ],
       "rotation": [
         0.0,
@@ -841,14 +841,14 @@
       ]
     },
     {
-      "name": "Checkpoint_03",
+      "name": "Wraith_N",
       "id": 29,
       "parent": 0,
       "children": [],
       "position": [
-        41.6,
-        4.2,
-        0.0
+        0.0,
+        0.0,
+        -8.0
       ],
       "rotation": [
         0.0,
@@ -864,18 +864,18 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "checkpoint",
-        "poi"
+        "enemy",
+        "model:wraith"
       ]
     },
     {
-      "name": "Drone_A",
+      "name": "Wraith_E",
       "id": 30,
       "parent": 0,
       "children": [],
       "position": [
-        -19.2,
-        7.6,
+        8.0,
+        0.0,
         0.0
       ],
       "rotation": [
@@ -893,19 +893,18 @@
       "layer": 0,
       "tags": [
         "enemy",
-        "hazard",
-        "model:drone"
+        "model:wraith"
       ]
     },
     {
-      "name": "Drone_B",
+      "name": "Brute_Gate",
       "id": 31,
       "parent": 0,
       "children": [],
       "position": [
-        19.2,
-        8.0,
-        0.0
+        0.0,
+        0.0,
+        11.5
       ],
       "rotation": [
         0.0,
@@ -922,19 +921,18 @@
       "layer": 0,
       "tags": [
         "enemy",
-        "hazard",
-        "model:drone"
+        "model:brute"
       ]
     },
     {
-      "name": "Gem_High",
+      "name": "Gem_NE",
       "id": 32,
       "parent": 0,
       "children": [],
       "position": [
-        -57.6,
-        6.6,
-        0.0
+        3.5,
+        0.0,
+        3.5
       ],
       "rotation": [
         0.0,
@@ -956,14 +954,14 @@
       ]
     },
     {
-      "name": "Spikes_Mid",
+      "name": "Heart_W",
       "id": 33,
       "parent": 0,
       "children": [],
       "position": [
-        -8.0,
-        4.2,
-        0.0
+        -3.0,
+        0.0,
+        2.0
       ],
       "rotation": [
         0.0,
@@ -979,42 +977,14 @@
       "visible": true,
       "layer": 0,
       "tags": [
-        "hazard",
-        "model:spike"
+        "pickup",
+        "score",
+        "model:heart"
       ]
     },
     {
-      "name": "Win_Banner",
+      "name": "Item_00_MoonlitCrown",
       "id": 34,
-      "parent": 0,
-      "children": [],
-      "position": [
-        75.2,
-        3.2,
-        0.0
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "goal",
-        "poi",
-        "model:banner"
-      ]
-    },
-    {
-      "name": "Item_00_ThornboundProphecy",
-      "id": 35,
       "parent": 0,
       "children": [],
       "position": [
@@ -1042,8 +1012,8 @@
       ]
     },
     {
-      "name": "Item_01_VerdantCrown",
-      "id": 36,
+      "name": "Item_01_VerdantRiddle",
+      "id": 35,
       "parent": 0,
       "children": [],
       "position": [
@@ -1071,8 +1041,8 @@
       ]
     },
     {
-      "name": "Item_02_WyrmSungProphecy",
-      "id": 37,
+      "name": "Item_02_AncientRiddle",
+      "id": 36,
       "parent": 0,
       "children": [],
       "position": [
@@ -1100,8 +1070,8 @@
       ]
     },
     {
-      "name": "Item_03_ForgottenRiddle",
-      "id": 38,
+      "name": "Item_03_VerdantWarden",
+      "id": 37,
       "parent": 0,
       "children": [],
       "position": [
@@ -1129,8 +1099,8 @@
       ]
     },
     {
-      "name": "Item_04_MoonlitGrove",
-      "id": 39,
+      "name": "Item_04_GildedBriar",
+      "id": 38,
       "parent": 0,
       "children": [],
       "position": [
@@ -1158,41 +1128,12 @@
       ]
     },
     {
-      "name": "Item_05_WyrmSungBlade",
-      "id": 40,
+      "name": "Item_05_ForgottenBlade",
+      "id": 39,
       "parent": 0,
       "children": [],
       "position": [
-        -21.18,
-        4.2,
-        -2.19
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "scoring",
-        "model:gem",
-        "poi"
-      ]
-    },
-    {
-      "name": "Item_06_MoonlitChalice",
-      "id": 41,
-      "parent": 0,
-      "children": [],
-      "position": [
-        -30.72,
+        -34.56,
         4.2,
         0.0
       ],
@@ -1216,14 +1157,43 @@
       ]
     },
     {
-      "name": "Item_07_MoonlitCrown",
-      "id": 42,
+      "name": "Item_06_MoonlitBlade",
+      "id": 40,
       "parent": 0,
       "children": [],
       "position": [
-        -17.64,
+        -30.72,
         4.2,
-        2.48
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_07_GildedProphecy",
+      "id": 41,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -26.88,
+        4.2,
+        0.0
       ],
       "rotation": [
         0.0,
@@ -1245,8 +1215,8 @@
       ]
     },
     {
-      "name": "Item_08_AncientProphecy",
-      "id": 43,
+      "name": "Item_08_ForgottenRiddle",
+      "id": 42,
       "parent": 0,
       "children": [],
       "position": [
@@ -1274,14 +1244,14 @@
       ]
     },
     {
-      "name": "Item_09_VerdantBriar",
-      "id": 44,
+      "name": "Item_09_ThornboundChalice",
+      "id": 43,
       "parent": 0,
       "children": [],
       "position": [
-        -14.47,
+        -19.2,
         4.2,
-        0.8
+        0.0
       ],
       "rotation": [
         0.0,
@@ -1298,19 +1268,19 @@
       "layer": 0,
       "tags": [
         "scoring",
-        "model:coin",
+        "model:gem",
         "poi"
       ]
     },
     {
-      "name": "Item_10_ThornboundWarden",
-      "id": 45,
+      "name": "Item_10_AncientProphecy",
+      "id": 44,
       "parent": 0,
       "children": [],
       "position": [
-        -26.75,
+        -15.36,
         4.2,
-        2.23
+        0.0
       ],
       "rotation": [
         0.0,
@@ -1327,13 +1297,13 @@
       "layer": 0,
       "tags": [
         "scoring",
-        "model:coin",
+        "model:gem",
         "poi"
       ]
     },
     {
       "name": "Item_11_WyrmSungRiddle",
-      "id": 46,
+      "id": 45,
       "parent": 0,
       "children": [],
       "position": [
@@ -1361,14 +1331,14 @@
       ]
     },
     {
-      "name": "Item_12_VerdantRiddle",
-      "id": 47,
+      "name": "Item_12_WyrmSungGrove",
+      "id": 46,
       "parent": 0,
       "children": [],
       "position": [
-        -17.23,
+        -7.68,
         4.2,
-        0.6
+        0.0
       ],
       "rotation": [
         0.0,
@@ -1385,13 +1355,13 @@
       "layer": 0,
       "tags": [
         "scoring",
-        "model:coin",
+        "model:gem",
         "poi"
       ]
     },
     {
-      "name": "Item_13_GildedWarden",
-      "id": 48,
+      "name": "Item_13_VerdantCrown",
+      "id": 47,
       "parent": 0,
       "children": [],
       "position": [
@@ -1419,14 +1389,14 @@
       ]
     },
     {
-      "name": "Item_14_ForgottenWarden",
-      "id": 49,
+      "name": "Item_14_ThornboundCrown",
+      "id": 48,
       "parent": 0,
       "children": [],
       "position": [
-        0.0,
+        12.95,
         4.2,
-        0.0
+        2.17
       ],
       "rotation": [
         0.0,
@@ -1448,14 +1418,14 @@
       ]
     },
     {
-      "name": "Item_15_AncientGrove",
-      "id": 50,
+      "name": "Item_15_ForgottenWarden",
+      "id": 49,
       "parent": 0,
       "children": [],
       "position": [
-        9.71,
+        3.84,
         4.2,
-        -1.04
+        0.0
       ],
       "rotation": [
         0.0,
@@ -1477,14 +1447,14 @@
       ]
     },
     {
-      "name": "Item_16_VerdantBlade",
-      "id": 51,
+      "name": "Item_16_GildedCrown",
+      "id": 50,
       "parent": 0,
       "children": [],
       "position": [
-        7.68,
+        2.38,
         4.2,
-        0.0
+        1.34
       ],
       "rotation": [
         0.0,
@@ -1506,8 +1476,8 @@
       ]
     },
     {
-      "name": "Item_17_ForgottenBlade",
-      "id": 52,
+      "name": "Item_17_MoonlitProphecy",
+      "id": 51,
       "parent": 0,
       "children": [],
       "position": [
@@ -1535,8 +1505,8 @@
       ]
     },
     {
-      "name": "Item_18_ThornboundBlade",
-      "id": 53,
+      "name": "Item_18_ForgottenCrown",
+      "id": 52,
       "parent": 0,
       "children": [],
       "position": [
@@ -1564,41 +1534,12 @@
       ]
     },
     {
-      "name": "Item_19_VerdantChalice",
-      "id": 54,
+      "name": "Item_19_MoonlitGrove",
+      "id": 53,
       "parent": 0,
       "children": [],
       "position": [
-        13.9,
-        4.2,
-        -2.03
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "scoring",
-        "model:gem",
-        "poi"
-      ]
-    },
-    {
-      "name": "Item_20_WyrmSungChalice",
-      "id": 55,
-      "parent": 0,
-      "children": [],
-      "position": [
-        23.04,
+        19.2,
         4.2,
         0.0
       ],
@@ -1622,8 +1563,37 @@
       ]
     },
     {
-      "name": "Item_21_VerdantGrove",
-      "id": 56,
+      "name": "Item_20_ThornboundWarden",
+      "id": 54,
+      "parent": 0,
+      "children": [],
+      "position": [
+        23.04,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_21_MoonlitBriar",
+      "id": 55,
       "parent": 0,
       "children": [],
       "position": [
@@ -1651,8 +1621,8 @@
       ]
     },
     {
-      "name": "Item_22_MoonlitWarden",
-      "id": 57,
+      "name": "Item_22_AncientBriar",
+      "id": 56,
       "parent": 0,
       "children": [],
       "position": [
@@ -1675,13 +1645,13 @@
       "layer": 0,
       "tags": [
         "scoring",
-        "model:coin",
+        "model:gem",
         "poi"
       ]
     },
     {
-      "name": "Item_23_VerdantProphecy",
-      "id": 58,
+      "name": "Item_23_WyrmSungCrown",
+      "id": 57,
       "parent": 0,
       "children": [],
       "position": [
@@ -1709,8 +1679,8 @@
       ]
     },
     {
-      "name": "Item_24_VerdantWarden",
-      "id": 59,
+      "name": "Item_24_AncientChalice",
+      "id": 58,
       "parent": 0,
       "children": [],
       "position": [
@@ -1733,19 +1703,19 @@
       "layer": 0,
       "tags": [
         "scoring",
-        "model:coin",
+        "model:gem",
         "poi"
       ]
     },
     {
-      "name": "Item_25_ForgottenCrown",
-      "id": 60,
+      "name": "Item_25_VerdantChalice",
+      "id": 59,
       "parent": 0,
       "children": [],
       "position": [
-        36.61,
+        42.24,
         4.2,
-        -0.76
+        0.0
       ],
       "rotation": [
         0.0,
@@ -1762,13 +1732,13 @@
       "layer": 0,
       "tags": [
         "scoring",
-        "model:coin",
+        "model:gem",
         "poi"
       ]
     },
     {
-      "name": "Item_26_GildedProphecy",
-      "id": 61,
+      "name": "Item_26_ForgottenChalice",
+      "id": 60,
       "parent": 0,
       "children": [],
       "position": [
@@ -1791,13 +1761,13 @@
       "layer": 0,
       "tags": [
         "scoring",
-        "model:coin",
+        "model:gem",
         "poi"
       ]
     },
     {
-      "name": "Item_27_MoonlitBlade",
-      "id": 62,
+      "name": "Item_27_MoonlitRiddle",
+      "id": 61,
       "parent": 0,
       "children": [],
       "position": [
@@ -1825,14 +1795,14 @@
       ]
     },
     {
-      "name": "Item_28_AncientBlade",
-      "id": 63,
+      "name": "Item_28_GildedRiddle",
+      "id": 62,
       "parent": 0,
       "children": [],
       "position": [
-        41.66,
+        53.76,
         4.2,
-        2.69
+        0.0
       ],
       "rotation": [
         0.0,
@@ -1854,8 +1824,8 @@
       ]
     },
     {
-      "name": "Item_29_GildedBriar",
-      "id": 64,
+      "name": "Item_29_VerdantBlade",
+      "id": 63,
       "parent": 0,
       "children": [],
       "position": [
@@ -1883,14 +1853,14 @@
       ]
     },
     {
-      "name": "Boss_0_theGildedUsurper",
-      "id": 65,
+      "name": "Boss_0_HighWardenElucie",
+      "id": 64,
       "parent": 0,
       "children": [],
       "position": [
-        -44.13,
+        -31.4,
         4.2,
-        0.41
+        -2.32
       ],
       "rotation": [
         0.0,
@@ -1908,19 +1878,49 @@
       "tags": [
         "enemy",
         "hazard",
-        "model:drone",
+        "model:brute",
         "poi"
       ]
     },
     {
       "name": "Boss_1_theThornQueen",
+      "id": 65,
+      "parent": 0,
+      "children": [],
+      "position": [
+        5.87,
+        4.2,
+        -2.79
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:brute",
+        "poi"
+      ]
+    },
+    {
+      "name": "Boss_2_theThornQueenanc",
       "id": 66,
       "parent": 0,
       "children": [],
       "position": [
-        4.8,
+        24.38,
         4.2,
-        0.0
+        2.33
       ],
       "rotation": [
         0.0,
@@ -1938,43 +1938,13 @@
       "tags": [
         "enemy",
         "hazard",
-        "model:drone",
+        "model:brute",
         "poi"
       ]
     },
     {
-      "name": "Boss_2_theThornQueenver",
+      "name": "Boss_3_HighWardenElucie",
       "id": 67,
-      "parent": 0,
-      "children": [],
-      "position": [
-        56.33,
-        4.2,
-        -2.26
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "enemy",
-        "hazard",
-        "model:drone",
-        "poi"
-      ]
-    },
-    {
-      "name": "Boss_3_theGildedUsurper",
-      "id": 68,
       "parent": 0,
       "children": [],
       "position": [
@@ -1998,13 +1968,13 @@
       "tags": [
         "enemy",
         "hazard",
-        "model:drone",
+        "model:brute",
         "poi"
       ]
     },
     {
-      "name": "Elite_00_TheVerdantWarden",
-      "id": 69,
+      "name": "Elite_00_TheAncientBlade",
+      "id": 68,
       "parent": 0,
       "children": [],
       "position": [
@@ -2032,14 +2002,43 @@
       ]
     },
     {
-      "name": "Elite_01_TheAncientWarden",
+      "name": "Elite_01_TheForgottenRidd",
+      "id": 69,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -28.27,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_02_MoonlitCrown",
       "id": 70,
       "parent": 0,
       "children": [],
       "position": [
-        -23.77,
+        -14.13,
         4.2,
-        2.23
+        -1.02
       ],
       "rotation": [
         0.0,
@@ -2061,14 +2060,14 @@
       ]
     },
     {
-      "name": "Elite_02_TheWyrmSungGrove",
+      "name": "Mook_03_VerdantRiddle",
       "id": 71,
       "parent": 0,
       "children": [],
       "position": [
-        -32.69,
+        -12.86,
         4.2,
-        0.3
+        0.57
       ],
       "rotation": [
         0.0,
@@ -2090,14 +2089,14 @@
       ]
     },
     {
-      "name": "Elite_03_TheAncientRiddle",
+      "name": "Mook_04_MoonlitProphecy",
       "id": 72,
       "parent": 0,
       "children": [],
       "position": [
-        -7.41,
+        -30.85,
         4.2,
-        -2.87
+        2.86
       ],
       "rotation": [
         0.0,
@@ -2119,14 +2118,14 @@
       ]
     },
     {
-      "name": "Mook_04_GildedBlade",
+      "name": "Mook_05_ThornboundWarden",
       "id": 73,
       "parent": 0,
       "children": [],
       "position": [
-        -31.97,
+        -2.62,
         4.2,
-        3.65
+        -5.27
       ],
       "rotation": [
         0.0,
@@ -2143,19 +2142,19 @@
       "layer": 0,
       "tags": [
         "enemy",
-        "model:drone",
+        "model:stalker",
         "poi"
       ]
     },
     {
-      "name": "Mook_05_MoonlitChalice",
+      "name": "Mook_06_GildedProphecy",
       "id": 74,
       "parent": 0,
       "children": [],
       "position": [
-        6.19,
+        13.07,
         4.2,
-        1.11
+        0.0
       ],
       "rotation": [
         0.0,
@@ -2172,42 +2171,13 @@
       "layer": 0,
       "tags": [
         "enemy",
-        "model:drone",
+        "model:stalker",
         "poi"
       ]
     },
     {
-      "name": "Mook_06_ThornboundProphe",
+      "name": "Mook_07_ForgottenChalice",
       "id": 75,
-      "parent": 0,
-      "children": [],
-      "position": [
-        22.9,
-        4.2,
-        -1.75
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "enemy",
-        "model:drone",
-        "poi"
-      ]
-    },
-    {
-      "name": "Mook_07_VerdantChalice",
-      "id": 76,
       "parent": 0,
       "children": [],
       "position": [
@@ -2230,19 +2200,48 @@
       "layer": 0,
       "tags": [
         "enemy",
-        "model:drone",
+        "model:stalker",
         "poi"
       ]
     },
     {
-      "name": "Mook_08_ThornboundBriar",
+      "name": "Mook_08_GildedWarden",
+      "id": 76,
+      "parent": 0,
+      "children": [],
+      "position": [
+        52.38,
+        4.2,
+        -3.04
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_09_ForgottenWarden",
       "id": 77,
       "parent": 0,
       "children": [],
       "position": [
-        43.1,
+        37.6,
         4.2,
-        3.95
+        -2.36
       ],
       "rotation": [
         0.0,
@@ -2259,19 +2258,19 @@
       "layer": 0,
       "tags": [
         "enemy",
-        "model:drone",
+        "model:stalker",
         "poi"
       ]
     },
     {
-      "name": "Mook_09_WyrmSungChalice",
+      "name": "Mook_10_ThornboundBriar1",
       "id": 78,
       "parent": 0,
       "children": [],
       "position": [
-        38.07,
+        57.76,
         4.2,
-        1.53
+        -2.24
       ],
       "rotation": [
         0.0,
@@ -2288,19 +2287,19 @@
       "layer": 0,
       "tags": [
         "enemy",
-        "model:drone",
+        "model:stalker",
         "poi"
       ]
     },
     {
-      "name": "Mook_10_WyrmSungBlade",
+      "name": "Mook_11_GildedBlade2",
       "id": 79,
       "parent": 0,
       "children": [],
       "position": [
-        48.57,
+        76.8,
         4.2,
-        -1.01
+        -5.6
       ],
       "rotation": [
         0.0,
@@ -2317,46 +2316,17 @@
       "layer": 0,
       "tags": [
         "enemy",
-        "model:drone",
+        "model:stalker",
         "poi"
       ]
     },
     {
-      "name": "Mook_11_VerdantBlade1",
+      "name": "Modern City Day Arena",
       "id": 80,
       "parent": 0,
       "children": [],
       "position": [
-        55.0,
-        4.2,
-        1.37
-      ],
-      "rotation": [
         0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "visible": true,
-      "layer": 0,
-      "tags": [
-        "enemy",
-        "model:drone",
-        "poi"
-      ]
-    },
-    {
-      "name": "Modern City Day Ridge",
-      "id": 81,
-      "parent": 0,
-      "children": [],
-      "position": [
-        36.0,
         0.0,
         0.0
       ],
@@ -2367,7 +2337,7 @@
         1.0
       ],
       "scale": [
-        4.2,
+        1.5,
         1.0,
         1.0
       ],
@@ -2375,16 +2345,16 @@
       "layer": 0,
       "tags": [
         "area",
-        "music:zone_platformer"
+        "music:ember_dread"
       ]
     },
     {
       "name": "Player_Start",
-      "id": 82,
+      "id": 81,
       "parent": 0,
       "children": [],
       "position": [
-        -72.0,
+        0.0,
         4.2,
         0.0
       ],

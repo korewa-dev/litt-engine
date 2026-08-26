@@ -1,0 +1,184 @@
+{
+ "items": [
+  {
+   "name": "Moonlit Crown",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable grove. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Verdant Riddle",
+   "kind": "trinket",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Ancient Riddle",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable prophecy. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Verdant Warden",
+   "kind": "armor",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Gilded Briar",
+   "kind": "armor",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Forgotten Blade",
+   "kind": "weapon",
+   "rarity": "common",
+   "description": "A weapon prophecy. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Moonlit Blade",
+   "kind": "trinket",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Gilded Prophecy",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable prophecy. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forgotten Riddle",
+   "kind": "weapon",
+   "rarity": "common",
+   "description": "A weapon grove. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Thornbound Chalice",
+   "kind": "scroll",
+   "rarity": "rare",
+   "description": "Warm to the touch. The riddle remembers hands."
+  },
+  {
+   "name": "Ancient Prophecy",
+   "kind": "weapon",
+   "rarity": "rare",
+   "description": "Warm to the touch. The crown remembers hands."
+  },
+  {
+   "name": "Wyrm-Sung Riddle",
+   "kind": "trinket",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Wyrm-Sung Grove",
+   "kind": "weapon",
+   "rarity": "rare",
+   "description": "Warm to the touch. The chalice remembers hands."
+  },
+  {
+   "name": "Verdant Crown",
+   "kind": "consumable",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Thornbound Crown",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable riddle. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forgotten Warden",
+   "kind": "scroll",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Gilded Crown",
+   "kind": "consumable",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Moonlit Prophecy",
+   "kind": "weapon",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Forgotten Crown",
+   "kind": "trinket",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Moonlit Grove",
+   "kind": "trinket",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Thornbound Warden",
+   "kind": "scroll",
+   "rarity": "common",
+   "description": "A scroll riddle. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Moonlit Briar",
+   "kind": "consumable",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Ancient Briar",
+   "kind": "scroll",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Wyrm-Sung Crown",
+   "kind": "weapon",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Ancient Chalice",
+   "kind": "weapon",
+   "rarity": "rare",
+   "description": "Warm to the touch. The crown remembers hands."
+  },
+  {
+   "name": "Verdant Chalice",
+   "kind": "armor",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Forgotten Chalice",
+   "kind": "trinket",
+   "rarity": "rare",
+   "description": "Warm to the touch. The briar remembers hands."
+  },
+  {
+   "name": "Moonlit Riddle",
+   "kind": "consumable",
+   "rarity": "rare",
+   "description": "Warm to the touch. The crown remembers hands."
+  },
+  {
+   "name": "Gilded Riddle",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor riddle. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Verdant Blade",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor warden. Serviceable, unremarkable, yours."
+  }
+ ]
+}

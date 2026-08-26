@@ -1,56 +1,8 @@
 {
   "format": "litt-asset-index",
   "version": 1,
-  "description": "Four Districts - city exploration game",
+  "description": "Machine-readable asset manifest.",
   "assets": [
-    {
-      "id": "brazier",
-      "type": "model",
-      "path": "models/brazier.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
-      "id": "heart",
-      "type": "model",
-      "path": "models/heart.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
-      "id": "gem",
-      "type": "model",
-      "path": "models/gem.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
-      "id": "aggro_small",
-      "type": "model",
-      "path": "models/aggro_small.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
-      "id": "goal_beacon",
-      "type": "model",
-      "path": "models/goal_beacon.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
-      "id": "checkpoint_flag",
-      "type": "model",
-      "path": "models/checkpoint_flag.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
-      "id": "drone",
-      "type": "model",
-      "path": "models/drone.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
-    {
-      "id": "banner",
-      "type": "model",
-      "path": "models/banner.obj",
-      "loader": "litt_asset::manager::AssetManager::load_model"
-    },
     {
       "id": "layout_main",
       "type": "model",
@@ -109,6 +61,36 @@
       "id": "ground_pad",
       "type": "model",
       "path": "models/ground_pad.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "gem",
+      "type": "model",
+      "path": "models/gem.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "checkpoint_flag",
+      "type": "model",
+      "path": "models/checkpoint_flag.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "drone",
+      "type": "model",
+      "path": "models/drone.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "spike",
+      "type": "model",
+      "path": "models/spike.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "banner",
+      "type": "model",
+      "path": "models/banner.obj",
       "loader": "litt_asset::manager::AssetManager::load_model"
     }
   ]

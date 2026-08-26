@@ -1,0 +1,63 @@
+{
+  "about": "open world city exploration four districts",
+  "name": "open-world-city-exploration-four-districts",
+  "objective_chain_hint": [
+    "1. start: spawn at 'r01-modern-city-day' (modern_city_day), then head on",
+    "2. middle: cross 'r02-military-outpost' (military_outpost walking_simulator)",
+    "3. finale: final objective at 'r03-modern-city-night' (modern_city_night open_world_survival): complete the finale"
+  ],
+  "regions": [
+    {
+      "archetype": "city_builder",
+      "generator": "archetype",
+      "id": "r01-modern-city-day",
+      "links": [
+        "r02-military-outpost"
+      ],
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "pattern": "hub_spoke",
+      "role": "start",
+      "size": 64,
+      "theme": "modern_city_day"
+    },
+    {
+      "archetype": "walking_simulator",
+      "generator": "archetype",
+      "id": "r02-military-outpost",
+      "links": [
+        "r03-modern-city-night"
+      ],
+      "origin": [
+        70,
+        0,
+        0
+      ],
+      "pattern": "corridor_run",
+      "role": "middle",
+      "size": 54,
+      "theme": "military_outpost"
+    },
+    {
+      "archetype": "open_world_survival",
+      "generator": "archetype",
+      "id": "r03-modern-city-night",
+      "links": [],
+      "origin": [
+        140,
+        0,
+        0
+      ],
+      "pattern": "hub_spoke",
+      "role": "finale",
+      "size": 64,
+      "theme": "modern_city_night"
+    }
+  ],
+  "schema": "litt.worldforge/1",
+  "seed": 1337,
+  "spawn_region": "r01-modern-city-day"
+}

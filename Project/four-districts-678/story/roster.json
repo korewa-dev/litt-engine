@@ -1,7 +1,7 @@
 {
  "roster": [
   {
-   "name": "the Gilded Usurper",
+   "name": "High Warden Elucien",
    "role": "boss",
    "hp_hint": 300,
    "description": "Act boss. Guards the way onward and remembers every death."
@@ -13,85 +13,85 @@
    "description": "Act boss. Guards the way onward and remembers every death."
   },
   {
-   "name": "the Thorn Queen, verdant",
+   "name": "the Thorn Queen, ancient",
    "role": "boss",
    "hp_hint": 300,
    "description": "Act boss. Guards the way onward and remembers every death."
   },
   {
-   "name": "the Gilded Usurper, moonlit",
+   "name": "High Warden Elucien, gilded",
    "role": "boss",
    "hp_hint": 300,
    "description": "Act boss. Guards the way onward and remembers every death."
   },
   {
-   "name": "The Verdant Warden",
+   "name": "The Ancient Blade",
    "role": "elite",
    "hp_hint": 120,
    "description": "Elite patrol. Faster than it looks; respect its reach."
   },
   {
-   "name": "The Ancient Warden",
+   "name": "The Forgotten Riddle",
    "role": "elite",
    "hp_hint": 120,
    "description": "Elite patrol. Faster than it looks; respect its reach."
   },
   {
-   "name": "The Wyrm-Sung Grove",
-   "role": "elite",
-   "hp_hint": 120,
-   "description": "Elite patrol. Faster than it looks; respect its reach."
-  },
-  {
-   "name": "The Ancient Riddle",
-   "role": "elite",
-   "hp_hint": 120,
-   "description": "Elite patrol. Faster than it looks; respect its reach."
-  },
-  {
-   "name": "Gilded Blade",
-   "role": "mook",
-   "hp_hint": 40,
-   "description": "Common foe. Travels in pairs when it can."
-  },
-  {
-   "name": "Moonlit Chalice",
+   "name": "Moonlit Crown",
    "role": "mook",
    "hp_hint": 40,
    "description": "Guards loot caches along the route."
   },
   {
-   "name": "Thornbound Prophecy",
+   "name": "Verdant Riddle",
    "role": "mook",
    "hp_hint": 40,
-   "description": "Blind to stillness; sprinting draws it."
+   "description": "Guards loot caches along the route."
   },
   {
-   "name": "Verdant Chalice",
+   "name": "Moonlit Prophecy",
    "role": "mook",
    "hp_hint": 40,
    "description": "Slow to anger, slow to forget."
   },
   {
-   "name": "Thornbound Briar",
+   "name": "Thornbound Warden",
    "role": "mook",
    "hp_hint": 40,
    "description": "Common foe. Travels in pairs when it can."
   },
   {
-   "name": "Wyrm-Sung Chalice",
+   "name": "Gilded Prophecy",
    "role": "mook",
    "hp_hint": 40,
    "description": "Slow to anger, slow to forget."
   },
   {
-   "name": "Wyrm-Sung Blade",
+   "name": "Forgotten Chalice",
    "role": "mook",
    "hp_hint": 40,
-   "description": "Blind to stillness; sprinting draws it."
+   "description": "Common foe. Travels in pairs when it can."
   },
   {
-   "name": "Verdant Blade 1",
+   "name": "Gilded Warden",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Forgotten Warden",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Thornbound Briar 1",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Another of the endless."
+  },
+  {
+   "name": "Gilded Blade 2",
    "role": "mook",
    "hp_hint": 40,
    "description": "Another of the endless."
