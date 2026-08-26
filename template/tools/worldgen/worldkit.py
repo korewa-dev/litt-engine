@@ -397,13 +397,13 @@ class MeshBuilder:
         return self
 
     def box(self, cx, cy, cz, hx, hy, hz):
-        # UV convention: each face maps its two tangent axes to u/v scaled
-        # by the face's own dimensions (1 unit = 1 meter) so world-scale
-        # texturing stays uniform across differently sized boxes.
+        # UV convention: 1 unit = 1 meter, so UVs match world coords
+        # directly. A 10m wall has UVs spanning 10 units, same density
+        # as a 1m wall.
         faces = (
-            ((1, 2), (hx, hz)),   # +x / -x sides
-            ((0, 2), (hx, hz)),   # top / bottom
-            ((0, 1), (hx, hy)),   # +z / -z front/back
+            ((1, 2), (1.0, 1.0)),  # +x / -x sides
+            ((0, 2), (1.0, 1.0)),  # top / bottom
+            ((0, 1), (1.0, 1.0)),  # +z / -z front/back
         )
         p = lambda sx, sy, sz: [cx+sx*hx, cy+sy*hy, cz+sz*hz]
         corners = [p(1,-1,-1),p(1,-1,1),p(1,1,1),p(1,1,-1),
@@ -415,7 +415,7 @@ class MeshBuilder:
                          corners[q[2]], corners[q[3]], axis_pair, dims)
 
     def quad_uv(self, a, b, c, d, axes=(0, 2), scale=(1.0, 1.0)):
-        """Quad with planar UVs projected onto `axes`, meters * scale."""
+        """Quad with planar UVs projected onto `axes`, 1:1 world-to-UV."""
         ai, bi = axes
         su, sv = scale
 
