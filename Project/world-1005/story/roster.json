@@ -1,0 +1,100 @@
+{
+ "roster": [
+  {
+   "name": "High Warden Elucien",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "High Warden Elucien, wyrm-sung",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "High Warden Elucien, ancient",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "High Warden Elucien, verdant",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "The Verdant Riddle",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Verdant Crown",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Ancient Chalice",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Forgotten Chalice",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "Ancient Crown",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  },
+  {
+   "name": "Ancient Briar",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Moonlit Prophecy",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Verdant Warden",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Forgotten Grove",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  },
+  {
+   "name": "Thornbound Grove",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Verdant Blade",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Gilded Warden",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Blind to stillness; sprinting draws it."
+  }
+ ]
+}

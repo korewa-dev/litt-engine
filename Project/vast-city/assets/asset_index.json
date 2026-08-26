@@ -1,0 +1,97 @@
+{
+  "format": "litt-asset-index",
+  "version": 1,
+  "description": "Machine-readable asset manifest.",
+  "assets": [
+    {
+      "id": "layout_main",
+      "type": "model",
+      "path": "models/layout_main.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "poi_01",
+      "type": "model",
+      "path": "models/poi_01.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "poi_02",
+      "type": "model",
+      "path": "models/poi_02.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "poi_03",
+      "type": "model",
+      "path": "models/poi_03.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "poi_04",
+      "type": "model",
+      "path": "models/poi_04.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "poi_05",
+      "type": "model",
+      "path": "models/poi_05.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "coin",
+      "type": "model",
+      "path": "models/coin.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "stalker",
+      "type": "model",
+      "path": "models/stalker.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "festival_banner",
+      "type": "model",
+      "path": "models/festival_banner.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "ground_pad",
+      "type": "model",
+      "path": "models/ground_pad.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "gem",
+      "type": "model",
+      "path": "models/gem.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "estus_flask",
+      "type": "model",
+      "path": "models/estus_flask.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "bonfire",
+      "type": "model",
+      "path": "models/bonfire.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "knight",
+      "type": "model",
+      "path": "models/knight.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "banner",
+      "type": "model",
+      "path": "models/banner.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    }
+  ]
+}

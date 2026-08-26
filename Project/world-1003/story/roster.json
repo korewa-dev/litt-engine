@@ -1,0 +1,100 @@
+{
+ "roster": [
+  {
+   "name": "High Warden Elucien",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "the Thorn Queen",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "High Warden Elucien, moonlit",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "the Wyrm of Vale",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "The Forgotten Crown",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Ancient Briar",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Wyrm-Sung Blade",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Wyrm-Sung Chalice",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "Gilded Grove",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Thornbound Riddle",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Verdant Grove",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  },
+  {
+   "name": "Ancient Crown",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Verdant Prophecy",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Gilded Blade",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Gilded Riddle",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Blind to stillness; sprinting draws it."
+  },
+  {
+   "name": "Gilded Warden",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  }
+ ]
+}

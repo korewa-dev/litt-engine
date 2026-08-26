@@ -1,0 +1,100 @@
+{
+ "roster": [
+  {
+   "name": "the Gilded Usurper",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "the Thorn Queen",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "the Gilded Usurper, verdant",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "High Warden Elucien",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "The Ancient Crown",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Wyrm-Sung Briar",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Moonlit Warden",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "The Moonlit Grove",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "Ancient Warden",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Forgotten Riddle",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  },
+  {
+   "name": "Verdant Riddle",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Forgotten Crown",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  },
+  {
+   "name": "Moonlit Prophecy",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Guards loot caches along the route."
+  },
+  {
+   "name": "Ancient Grove",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  },
+  {
+   "name": "Thornbound Briar",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Common foe. Travels in pairs when it can."
+  },
+  {
+   "name": "Thornbound Grove",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  }
+ ]
+}

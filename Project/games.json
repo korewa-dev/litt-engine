@@ -141,6 +141,72 @@
       "seed": 1234,
       "about": "four districts city exploration",
       "built": "2026-08-26T00:36:31"
+    },
+    {
+      "name": "vast-city",
+      "dir": "Project\\vast-city",
+      "archetype": "open_world_realistic",
+      "pattern": "hub_spoke",
+      "theme": "modern_city_day",
+      "kit": "souls",
+      "seed": 7777,
+      "about": "vast open world city with districts",
+      "built": "2026-08-26T01:58:57"
+    },
+    {
+      "name": "world-1001",
+      "dir": "Project\\world-1001",
+      "archetype": "open_world_realistic",
+      "pattern": "hub_spoke",
+      "theme": "modern_city_day",
+      "kit": "survivor",
+      "seed": 1001,
+      "about": "open world exploration",
+      "built": "2026-08-26T01:59:48"
+    },
+    {
+      "name": "world-1002",
+      "dir": "Project\\world-1002",
+      "archetype": "open_world_realistic",
+      "pattern": "hub_spoke",
+      "theme": "modern_city_day",
+      "kit": "survivor",
+      "seed": 1002,
+      "about": "open world exploration",
+      "built": "2026-08-26T01:59:50"
+    },
+    {
+      "name": "world-1003",
+      "dir": "Project\\world-1003",
+      "archetype": "open_world_realistic",
+      "pattern": "hub_spoke",
+      "theme": "modern_city_day",
+      "kit": "platformer",
+      "seed": 1003,
+      "about": "open world exploration",
+      "built": "2026-08-26T01:59:51"
+    },
+    {
+      "name": "world-1004",
+      "dir": "Project\\world-1004",
+      "archetype": "open_world_realistic",
+      "pattern": "hub_spoke",
+      "theme": "modern_city_day",
+      "kit": "platformer",
+      "seed": 1004,
+      "about": "open world exploration",
+      "built": "2026-08-26T01:59:53"
+    },
+    {
+      "name": "world-1005",
+      "dir": "Project\\world-1005",
+      "archetype": "open_world_realistic",
+      "pattern": "hub_spoke",
+      "theme": "modern_city_day",
+      "kit": "platformer",
+      "seed": 1005,
+      "about": "open world exploration",
+      "built": "2026-08-26T01:59:55"
     }
   ]
 }

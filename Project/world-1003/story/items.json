@@ -1,0 +1,184 @@
+{
+ "items": [
+  {
+   "name": "Forgotten Grove",
+   "kind": "weapon",
+   "rarity": "rare",
+   "description": "Warm to the touch. The grove remembers hands."
+  },
+  {
+   "name": "Ancient Chalice",
+   "kind": "weapon",
+   "rarity": "rare",
+   "description": "Warm to the touch. The warden remembers hands."
+  },
+  {
+   "name": "Verdant Riddle",
+   "kind": "armor",
+   "rarity": "rare",
+   "description": "Warm to the touch. The briar remembers hands."
+  },
+  {
+   "name": "Thornbound Briar",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor riddle. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Thornbound Riddle",
+   "kind": "weapon",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Moonlit Crown",
+   "kind": "trinket",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Moonlit Warden",
+   "kind": "weapon",
+   "rarity": "common",
+   "description": "A weapon grove. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Wyrm-Sung Prophecy",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor warden. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forgotten Riddle",
+   "kind": "weapon",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Thornbound Warden",
+   "kind": "armor",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Verdant Grove",
+   "kind": "scroll",
+   "rarity": "common",
+   "description": "A scroll briar. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Gilded Prophecy",
+   "kind": "trinket",
+   "rarity": "common",
+   "description": "A trinket riddle. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forgotten Chalice",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable blade. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Thornbound Blade",
+   "kind": "scroll",
+   "rarity": "common",
+   "description": "A scroll crown. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forgotten Briar",
+   "kind": "trinket",
+   "rarity": "rare",
+   "description": "Warm to the touch. The briar remembers hands."
+  },
+  {
+   "name": "Thornbound Crown",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable chalice. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forgotten Blade",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor blade. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Moonlit Briar",
+   "kind": "weapon",
+   "rarity": "common",
+   "description": "A weapon grove. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Moonlit Chalice",
+   "kind": "armor",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Thornbound Chalice",
+   "kind": "weapon",
+   "rarity": "rare",
+   "description": "Warm to the touch. The briar remembers hands."
+  },
+  {
+   "name": "Forgotten Warden",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor briar. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Moonlit Blade",
+   "kind": "consumable",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Forgotten Crown",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor blade. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Verdant Chalice",
+   "kind": "trinket",
+   "rarity": "common",
+   "description": "A trinket prophecy. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Gilded Blade",
+   "kind": "consumable",
+   "rarity": "rare",
+   "description": "Warm to the touch. The prophecy remembers hands."
+  },
+  {
+   "name": "Ancient Warden",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable riddle. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Ancient Riddle",
+   "kind": "trinket",
+   "rarity": "common",
+   "description": "A trinket chalice. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forgotten Prophecy",
+   "kind": "weapon",
+   "rarity": "rare",
+   "description": "Warm to the touch. The prophecy remembers hands."
+  },
+  {
+   "name": "Wyrm-Sung Riddle",
+   "kind": "scroll",
+   "rarity": "rare",
+   "description": "Warm to the touch. The riddle remembers hands."
+  },
+  {
+   "name": "Thornbound Grove",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable prophecy. Serviceable, unremarkable, yours."
+  }
+ ]
+}

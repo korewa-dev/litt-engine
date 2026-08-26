@@ -1,0 +1,2410 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "next_id": 83,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": []
+    },
+    {
+      "name": "Central_Plaza",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "hub",
+        "model:layout_main"
+      ]
+    },
+    {
+      "name": "POI_01",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [
+        26.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_01"
+      ]
+    },
+    {
+      "name": "POI_02",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [
+        8.03,
+        0.0,
+        24.73
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_02"
+      ]
+    },
+    {
+      "name": "POI_03",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -21.03,
+        0.0,
+        15.28
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_03"
+      ]
+    },
+    {
+      "name": "POI_04",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -21.03,
+        0.0,
+        -15.28
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_04"
+      ]
+    },
+    {
+      "name": "POI_05",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [
+        8.03,
+        0.0,
+        -24.73
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "poi",
+        "model:poi_05"
+      ]
+    },
+    {
+      "name": "Coin",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_01",
+      "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [
+        10.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_02",
+      "id": 9,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7.07,
+        0.0,
+        7.07
+      ],
+      "rotation": [
+        0.0,
+        0.3827,
+        0.0,
+        0.9239
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_03",
+      "id": 10,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        10.0
+      ],
+      "rotation": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_04",
+      "id": 11,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -7.07,
+        0.0,
+        7.07
+      ],
+      "rotation": [
+        0.0,
+        0.9239,
+        0.0,
+        0.3827
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_05",
+      "id": 12,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -10.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_06",
+      "id": 13,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -7.07,
+        0.0,
+        -7.07
+      ],
+      "rotation": [
+        0.0,
+        0.9239,
+        0.0,
+        -0.3827
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_07",
+      "id": 14,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -0.0,
+        0.0,
+        -10.0
+      ],
+      "rotation": [
+        0.0,
+        0.7071,
+        0.0,
+        -0.7071
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_08",
+      "id": 15,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7.07,
+        0.0,
+        -7.07
+      ],
+      "rotation": [
+        0.0,
+        0.3827,
+        0.0,
+        -0.9239
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_09",
+      "id": 16,
+      "parent": 0,
+      "children": [],
+      "position": [
+        13.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_10",
+      "id": 17,
+      "parent": 0,
+      "children": [],
+      "position": [
+        21.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_11",
+      "id": 18,
+      "parent": 0,
+      "children": [],
+      "position": [
+        4.02,
+        0.0,
+        12.36
+      ],
+      "rotation": [
+        0.0,
+        0.5878,
+        0.0,
+        0.809
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_12",
+      "id": 19,
+      "parent": 0,
+      "children": [],
+      "position": [
+        6.49,
+        0.0,
+        19.97
+      ],
+      "rotation": [
+        0.0,
+        0.5878,
+        0.0,
+        0.809
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_13",
+      "id": 20,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -10.52,
+        0.0,
+        7.64
+      ],
+      "rotation": [
+        0.0,
+        0.9511,
+        0.0,
+        0.309
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_14",
+      "id": 21,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -16.99,
+        0.0,
+        12.34
+      ],
+      "rotation": [
+        0.0,
+        0.9511,
+        0.0,
+        0.309
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Stalker",
+      "id": 22,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Stalker_01",
+      "id": 23,
+      "parent": 0,
+      "children": [],
+      "position": [
+        12.94,
+        0.0,
+        9.4
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Stalker_02",
+      "id": 24,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -4.94,
+        0.0,
+        15.22
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Festival_Banner",
+      "id": 25,
+      "parent": 0,
+      "children": [],
+      "position": [
+        30.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "goal",
+        "model:festival_banner"
+      ]
+    },
+    {
+      "name": "Ground_Pad",
+      "id": 26,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "floor",
+        "model:ground_pad"
+      ]
+    },
+    {
+      "name": "Checkpoint_01",
+      "id": 27,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -35.2,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_02",
+      "id": 28,
+      "parent": 0,
+      "children": [],
+      "position": [
+        3.2,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_03",
+      "id": 29,
+      "parent": 0,
+      "children": [],
+      "position": [
+        41.6,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Drone_A",
+      "id": 30,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -19.2,
+        7.6,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Drone_B",
+      "id": 31,
+      "parent": 0,
+      "children": [],
+      "position": [
+        19.2,
+        8.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Gem_High",
+      "id": 32,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -57.6,
+        6.6,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:gem"
+      ]
+    },
+    {
+      "name": "Spikes_Mid",
+      "id": 33,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -8.0,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "hazard",
+        "model:spike"
+      ]
+    },
+    {
+      "name": "Win_Banner",
+      "id": 34,
+      "parent": 0,
+      "children": [],
+      "position": [
+        75.2,
+        3.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Item_00_ForgottenGrove",
+      "id": 35,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -53.76,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_01_AncientChalice",
+      "id": 36,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -49.92,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_02_VerdantRiddle",
+      "id": 37,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -46.08,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_03_ThornboundBriar",
+      "id": 38,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -42.24,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_04_ThornboundRiddle",
+      "id": 39,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -38.4,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_05_MoonlitCrown",
+      "id": 40,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -35.6,
+        4.2,
+        1.97
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_06_MoonlitWarden",
+      "id": 41,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -30.72,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_07_WyrmSungProphecy",
+      "id": 42,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -17.59,
+        4.2,
+        -0.68
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_08_ForgottenRiddle",
+      "id": 43,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -23.04,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_09_ThornboundWarden",
+      "id": 44,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -33.57,
+        4.2,
+        1.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_10_VerdantGrove",
+      "id": 45,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -15.36,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_11_GildedProphecy",
+      "id": 46,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -11.52,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_12_ForgottenChalice",
+      "id": 47,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -8.81,
+        4.2,
+        -2.93
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_13_ThornboundBlade",
+      "id": 48,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -3.84,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_14_ForgottenBriar",
+      "id": 49,
+      "parent": 0,
+      "children": [],
+      "position": [
+        0.0,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_15_ThornboundCrown",
+      "id": 50,
+      "parent": 0,
+      "children": [],
+      "position": [
+        8.99,
+        4.2,
+        -1.34
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_16_ForgottenBlade",
+      "id": 51,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7.68,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_17_MoonlitBriar",
+      "id": 52,
+      "parent": 0,
+      "children": [],
+      "position": [
+        11.52,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_18_MoonlitChalice",
+      "id": 53,
+      "parent": 0,
+      "children": [],
+      "position": [
+        15.36,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_19_ThornboundChalice",
+      "id": 54,
+      "parent": 0,
+      "children": [],
+      "position": [
+        10.12,
+        4.2,
+        0.89
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_20_ForgottenWarden",
+      "id": 55,
+      "parent": 0,
+      "children": [],
+      "position": [
+        23.04,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_21_MoonlitBlade",
+      "id": 56,
+      "parent": 0,
+      "children": [],
+      "position": [
+        26.88,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_22_ForgottenCrown",
+      "id": 57,
+      "parent": 0,
+      "children": [],
+      "position": [
+        30.72,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_23_VerdantChalice",
+      "id": 58,
+      "parent": 0,
+      "children": [],
+      "position": [
+        34.56,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_24_GildedBlade",
+      "id": 59,
+      "parent": 0,
+      "children": [],
+      "position": [
+        38.4,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_25_AncientWarden",
+      "id": 60,
+      "parent": 0,
+      "children": [],
+      "position": [
+        34.7,
+        4.2,
+        2.84
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_26_AncientRiddle",
+      "id": 61,
+      "parent": 0,
+      "children": [],
+      "position": [
+        46.08,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_27_ForgottenProphecy",
+      "id": 62,
+      "parent": 0,
+      "children": [],
+      "position": [
+        49.92,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_28_WyrmSungRiddle",
+      "id": 63,
+      "parent": 0,
+      "children": [],
+      "position": [
+        47.37,
+        4.2,
+        -0.05
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:gem",
+        "poi"
+      ]
+    },
+    {
+      "name": "Item_29_ThornboundGrove",
+      "id": 64,
+      "parent": 0,
+      "children": [],
+      "position": [
+        57.6,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "scoring",
+        "model:coin",
+        "poi"
+      ]
+    },
+    {
+      "name": "Boss_0_HighWardenElucie",
+      "id": 65,
+      "parent": 0,
+      "children": [],
+      "position": [
+        2.08,
+        4.2,
+        -1.46
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Boss_1_theThornQueen",
+      "id": 66,
+      "parent": 0,
+      "children": [],
+      "position": [
+        4.8,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Boss_2_HighWardenElucie",
+      "id": 67,
+      "parent": 0,
+      "children": [],
+      "position": [
+        32.27,
+        4.2,
+        -1.25
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Boss_3_theWyrmofVale",
+      "id": 68,
+      "parent": 0,
+      "children": [],
+      "position": [
+        62.4,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Elite_00_TheForgottenCrow",
+      "id": 69,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -36.53,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Elite_01_TheAncientBriar",
+      "id": 70,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -18.05,
+        4.2,
+        -2.06
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Elite_02_TheWyrmSungBlade",
+      "id": 71,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -40.26,
+        4.2,
+        -4.19
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Elite_03_TheWyrmSungChali",
+      "id": 72,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -4.09,
+        4.2,
+        -1.62
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_04_GildedGrove",
+      "id": 73,
+      "parent": 0,
+      "children": [],
+      "position": [
+        7.22,
+        4.2,
+        -1.43
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_05_ThornboundRiddle",
+      "id": 74,
+      "parent": 0,
+      "children": [],
+      "position": [
+        5.33,
+        4.2,
+        2.56
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_06_VerdantGrove",
+      "id": 75,
+      "parent": 0,
+      "children": [],
+      "position": [
+        1.9,
+        4.2,
+        2.64
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_07_AncientCrown",
+      "id": 76,
+      "parent": 0,
+      "children": [],
+      "position": [
+        21.33,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_08_VerdantProphecy",
+      "id": 77,
+      "parent": 0,
+      "children": [],
+      "position": [
+        42.48,
+        4.2,
+        1.83
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_09_GildedBlade",
+      "id": 78,
+      "parent": 0,
+      "children": [],
+      "position": [
+        49.08,
+        4.2,
+        -2.56
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_10_GildedRiddle",
+      "id": 79,
+      "parent": 0,
+      "children": [],
+      "position": [
+        37.79,
+        4.2,
+        -2.43
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Mook_11_GildedWarden",
+      "id": 80,
+      "parent": 0,
+      "children": [],
+      "position": [
+        44.0,
+        4.2,
+        2.51
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:drone",
+        "poi"
+      ]
+    },
+    {
+      "name": "Modern City Day Ridge",
+      "id": 81,
+      "parent": 0,
+      "children": [],
+      "position": [
+        36.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        4.2,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "area",
+        "music:zone_platformer"
+      ]
+    },
+    {
+      "name": "Player_Start",
+      "id": 82,
+      "parent": 0,
+      "children": [],
+      "position": [
+        -72.0,
+        4.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "player",
+        "start"
+      ]
+    }
+  ]
+}

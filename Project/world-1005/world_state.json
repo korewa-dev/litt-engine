@@ -1,0 +1,155 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "modern_city_day",
+  "updated": "2026-08-26T01:59:55",
+  "seed": {
+    "archetype_seed": 1005
+  },
+  "chunk_size": 0,
+  "radius": 0,
+  "camera": {
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "distance": 30
+  },
+  "chunks": [],
+  "palette": {
+    "concrete": [
+      0.62,
+      0.62,
+      0.6
+    ],
+    "glass_blue": [
+      0.45,
+      0.6,
+      0.75
+    ],
+    "asphalt": [
+      0.18,
+      0.18,
+      0.19
+    ],
+    "sidewalk_grey": [
+      0.55,
+      0.54,
+      0.52
+    ],
+    "signage_red": [
+      0.8,
+      0.15,
+      0.15
+    ],
+    "ground": [
+      0.38,
+      0.44,
+      0.34
+    ]
+  },
+  "identity": {
+    "archetype": "open_world_realistic",
+    "camera": "third_person",
+    "combat": "real_time_combat",
+    "movement": "vehicle_movement",
+    "structure": "open_world",
+    "pacing": "cinematic_pacing",
+    "pattern": "hub_spoke",
+    "theme": "modern_city_day"
+  },
+  "environment": {
+    "sky": {
+      "type": "clear",
+      "top_color": [
+        0.35,
+        0.55,
+        0.9
+      ],
+      "horizon_color": [
+        0.75,
+        0.85,
+        0.95
+      ],
+      "cloud_layers": [
+        {
+          "density": 0.15,
+          "height": 120,
+          "speed": 0.25
+        }
+      ]
+    },
+    "sun": {
+      "azimuth_deg": 135.0,
+      "elevation_deg": 62
+    },
+    "lighting": {
+      "global_light_intensity": 1.0,
+      "ambient_light_color": [
+        0.5,
+        0.52,
+        0.55
+      ],
+      "shadow_softness": 0.5,
+      "time_of_day": "noon"
+    },
+    "fog": {
+      "density": 0.01,
+      "height": 30,
+      "haze": 0.4
+    },
+    "weather": {
+      "type": "clear",
+      "wind_speed": 0.25,
+      "particle_density": 0.0
+    },
+    "notes": [
+      "daytime, ordered grid streets"
+    ]
+  },
+  "gameplay": {
+    "genre": "open_world_realistic",
+    "objective": "world-1005: ride the modern city day ridge, slip the drones, plant your run at the summit banner",
+    "procgen_rules": [
+      "district grid with landmark anchors every 200 m"
+    ],
+    "ai_behavior": "traffic loops, pedestrian flows",
+    "environment_types": [
+      "district_grids",
+      "traffic_arrows"
+    ],
+    "enemy_aggro_m": 4.5,
+    "corpse_run": false,
+    "spawn": [
+      -72.0,
+      4.2,
+      0.0
+    ],
+    "lives": 3,
+    "scoring": {
+      "coins": 25
+    },
+    "physics": {
+      "gravity": 30,
+      "jump_velocity": 12,
+      "run_speed": 8,
+      "coyote_time_s": 0.12
+    },
+    "side_objectives": [
+      "No-death run",
+      "Every coin on the trail",
+      "Reach the banner under par"
+    ],
+    "roster": [
+      {
+        "name": "Sentinel Drone",
+        "behavior": "patrols its platform; dive on proximity"
+      }
+    ]
+  },
+  "meta": {
+    "enriched_seed": 1005
+  }
+}

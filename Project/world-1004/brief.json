@@ -1,0 +1,796 @@
+{
+  "objective": "world-1004: ride the modern city day ridge, slip the drones, plant your run at the summit banner",
+  "side_objectives": [
+    "No-death run",
+    "Every coin on the trail",
+    "Reach the banner under par"
+  ],
+  "physics": {
+    "gravity": 30,
+    "jump_velocity": 12,
+    "run_speed": 8,
+    "coyote_time_s": 0.12
+  },
+  "lives": 3,
+  "enemy_aggro_m": 4.5,
+  "corpse_run": false,
+  "scoring": {
+    "coins": 25
+  },
+  "roster": [
+    {
+      "name": "Sentinel Drone",
+      "behavior": "patrols its platform; dive on proximity"
+    }
+  ],
+  "spawn": [
+    -72.0,
+    4.2,
+    0.0
+  ],
+  "checkpoints": [
+    [
+      -35.2,
+      4.2,
+      0.0
+    ],
+    [
+      3.2,
+      4.2,
+      0.0
+    ],
+    [
+      41.6,
+      4.2,
+      0.0
+    ]
+  ],
+  "nodes": [
+    {
+      "name": "Drone_A",
+      "pos": [
+        -19.2,
+        7.6,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Drone_B",
+      "pos": [
+        19.2,
+        8.0,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Gem_High",
+      "pos": [
+        -57.6,
+        6.6,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:gem"
+      ]
+    },
+    {
+      "name": "Spikes_Mid",
+      "pos": [
+        -8.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "hazard",
+        "model:spike"
+      ]
+    },
+    {
+      "name": "Coin_01",
+      "pos": [
+        -48.0,
+        4.6,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_02",
+      "pos": [
+        -27.2,
+        4.6,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_03",
+      "pos": [
+        12.8,
+        4.6,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_04",
+      "pos": [
+        32.0,
+        4.6,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_05",
+      "pos": [
+        54.4,
+        4.6,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Win_Banner",
+      "pos": [
+        75.2,
+        3.2,
+        0.0
+      ],
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Item_00_WyrmSungChalice",
+      "pos": [
+        -53.76,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Wyrm-Sung Chalice (uncommon)"
+    },
+    {
+      "name": "Item_01_GildedCrown",
+      "pos": [
+        -49.92,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Gilded Crown (common)"
+    },
+    {
+      "name": "Item_02_ForgottenCrown",
+      "pos": [
+        -46.08,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forgotten Crown (common)"
+    },
+    {
+      "name": "Item_03_VerdantRiddle",
+      "pos": [
+        -42.24,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Verdant Riddle (uncommon)"
+    },
+    {
+      "name": "Item_04_AncientBriar",
+      "pos": [
+        -38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ancient Briar (common)"
+    },
+    {
+      "name": "Item_05_GildedWarden",
+      "pos": [
+        -30.33,
+        4.2,
+        0.32
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Gilded Warden (rare)"
+    },
+    {
+      "name": "Item_06_AncientCrown",
+      "pos": [
+        -23.02,
+        4.2,
+        2.44
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ancient Crown (common)"
+    },
+    {
+      "name": "Item_07_WyrmSungProphecy",
+      "pos": [
+        -24.4,
+        4.2,
+        0.64
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Wyrm-Sung Prophecy (rare)"
+    },
+    {
+      "name": "Item_08_WyrmSungGrove",
+      "pos": [
+        -23.04,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Wyrm-Sung Grove (uncommon)"
+    },
+    {
+      "name": "Item_09_ForgottenBriar",
+      "pos": [
+        -34.2,
+        4.2,
+        3.58
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forgotten Briar (common)"
+    },
+    {
+      "name": "Item_10_MoonlitRiddle",
+      "pos": [
+        -15.36,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Moonlit Riddle (common)"
+    },
+    {
+      "name": "Item_11_ThornboundRiddle",
+      "pos": [
+        -11.52,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Thornbound Riddle (common)"
+    },
+    {
+      "name": "Item_12_WyrmSungCrown",
+      "pos": [
+        -11.44,
+        4.2,
+        -2.12
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Wyrm-Sung Crown (common)"
+    },
+    {
+      "name": "Item_13_AncientWarden",
+      "pos": [
+        -3.84,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ancient Warden (uncommon)"
+    },
+    {
+      "name": "Item_14_AncientProphecy",
+      "pos": [
+        0.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Ancient Prophecy (legendary)"
+    },
+    {
+      "name": "Item_15_ThornboundBlade",
+      "pos": [
+        -14.47,
+        4.2,
+        -1.41
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Thornbound Blade (rare)"
+    },
+    {
+      "name": "Item_16_ForgottenChalice",
+      "pos": [
+        7.68,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Forgotten Chalice (rare)"
+    },
+    {
+      "name": "Item_17_ThornboundChalice",
+      "pos": [
+        11.52,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Thornbound Chalice (rare)"
+    },
+    {
+      "name": "Item_18_GildedRiddle",
+      "pos": [
+        15.36,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Gilded Riddle (common)"
+    },
+    {
+      "name": "Item_19_AncientChalice",
+      "pos": [
+        25.3,
+        4.2,
+        2.21
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Ancient Chalice (common)"
+    },
+    {
+      "name": "Item_20_WyrmSungWarden",
+      "pos": [
+        23.04,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Wyrm-Sung Warden (common)"
+    },
+    {
+      "name": "Item_21_ForgottenRiddle",
+      "pos": [
+        26.88,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forgotten Riddle (uncommon)"
+    },
+    {
+      "name": "Item_22_MoonlitWarden",
+      "pos": [
+        30.72,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Moonlit Warden (rare)"
+    },
+    {
+      "name": "Item_23_MoonlitBriar",
+      "pos": [
+        34.56,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Moonlit Briar (common)"
+    },
+    {
+      "name": "Item_24_ThornboundGrove",
+      "pos": [
+        38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Thornbound Grove (uncommon)"
+    },
+    {
+      "name": "Item_25_ForgottenGrove",
+      "pos": [
+        28.79,
+        4.2,
+        -1.03
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forgotten Grove (common)"
+    },
+    {
+      "name": "Item_26_MoonlitProphecy",
+      "pos": [
+        46.08,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Moonlit Prophecy (rare)"
+    },
+    {
+      "name": "Item_27_WyrmSungBlade",
+      "pos": [
+        49.92,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Wyrm-Sung Blade (uncommon)"
+    },
+    {
+      "name": "Item_28_MoonlitGrove",
+      "pos": [
+        53.32,
+        4.2,
+        1.32
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Moonlit Grove (rare)"
+    },
+    {
+      "name": "Item_29_VerdantWarden",
+      "pos": [
+        57.6,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Verdant Warden (legendary)"
+    },
+    {
+      "name": "Boss_0_theGildedUsurper",
+      "pos": [
+        -22.66,
+        4.2,
+        -2.11
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Boss_1_theThornQueen",
+      "pos": [
+        4.8,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Boss_2_theGildedUsurper",
+      "pos": [
+        8.57,
+        4.2,
+        3.96
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Boss_3_HighWardenElucie",
+      "pos": [
+        62.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Elite_00_TheAncientCrown",
+      "pos": [
+        -36.53,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Elite_01_TheWyrmSungBriar",
+      "pos": [
+        -37.76,
+        4.2,
+        -1.22
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Elite_02_TheMoonlitWarden",
+      "pos": [
+        -6.69,
+        4.2,
+        2.77
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Elite_03_TheMoonlitGrove",
+      "pos": [
+        -11.01,
+        4.2,
+        6.12
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Mook_04_AncientWarden",
+      "pos": [
+        -1.46,
+        4.2,
+        -1.97
+      ],
+      "tags": [
+        "enemy",
+        "model:drone"
+      ],
+      "poi": "Guards loot caches along the route."
+    },
+    {
+      "name": "Mook_05_ForgottenRiddle",
+      "pos": [
+        -34.32,
+        4.2,
+        8.9
+      ],
+      "tags": [
+        "enemy",
+        "model:drone"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    },
+    {
+      "name": "Mook_06_VerdantRiddle",
+      "pos": [
+        16.17,
+        4.2,
+        2.63
+      ],
+      "tags": [
+        "enemy",
+        "model:drone"
+      ],
+      "poi": "Slow to anger, slow to forget."
+    },
+    {
+      "name": "Mook_07_ForgottenCrown",
+      "pos": [
+        21.33,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:drone"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    },
+    {
+      "name": "Mook_08_MoonlitProphecy",
+      "pos": [
+        41.21,
+        4.2,
+        2.45
+      ],
+      "tags": [
+        "enemy",
+        "model:drone"
+      ],
+      "poi": "Guards loot caches along the route."
+    },
+    {
+      "name": "Mook_09_AncientGrove",
+      "pos": [
+        39.96,
+        4.2,
+        4.78
+      ],
+      "tags": [
+        "enemy",
+        "model:drone"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    },
+    {
+      "name": "Mook_10_ThornboundBriar",
+      "pos": [
+        6.0,
+        4.2,
+        1.33
+      ],
+      "tags": [
+        "enemy",
+        "model:drone"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    },
+    {
+      "name": "Mook_11_ThornboundGrove",
+      "pos": [
+        68.45,
+        4.2,
+        -1.3
+      ],
+      "tags": [
+        "enemy",
+        "model:drone"
+      ],
+      "poi": "Slow to anger, slow to forget."
+    }
+  ],
+  "zones": [
+    {
+      "name": "Modern City Day Ridge",
+      "pos": [
+        36.0,
+        0,
+        0.0
+      ],
+      "radius": 42,
+      "tags": [
+        "music:zone_platformer"
+      ]
+    }
+  ],
+  "_prompt": "open world exploration"
+}
