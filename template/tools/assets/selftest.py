@@ -82,6 +82,7 @@ def main():
     game = ROOT / "Project" / "_asset_selftest"
     shutil.rmtree(game, ignore_errors=True)
     (game / "assets" / "models").mkdir(parents=True, exist_ok=True)
+    (game / "assets" / "textures").mkdir(parents=True, exist_ok=True)
 
     try:
         out = run_tool("gen_texture.py",
