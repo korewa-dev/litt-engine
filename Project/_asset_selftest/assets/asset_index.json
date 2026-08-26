@@ -8,6 +8,18 @@
       "type": "texture",
       "path": "assets/textures/crypt_stone.png",
       "loader": "litt_asset::manager::AssetManager::load_texture"
+    },
+    {
+      "id": "fallback_noise",
+      "type": "texture",
+      "path": "assets/textures/fallback_noise.png",
+      "loader": "litt_asset::manager::AssetManager::load_texture"
+    },
+    {
+      "id": "noise_terrain",
+      "type": "model",
+      "path": "models/noise_terrain.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
     }
   ]
 }
