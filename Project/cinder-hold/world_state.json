@@ -1,0 +1,184 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "underground_caves",
+  "updated": "2026-08-24T11:15:43",
+  "seed": {
+    "archetype_seed": 3082
+  },
+  "chunk_size": 0,
+  "radius": 0,
+  "camera": {
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "distance": 30
+  },
+  "chunks": [],
+  "palette": {
+    "cave_stone": [
+      0.32,
+      0.3,
+      0.29
+    ],
+    "crystal_amethyst": [
+      0.55,
+      0.3,
+      0.8
+    ],
+    "still_water": [
+      0.15,
+      0.2,
+      0.28
+    ],
+    "ore_vein_gold": [
+      0.75,
+      0.62,
+      0.25
+    ],
+    "pitch_black": [
+      0.03,
+      0.03,
+      0.04
+    ],
+    "ground": [
+      0.38,
+      0.44,
+      0.34
+    ]
+  },
+  "identity": {
+    "archetype": "roguelite",
+    "camera": "isometric",
+    "combat": "real_time_combat",
+    "movement": "dash_based_movement",
+    "structure": "procedural_world",
+    "pacing": "fast_paced",
+    "pattern": "room_graph",
+    "theme": "underground_caves"
+  },
+  "environment": {
+    "sky": {
+      "type": "sunset",
+      "top_color": [
+        0.2,
+        0.22,
+        0.45
+      ],
+      "horizon_color": [
+        0.9,
+        0.45,
+        0.3
+      ],
+      "cloud_layers": [
+        {
+          "density": 0.15,
+          "height": 120,
+          "speed": 0.25
+        }
+      ]
+    },
+    "sun": {
+      "azimuth_deg": 135.0,
+      "elevation_deg": 8
+    },
+    "lighting": {
+      "global_light_intensity": 0.7,
+      "ambient_light_color": [
+        0.4,
+        0.33,
+        0.35
+      ],
+      "shadow_softness": 0.5,
+      "time_of_day": "dusk"
+    },
+    "fog": {
+      "density": 0.01,
+      "height": 30,
+      "haze": 0.4
+    },
+    "weather": {
+      "type": "clear",
+      "wind_speed": 0.25,
+      "particle_density": 0.0
+    },
+    "notes": [
+      "emissive crystals are the light sources"
+    ]
+  },
+  "gameplay": {
+    "genre": "roguelite",
+    "objective": "cinder-hold: hold the underground caves arena against the Legion - six waves, then the sky opens",
+    "procgen_rules": [
+      "room graph with meta-progression node between runs",
+      "elite arena every N rooms (bigger clear radius)"
+    ],
+    "ai_behavior": "pattern bullets/telegraphs, room-lock until clear",
+    "environment_types": [
+      "biome_rooms",
+      "elite_arenas"
+    ],
+    "enemy_aggro_m": 8.5,
+    "corpse_run": false,
+    "spawn": [
+      36.0,
+      3.6,
+      27.0
+    ],
+    "lives": 3,
+    "scoring": {
+      "coins": 25
+    },
+    "physics": {
+      "gravity": 24,
+      "run_speed": 6.5,
+      "coyote_time_s": 0.1
+    },
+    "side_objectives": [
+      "Light every brazier before wave three",
+      "Reach 600 points without a death"
+    ],
+    "waves": [
+      {
+        "at_score": 0,
+        "note": "wave 1"
+      },
+      {
+        "at_score": 150,
+        "note": "wave 2"
+      },
+      {
+        "at_score": 300,
+        "note": "wave 3"
+      },
+      {
+        "at_score": 450,
+        "note": "wave 4"
+      },
+      {
+        "at_score": 600,
+        "note": "wave 5"
+      },
+      {
+        "at_score": 750,
+        "note": "wave 6"
+      }
+    ],
+    "roster": [
+      {
+        "name": "Ember Wraith",
+        "behavior": "fast ring-dodger, dives when aggroed"
+      },
+      {
+        "name": "Ash Brute",
+        "behavior": "slow tank guarding gates"
+      }
+    ]
+  },
+  "meta": {
+    "enriched_seed": 3082
+  }
+}

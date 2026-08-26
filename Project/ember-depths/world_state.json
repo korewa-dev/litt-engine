@@ -1,0 +1,189 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "dark_fantasy",
+  "updated": "2026-08-24T02:50:05",
+  "seed": {
+    "archetype_seed": 77
+  },
+  "chunk_size": 0,
+  "radius": 0,
+  "camera": {
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "distance": 30
+  },
+  "chunks": [],
+  "palette": {
+    "stone": [
+      0.3,
+      0.31,
+      0.34
+    ],
+    "iron": [
+      0.2,
+      0.21,
+      0.23
+    ],
+    "blood": [
+      0.45,
+      0.1,
+      0.1
+    ],
+    "moss": [
+      0.18,
+      0.28,
+      0.18
+    ],
+    "fog_grey": [
+      0.55,
+      0.57,
+      0.6
+    ],
+    "ember_orange": [
+      0.9,
+      0.4,
+      0.1
+    ],
+    "ground": [
+      0.38,
+      0.44,
+      0.34
+    ]
+  },
+  "identity": {
+    "archetype": "bullet_hell",
+    "camera": "top_down",
+    "combat": "bullet_hell_combat",
+    "movement": "precision_action",
+    "structure": "linear_world",
+    "pacing": "high_intensity",
+    "pattern": "arena_ring",
+    "theme": "dark_fantasy"
+  },
+  "environment": {
+    "sky": {
+      "type": "night",
+      "top_color": [
+        0.03,
+        0.04,
+        0.1
+      ],
+      "horizon_color": [
+        0.1,
+        0.12,
+        0.22
+      ],
+      "cloud_layers": [
+        {
+          "density": 0.15,
+          "height": 120,
+          "speed": 0.25
+        }
+      ]
+    },
+    "sun": {
+      "azimuth_deg": 135.0,
+      "elevation_deg": -8
+    },
+    "lighting": {
+      "global_light_intensity": 0.25,
+      "ambient_light_color": [
+        0.12,
+        0.14,
+        0.2
+      ],
+      "shadow_softness": 0.5,
+      "time_of_day": "night"
+    },
+    "fog": {
+      "density": 0.01,
+      "height": 30,
+      "haze": 0.4
+    },
+    "weather": {
+      "type": "clear",
+      "wind_speed": 0.25,
+      "particle_density": 0.0
+    },
+    "notes": [
+      "overcast fog, low saturation",
+      "gravestones tilted via random yaw only"
+    ]
+  },
+  "gameplay": {
+    "genre": "bullet_hell",
+    "objective": "EMBER DEPTHS: survive the Legion's six waves inside the ash arena - the braziers are your only mercy",
+    "procgen_rules": [
+      "arena minimalism, bullet pattern parameter sets per boss phase",
+      "hitbox smaller than sprite noted in state"
+    ],
+    "ai_behavior": "scripted pattern timelines",
+    "environment_types": [
+      "empty_arenas",
+      "pattern_safe_zones"
+    ],
+    "enemy_aggro_m": 8.5,
+    "corpse_run": false,
+    "scoring": {
+      "coins": 25
+    },
+    "physics": {
+      "gravity": 24,
+      "run_speed": 6.5,
+      "coyote_time_s": 0.1
+    },
+    "side_objectives": [
+      "Light all four brazier checkpoints before wave four",
+      "Collect every ember gem (they feed the wave counter)",
+      "Reach 600 points without a death"
+    ],
+    "waves": [
+      {
+        "at_score": 0,
+        "note": "wave 1: two wraiths wake at the ring"
+      },
+      {
+        "at_score": 100,
+        "note": "wave 2: brutes enter from north and south gates"
+      },
+      {
+        "at_score": 250,
+        "note": "wave 3: wraiths gain speed - keep to the pillars"
+      },
+      {
+        "at_score": 400,
+        "note": "wave 4: all braziers must burn or spawn doubles"
+      },
+      {
+        "at_score": 550,
+        "note": "wave 5: everything, everywhere"
+      },
+      {
+        "at_score": 700,
+        "note": "wave 6: final surge, then silence"
+      }
+    ],
+    "roster": [
+      {
+        "name": "Ember Wraith",
+        "behavior": "fast ring-dodger; circles at 8 m then dives when aggroed"
+      },
+      {
+        "name": "Ash Brute",
+        "behavior": "slow straight-liner; tanks through damage, guards the gates"
+      },
+      {
+        "name": "Cinder Mote",
+        "behavior": "hazard cluster near the altar - touch is burn"
+      }
+    ]
+  },
+  "meta": {
+    "enriched_seed": 77
+  }
+}

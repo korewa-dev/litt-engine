@@ -1,0 +1,492 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "next_id": 17,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [
+        1
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": []
+    },
+    {
+      "name": "Corridor",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [
+        35.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "level",
+        "model:layout_main"
+      ]
+    },
+    {
+      "name": "Checkpoint_01",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [
+        54.6,
+        6.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_02",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [
+        71.4,
+        6.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_03",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [
+        88.2,
+        6.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Drone_A",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [
+        61.6,
+        9.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Drone_B",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [
+        78.4,
+        9.8,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Gem_High",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [
+        44.8,
+        8.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:gem"
+      ]
+    },
+    {
+      "name": "Spikes_Mid",
+      "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [
+        66.5,
+        6.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "hazard",
+        "model:spike"
+      ]
+    },
+    {
+      "name": "Coin_01",
+      "id": 9,
+      "parent": 0,
+      "children": [],
+      "position": [
+        49.0,
+        6.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_02",
+      "id": 10,
+      "parent": 0,
+      "children": [],
+      "position": [
+        58.1,
+        6.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_03",
+      "id": 11,
+      "parent": 0,
+      "children": [],
+      "position": [
+        75.6,
+        6.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_04",
+      "id": 12,
+      "parent": 0,
+      "children": [],
+      "position": [
+        84.0,
+        6.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_05",
+      "id": 13,
+      "parent": 0,
+      "children": [],
+      "position": [
+        93.8,
+        6.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Win_Banner",
+      "id": 14,
+      "parent": 0,
+      "children": [],
+      "position": [
+        102.9,
+        5.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Cyberpunk Neon Ridge",
+      "id": 15,
+      "parent": 0,
+      "children": [],
+      "position": [
+        106.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        4.2,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "area",
+        "music:zone_platformer"
+      ]
+    },
+    {
+      "name": "Player_Start",
+      "id": 16,
+      "parent": 0,
+      "children": [],
+      "position": [
+        38.5,
+        6.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "player",
+        "start"
+      ]
+    }
+  ]
+}

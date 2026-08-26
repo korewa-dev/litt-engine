@@ -1,0 +1,40 @@
+{
+ "items": [
+  {
+   "name": "Moonlit Briar",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor warden. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forgotten Prophecy",
+   "kind": "trinket",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Thornbound Prophecy",
+   "kind": "trinket",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Gilded Briar",
+   "kind": "armor",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Gilded Prophecy",
+   "kind": "scroll",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Verdant Briar",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor blade. Serviceable, unremarkable, yours."
+  }
+ ]
+}

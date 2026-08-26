@@ -1,88 +1,50 @@
-# Open World: Ancient Chalice
+# Four Districts
 
-*open world city exploration four districts*
+*Explore the city. Four districts. One mystery.*
 
 ## Lore
-Before the grove, the verdant kept the Hollow. Then came the verdant age: bells went quiet, names were spent, and something ancient began to wait beneath Keep.
 
-You arrive with nothing but scroll and a reason you refuse to say aloud.
+The city of Oakhaven was once a single thriving metropolis. Then the Great Fracture split it into four districts, each governed by its own council. Decades later, the districts have grown apart—each with its own culture, its own secrets, and its own reason for keeping the others divided.
 
-## Act 1 - The Long Approach (Crossing)
+You are a newcomer with a message that could unite them all. But first, you must understand what truly happened on the day the city broke.
 
-- Reach Crossing and restore the blade before rival seekers do.
-- Recover the ancient chalice; it is the key to the next threshold.
-- restore three chalices hidden across the level - each one quiets a bell.
-- **Boss:** the Gilded Usurper
+## Districts
 
-## Act 2 - What the Bells Buried (Hollow)
+### North District — The Financial Quarter
+Skyscrapers of glass and steel. The wealth of Oakhaven flows through these streets, but behind every tower lies a ledger no one dares to read.
 
-- An NPC at Hollow trades passage for the ancient grove.
-- Survive the gauntlet past Hollow; the road narrows behind you.
-- Reach Hollow and seek the crown before rival seekers do.
-- **Boss:** the Thorn Queen
+### South District — The Industrial Zone
+Smokestacks and warehouses. The city's engines run here, but something darker has been forged in these furnaces.
 
-## Act 3 - Ash Below, Sky Above (Throne)
+### East District — The Residential Gardens
+Tree-lined avenues and quiet courtyards. The families who live here remember what the city used to be—and they won't forget what you're searching for.
 
-- Recover the ancient grove; it is the key to the next threshold.
-- seek three blades hidden across the level - each one quiets a bell.
-- An NPC at Throne trades passage for the thornbound chalice.
-- **Boss:** the Thorn Queen, verdant
+### West District — The Entertainment District
+Neon lights and midnight energy. The parties never stop here, but beneath the music lies a secret that has been hidden for decades.
 
-## Act 4 - The Turning of the Vigil (Crossing)
+## Act 1 — The Arrival
 
-- Survive the gauntlet past Crossing; the road narrows behind you.
-- Reach Crossing and guard the briar before rival seekers do.
-- Recover the gilded crown; it is the key to the next threshold.
-- **Boss:** the Gilded Usurper, moonlit
+- Begin at Central Plaza, the heart of the city
+- Visit each district and speak with its keeper
+- Collect the four District Tokens scattered across the city
+- Discover the first clue: the Fracture was not an accident
 
-## Items (30)
+## Act 2 — The Truth
 
-- **Thornbound Prophecy** *(trinket, common)* - A trinket prophecy. Serviceable, unremarkable, yours.
-- **Verdant Crown** *(scroll, uncommon)* - Carried by someone who almost made it back.
-- **Wyrm-Sung Prophecy** *(armor, uncommon)* - Carried by someone who almost made it back.
-- **Forgotten Riddle** *(armor, common)* - A armor grove. Serviceable, unremarkable, yours.
-- **Moonlit Grove** *(consumable, uncommon)* - Carried by someone who almost made it back.
-- **Wyrm-Sung Blade** *(scroll, legendary)* - One was forged. One was lost. You are holding it.
-- **Moonlit Chalice** *(consumable, uncommon)* - Carried by someone who almost made it back.
-- **Moonlit Crown** *(trinket, common)* - A trinket riddle. Serviceable, unremarkable, yours.
-- **Ancient Prophecy** *(consumable, uncommon)* - Carried by someone who almost made it back.
-- **Verdant Briar** *(trinket, common)* - A trinket prophecy. Serviceable, unremarkable, yours.
-- **Thornbound Warden** *(weapon, common)* - A weapon blade. Serviceable, unremarkable, yours.
-- **Wyrm-Sung Riddle** *(consumable, uncommon)* - Carried by someone who almost made it back.
-- **Verdant Riddle** *(consumable, common)* - A consumable chalice. Serviceable, unremarkable, yours.
-- **Gilded Warden** *(consumable, uncommon)* - Carried by someone who almost made it back.
-- **Forgotten Warden** *(scroll, common)* - A scroll blade. Serviceable, unremarkable, yours.
-- **Ancient Grove** *(scroll, rare)* - Warm to the touch. The prophecy remembers hands.
-- **Verdant Blade** *(scroll, common)* - A scroll crown. Serviceable, unremarkable, yours.
-- **Forgotten Blade** *(weapon, uncommon)* - Carried by someone who almost made it back.
-- **Thornbound Blade** *(armor, common)* - A armor riddle. Serviceable, unremarkable, yours.
-- **Verdant Chalice** *(scroll, rare)* - Warm to the touch. The prophecy remembers hands.
-- **Wyrm-Sung Chalice** *(scroll, rare)* - Warm to the touch. The crown remembers hands.
-- **Verdant Grove** *(weapon, common)* - A weapon warden. Serviceable, unremarkable, yours.
-- **Moonlit Warden** *(consumable, common)* - A consumable riddle. Serviceable, unremarkable, yours.
-- **Verdant Prophecy** *(trinket, common)* - A trinket grove. Serviceable, unremarkable, yours.
-- **Verdant Warden** *(scroll, common)* - A scroll riddle. Serviceable, unremarkable, yours.
-- **Forgotten Crown** *(scroll, common)* - A scroll chalice. Serviceable, unremarkable, yours.
-- **Gilded Prophecy** *(trinket, uncommon)* - Carried by someone who almost made it back.
-- **Moonlit Blade** *(trinket, rare)* - Warm to the touch. The riddle remembers hands.
-- **Ancient Blade** *(weapon, uncommon)* - Carried by someone who almost made it back.
-- **Gilded Briar** *(scroll, common)* - A scroll blade. Serviceable, unremarkable, yours.
+- The districts are connected by underground passages
+- Each keeper guards a piece of the original charter
+- The Great Fracture was caused by a choice, not a disaster
+- Find the Charter Hall beneath Central Plaza
 
-## Roster (16)
+## Items
 
-- **the Gilded Usurper** [boss] - Act boss. Guards the way onward and remembers every death.
-- **the Thorn Queen** [boss] - Act boss. Guards the way onward and remembers every death.
-- **the Thorn Queen, verdant** [boss] - Act boss. Guards the way onward and remembers every death.
-- **the Gilded Usurper, moonlit** [boss] - Act boss. Guards the way onward and remembers every death.
-- **The Verdant Warden** [elite] - Elite patrol. Faster than it looks; respect its reach.
-- **The Ancient Warden** [elite] - Elite patrol. Faster than it looks; respect its reach.
-- **The Wyrm-Sung Grove** [elite] - Elite patrol. Faster than it looks; respect its reach.
-- **The Ancient Riddle** [elite] - Elite patrol. Faster than it looks; respect its reach.
-- **Gilded Blade** [mook] - Common foe. Travels in pairs when it can.
-- **Moonlit Chalice** [mook] - Guards loot caches along the route.
-- **Thornbound Prophecy** [mook] - Blind to stillness; sprinting draws it.
-- **Verdant Chalice** [mook] - Slow to anger, slow to forget.
-- **Thornbound Briar** [mook] - Common foe. Travels in pairs when it can.
-- **Wyrm-Sung Chalice** [mook] - Slow to anger, slow to forget.
-- **Wyrm-Sung Blade** [mook] - Blind to stillness; sprinting draws it.
-- **Verdant Blade 1** [mook] - Another of the endless.
+- **District Token (x4)** — Proof you visited each district
+- **Old Charter Fragment** — A piece of the original city agreement
+- **Underground Map** — Reveals the hidden passages
+- **Keeper's Letter** — A message from the first mayor
+
+## Play
+
+- ENGINE.bat (Vulkan player) or VIEW.bat (C++ viewer)
+- Free roam between districts
+- WASD to move, mouse to look around

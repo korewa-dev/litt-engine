@@ -1,0 +1,308 @@
+{
+  "objective": "reef-rest: hold the tropical island arena against the Legion - six waves, then the sky opens",
+  "side_objectives": [
+    "Light every brazier before wave three",
+    "Reach 600 points without a death"
+  ],
+  "physics": {
+    "gravity": 24,
+    "run_speed": 6.5,
+    "coyote_time_s": 0.1
+  },
+  "lives": 3,
+  "score_goal": 600,
+  "enemy_aggro_m": 8.5,
+  "corpse_run": false,
+  "scoring": {
+    "coins": 25
+  },
+  "waves": [
+    {
+      "at_score": 0,
+      "note": "wave 1"
+    },
+    {
+      "at_score": 150,
+      "note": "wave 2"
+    },
+    {
+      "at_score": 300,
+      "note": "wave 3"
+    },
+    {
+      "at_score": 450,
+      "note": "wave 4"
+    },
+    {
+      "at_score": 600,
+      "note": "wave 5"
+    },
+    {
+      "at_score": 750,
+      "note": "wave 6"
+    }
+  ],
+  "roster": [
+    {
+      "name": "Ember Wraith",
+      "behavior": "fast ring-dodger, dives when aggroed"
+    },
+    {
+      "name": "Ash Brute",
+      "behavior": "slow tank guarding gates"
+    }
+  ],
+  "spawn": [
+    0.0,
+    4.2,
+    0.0
+  ],
+  "checkpoints": [
+    [
+      9.9,
+      0,
+      3.1
+    ],
+    [
+      -7.4,
+      0,
+      -6.9
+    ]
+  ],
+  "nodes": [
+    {
+      "name": "Wraith_N",
+      "pos": [
+        0.0,
+        0,
+        -8.0
+      ],
+      "tags": [
+        "enemy",
+        "model:wraith"
+      ]
+    },
+    {
+      "name": "Wraith_E",
+      "pos": [
+        8.0,
+        0,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:wraith"
+      ]
+    },
+    {
+      "name": "Brute_Gate",
+      "pos": [
+        0.0,
+        0,
+        11.5
+      ],
+      "tags": [
+        "enemy",
+        "model:brute"
+      ]
+    },
+    {
+      "name": "Gem_NE",
+      "pos": [
+        3.5,
+        0,
+        3.5
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:gem"
+      ]
+    },
+    {
+      "name": "Heart_W",
+      "pos": [
+        -3.0,
+        0,
+        2.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:heart"
+      ]
+    },
+    {
+      "name": "Item_00_ThornboundWarden",
+      "pos": [
+        -38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Thornbound Warden (rare)"
+    },
+    {
+      "name": "Item_01_ThornboundChalice",
+      "pos": [
+        -19.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Thornbound Chalice (common)"
+    },
+    {
+      "name": "Item_02_GildedGrove",
+      "pos": [
+        0.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Gilded Grove (common)"
+    },
+    {
+      "name": "Item_03_WyrmSungChalice",
+      "pos": [
+        19.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Wyrm-Sung Chalice (common)"
+    },
+    {
+      "name": "Item_04_GildedBlade",
+      "pos": [
+        38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:gem"
+      ],
+      "poi": "Gilded Blade (rare)"
+    },
+    {
+      "name": "Item_05_MoonlitChalice",
+      "pos": [
+        57.6,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Moonlit Chalice (common)"
+    },
+    {
+      "name": "Boss_0_theThornQueen",
+      "pos": [
+        -24.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:brute"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Elite_00_TheMoonlitGrove",
+      "pos": [
+        -24.96,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Mook_01_MoonlitProphecy",
+      "pos": [
+        -5.12,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Blind to stillness; sprinting draws it."
+    },
+    {
+      "name": "Mook_02_ForgottenBlade",
+      "pos": [
+        14.72,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Slow to anger, slow to forget."
+    },
+    {
+      "name": "Mook_03_ThornboundBriar",
+      "pos": [
+        34.56,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Slow to anger, slow to forget."
+    },
+    {
+      "name": "Mook_04_VerdantCrown",
+      "pos": [
+        54.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Blind to stillness; sprinting draws it."
+    }
+  ],
+  "zones": [
+    {
+      "name": "Tropical Island Arena",
+      "pos": [
+        0.0,
+        0,
+        0.0
+      ],
+      "radius": 15,
+      "tags": [
+        "music:ember_dread"
+      ]
+    }
+  ],
+  "_prompt": "cozy island farming tale, small game"
+}

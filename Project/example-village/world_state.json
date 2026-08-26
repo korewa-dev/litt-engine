@@ -1,0 +1,125 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "medieval_realism",
+  "updated": "2026-08-23T21:49:28",
+  "seed": {
+    "archetype_seed": 42
+  },
+  "chunk_size": 0,
+  "radius": 0,
+  "camera": {
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "distance": 30
+  },
+  "chunks": [],
+  "palette": {
+    "timber": [
+      0.36,
+      0.26,
+      0.17
+    ],
+    "plaster": [
+      0.78,
+      0.74,
+      0.66
+    ],
+    "thatch": [
+      0.62,
+      0.52,
+      0.28
+    ],
+    "dirt_road": [
+      0.42,
+      0.35,
+      0.27
+    ],
+    "iron_banded": [
+      0.28,
+      0.29,
+      0.3
+    ],
+    "ground": [
+      0.38,
+      0.44,
+      0.34
+    ]
+  },
+  "identity": {
+    "archetype": "life_sim",
+    "camera": "isometric",
+    "combat": null,
+    "movement": "free_roam_movement",
+    "structure": "hub_spoke_world",
+    "pacing": "slow_paced",
+    "pattern": "hub_spoke",
+    "theme": "medieval_realism"
+  },
+  "environment": {
+    "sky": {
+      "type": "clear",
+      "top_color": [
+        0.35,
+        0.55,
+        0.9
+      ],
+      "horizon_color": [
+        0.75,
+        0.85,
+        0.95
+      ],
+      "cloud_layers": [
+        {
+          "density": 0.15,
+          "height": 120,
+          "speed": 0.25
+        }
+      ]
+    },
+    "sun": {
+      "azimuth_deg": 135.0,
+      "elevation_deg": 62
+    },
+    "lighting": {
+      "global_light_intensity": 1.0,
+      "ambient_light_color": [
+        0.5,
+        0.52,
+        0.55
+      ],
+      "shadow_softness": 0.5,
+      "time_of_day": "noon"
+    },
+    "fog": {
+      "density": 0.01,
+      "height": 30,
+      "haze": 0.4
+    },
+    "weather": {
+      "type": "clear",
+      "wind_speed": 0.25,
+      "particle_density": 0.0
+    },
+    "notes": [
+      "mud roads between buildings, smoke wisps optional"
+    ]
+  },
+  "gameplay": {
+    "genre": "life_sim",
+    "objective": "see design_rules procgen_rules",
+    "procgen_rules": [
+      "NPC daily schedule graph over POI nodes"
+    ],
+    "ai_behavior": "schedule followers with interruption events",
+    "environment_types": [
+      "shops",
+      "homes",
+      "schedule_nodes"
+    ]
+  }
+}

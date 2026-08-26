@@ -1,100 +1,40 @@
 {
- "roster": [
-  {
-   "name": "the Gilded Usurper",
-   "role": "boss",
-   "hp_hint": 300,
-   "description": "Act boss. Guards the way onward and remembers every death."
-  },
-  {
-   "name": "the Thorn Queen",
-   "role": "boss",
-   "hp_hint": 300,
-   "description": "Act boss. Guards the way onward and remembers every death."
-  },
-  {
-   "name": "the Thorn Queen, verdant",
-   "role": "boss",
-   "hp_hint": 300,
-   "description": "Act boss. Guards the way onward and remembers every death."
-  },
-  {
-   "name": "the Gilded Usurper, moonlit",
-   "role": "boss",
-   "hp_hint": 300,
-   "description": "Act boss. Guards the way onward and remembers every death."
-  },
-  {
-   "name": "The Verdant Warden",
-   "role": "elite",
-   "hp_hint": 120,
-   "description": "Elite patrol. Faster than it looks; respect its reach."
-  },
-  {
-   "name": "The Ancient Warden",
-   "role": "elite",
-   "hp_hint": 120,
-   "description": "Elite patrol. Faster than it looks; respect its reach."
-  },
-  {
-   "name": "The Wyrm-Sung Grove",
-   "role": "elite",
-   "hp_hint": 120,
-   "description": "Elite patrol. Faster than it looks; respect its reach."
-  },
-  {
-   "name": "The Ancient Riddle",
-   "role": "elite",
-   "hp_hint": 120,
-   "description": "Elite patrol. Faster than it looks; respect its reach."
-  },
-  {
-   "name": "Gilded Blade",
-   "role": "mook",
-   "hp_hint": 40,
-   "description": "Common foe. Travels in pairs when it can."
-  },
-  {
-   "name": "Moonlit Chalice",
-   "role": "mook",
-   "hp_hint": 40,
-   "description": "Guards loot caches along the route."
-  },
-  {
-   "name": "Thornbound Prophecy",
-   "role": "mook",
-   "hp_hint": 40,
-   "description": "Blind to stillness; sprinting draws it."
-  },
-  {
-   "name": "Verdant Chalice",
-   "role": "mook",
-   "hp_hint": 40,
-   "description": "Slow to anger, slow to forget."
-  },
-  {
-   "name": "Thornbound Briar",
-   "role": "mook",
-   "hp_hint": 40,
-   "description": "Common foe. Travels in pairs when it can."
-  },
-  {
-   "name": "Wyrm-Sung Chalice",
-   "role": "mook",
-   "hp_hint": 40,
-   "description": "Slow to anger, slow to forget."
-  },
-  {
-   "name": "Wyrm-Sung Blade",
-   "role": "mook",
-   "hp_hint": 40,
-   "description": "Blind to stillness; sprinting draws it."
-  },
-  {
-   "name": "Verdant Blade 1",
-   "role": "mook",
-   "hp_hint": 40,
-   "description": "Another of the endless."
-  }
- ]
+  "roster": [
+    {
+      "name": "North Keeper",
+      "role": "npc",
+      "hp_hint": 0,
+      "description": "The guardian of the Financial Quarter. Stern but fair."
+    },
+    {
+      "name": "South Overseer",
+      "role": "npc",
+      "hp_hint": 0,
+      "description": "Rules the Industrial Zone with an iron hand."
+    },
+    {
+      "name": "East Matriarch",
+      "role": "npc",
+      "hp_hint": 0,
+      "description": "Protects the Residential Gardens and their secrets."
+    },
+    {
+      "name": "West Promoter",
+      "role": "npc",
+      "hp_hint": 0,
+      "description": "Hosts the parties and knows everyone's business."
+    },
+    {
+      "name": "City Watch Patrol",
+      "role": "mook",
+      "hp_hint": 30,
+      "description": "Maintains order in the central plaza."
+    },
+    {
+      "name": "District Enforcer",
+      "role": "elite",
+      "hp_hint": 80,
+      "description": "Controls access between districts."
+    }
+  ]
 }

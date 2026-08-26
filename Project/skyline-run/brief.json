@@ -1,0 +1,35 @@
+{
+  "objective": "SKYLINE RUN: chain the rooftops, bank every gem, plant the neon banner at the tower mast",
+  "side_objectives": [
+    "Clear all four gap crossings without touching a checkpoint",
+    "Sweep the three drone patrols' gem drops",
+    "Finish with 500+ points"
+  ],
+  "physics": {"gravity": 30, "jump_velocity": 12, "run_speed": 8, "coyote_time_s": 0.12},
+  "enemy_aggro_m": 4.5,
+  "corpse_run": false,
+  "scoring": {"coins": 25},
+  "waves": [],
+  "roster": [
+    {"name": "Sentinel Drone", "behavior": "hovers a 3 m figure-eight over its platform, resets on player death"}
+  ],
+  "spawn": [1.5, 0.0, 0.0],
+  "checkpoints": [
+    [18.0, 0.0, 0.0], [36.0, 0.0, 0.0], [52.0, 0.0, 0.0], [68.0, 0.0, 0.0]
+  ],
+  "nodes": [
+    {"name": "Drone_A", "pos": [27.0, 4.6, 0.0], "tags": ["enemy", "hazard", "model:drone"]},
+    {"name": "Drone_B", "pos": [43.0, 5.0, 0.0], "tags": ["enemy", "hazard", "model:drone"]},
+    {"name": "Drone_C", "pos": [66.0, 5.2, 0.0], "tags": ["enemy", "hazard", "model:drone"]},
+    {"name": "Gem_Platform_High", "pos": [10.5, 3.6, 0.0], "tags": ["pickup", "score", "model:gem"]},
+    {"name": "Gem_Gap_Two",       "pos": [31.8, 3.0, 0.0], "tags": ["pickup", "score", "model:gem"]},
+    {"name": "Gem_Gap_Four",      "pos": [63.8, 3.2, 0.0], "tags": ["pickup", "score", "model:gem"]},
+    {"name": "Spikes_PreGap1", "pos": [11.8, 0.0, 0.0], "tags": ["hazard", "model:spike"]},
+    {"name": "Spikes_Mid",     "pos": [39.5, 0.0, 0.0], "tags": ["hazard", "model:spike"]},
+    {"name": "Spikes_Final",   "pos": [70.5, 0.0, 0.0], "tags": ["hazard", "model:spike"]},
+    {"name": "Mast_Banner",    "pos": [77.2, 0.0, 0.0], "tags": ["goal", "win", "objective", "model:banner"]}
+  ],
+  "zones": [
+    {"name": "Rooftop_Dawn", "pos": [36.0, 0.0, 0.0], "radius": 42, "tags": ["music:neon_sunset"]}
+  ]
+}

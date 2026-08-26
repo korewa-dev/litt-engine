@@ -1,0 +1,40 @@
+{
+ "roster": [
+  {
+   "name": "the Wyrm of Vale",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "The Verdant Riddle",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "Verdant Blade",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Blind to stillness; sprinting draws it."
+  },
+  {
+   "name": "Gilded Chalice",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Gilded Briar",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Blind to stillness; sprinting draws it."
+  },
+  {
+   "name": "Ancient Chalice",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Blind to stillness; sprinting draws it."
+  }
+ ]
+}

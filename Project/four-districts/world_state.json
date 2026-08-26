@@ -3,7 +3,7 @@
   "version": 1,
   "mode": "ai-exclusive",
   "theme": "modern_city_day",
-  "updated": "2026-08-26T01:44:26",
+  "updated": "2026-08-26T00:36:48",
   "seed": {
     "archetype_seed": 1234
   },
@@ -53,12 +53,18 @@
   "identity": {
     "archetype": "open_world_realistic",
     "camera": "third_person",
-    "combat": "real_time_combat",
-    "movement": "vehicle_movement",
-    "structure": "open_world",
-    "pacing": "cinematic_pacing",
+    "combat": null,
+    "movement": "free_roam_movement",
+    "structure": "hub_spoke_world",
+    "pacing": "slow_paced",
     "pattern": "hub_spoke",
-    "theme": "modern_city_day"
+    "theme": "modern_city_day",
+    "districts": [
+      { "name": "North District", "tag": "financial", "position": [0, 0, -50], "color": [0.4, 0.5, 0.7] },
+      { "name": "South District", "tag": "industrial", "position": [0, 0, 50], "color": [0.6, 0.5, 0.4] },
+      { "name": "East District", "tag": "residential", "position": [50, 0, 0], "color": [0.4, 0.6, 0.4] },
+      { "name": "West District", "tag": "entertainment", "position": [-50, 0, 0], "color": [0.7, 0.4, 0.6] }
+    ]
   },
   "environment": {
     "sky": {
@@ -111,7 +117,7 @@
   },
   "gameplay": {
     "genre": "open_world_realistic",
-    "objective": "four-districts: ride the modern city day ridge, slip the drones, plant your run at the summit banner",
+    "objective": "collect the coins, dodge the stalkers, reach the festival banner",
     "procgen_rules": [
       "district grid with landmark anchors every 200 m"
     ],
@@ -119,37 +125,6 @@
     "environment_types": [
       "district_grids",
       "traffic_arrows"
-    ],
-    "enemy_aggro_m": 4.5,
-    "corpse_run": false,
-    "spawn": [
-      -72.0,
-      4.2,
-      0.0
-    ],
-    "lives": 3,
-    "scoring": {
-      "coins": 25
-    },
-    "physics": {
-      "gravity": 30,
-      "jump_velocity": 12,
-      "run_speed": 8,
-      "coyote_time_s": 0.12
-    },
-    "side_objectives": [
-      "No-death run",
-      "Every coin on the trail",
-      "Reach the banner under par"
-    ],
-    "roster": [
-      {
-        "name": "Sentinel Drone",
-        "behavior": "patrols its platform; dive on proximity"
-      }
     ]
-  },
-  "meta": {
-    "enriched_seed": 1234
   }
 }

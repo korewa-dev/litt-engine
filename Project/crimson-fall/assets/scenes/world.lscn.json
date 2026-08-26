@@ -1,0 +1,318 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "next_id": 11,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [
+        1
+      ],
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": []
+    },
+    {
+      "name": "Dungeon",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [
+        18.0,
+        0.0,
+        13.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "level",
+        "model:layout_main"
+      ]
+    },
+    {
+      "name": "Checkpoint_01",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [
+        29.41,
+        3.6,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Checkpoint_02",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [
+        44.05,
+        3.6,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi"
+      ]
+    },
+    {
+      "name": "Bonfire_Plaza",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [
+        25.75,
+        3.6,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "checkpoint",
+        "poi",
+        "model:bonfire"
+      ]
+    },
+    {
+      "name": "Knight_Sun",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [
+        41.86,
+        3.6,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:knight"
+      ]
+    },
+    {
+      "name": "Stalker_Rose",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [
+        36.0,
+        3.6,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Estus_Hidden",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [
+        47.71,
+        3.6,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "pickup",
+        "score",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Fog_Gate_Banner",
+      "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [
+        51.74,
+        2.6,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Underground Caves Court",
+      "id": 9,
+      "parent": 0,
+      "children": [],
+      "position": [
+        36.0,
+        0.0,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        2.6,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "area",
+        "music:hollow_wind"
+      ]
+    },
+    {
+      "name": "Player_Start",
+      "id": 10,
+      "parent": 0,
+      "children": [],
+      "position": [
+        24.29,
+        3.6,
+        27.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "visible": true,
+      "layer": 0,
+      "tags": [
+        "player",
+        "start"
+      ]
+    }
+  ]
+}
