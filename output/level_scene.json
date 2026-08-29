@@ -1,0 +1,410 @@
+{
+  "version": "1.0",
+  "entities": [
+    {
+      "id": 1,
+      "name": "ground",
+      "position": [
+        0,
+        -1,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        100,
+        1,
+        100
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/plane.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "wall_0",
+      "position": [
+        50,
+        2,
+        0
+      ],
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/wall.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "wall_1",
+      "position": [
+        -50,
+        2,
+        0
+      ],
+      "rotation": [
+        0,
+        90,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/wall.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "name": "wall_2",
+      "position": [
+        0,
+        2,
+        50
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/wall.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "name": "wall_3",
+      "position": [
+        0,
+        2,
+        -50
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/wall.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "name": "coin_0",
+      "position": [
+        0.0,
+        1,
+        -10.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "name": "coin_1",
+      "position": [
+        -10.0,
+        1,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "name": "coin_2",
+      "position": [
+        0.0,
+        1,
+        -10.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "name": "coin_3",
+      "position": [
+        -10.0,
+        1,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "name": "coin_4",
+      "position": [
+        0.0,
+        1,
+        -10.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "name": "coin_5",
+      "position": [
+        -10.0,
+        1,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 12,
+      "name": "coin_6",
+      "position": [
+        0.0,
+        1,
+        -10.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 13,
+      "name": "coin_7",
+      "position": [
+        -10.0,
+        1,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "name": "coin_8",
+      "position": [
+        0.0,
+        1,
+        -10.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "name": "coin_9",
+      "position": [
+        -10.0,
+        1,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/coin.glb"
+        },
+        "physics": {
+          "type": "static"
+        }
+      }
+    }
+  ]
+}

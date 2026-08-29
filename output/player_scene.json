@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "entities": [
+    {
+      "id": 1,
+      "name": "player",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "assets/player.glb",
+          "material": "default",
+          "visible": true
+        },
+        "physics": {
+          "type": "dynamic",
+          "mass": 70.0,
+          "friction": 0.7,
+          "restitution": 0.3
+        },
+        "script": {
+          "path": "scripts/player.lua",
+          "params": {
+            "max_health": 100,
+            "speed": 5.0,
+            "jump_force": 10.0
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "entities": [
+    {
+      "id": 1,
+      "name": "camera_main",
+      "position": [
+        0,
+        5,
+        -10
+      ],
+      "rotation": [
+        15,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "camera": {
+          "fov": 60,
+          "near": 0.1,
+          "far": 1000,
+          "aspect": 1.7777777777777777,
+          "target": "player"
+        },
+        "script": {
+          "path": "scripts/camera_follow.lua",
+          "params": {
+            "distance": 10,
+            "height": 5,
+            "smoothness": 0.1
+          }
+        }
+      }
+    }
+  ]
+}
