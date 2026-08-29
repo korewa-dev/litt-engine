@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "entities": [
+    {
+      "id": 1,
+      "name": "player",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "components": {
+        "mesh": {
+          "model": "player.glb"
+        }
+      },
+      "tags": [],
+      "active": true
+    }
+  ]
+}

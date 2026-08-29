@@ -33,12 +33,8 @@ class Editor:
         self.entities.clear()
         self.next_id = 1
     
-    def version(self) -> str:
-        """Get API version string"""
-        return self.version
-    
     # =============================================================================
-    # Scene Management
+    # Entity Management
     # =============================================================================
     
     def create_entity(self, name: str, position: Tuple[float, float, float] = (0, 0, 0),
@@ -287,7 +283,7 @@ class Editor:
 if __name__ == "__main__":
     # Demo
     editor = Editor()
-    print(f"Litt Editor v{editor.version()}")
+    print(f"Litt Editor v{editor.version}")
     
     # Create entity
     result = editor.create_entity("player", position=(0, 0, 0))
