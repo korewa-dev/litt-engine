@@ -171,12 +171,12 @@ static int find_or_create_material(Scene& scene, const char* name, const Materia
 
 static MaterialDef parse_material(const char* json) {
     MaterialDef mat;
-    const char* bc = get_json_string(json, "base_color", "");
-    if (bc[0] != '\0') {
+    std::string bc = get_json_string(json, "base_color", "");
+    if (!bc.empty()) {
         // Parse hex color or array
         if (bc[0] == '#') {
             unsigned int col = 0;
-            sscanf(bc + 1, "%06x", &col);
+            sscanf(bc.substr(1).c_str(), "%06x", &col);
             mat.base_color = Vec3(
                 ((col >> 16) & 0xFF) / 255.0f,
                 ((col >> 8) & 0xFF) / 255.0f,
@@ -277,9 +277,9 @@ static void process_node(Scene& scene, const char* json, const Vec3& parent_tran
                             mesh->verts[mesh->idx[i+2] * 3 + 2]);
                     
                     // Apply transform
-                    v0 = v0 * scale + pos;
-                    v1 = v1 * scale + pos;
-                    v2 = v2 * scale + pos;
+                    v0 = v0 * scale.x + pos;
+                    v1 = v1 * scale.x + pos;
+                    v2 = v2 * scale.x + pos;
                     
                     Vec3 normal = (v1 - v0).cross(v2 - v0).normalized();
                     
@@ -341,7 +341,7 @@ static void add_ground_plane(Scene& scene, const Vec3& min, const Vec3& max) {
 
 std::pair<Scene, std::string> build_scene_from_json(const char* json_text) {
     Scene scene;
-    scene.bounds = {Vec3(1e10f), Vec3(-1e10f)};
+    scene.bounds = {Vec3(1e10f, 1e10f, 1e10f), Vec3(-1e10f, -1e10f, -1e10f)};
     
     // Parse root node
     process_node(scene, json_text, Vec3::zero());
