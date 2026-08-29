@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Litt Engine Editor</title>
+    <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <div class="logo">🎮 Litt Engine</div>
+                <div class="menu">
+                    <button class="menu-btn">File</button>
+                    <button class="menu-btn">Edit</button>
+                    <button class="menu-btn">View</button>
+                    <button class="menu-btn">Help</button>
+                </div>
+            </div>
+            <div class="topbar-center">
+                <div class="viewport-info">
+                    <span id="entity-count">Entities: 0</span>
+                    <span id="component-count">Components: 0</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="btn btn-primary" id="btn-run">▶ Run</button>
+                <button class="btn btn-secondary" id="btn-stop">■ Stop</button>
+                <button class="btn btn-success" id="btn-export">💾 Export</button>
+            </div>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Left Panel: Hierarchy -->
+            <div class="panel panel-left">
+                <div class="panel-header">
+                    <h3>📁 Hierarchy</h3>
+                    <div class="panel-actions">
+                        <button class="icon-btn" id="btn-add-entity" title="Add Entity">➕</button>
+                        <button class="icon-btn" id="btn-collapse" title="Collapse All">📂</button>
+                    </div>
+                </div>
+                <div class="panel-body" id="hierarchy-list">
+                    <!-- Entity tree populated by JS -->
+                </div>
+            </div>
+
+            <!-- Center: Viewport -->
+            <div class="viewport-container">
+                <div class="viewport-toolbar">
+                    <button class="tool-btn active" data-tool="select" title="Select (V)">⬚</button>
+                    <button class="tool-btn" data-tool="move" title="Move (W)">✥</button>
+                    <button class="tool-btn" data-tool="rotate" title="Rotate (E)">↺</button>
+                    <button class="tool-btn" data-tool="scale" title="Scale (R)">⤡</button>
+                    <div class="separator"></div>
+                    <button class="tool-btn" id="btn-grid" title="Toggle Grid">⊞</button>
+                    <button class="tool-btn" id="btn-gizmo" title="Toggle Gizmo">◎</button>
+                </div>
+                <div class="viewport" id="viewport">
+                    <canvas id="viewport-canvas"></canvas>
+                    <div class="viewport-overlay">
+                        <div class="center-crosshair">
+                            <div class="crosshair-h"></div>
+                            <div class="crosshair-v"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="viewport-info-bar">
+                    <span id="viewport-status">Ready</span>
+                    <span id="viewport-coords">X: 0 Y: 0 Z: 0</span>
+                </div>
+            </div>
+
+            <!-- Right Panel: Inspector -->
+            <div class="panel panel-right">
+                <div class="panel-header">
+                    <h3>🔍 Inspector</h3>
+                    <div class="panel-actions">
+                        <button class="icon-btn" id="btn-delete-entity" title="Delete Entity">🗑️</button>
+                    </div>
+                </div>
+                <div class="panel-body" id="inspector-content">
+                    <div class="empty-state">
+                        <div class="empty-icon">👆</div>
+                        <div class="empty-text">Select an entity to inspect</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Panel: Console/Output -->
+        <div class="bottom-panel" id="bottom-panel">
+            <div class="panel-tabs">
+                <button class="tab-btn active" data-tab="console">Console</button>
+                <button class="tab-btn" data-tab="output">Output</button>
+                <button class="tab-btn" data-tab="ai-chat">AI Chat</button>
+            </div>
+            <div class="panel-body panel-content" id="panel-content">
+                <div id="console-tab">
+                    <div class="console-output" id="console-output">
+                        <div class="console-line info">Litt Engine Editor v1.0.0</div>
+                        <div class="console-line info">Use AI commands: "create player at 0,0,0"</div>
+                    </div>
+                </div>
+                <div id="output-tab" class="hidden">
+                    <div class="console-output" id="output-content"></div>
+                </div>
+                <div id="ai-chat-tab" class="hidden">
+                    <div class="ai-chat-container">
+                        <div class="ai-messages" id="ai-messages"></div>
+                        <div class="ai-input-container">
+                            <input type="text" id="ai-input" placeholder="Describe what to build... (e.g., 'create a player character')">
+                            <button id="ai-send">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Command Modal -->
+    <div class="modal" id="ai-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🤖 AI Assistant</h2>
+                <button class="modal-close" id="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="ai-prompt">
+                    <p>Describe what you want to build:</p>
+                    <textarea id="ai-prompt-text" placeholder="Create a player character with physics and a mesh..."></textarea>
+                </div>
+                <div class="ai-actions">
+                    <button class="btn btn-primary" id="ai-generate">Generate</button>
+                    <button class="btn btn-secondary" id="ai-cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="editor.js"></script>
+</body>
+</html>

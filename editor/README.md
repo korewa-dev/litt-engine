@@ -1,164 +1,78 @@
-# Litt Editor
+# Litt Engine Web Editor
 
-A Unity/Godot-like game editor for Litt Engine with integrated chat system.
-Pure C++17, Vulkan-based rendering, cross-platform (Windows/Linux/Android).
+A browser-based editor for Litt Engine that allows AI systems and humans to visually build game scenes.
+
+## Quick Start
+
+1. Open `index.html` in any modern browser
+2. Use the AI Chat panel to describe what you want to build
+3. Or use the UI to manually create entities
 
 ## Features
 
-- **Scene Viewport**: 3D viewport with orbit camera, grid, and transform gizmo
-- **Hierarchy Panel**: Tree view of all scene nodes with selection
-- **Inspector Panel**: Edit node properties, transforms, and components
-- **Chat System**: Integrated chat similar to DeepSeek Harness for AI assistance
-- **Toolbar**: Transform tools (Select, Move, Rotate, Scale)
-- **Undo/Redo**: Full history of editor actions
-- **Cross-platform**: Windows, Linux, and Android support
+- **Entity Hierarchy** - Tree view of all game objects
+- **Component Inspector** - View and edit entity components
+- **3D Viewport** - Visual scene preview with grid
+- **Transform Tools** - Move, rotate, scale entities
+- **AI Chat** - Natural language commands to build scenes
+- **Export/Import** - Save scenes as JSON
+- **Run/Stop** - Test your game
 
-## Architecture
+## Commands
 
-```
-native/
-├── littcore/
-│   ├── litt_math.h       # C++ math library (Vec2/3/4, Mat4, Quat, AABB)
-│   ├── litt_ecs.h        # Entity Component System
-│   ├── litt_scene.h      # Scene graph and management
-│   ├── litt_world.h      # World simulation
-│   ├── litt_physics.h    # Physics system
-│   ├── litt_input.h      # Input handling
-│   ├── litt_profiler.h   # Performance profiling
-│   └── ...               # Other core libraries
-├── litteditor.h          # Editor header
-├── litteditor.cpp        # Editor implementation
-├── game.cpp              # Game entry point
-├── build.bat             # Windows build script
-└── build.sh              # Linux build script
-```
+### AI Chat Commands
+Type in the console or AI chat:
+- `create player` - Create a new entity named "player"
+- `create enemy at 10,5,0` - Create entity with position
+- `add mesh to player` - Add mesh component
+- `delete enemy_01` - Remove entity
+- `export scene to level.json` - Save scene
 
-## Building
-
-### Windows
-
-```bash
-cd native
-.\build.bat
-```
-
-### Linux
-
-```bash
-cd native
-chmod +x build.sh
-./build.sh
-```
-
-### Android
-
-Requires Android NDK. Configure in build script.
-
-## Running
-
-### Editor
-
-```bash
-# Windows
-native\bin\windows\LittEditor.exe
-
-# Linux
-./native/bin/linux/LittEditor
-```
-
-### Game
-
-```bash
-# Run with default scene
-native\bin\windows\game.exe
-
-# Run with specific scene
-native\bin\windows\game.exe --scene Project\live\assets\scenes\world.lscn.json
-```
-
-### CLI Validator
-
-```bash
-native\bin\windows\littcli.exe validate Project\live --frames 30
-```
-
-## Chat Commands
-
-Type commands in the editor chat panel:
-
-| Command | Description |
-|---------|-------------|
-| `/help` | Show available commands |
-| `/status` | Show editor status (FPS, draw calls, etc.) |
-| `/load <file>` | Load a scene file |
-| `/save [file]` | Save current scene |
-| `/reset` | Reset to default scene |
-| `/clear` | Clear chat history |
-| `/undo` | Undo last action |
-| `/redo` | Redo last action |
-| `/select <name>` | Select node by name |
-| `/delete <name>` | Delete a node |
-| `/add <type>` | Add new node |
-| `/grid` | Toggle grid visibility |
-| `/gizmo` | Toggle gizmo visibility |
-
-## Keyboard Shortcuts
-
+### Keyboard Shortcuts
 | Key | Action |
 |-----|--------|
-| `W` | Move tool |
-| `R` | Rotate tool |
-| `S` | Scale tool |
-| `Q` | Select tool |
-| `Delete` | Delete selected |
-| `Ctrl+Z` | Undo |
-| `Ctrl+Y` | Redo |
-| `G` | Toggle grid |
-| `Right Mouse` | Orbit camera |
-| `Middle Mouse` | Pan camera |
-| `Scroll` | Zoom camera |
+| V | Select tool |
+| W | Move tool |
+| E | Rotate tool |
+| R | Scale tool |
+| G | Toggle grid |
+| Delete | Delete selected |
 
-## Design Philosophy
-
-1. **Unity-like Layout**: Familiar panels (hierarchy, inspector, scene view)
-2. **Integrated Chat**: AI assistance built directly into the editor
-3. **Lightweight**: Minimal dependencies, fast startup
-4. **Cross-platform**: C++ core works on Windows, Linux, Android
-5. **AI-First**: Designed for both humans and AI agents
-
-## Project Structure
+## File Structure
 
 ```
-litt-engine/
-├── native/                   # C++ core and editor
-│   ├── littcore/            # Core libraries
-│   ├── game.cpp             # Game entry point
-│   ├── litteditor.cpp       # Editor implementation
-│   ├── build.bat            # Windows build
-│   └── build.sh             # Linux build
-├── editor/                   # Editor documentation
-│   ├── README.md
-│   └── QUICKSTART.md
-├── template/                 # World generation (Python)
-│   └── tools/
-│       └── worldgen/
-├── Project/                  # Generated games
-└── docs/                     # Documentation
+editor/
+├── index.html     # Main UI
+├── editor.css     # Dark theme styles
+└── editor.js      # Editor engine
 ```
 
-## Future Work
+## Using with Litt Engine
 
-- [ ] Vulkan rendering backend for scene view
-- [ ] Asset browser and pipeline
-- [ ] Animation editor
-- [ ] Physics debug visualization
-- [ ] Multi-window support
-- [ ] Plugin system
-- [ ] Visual shader editor
-- [ ] Particle editor
-- [ ] Timeline editor
-- [ ] Android native app integration
+Export your scene and load it in Litt Engine:
+
+```python
+from litt import Editor
+
+# Import scene
+editor = Editor()
+editor.import_scene("level.json")
+
+# Run
+editor.run()
+```
+
+## AI Integration
+
+Any AI can use this editor via:
+1. Direct browser automation (Selenium, Puppeteer)
+2. JSON-RPC protocol (see `docs/ai_editor_protocol.md`)
+3. Python API (see `python/litt_ai_editor/`)
+
+## Customization
+
+Edit `editor.css` to change the theme, or `editor.js` to add new tools.
 
 ## License
 
-See [LICENSE](../LICENSE) for details.
+Same as Litt Engine.

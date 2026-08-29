@@ -18,6 +18,9 @@ AI-driven game engine designed for autonomous AI agents to build, control, and r
 | Conventions | [`CONVENTIONS.md`](CONVENTIONS.md) |
 | AI rules | [`Project/live/AI_RULES.md`](Project/live/AI_RULES.md) |
 | Implementation status | [`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md) |
+| **AI Editor Guide** | [`docs/ai_editor_agent_guide.md`](docs/ai_editor_agent_guide.md) |
+| **Web Editor** | [`editor/index.html`](editor/index.html) |
+| **AI Editor API** | [`include/litt_ai_editor.h`](include/litt_ai_editor.h) |
 | Genre algorithms | [`template/docs/genre_algorithms.md`](template/docs/genre_algorithms.md) |
 | Asset guidelines | [`template/docs/asset_guidelines.md`](template/docs/asset_guidelines.md) |
 
