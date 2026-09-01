@@ -1,190 +1,93 @@
-// LittProfiler - Performance profiling for Litt Engine
-// Replaces crates/profiler/lib.rs
+// Phase 4: Optimization & Performance - Profiler
 
 #pragma once
+
+#include "litt_math.h"
 #include <string>
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
 #include <chrono>
-#include <iostream>
-#include <algorithm>
 
 namespace litt {
 
-class Timer {
-public:
-    Timer() : startTime_(std::chrono::high_resolution_clock::now()) {}
-    
-    void start() {
-        startTime_ = std::chrono::high_resolution_clock::now();
-    }
-    
-    float stop() {
-        auto endTime = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration<float, std::milli>(endTime - startTime_);
-        return duration.count();
-    }
-    
-    float elapsed() const {
-        auto now = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration<float, std::milli>(now - startTime_);
-        return duration.count();
-    }
-    
-private:
-    std::chrono::high_resolution_clock::time_point startTime_;
+// Profile sample
+struct ProfileSample {
+    std::string name;
+    std::chrono::high_resolution_clock::time_point start;
+    std::chrono::high_resolution_clock::time_point end;
+    double duration_ms;
+    uint32_t thread_id;
 };
 
-struct FrameStats {
-    float frameTime = 0.0f;
-    float cpuTime = 0.0f;
-    float gpuTime = 0.0f;
-    int drawCalls = 0;
-    int triangles = 0;
-    int vertices = 0;
-    float fps = 0.0f;
-    float frameTimeMs = 0.0f;
-    
-    void update(float frameTime, int drawCalls, int triangles, int vertices) {
-        this->frameTime = frameTime;
-        this->drawCalls = drawCalls;
-        this->triangles = triangles;
-        this->vertices = vertices;
-        this->fps = frameTime > 0.0f ? 1000.0f / frameTime : 0.0f;
-        this->frameTimeMs = frameTime;
-    }
+// Profiler statistics
+struct ProfilerStats {
+    std::string name;
+    double total_time_ms;
+    double avg_time_ms;
+    double max_time_ms;
+    double min_time_ms;
+    uint32_t sample_count;
 };
 
+// Profiler
 class Profiler {
 public:
+    static Profiler& get_instance() {
+        static Profiler instance;
+        return instance;
+    }
+    
+    // Begin sample
+    void begin_sample(const std::string& name);
+    
+    // End sample
+    void end_sample(const std::string& name);
+    
+    // Get stats
+    ProfilerStats get_stats(const std::string& name) const;
+    
+    // Get all stats
+    std::vector<ProfilerStats> get_all_stats() const;
+    
+    // Reset stats
+    void reset();
+    
+    // Get FPS
+    double get_fps() const { return fps_; }
+    
+    // Update FPS (call once per frame)
+    void update_fps();
+    
+    // Get frame time
+    double get_frame_time_ms() const { return frame_time_ms_; }
+
+private:
     Profiler() = default;
-
-    /// Process-wide profiler for the LITT_PROFILE convenience macro.
-    static Profiler& instance() {
-        static Profiler p;
-        return p;
-    }
-
-    void startFrame() {
-        frameTimer_.start();
-    }
     
-    FrameStats endFrame() {
-        float frameTime = frameTimer_.stop();
-        FrameStats stats;
-        stats.frameTime = frameTime;
-        stats.fps = frameTime > 0.0f ? 1000.0f / frameTime : 0.0f;
-        stats.frameTimeMs = frameTime;
-        
-        frameTimes_.push_back(frameTime);
-        if (frameTimes_.size() > 60) frameTimes_.erase(frameTimes_.begin());
-        
-        return stats;
-    }
-    
-    void mark(const std::string& label) {
-        auto it = timings_.find(label);
-        if (it != timings_.end()) {
-            it->second.push_back(std::chrono::high_resolution_clock::now());
-        } else {
-            timings_[label] = {std::chrono::high_resolution_clock::now()};
-        }
-    }
-    
-    void startTimer(const std::string& label) {
-        activeTimers_[label] = std::make_unique<Timer>();
-        activeTimers_[label]->start();
-    }
-    
-    float stopTimer(const std::string& label) {
-        auto it = activeTimers_.find(label);
-        if (it != activeTimers_.end()) {
-            float elapsed = it->second->stop();
-            timings_[label].push_back(std::chrono::high_resolution_clock::now());
-            activeTimers_.erase(it);
-            return elapsed;
-        }
-        return 0.0f;
-    }
-    
-    void recordDrawCalls(int count) {
-        drawCalls_ = count;
-    }
-    
-    void recordTriangles(int count) {
-        triangles_ = count;
-    }
-    
-    void recordVertices(int count) {
-        vertices_ = count;
-    }
-    
-    FrameStats getFrameStats() const {
-        FrameStats stats;
-        stats.frameTime = frameTimes_.empty() ? 0.0f : frameTimes_.back();
-        stats.fps = stats.frameTime > 0.0f ? 1000.0f / stats.frameTime : 0.0f;
-        stats.drawCalls = drawCalls_;
-        stats.triangles = triangles_;
-        stats.vertices = vertices_;
-        return stats;
-    }
-    
-    float getAverageFrameTime() const {
-        if (frameTimes_.empty()) return 0.0f;
-        float sum = 0.0f;
-        for (auto t : frameTimes_) sum += t;
-        return sum / frameTimes_.size();
-    }
-    
-    float getMinFrameTime() const {
-        if (frameTimes_.empty()) return 0.0f;
-        return *std::min_element(frameTimes_.begin(), frameTimes_.end());
-    }
-    
-    float getMaxFrameTime() const {
-        if (frameTimes_.empty()) return 0.0f;
-        return *std::max_element(frameTimes_.begin(), frameTimes_.end());
-    }
-    
-    void printReport() const {
-        // Guard the empty history: frameTimes_.back() on an empty vector is UB.
-        float last = frameTimes_.empty() ? 0.0f : frameTimes_.back();
-        std::cout << "=== Profiler Report ===" << std::endl;
-        std::cout << "Frame Time: " << last << " ms" << std::endl;
-        std::cout << "FPS: " << (last > 0.0f ? 1000.0f / last : 0.0f) << std::endl;
-        std::cout << "Draw Calls: " << drawCalls_ << std::endl;
-        std::cout << "Triangles: " << triangles_ << std::endl;
-        std::cout << "Vertices: " << vertices_ << std::endl;
-        std::cout << "=======================" << std::endl;
-    }
-    
-private:
-    Timer frameTimer_;
-    std::unordered_map<std::string, std::vector<std::chrono::high_resolution_clock::time_point>> timings_;
-    std::unordered_map<std::string, std::unique_ptr<Timer>> activeTimers_;
-    std::vector<float> frameTimes_;
-    int drawCalls_ = 0;
-    int triangles_ = 0;
-    int vertices_ = 0;
+    std::unordered_map<std::string, ProfileSample> active_samples_;
+    std::unordered_map<std::string, ProfilerStats> stats_;
+    std::chrono::high_resolution_clock::time_point frame_start_;
+    double fps_ = 0.0;
+    double frame_time_ms_ = 0.0;
 };
 
-// Scoped timer
-class ScopedTimer {
+// Scoped profile timer
+class ScopedProfile {
 public:
-    ScopedTimer(const std::string& label, Profiler& profiler)
-        : label_(label), profiler_(profiler) {
-        profiler_.startTimer(label_);
+    ScopedProfile(const std::string& name) : name_(name) {
+        Profiler::get_instance().begin_sample(name_);
     }
     
-    ~ScopedTimer() {
-        profiler_.stopTimer(label_);
+    ~ScopedProfile() {
+        Profiler::get_instance().end_sample(name_);
     }
-    
+
 private:
-    std::string label_;
-    Profiler& profiler_;
+    std::string name_;
 };
+
+// Macro for easy profiling
+#define PROFILE_SCOPE(name) ScopedProfile _profile_##__LINE__(name)
+#define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
 
 } // namespace litt
-
-#define LITT_PROFILE(label) litt::ScopedTimer _prof_##label(#label, litt::Profiler::instance())
