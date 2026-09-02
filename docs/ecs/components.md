@@ -39,53 +39,43 @@ struct Player {
 ```
 
 ### Mesh
-```rust
-// template/src/components/mesh.rs
-#[derive(Clone, Debug, Pod, Zeroable)]
-#[repr(C)]
-pub struct Vertex {
-    pub position: Vec3,
-    pub normal: Vec3,
-    pub texcoord: Vec2,
-}
+```cpp
+struct Vertex {
+    Vec3 position;
+    Vec3 normal;
+    Vec2 texcoord;
+};
 
-#[derive(Clone, Debug, Default)]
-pub struct Mesh {
-    pub vertices: Vec<Vertex>,
-    pub indices: Vec<u32>,
-    pub bounding_box: Option<Bbox>,
-}
+struct Mesh {
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+    Bbox* bounding_box;
+};
 ```
 
 ### Material
-```rust
-// template/src/components/material.rs
-#[derive(Clone, Copy, Debug, Pod, Zeroable)]
-#[repr(C)]
-pub struct Material {
-    pub albedo: Vec3,
-    pub roughness: f32,
-    pub metallic: f32,
-    pub ior: f32,
-    pub emissive: Vec3,
-    pub light_intensity: f32,
-    pub _pad: [f32; 3],
-}
+```cpp
+struct Material {
+    Vec3 albedo;
+    float roughness;
+    float metallic;
+    float ior;
+    Vec3 emissive;
+    float light_intensity;
+    float _pad[3];
+};
 ```
 
 ### Light
-```rust
-// template/src/components/light.rs
-#[derive(Clone, Copy, Debug, Pod, Zeroable)]
-#[repr(C)]
-pub struct Light {
-    pub position: Vec3,
-    pub direction: Vec3,
-    pub color: Vec3,
-    pub intensity: f32,
-    pub radius: f32,
-    pub _pad: [f32; 2],
-}
+```cpp
+struct Light {
+    Vec3 position;
+    Vec3 direction;
+    Vec3 color;
+    float intensity;
+    float radius;
+    float _pad[2];
+};
 ```
 
 ## Planned Components

@@ -32,24 +32,20 @@ When no NPU is present, the engine adapts:
 
 ### NPU Detection Logic
 
-```rust
-pub enum NpuDetection {
-    // Primary accelerators
-    AMD_XDNA,      // Ryzen AI (XDNA 1/2)
-    Intel_AI,      // Intel AI Boost
-    ARM_NPU,       // Qualcomm Hexagon, MediaTek APU, Huawei DaVinci
-    Samsung_NPU,   // Exynos RDNA iGPU + NPU
-    RISC_V_NPU,    // Sophgo, VectorTile
-    NVIDIA_TENSOR, // Tensor Cores (also GPU)
-    Intel_XMX,     // Intel Arc XMX
-    // Secondary accelerators
-    ARM_GPU_ML,    // Mali GPU ML
-    AMD_RDNA_ML,   // RDNA compute ML
-    MooreThreads_ML, // MUSA compute ML
-    // Fallback
-    None,
-}
-```
+```cpp
+enum class NpuDetection {
+    AMD_XDNA,
+    Intel_AI,
+    ARM_NPU,
+    Samsung_NPU,
+    RISC_V_NPU,
+    NVIDIA_TENSOR,
+    Intel_XMX,
+    ARM_GPU_ML,
+    AMD_RDNA_ML,
+    MooreThreads_ML,
+    None
+};
 
 ### Fallback Behavior
 
@@ -64,17 +60,14 @@ pub enum NpuDetection {
 
 ### Adaptation Strategies
 
-```rust
-pub enum AdaptationStrategy {
-    // When NPU present
-    NPU_Exclusive,    // All AI domains on NPU
-    NPU_Hybrid,      // NPU + GPU for intensive tasks
-    // When NPU absent  
-    GPU_Fallback,    // SIMD-accelerated NPC behavior
-    CPU_Scripted,    // Predefined scripts + basic reasoning
-    Hybrid_Mixed,   // Mix of scripted + computed responses
-}
-```
+```cpp
+enum class AdaptationStrategy {
+    NPU_Exclusive,
+    NPU_Hybrid,
+    GPU_Fallback,
+    CPU_Scripted,
+    Hybrid_Mixed
+};
 
 ---
 
@@ -85,7 +78,7 @@ pub enum AdaptationStrategy {
 The entire project is optimized for AI consumption:
 
 - **Shaders**: Plain GLSL files editable with natural language
-- **Components**: Flat Rust structures, no complex APIs
+- **Components**: Flat C++ structures, no complex APIs
 - **Actions**: Logged in `template/agent/actions.log` for audit
 - **World State**: Predictable ECS with clear interfaces
 - **Documentation**: Self-contained, no hidden steps
