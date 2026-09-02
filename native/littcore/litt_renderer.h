@@ -58,12 +58,12 @@ enum class MaterialType {
 struct RenderMaterial {
     std::string name;
     MaterialType type = MaterialType::Standard;
-    Vec3f albedo = Vec3f::one();
+    Vec3 albedo = Vec3::one();
     float roughness = 0.5f;
     float metalness = 0.0f;
     float occlusion = 1.0f;
     float emission = 0.0f;
-    Vec3f emission_color = Vec3f::zero();
+    Vec3 emission_color = Vec3::zero();
     std::string texture_path;
     std::shared_ptr<void> texture;
     bool transparent = false;
@@ -108,26 +108,26 @@ struct RenderCamera {
     float near_plane = 0.1f;
     float far_plane = 1000.0f;
 
-    Mat4f view = Mat4f::identity();
-    Mat4f projection = Mat4f::identity();
-    Mat4f view_projection = Mat4f::identity();
+    Mat4 view = Mat4::identity();
+    Mat4 projection = Mat4::identity();
+    Mat4 view_projection = Mat4::identity();
 
     void update() {
-        view = Mat4f::look_at(position, target, up);
-        projection = Mat4f::perspective(
+        view = Mat4::look_at(position, target, up);
+        projection = Mat4::perspective(
             fov * LITT_MATH_DEG2RAD, aspect, near_plane, far_plane);
         view_projection = projection * view;
     }
 
-    Vec3f get_forward() const {
+    Vec3 get_forward() const {
         return (target - position).normalized();
     }
 
-    Vec3f get_right() const {
-        return Vec3f::up().cross(get_forward()).normalized();
+    Vec3 get_right() const {
+        return Vec3::up().cross(get_forward()).normalized();
     }
 
-    Vec3f get_up() const {
+    Vec3 get_up() const {
         return get_forward().cross(get_right()).normalized();
     }
 };
@@ -157,11 +157,11 @@ public:
     virtual void end_frame() = 0;
     virtual void present() = 0;
 
-    virtual void clear(Vec3f color, float depth = 1.0f, uint32_t stencil = 0) = 0;
+    virtual void clear(Vec3 color, float depth = 1.0f, uint32_t stencil = 0) = 0;
     virtual void set_camera(const RenderCamera& camera) = 0;
-    virtual void draw_mesh(const RenderMesh& mesh, const Mat4f& transform, const RenderMaterial& material) = 0;
-    virtual void draw_line(const Vec3f& start, const Vec3f& end, Vec3f color) = 0;
-    virtual void draw_gizmo(const Vec3f& pos, const Vec3f& rot, float scale) = 0;
+    virtual void draw_mesh(const RenderMesh& mesh, const Mat4& transform, const RenderMaterial& material) = 0;
+    virtual void draw_line(const Vec3& start, const Vec3& end, Vec3 color) = 0;
+    virtual void draw_gizmo(const Vec3& pos, const Vec3& rot, float scale) = 0;
 
     virtual uint32_t get_width() const = 0;
     virtual uint32_t get_height() const = 0;
@@ -296,7 +296,7 @@ public:
         // Present frame
     }
 
-    void clear(Vec3f, float, uint32_t) override {
+    void clear(Vec3, float, uint32_t) override {
         // Clear buffers
     }
 
@@ -304,24 +304,24 @@ public:
         current_camera_ = camera;
     }
 
-    void draw_mesh(const RenderMesh&, const Mat4f&, const RenderMaterial&) override {
+    void draw_mesh(const RenderMesh&, const Mat4&, const RenderMaterial&) override {
         // Draw mesh with transform and material
     }
 
-    void draw_line(const Vec3f&, const Vec3f&, Vec3f) override {
+    void draw_line(const Vec3&, const Vec3&, Vec3) override {
         // Draw line (for debug visualization)
     }
 
-    void draw_gizmo(const Vec3f& pos, const Vec3f&, float scale) override {
+    void draw_gizmo(const Vec3& pos, const Vec3&, float scale) override {
         // Draw transform gizmo
         float len = 30.0f * scale;
 
         // X axis (red)
-        draw_line(pos, pos + Vec3f(len, 0, 0), Vec3f(1, 0, 0));
+        draw_line(pos, pos + Vec3(len, 0, 0), Vec3(1, 0, 0));
         // Y axis (green)
-        draw_line(pos, pos + Vec3f(0, len, 0), Vec3f(0, 1, 0));
+        draw_line(pos, pos + Vec3(0, len, 0), Vec3(0, 1, 0));
         // Z axis (blue)
-        draw_line(pos, pos + Vec3f(0, 0, len), Vec3f(0, 0, 1));
+        draw_line(pos, pos + Vec3(0, 0, len), Vec3(0, 0, 1));
     }
 
     uint32_t get_width() const override { return width_; }
