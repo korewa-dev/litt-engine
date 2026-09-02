@@ -1,10 +1,5 @@
 // LittRenderer - Complete rendering system
-// Vulkan/DirectX/OpenGL abstraction with scene management
-//
-// CDR-002 note: this header's node/scene/mesh/material/light/camera types are
-// prefixed Render* because litt_ecs.h already claims Mesh/Material/Light/
-// Camera and litt_scene.h claims SceneNode/Scene for different concepts;
-// including both must stay legal.
+// Uses unified types from litt_math.h (Vec3, Vec2, AABB, etc.)
 
 #pragma once
 #include "litt_math.h"
@@ -31,15 +26,15 @@ enum class RenderBackend {
 };
 
 // =============================================================================
-// Mesh Data
+// Mesh Data (uses unified Vec3 from litt_math.h)
 // =============================================================================
 
 struct MeshData {
-    std::vector<Vec3f> positions;
-    std::vector<Vec3f> normals;
-    std::vector<Vec2f> texcoords;
+    std::vector<Vec3> positions;
+    std::vector<Vec3> normals;
+    std::vector<Vec2> texcoords;
     std::vector<uint32_t> indices;
-    Aabbf bounds;
+    Aabb bounds;
     std::string name;
 };
 

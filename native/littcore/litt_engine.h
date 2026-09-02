@@ -287,7 +287,7 @@ private:
     WorldManager world_;
     World ecs_world_;
     Renderer renderer_;
-    InputState input_;
+    Input input_;
     PhysicsSystem physics_;
     AudioManager audio_;
     Profiler profiler_;
