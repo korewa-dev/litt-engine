@@ -50,7 +50,7 @@ sequenceDiagram
 
 The `NeuralBrain` component is attached to every AI-driven entity. It holds the model handle, inference state, and task queue.
 
-```rust
+```cpp
 #[derive(Clone, Debug, Pod, Zeroable)]
 #[repr(C)]
 pub struct NeuralBrain {
@@ -82,7 +82,7 @@ pub struct NeuralBrain {
 
 Tracks the current high-level behavior mode of an NPC.
 
-```rust
+```cpp
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum BehaviorMode {
     #[default]
@@ -121,7 +121,7 @@ The `NeuralAISystem` writes results into these components, which are consumed by
 
 ## System Update Loop (Pseudocode)
 
-```rust
+```cpp
 impl System for NeuralAISystem {
     fn update(&mut self, world: &mut World, dt: f32) {
         // 1. Collect all entities with NeuralBrain

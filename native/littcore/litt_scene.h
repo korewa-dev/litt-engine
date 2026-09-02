@@ -1,5 +1,4 @@
 // LittScene - Scene management for Litt Engine
-// Replaces crates/scene/lib.rs
 
 #pragma once
 #include "litt_math.h"

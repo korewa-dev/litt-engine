@@ -14,7 +14,7 @@ AMD GPU Services (AGS) is a C API that allows applications to:
 
 ## Planned Integration
 
-```rust
+```cpp
 pub struct AmdAgs {
     pub temperature: f32,       // GPU temperature (Celsius)
     pub power_watts: f32,       // Current power draw

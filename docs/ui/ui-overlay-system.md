@@ -91,7 +91,7 @@ classDiagram
 
 ## HUD Layer
 
-```rust
+```cpp
 /// HUD elements rendered above the 3D scene.
 #[derive(Clone, Debug)]
 pub struct HUD {
@@ -124,7 +124,7 @@ impl System for HUDSystem {
 
 The debug overlay reads profiling data from the `GraphicsBackend` and displays it every frame:
 
-```rust
+```cpp
 #[derive(Clone, Debug, Default)]
 pub struct DebugOverlay {
     pub fps: u32,
@@ -140,9 +140,9 @@ pub struct DebugOverlay {
 }
 ```
 
-The debug overlay integrates with `GraphicsBackend` profiling hooks ([see src/graphics.rs](../src/graphics.rs)):
+The debug overlay integrates with `GraphicsBackend` profiling hooks ([see native/littcore/](../native/littcore/)):
 
-```rust
+```cpp
 // In RenderSystem, after each frame:
 let gpu_time = backend.get_gpu_timer_ms();
 let draw_calls = backend.get_draw_call_count();
@@ -155,7 +155,7 @@ debug_overlay.backend_name = backend.name().to_string();
 
 ## UI Update Loop
 
-```rust
+```cpp
 impl System for UIOverlaySystem {
     fn update(&mut self, world: &mut World, dt: f32) {
         // 1. Update all UI panels (layout, visibility)

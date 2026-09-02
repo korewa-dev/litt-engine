@@ -4,7 +4,7 @@
 
 The Litt Engine AI Editor API provides a standardized interface for any AI system to interact with the engine and build editors. This API is:
 
-- **Language-agnostic**: Works with Python, C++, Rust, or any language with FFI support
+- **Language-agnostic**: Works with Python, C++, or any language with FFI support
 - **JSON-based**: Uses JSON for configuration and data exchange
 - **Modular**: Components can be added/removed dynamically
 - **Scriptable**: Supports Lua/Python scripting for custom behavior
@@ -45,7 +45,7 @@ editor.export_scene("Project/my_game/scene.json")
 ### Python
 
 ```bash
-pip install litt-ai-editor
+pip install litt_ai-editor
 ```
 
 ### C++

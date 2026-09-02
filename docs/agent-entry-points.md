@@ -29,7 +29,7 @@ tool reliably follows links.
 | Claude Code | `CLAUDE.md` |
 | Gemini CLI (Google) | `GEMINI.md` |
 | GitHub Copilot | `.github/copilot-instructions.md` |
-| Cursor (current) | `.cursor/rules/litt-engine.mdc` (alwaysApply) |
+| Cursor (current) | `.cursor/rules/litt_engine.mdc` (alwaysApply) |
 | Cursor (legacy) | `.cursorrules` |
 | Windsurf | `.windsurfrules` |
 | Cline | `.clinerules` |
@@ -37,8 +37,8 @@ tool reliably follows links.
 | Zed (older) | `.rules` |
 | Aider | `CONVENTIONS.md` (add via `--read CONVENTIONS.md` or /read) |
 | Project IDX / Firebase Studio | `.idx/airules.md` |
-| Kiro (AWS) | `.kiro/steering/litt-engine.md` (inclusion: always) |
-| Continue.dev | `.continue/rules/litt-engine.md` |
+| Kiro (AWS) | `.kiro/steering/litt_engine.md` (inclusion: always) |
+| Continue.dev | `.continue/rules/litt_engine.md` |
 
 ## What every mirror contains
 

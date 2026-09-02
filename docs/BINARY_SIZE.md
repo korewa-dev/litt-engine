@@ -4,12 +4,12 @@
 ## Target: Under 1 MB
 
 ## Current Dependency Size Estimate
-- litt-math: ~5 KB (custom types, no dependencies)
-- litt-platform: ~20 KB (platform-specific code)
-- litt-vulkan: ~30 KB (Vulkan backend)
-- litt-renderer: ~25 KB (renderer orchestration)
-- litt-pathtracer: ~30 KB (path tracing logic)
-- litt-fidelityfx: ~20 KB (FidelityFX integration)
+- litt_math: ~5 KB (custom types, no dependencies)
+- litt_platform: ~20 KB (platform-specific code)
+- litt_vulkan: ~30 KB (Vulkan backend)
+- litt_renderer: ~25 KB (renderer orchestration)
+- litt_pathtracer: ~30 KB (path tracing logic)
+- litt_fidelityfx: ~20 KB (FidelityFX integration)
 - ash: ~150 KB (Vulkan bindings)
 - bytemuck: ~5 KB (zero-cost casting)
 - bitflags: ~3 KB (bitmask types)

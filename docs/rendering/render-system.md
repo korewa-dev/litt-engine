@@ -3,7 +3,7 @@
 
 > ECS-driven rendering pipeline bridging entity components to GPU command buffers.
 
-**Status:**  Designed -- integration with `litt-renderer` and `litt-pathtracer` planned. See [ROADMAP.md](./ROADMAP.md#phase-4).
+**Status:**  Designed -- integration with `litt_renderer` and `litt_pathtracer` planned. See [ROADMAP.md](./ROADMAP.md#phase-4).
 
 ---
 
@@ -76,7 +76,7 @@ Shader compilation is handled by `build.rs` at compile time:
 | Vulkan | GLSL (.glsl) | SPIR-V (.spv) | glslangValidator / glslc |
 | DX12 | HLSL (.hlsl) | DXIL (.dll) | dxc.exe |
 
-```rust
+```cpp
 // In build.rs
 fn compile_shaders() {
     // Vulkan / GLSL -> SPIR-V
@@ -95,7 +95,7 @@ fn compile_shaders() {
 
 ## Transform + Mesh + Material -> Draw Call
 
-```rust
+```cpp
 impl System for RenderSystem {
     fn update(&mut self, world: &mut World, dt: f32) {
         // 1. Query all renderable entities
@@ -158,14 +158,14 @@ For FSR details, see [FSR_SUPPORT.md](./FSR_SUPPORT.md). For RDNA shader optimiz
 | Synchronization | Semaphores + fences | Fences + sync objects |
 | RT pipeline | `VK_KHR_ray_tracing_pipeline` | DXR via `ID3D12Device5` |
 
-The `RenderSystem` abstracts these differences via the `GraphicsBackend` trait ([see src/graphics.rs](../src/graphics.rs)).
+The `RenderSystem` abstracts these differences via the `GraphicsBackend` trait ([see native/littcore/](../native/littcore/)).
 
 ---
 
 ## Roadmap
 
 ### Short-term (1-3 months)
-- [ ] Implement `RenderSystem` with `litt-renderer` backend
+- [ ] Implement `RenderSystem` with `litt_renderer` backend
 - [ ] Add `Renderable` component to template entities
 - [ ] Build per-entity CBV allocation
 - [ ] Implement depth prepass + opaque pass

@@ -22,7 +22,7 @@
 
 RISC-V Vector Extension (RVV) provides variable-length SIMD:
 
-```rust
+```cpp
 #[cfg(target_arch = "riscv64")]
 unsafe fn broadphase_rvv(bodies: &mut [PhysicsBody]) {
     // RVV vectorized spatial hash

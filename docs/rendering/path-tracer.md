@@ -1,11 +1,11 @@
 # Path Tracer
 
-> Deep dive into the `litt-pathtracer` crate internals.
+> Deep dive into the `litt_pathtracer` module internals.
 
-## Crate: litt-pathtracer
+## Crate: litt_pathtracer
 
-**Path:** `crates/pathtracer/src/`
-**Dependencies:** ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma
+**Path:** `native/littcore/pathtracer/src/`
+**Dependencies:** ash, bytemuck, litt_math, litt_vulkan, litt_renderer, vma
 
 ### Modules
 
@@ -18,7 +18,7 @@
 
 ## GPU Buffers
 
-```rust
+```cpp
 pub struct PathTracerBuffers {
     pub triangles: Buffer,
     pub spheres: Buffer,

@@ -1,5 +1,4 @@
 // LittPhysics - GPU-accelerated rigid body physics for Litt Engine
-// Replaces crates/physics/lib.rs
 
 #pragma once
 #include "litt_math.h"

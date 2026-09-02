@@ -6,7 +6,7 @@
 
 On Windows, the engine prefers DX12 and falls back to Vulkan:
 
-```rust
+```cpp
 pub fn select_backend() -> Result<Box<dyn GraphicsBackend>> {
     #[cfg(feature = "dx12")]
     {

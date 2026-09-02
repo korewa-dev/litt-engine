@@ -1,5 +1,4 @@
 // LittConfig - Configuration system for Litt Engine
-// Replaces crates/config/lib.rs
 
 #pragma once
 #include <string>

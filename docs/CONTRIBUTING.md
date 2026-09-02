@@ -12,8 +12,8 @@ Thank you for wanting to contribute. Litt Engine is a small, focused project  ev
 ## Development Setup
 
 Run these commands to build and run:
-- git clone https://github.com/korewa-dev/litt-engine.git
-- cd litt-engine
+- git clone https://github.com/korewa-dev/litt_engine.git
+- cd litt_engine
 - native\build.bat            # Windows build (POSIX: make -C native)
 - native\bin\littview.exe     # sanity-run the viewer
 

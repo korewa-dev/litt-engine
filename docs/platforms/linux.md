@@ -6,7 +6,7 @@
 
 | Backend | Status | Notes |
 |---------|--------|-------|
-| X11 |  Implemented | `litt-platform` X11 module |
+| X11 |  Implemented | `litt_platform` X11 module |
 | Wayland |  Planned | Required for modern desktops |
 | XCB |  Implemented | Alternative X11 backend |
 

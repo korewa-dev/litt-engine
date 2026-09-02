@@ -47,15 +47,15 @@ editor.export_scene("scene.json")
 ### From source
 
 ```bash
-git clone https://github.com/korewa-dev/litt-engine.git
-cd litt-engine/python
+git clone https://github.com/korewa-dev/litt_engine.git
+cd litt_engine/python
 pip install -e .
 ```
 
 ### From PyPI (coming soon)
 
 ```bash
-pip install litt-ai-editor
+pip install litt_ai-editor
 ```
 
 ## Building from source

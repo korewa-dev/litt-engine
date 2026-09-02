@@ -1,5 +1,5 @@
 // LittAsset - Asset loading system for Litt Engine
-// Replaces crates/asset/lib.rs
+// Asset loading module
 
 #pragma once
 #include "litt_math.h"

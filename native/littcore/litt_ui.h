@@ -1,5 +1,4 @@
 // LittUI - User interface system for Litt Engine
-// Replaces crates/ui/lib.rs
 
 #pragma once
 #include "litt_math.h"

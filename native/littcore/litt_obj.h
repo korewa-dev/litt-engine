@@ -1,4 +1,4 @@
-/* litt_obj.h - group-aware OBJ loader (port of crates/asset model.rs).
+/* litt_obj.h - group-aware OBJ loader.
  * Every `g <name>` / `usemtl` switch starts a named mesh; faces may span
  * global vertex indices and are remapped per mesh. */
 #ifndef LITT_OBJ_H

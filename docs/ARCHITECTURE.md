@@ -6,12 +6,12 @@ Application Layer -> Platform Layer -> Vulkan Backend (VMA + AMD AGS) -> Rendere
 ## Crate Dependencies
 ```
 litt (root)
- litt-math           (no dependencies)
- litt-platform       (ash, bytemuck, platform-specific)
- litt-vulkan         (ash, ash-window, vma, bytemuck, litt-math, litt-platform, ags)
- litt-renderer       (ash, bytemuck, litt-math, litt-vulkan)
- litt-pathtracer     (ash, bytemuck, litt-math, litt-vulkan, litt-renderer, vma)
- litt-fidelityfx     (ash, bytemuck, litt-math, litt-vulkan, vma)
+ litt_math           (no dependencies)
+ litt_platform       (ash, bytemuck, platform-specific)
+ litt_vulkan         (ash, ash-window, vma, bytemuck, litt_math, litt_platform, ags)
+ litt_renderer       (ash, bytemuck, litt_math, litt_vulkan)
+ litt_pathtracer     (ash, bytemuck, litt_math, litt_vulkan, litt_renderer, vma)
+ litt_fidelityfx     (ash, bytemuck, litt_math, litt_vulkan, vma)
 ```
 
 ## Render Pipeline
@@ -91,7 +91,7 @@ TLAS Builder
 ```
 
 ## Interactive Diagram
-See [litt-engine-architecture.html](../litt-engine-architecture.html) for a full interactive visualization.
+See [litt_engine-architecture.html](../litt_engine-architecture.html) for a full interactive visualization.
 
 
 

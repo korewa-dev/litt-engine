@@ -15,7 +15,7 @@ The `NetworkingSystem` provides multiplayer networking for the Litt Engine. It s
 
 ## Packet Structure
 
-```rust
+```cpp
 /// Network packet header -- sent with every message.
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
 #[repr(C)]
@@ -73,7 +73,7 @@ sequenceDiagram
 
 ### Component Replication Mask
 
-```rust
+```cpp
 #[derive(Clone, Debug)]
 pub struct NetworkEntity {
     /// Unique network ID (assigned by server)

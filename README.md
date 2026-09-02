@@ -58,7 +58,7 @@ Use natural language in the editor:
 ## Project Layout
 
 ```
-litt-engine/
+litt_engine/
 ├── editor/                    # 🌐 Web-based AI Editor
 │   ├── index.html             # Editor UI
 │   ├── editor.css             # Dark theme styles

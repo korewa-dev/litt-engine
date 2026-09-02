@@ -15,7 +15,7 @@
 
 Android NPUs are accessed via NNAPI (Neural Networks API):
 
-```rust
+```cpp
 pub enum NpuVendor {
     QualcommHexagon,  // Adreno + Hexagon
     MaliNPU,          // ARM Mali + Mali-NPU

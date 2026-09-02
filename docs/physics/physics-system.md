@@ -17,7 +17,7 @@ The `PhysicsSystem` is a GPU-accelerated rigid body physics engine integrated in
 
 ## PhysicsBody Component
 
-```rust
+```cpp
 /// Collider shape types supported by the physics system.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ColliderShape {
@@ -95,7 +95,7 @@ pub struct PhysicsBody {
 
 Uses semi-implicit Euler for stability:
 
-```rust
+```cpp
 fn semi_implicit_euler(body: &mut PhysicsBody, dt: f32, external_force: Vec3) {
     let gravity = Vec3::new(0.0, -9.81 * body.gravity_scale, 0.0);
     let total_force = external_force + gravity * body.mass;
@@ -112,7 +112,7 @@ fn semi_implicit_euler(body: &mut PhysicsBody, dt: f32, external_force: Vec3) {
 
 Impulse-based resolution with friction and positional correction:
 
-```rust
+```cpp
 // Solve contact constraint
 solver.solve_contact(&mut body_a, &mut body_b, contact.normal, contact.penetration);
 
@@ -129,7 +129,7 @@ solver.solve_contact(&mut body_a, &mut body_b, contact.normal, contact.penetrati
 
 Physics runs on a separate compute queue from the graphics queue:
 
-```rust
+```cpp
 // GPU path: async compute dispatch
 if system.async_compute && system.gpu_pipeline.is_some() {
     // Record compute commands to separate command buffer
@@ -221,7 +221,7 @@ void main() {
 
 ### ARM NEON Fallback
 
-```rust
+```cpp
 #[cfg(target_arch = "aarch64")]
 pub mod neon {
     /// NEON-optimized broadphase processing
@@ -231,7 +231,7 @@ pub mod neon {
 
 ### RISC-V RVV Fallback
 
-```rust
+```cpp
 #[cfg(target_arch = "riscv64")]
 pub mod rvv {
     /// RVV vectorized broadphase
@@ -245,7 +245,7 @@ pub mod rvv {
 
 The `PhysicsSystem` reads `PhysicsBody` and `Transform` components, simulates one physics tick, and writes back updated `Transform` components:
 
-```rust
+```cpp
 impl System for PhysicsSystem {
     fn update(&mut self, world: &mut World, _dt: f32) {
         let substeps = self.substeps.max(1) as usize;
@@ -270,7 +270,7 @@ impl System for PhysicsSystem {
 
 ## Usage Example
 
-```rust
+```cpp
 use litt_physics::*;
 
 // Create physics system

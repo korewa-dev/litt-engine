@@ -3,13 +3,13 @@
 
 > Input aggregation, mapping, and ECS integration for keyboard, mouse, and gamepad.
 
-**Status:**  Designed -- `litt-platform` provides raw input; `InputSystem` ECS integration planned. See [ROADMAP.md](./ROADMAP.md#phase-4).
+**Status:**  Designed -- `litt_platform` provides raw input; `InputSystem` ECS integration planned. See [ROADMAP.md](./ROADMAP.md#phase-4).
 
 ---
 
 ## Overview
 
-The `InputSystem` aggregates raw HID events from `litt-platform`, resolves them into named actions via a configurable mapping table, and writes the result into `InputState` components on entities. Other systems (PlayerSystem, CameraSystem, UIOverlaySystem) read `InputState` to react to player input.
+The `InputSystem` aggregates raw HID events from `litt_platform`, resolves them into named actions via a configurable mapping table, and writes the result into `InputState` components on entities. Other systems (PlayerSystem, CameraSystem, UIOverlaySystem) read `InputState` to react to player input.
 
 ---
 
@@ -74,7 +74,7 @@ face_buttons = ["button_a", "button_b", "button_x", "button_y"]
 
 ## InputState Component
 
-```rust
+```cpp
 /// Aggregated input state written by InputSystem, read by game systems.
 #[derive(Clone, Debug, Default)]
 pub struct InputState {
@@ -120,7 +120,7 @@ pub enum AnalogInput {
 
 ```mermaid
 sequenceDiagram
-    participant Platform as litt-platform
+    participant Platform as litt_platform
     participant InputSys as InputSystem
     participant Map as input_mapping.toml
     participant World as ECS World
@@ -156,7 +156,7 @@ The Steam Deck has unique input sources that require special handling:
 
 ## ECS Integration
 
-```rust
+```cpp
 impl System for InputSystem {
     fn update(&mut self, world: &mut World, _dt: f32) {
         // 1. Poll raw input from platform
@@ -188,7 +188,7 @@ impl System for InputSystem {
 ### Short-term (1-3 months)
 - [ ] Implement `InputState` component
 - [ ] Build TOML input mapping parser
-- [ ] Wire `litt-platform` raw input to `InputSystem`
+- [ ] Wire `litt_platform` raw input to `InputSystem`
 - [ ] Add discrete/continuous/analog classification
 
 ### Mid-term (3-12 months)

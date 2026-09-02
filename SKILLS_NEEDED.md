@@ -50,7 +50,7 @@ Based on the systematic analysis of Litt Engine's structure and development need
 
 9. **github-code-review**
    - Purpose: GitHub PR reviews and inline comments
-   - Why needed: If contributing back to korewa-dev/litt-engine
+   - Why needed: If contributing back to korewa-dev/litt_engine
    - Status: ✅ Available and loaded
 
 ## GitHub Skills (for Repository Contributions)
@@ -65,7 +65,7 @@ Based on the systematic analysis of Litt Engine's structure and development need
 ## Additional Tools
 
 ### Hermes Agent Skill Authoring
-The `hermes-agent-skill-authoring` skill can be used to create or update SKILL.md files within the litt-engine project if needed.
+The `hermes-agent-skill-authoring` skill can be used to create or update SKILL.md files within the litt_engine project if needed.
 
 ## Installation Commands
 

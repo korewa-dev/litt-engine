@@ -27,7 +27,7 @@ That single constraint produces everything else:
 Worlds live as human-readable JSON (`litt_scene::serialization`). Agents diff scene files like source code, generate levels programmatically, and review changes line-by-line. `assets/asset_index.json` gives every agent a machine-readable manifest instead of filesystem guessing.
 
 ### Pillar 2 — Determinism is a feature
-The fixed-timestep loop plus POD input snapshots plus FNV-1a state hashing mean: **same inputs → same world, provably.** `litt::replay` records sessions to `.litr` files; `ReplayPlayer::verify_state()` flags desyncs the moment they appear. An agent doesn't hope its change worked — it proves it.
+The fixed-timestep loop plus POD input snapshots plus FNV-1a state hashing mean: **same inputs → same world, provably.** `litt_replay` records sessions to `.litr` files; `ReplayPlayer::verify_state()` flags desyncs the moment they appear. An agent doesn't hope its change worked — it proves it.
 
 ### Pillar 3 — Headless-first
 The GAL (Graphics Abstraction Layer) ships `NullDevice`, a complete no-GPU backend. Agents develop, test, and CI entire games without a display or even a GPU. Vulkan, DX12, and AGS become interchangeable targets behind one neutral command stream — write once, replay on any backend.
@@ -36,7 +36,7 @@ The GAL (Graphics Abstraction Layer) ships `NullDevice`, a complete no-GPU backe
 The RL API (`litt_ai::rl`) formalizes gameplay into observation → action → reward so agents can *train* on engine systems, not just run them. The profiler exposes frame timing and GPU stats as data. If it can't be measured, it can't be optimized by an agent.
 
 ### Pillar 5 — Multi-agent native
-`litt-net` gives every agent process a real UDP/TCP transport with non-blocking inboxes and compact transform replication. Sessions are networked simulations where each participant may be an agent.
+`litt_net` gives every agent process a real UDP/TCP transport with non-blocking inboxes and compact transform replication. Sessions are networked simulations where each participant may be an agent.
 
 ## 3. How the Tools Work — The Agent Workflow Loop
 
@@ -74,18 +74,18 @@ The RL API (`litt_ai::rl`) formalizes gameplay into observation → action → r
 
 ### Tool map
 
-| Tool | Crate | What the agent does with it |
+| Tool | Module | What the agent does with it |
 |---|---|---|
-| Scene serialization | `litt-scene` | Generate worlds as diffable JSON; load/save round-trips validated by format magic |
-| Replay recorder/player | `litt::replay` | Prove determinism; catch desyncs instantly; reproduce bugs from any machine |
-| Screenshot capture | `litt-renderer` | GPU image readback → RGBA bytes → PPM file the agent can inspect |
-| RL API | `litt-ai` | Wrap any system as an `Environment`; train `TabularQAgent`s; evaluate with episodes |
-| Networking | `litt-net` | Connect agent processes; replicate transforms; exchange events over TCP/UDP |
-| GAL | `litt-gal` | One neutral command stream → NullDevice for CI, real backends for shipping |
-| Physics tiers | `litt-physics` | RDNA GPU broadphase down to scalar CPU fallbacks — same API, any hardware |
-| Asset pipeline | `litt-asset` | Loaders + animation playback/blending keyed off the manifest |
-| Audio | `litt-audio` | WAV/MP3 decoding, playback control |
-| Profiler | `litt-profiler` | Frame/GPU timing as data for optimization passes |
+| Scene serialization | `litt_scene` | Generate worlds as diffable JSON; load/save round-trips validated by format magic |
+| Replay recorder/player | `litt_replay` | Prove determinism; catch desyncs instantly; reproduce bugs from any machine |
+| Screenshot capture | `litt_renderer` | GPU image readback → RGBA bytes → PPM file the agent can inspect |
+| RL API | `litt_ai` | Wrap any system as an `Environment`; train agents; evaluate with episodes |
+| Networking | `litt_net` | Connect agent processes; replicate transforms; exchange events over TCP/UDP |
+| GAL | `litt_gal` | One neutral command stream → NullDevice for CI, real backends for shipping |
+| Physics tiers | `litt_physics` | GPU broadphase down to scalar CPU fallbacks — same API, any hardware |
+| Asset pipeline | `litt_asset` | Loaders + animation playback/blending keyed off the manifest |
+| Audio | `litt_audio` | WAV/MP3 decoding, playback control |
+| Profiler | `litt_profiler` | Frame/GPU timing as data for optimization passes |
 
 ## 4. Why the License Looks the Way It Does
 

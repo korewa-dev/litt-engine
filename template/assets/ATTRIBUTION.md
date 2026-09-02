@@ -4,7 +4,7 @@
 | Asset | Source | License |
 |-------|--------|---------|
 | GLSL shaders | Engine source | MIT |
-| Rust source | Engine source | MIT |
+| C++ source | Engine source | MIT |
 
 ## Generated Assets (procedural, in-repo)
 | Asset | Method | License |

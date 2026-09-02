@@ -1,6 +1,6 @@
 # Ray Tracing (Path Tracer)
 
-> Deep-dive into the path tracing implementation in `crates/pathtracer/`.
+> Deep-dive into the path tracing implementation in `native/littcore/pathtracer/`.
 
 ## Shader Pipeline
 

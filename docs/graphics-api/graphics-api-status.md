@@ -2,7 +2,7 @@
 
 | API | Tier | Status | Notes |
 |-----|------|--------|-------|
-| **Vulkan 1.3** | Higher |  **Implemented** | Full backend in `crates/vulkan/` -- VMA, RT pipeline, BLAS/TLAS |
+| **Vulkan 1.3** | Higher |  **Implemented** | Full backend in `native/littcore/vulkan/` -- VMA, RT pipeline, BLAS/TLAS |
 | **DX12** | Higher |  **Implemented** | DXGI, DXR, descriptor heaps, PSOs, root signatures |
 | **AMD AGS** | Lower |  **Not implemented** | No references in codebase; AMD GPU Services for power/performance |
 | **MUSA** | Lower |  **Planned** | Vendor detection in `fsr4_integration.rs` (ID `0x1DD`) |
@@ -13,10 +13,10 @@
 
 | Crate | Path | APIs |
 |-------|------|------|
-| `litt-vulkan` | `crates/vulkan/src/` | Vulkan 1.3 full backend |
-| `litt-dx12` | `crates/dx12/src/` | DX12 + DXR + DirectML |
-| `litt-fidelityfx` | `crates/fidelityfx/src/` | FSR 3/4, CAS, XESS 3, NPU vendor detection |
-| `litt-platform` | `crates/platform/src/` | Windows (Win32), Linux (X11), Android (AAPI) |
+| `litt_vulkan` | `native/littcore/vulkan/src/` | Vulkan 1.3 full backend |
+| `litt_dx12` | `native/littcore/dx12/src/` | DX12 + DXR + DirectML |
+| `litt_fidelityfx` | `native/littcore/fidelityfx/src/` | FSR 3/4, CAS, XESS 3, NPU vendor detection |
+| `litt_platform` | `native/littcore/platform/src/` | Windows (Win32), Linux (X11), Android (AAPI) |
 
 ## Platform Matrix
 

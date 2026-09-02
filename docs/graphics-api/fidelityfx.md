@@ -29,7 +29,7 @@ Litt Engine integrates the [AMD FidelityFX SDK](https://github.com/GPUOpen-Libra
 
 ## Usage
 
-```rust
+```cpp
 use litt_fidelityfx::fsr3::*;
 
 let mut fsr3 = Fsr4::new(960, 540, 1920, 1080);

@@ -1,4 +1,4 @@
-// C contract for the Litt engine FFI bridge (see crates/ffi/src/lib.rs).
+// C contract for the Litt engine FFI bridge.
 // Any C++ engine can link litt_ffi.dll and deploy generated worlds natively.
 #ifndef LITT_FFI_H
 #define LITT_FFI_H

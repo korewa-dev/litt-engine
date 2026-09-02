@@ -7,7 +7,7 @@ The rendering subsystem includes the path tracer, frame graph, and FidelityFX in
 | File | Content |
 |------|---------|
 | [render-system.md](./render-system.md) | ECS rendering pipeline, pass ordering, shader compilation |
-| [path-tracer.md](./path-tracer.md) | pathtracer crate internals, BRDFs, ray tracing |
+| [path-tracer.md](./path-tracer.md) | pathtracer module internals, BRDFs, ray tracing |
 | [frame-graph.md](./frame-graph.md) | Complete frame graph and pass dependencies |
 | [dither3d.md](./dither3d.md) | Surface-Stable Fractal Dithering integration |
 

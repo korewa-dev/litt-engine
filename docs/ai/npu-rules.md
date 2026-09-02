@@ -97,8 +97,8 @@ The entire project is optimized for AI consumption:
 ### Ultra-Lightweight Constraint
 
 Target: **< 1 MB binary**
-- Math crate: 0 dependencies
-- Platform crate: ~20 KB
+- Math module: 0 dependencies
+- Platform module: ~20 KB
 - ECS core: Minimal allocations
 - No heavy abstractions
 - Zero-cost optimizations
@@ -116,7 +116,7 @@ The ECS is a memory layout strategy for hardware optimization:
 ### Graceful Degradation Examples
 
 #### When NPU Available: NPC Behavior
-```rust
+```cpp
 pub fn update_neural_ai(&mut self, dt: f32) {
     // Full neural inference on NPU
     let input = self.extract_observation();
@@ -126,7 +126,7 @@ pub fn update_neural_ai(&mut self, dt: f32) {
 ```
 
 #### When NPU Unavailable: NPC Behavior
-```rust
+```cpp
 pub fn update_neural_ai(&mut self, dt: f32) {
     // Hybrid approach: NPU available?
     if let Some(npu) = self.check_npu_availability() {

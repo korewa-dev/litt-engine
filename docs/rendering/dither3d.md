@@ -110,7 +110,7 @@ Set via `#define` in the fragment shader:
 
 Add dithering support to the material system:
 
-```rust
+```cpp
 // In materials.rs or a new dither module
 #[derive(Component, Debug, Clone)]
 pub struct DitherMaterial {

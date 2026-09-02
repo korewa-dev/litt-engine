@@ -7,7 +7,7 @@ Runtime asset directory for Litt Engine games.
 | Path | Purpose |
 |------|---------|
 | `asset_index.json` | Machine-readable index of available assets (agents enumerate this instead of scanning) |
-| `models/` | OBJ/glTF meshes loaded via `litt-asset` |
+| `models/` | OBJ/glTF meshes loaded via `litt_asset` |
 | `textures/` | PNG/JPG/KTX2 textures |
 | `audio/` | WAV (hound) and MP3 (minimp3) files |
 | `scenes/` | Scene JSON files (`*.lscn.json`, `litt_scene::serialization`) |

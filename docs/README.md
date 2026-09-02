@@ -6,7 +6,7 @@ Navigation index for the Litt Engine subsystem documentation.
 
 | Doc | Description |
 |-----|-------------|
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | System-level architecture, crate graph, render pipeline |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | System-level architecture, module graph, render pipeline |
 | [ROADMAP.md](./ROADMAP.md) | 15-phase development plan |
 | [BINARY_SIZE.md](./BINARY_SIZE.md) | Size targets and optimization flags |
 
@@ -27,5 +27,5 @@ Navigation index for the Litt Engine subsystem documentation.
 ## Cross-References
 
 - Root [README.md](../README.md) -- High-level engine overview
-- [litt-engine-architecture.html](../litt-engine-architecture.html) -- Interactive diagram
+- [litt_engine-architecture.html](../litt_engine-architecture.html) -- Interactive diagram
 

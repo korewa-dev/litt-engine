@@ -1,5 +1,5 @@
 // LittAudio - Audio system for Litt Engine
-// Replaces crates/audio/lib.rs
+// Audio system module
 
 #pragma once
 #include <string>
