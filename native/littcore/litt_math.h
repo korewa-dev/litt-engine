@@ -381,6 +381,36 @@ struct alignas(16) Quat {
         return {res.x, res.y, res.z};
     }
     
+    // Spherical Linear Interpolation
+    static Quat slerp(const Quat& a, const Quat& b, float t) {
+        Quat a_norm = a.normalized();
+        Quat b_norm = b.normalized();
+        
+        float dot_product = a_norm.x * b_norm.x + a_norm.y * b_norm.y + 
+                           a_norm.z * b_norm.z + a_norm.w * b_norm.w;
+        
+        if (dot_product < 0) {
+            b_norm = {-b_norm.x, -b_norm.y, -b_norm.z, -b_norm.w};
+            dot_product = -dot_product;
+        }
+        
+        dot_product = std::clamp(dot_product, -1.0f, 1.0f);
+        float theta = std::acos(dot_product);
+        float sin_theta = std::sin(theta);
+        
+        if (sin_theta < 1e-6f) return a_norm;
+        
+        float w1 = std::sin((1.0f - t) * theta) / sin_theta;
+        float w2 = std::sin(t * theta) / sin_theta;
+        
+        return {
+            w1 * a_norm.x + w2 * b_norm.x,
+            w1 * a_norm.y + w2 * b_norm.y,
+            w1 * a_norm.z + w2 * b_norm.z,
+            w1 * a_norm.w + w2 * b_norm.w
+        };
+    }
+    
     // To matrix
     Mat4 to_mat4() const {
         Quat n = normalized();
