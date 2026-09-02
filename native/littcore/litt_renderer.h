@@ -1,5 +1,5 @@
 // LittRenderer - Complete rendering system
-// Uses unified types from litt_math.h (Vec3, Vec2, AABB, etc.)
+// Uses unified types from litt_math.h (Vec3, Vec2, Aabb, etc.)
 
 #pragma once
 #include "litt_math.h"
@@ -86,9 +86,9 @@ enum class LightType {
 
 struct RenderLight {
     LightType type = LightType::Point;
-    Vec3f position = Vec3f::zero();
-    Vec3f direction = Vec3f::unit_y();
-    Vec3f color = Vec3f::one();
+    Vec3 position = Vec3::zero();
+    Vec3 direction = Vec3::up();
+    Vec3 color = Vec3::one();
     float intensity = 1.0f;
     float range = 10.0f;
     float spot_angle = 45.0f;
@@ -100,9 +100,9 @@ struct RenderLight {
 // =============================================================================
 
 struct RenderCamera {
-    Vec3f position = Vec3f{0, 5, -10};
-    Vec3f target = Vec3f::zero();
-    Vec3f up = Vec3f::unit_y();
+    Vec3 position = Vec3{0, 5, -10};
+    Vec3 target = Vec3::zero();
+    Vec3 up = Vec3::up();
     float fov = 60.0f;
     float aspect = 16.0f / 9.0f;
     float near_plane = 0.1f;

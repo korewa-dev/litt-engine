@@ -210,6 +210,11 @@ struct alignas(16) Mat4 {
         return r;
     }
     
+    static Mat4 zero() {
+        Mat4 r;
+        return r;
+    }
+    
     static Mat4 look_at(const Vec3& eye, const Vec3& target, const Vec3& up) {
         // Right-handed OpenGL convention: z points BACKWARD (eye - target) so
         // the view rows are [x; y; z] with camera space looking down -Z. This
@@ -591,5 +596,6 @@ using Vec3f = Vec3;
 using Vec4f = Vec4;
 using Mat4f = Mat4;
 using Aabbf = Aabb;
+using AABB = Aabb;
 
 } // namespace litt
