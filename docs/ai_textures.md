@@ -57,5 +57,5 @@ python template/tools/assets/gen_heightfield.py --game-dir Project/ember-depths 
 ## 4. Where textures show up today
 
 - Browser runtime (three.js): `map_Kd` renders automatically via MTL.
-- Native pygame player & Rust pathtracer: consume flat albedo; texture-aware
+- Native pygame player & C++ pathtracer: consume flat albedo; texture-aware
   sampling is an open renderer milestone (tracked in docs/ARCHITECTURE.md).

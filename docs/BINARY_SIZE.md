@@ -1,4 +1,4 @@
-<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
+<!-- REMOVED STACK NOTICE (CDR-007): This document remains as design reference for the C/C++ port (native/littcore). -->
 # Binary Size Optimization Guide
 
 ## Target: Under 1 MB

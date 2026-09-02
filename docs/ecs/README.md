@@ -1,4 +1,4 @@
-<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
+<!-- REMOVED STACK NOTICE (CDR-007): This document remains as design reference for the C/C++ port (native/littcore). -->
 # ECS Documentation
 
 Entity Component System architecture and reference.
@@ -7,23 +7,23 @@ Entity Component System architecture and reference.
 
 | File | Content |
 |------|---------|
-| [architecture.md](./architecture.md) | ECS crate structure, World API |
+| [architecture.md](./architecture.md) | ECS module structure, World API |
 | [reference.md](./reference.md) | Complete component and system reference |
 | [components.md](./components.md) | Template component definitions |
 
 ## Quick Start
 
-```rust
-use litt_ecs::*;
+```cpp
+#include "litt_ecs.h"
 
-let mut world = World::new();
-let entity = world.create_entity();
-world.add_component(entity, Transform { position: Vec3::new(0.0, 0.0, 0.0), ..Default::default() });
-world.add_component(entity, Velocity { linear: Vec3::new(1.0, 0.0, 0.0) });
+World world;
+Entity entity = world.create_entity();
+world.add_component(entity, Transform{});
+world.add_component(entity, Velocity{});
 
-for e in world.query_entities_with::<Transform, Velocity>() {
-    let mut t = world.get_component_mut::<Transform>(e).unwrap();
-    let v = world.get_component::<Velocity>(e).unwrap();
+for (auto e : world.query_entities_with<Transform, Velocity>()) {
+    auto& t = world.get_component<Transform>(e);
+    auto& v = world.get_component<Velocity>(e);
     t.position += v.linear * dt;
 }
 ```

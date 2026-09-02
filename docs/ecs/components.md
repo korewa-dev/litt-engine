@@ -5,52 +5,37 @@
 ## Implemented Components
 
 ### Transform
-```rust
-// template/src/components/transform.rs
-#[derive(Clone, Debug, Default)]
-pub struct Transform {
-    pub position: Vec3,
-    pub rotation: Quat,
-    pub scale: Vec3,
-}
-
-impl Transform {
-    pub fn new() -> Self { Self::default() }
-    pub fn matrix(&self) -> Mat4 {
-        Mat4::translate(self.position.0, self.position.1, self.position.2)
-            * self.rotation.to_mat4()
-            * Mat4::scale(self.scale.0, self.scale.1, self.scale.2)
-    }
-}
+```cpp
+struct Transform {
+    Vec3 position;
+    Quat rotation;
+    Vec3 scale;
+};
 ```
 
 ### Camera
-```rust
-// template/src/components/camera.rs
-#[derive(Clone, Debug)]
-pub struct Camera {
-    pub position: Vec3,
-    pub rotation: Vec2,
-    pub fov: f32,
-    pub near_plane: f32,
-    pub far_plane: f32,
-    pub aspect: f32,
-    pub exposure: f32,
-}
+```cpp
+struct Camera {
+    Vec3 position;
+    Vec2 rotation;
+    float fov;
+    float near_plane;
+    float far_plane;
+    float aspect;
+    float exposure;
+};
 ```
 
 ### Player
-```rust
-// template/src/components/player.rs
-#[derive(Clone, Debug)]
-pub struct Player {
-    pub position: Vec3,
-    pub rotation: Vec2,
-    pub velocity: Vec3,
-    pub speed: f32,
-    pub look_speed: f32,
-    pub is_ground: bool,
-}
+```cpp
+struct Player {
+    Vec3 position;
+    Vec2 rotation;
+    Vec3 velocity;
+    float speed;
+    float look_speed;
+    bool is_ground;
+};
 ```
 
 ### Mesh

@@ -43,7 +43,7 @@ If you maintain a fork, tool, or integration, you are responsible for:
 | **Determinism discipline** | Simulations stay reproducible: fixed timestep, recorded inputs, verifiable state hashes. Breaking determinism is a bug, not a feature. |
 | **Text-native data** | Worlds, configs, and manifests stay diffable by agents (JSON scenes, asset indexes). Binary blobs need a documented, loadable format. |
 | **Documentation truth** | Docs must match code. Stale docs are treated as bugs (agents read docs, not intentions). |
-| **Test coverage** | New engine features land with unit tests; CI must stay green per-crate. |
+| **Test coverage** | New engine features land with unit tests; CI must stay green per module. |
 | **Upstream goodwill** | Meaningful improvements flow back upstream rather than being hoarded in forks. |
 | **Safety** | Agents you build on the Engine follow the [AI Safety Policy](./POLICY.md). |
 

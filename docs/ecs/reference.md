@@ -10,8 +10,8 @@
 
 ### Core Components (Implemented)
 
-| Component | Crate | Fields | Written By | Read By |
-|-----------|-------|--------|-----------|---------|
+| Component | Module | Fields | Written By | Read By |
+|-----------|--------|-------|-----------|---------|
 | `Transform` | template | `position: Vec3`, `rotation: Quat`, `scale: Vec3` | PhysicsSystem, MovementSystem | RenderSystem, CameraSystem |
 | `Camera` | template | `position: Vec3`, `rotation: Vec2`, `fov: f32`, `near_plane: f32`, `far_plane: f32`, `aspect: f32`, `exposure: f32` | CameraSystem | RenderSystem |
 | `Player` | template | `position: Vec3`, `rotation: Vec2`, `velocity: Vec3`, `speed: f32`, `look_speed: f32`, `is_ground: bool` | InputSystem, PhysicsSystem | CameraSystem, RenderSystem |
@@ -100,37 +100,37 @@
 ## Query Patterns
 
 ### Single-component query
-```rust
-for entity in world.query_entities::<Transform>() {
-    let transform = world.get_component::<Transform>(entity).unwrap();
+```cpp
+for (auto entity : world.query_entities<Transform>()) {
+    auto& transform = world.get_component<Transform>(entity);
     // ...
 }
 ```
 
 ### Two-component query
-```rust
-for entity in world.query_entities_with::<Player, Transform>() {
-    let player = world.get_component::<Player>(entity).unwrap();
-    let transform = world.get_component::<Transform>(entity).unwrap();
+```cpp
+for (auto entity : world.query_entities_with<Player, Transform>()) {
+    auto& player = world.get_component<Player>(entity);
+    auto& transform = world.get_component<Transform>(entity);
     // ...
 }
 ```
 
 ### Query with exclusion
-```rust
+```cpp
 // Entities with Transform but NOT PhysicsBody (static objects)
-for entity in world.query_entities::<Transform>() {
-    if !world.has_component::<PhysicsBody>(entity) {
+for (auto entity : world.query_entities<Transform>()) {
+    if (!world.has_component<PhysicsBody>(entity)) {
         // Static object -- skip physics
     }
 }
 ```
 
 ### Mutable iteration
-```rust
-for entity in world.query_entities_with::<Transform, Velocity>() {
-    let mut transform = world.get_component_mut::<Transform>(entity).unwrap();
-    let velocity = world.get_component::<Velocity>(entity).unwrap();
+```cpp
+for (auto entity : world.query_entities_with<Transform, Velocity>()) {
+    auto& transform = world.get_component_mut<Transform>(entity);
+    auto& velocity = world.get_component<Velocity>(entity);
     transform.position += velocity.linear * dt;
 }
 ```
@@ -142,7 +142,7 @@ for entity in world.query_entities_with::<Transform, Velocity>() {
 ### Short-term (1-3 months)
 - [ ] Add `InputState` component and `InputSystem`
 - [ ] Add `Renderable` component (mesh + material handle)
-- [ ] Wire `RenderSystem` to `litt-renderer`
+- [ ] Wire `RenderSystem` to renderer
 
 ### Mid-term (3-12 months)
 - [ ] Add all AI components (`NeuralBrain`, `BehaviorState`, etc.)

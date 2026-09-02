@@ -1,14 +1,13 @@
-<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
+<!-- REMOVED STACK NOTICE (CDR-007): This document remains as design reference for the C/C++ port (native/littcore). -->
 # Litt Engine ECS Architecture
 
 ## Overview
 
 The ECS (Entity Component System) architecture for Litt Engine provides a data-oriented approach to game object management, separating data (components) from behavior (systems).
 
-## Crate Structure
+## Module Structure
 
-(Rust crate tree removed with the Rust stack - CDR-007; the C/C++ port lives
-under `native/littcore/`)
+(C++ port lives under `native/littcore/`)
 
 ## Core Components
 
@@ -51,16 +50,13 @@ under `native/littcore/`)
 
 ## Integration
 
-```rust
-use litt_engine::ecs::{build_world, MovementSystem, CameraSystem};
+```cpp
+// C++ usage
+#include "litt_ecs.h"
 
-let mut world = build_world();
-let mut movement = MovementSystem { dt: 0.016 };
-let mut camera = CameraSystem { dt: 0.016 };
-
-// In game loop:
-movement.update(&mut world, 0.016);
-camera.update(&mut world, 0.016);
+World world;
+Entity entity = world.create_entity();
+world.add_component(entity, Transform{});
 ```
 
 ## Testing

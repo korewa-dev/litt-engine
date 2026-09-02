@@ -1,4 +1,4 @@
-<!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
+<!-- REMOVED STACK NOTICE (CDR-007): This document remains as design reference for the C/C++ port (native/littcore). -->
 # Contributing to Litt Engine
 
 Thank you for wanting to contribute. Litt Engine is a small, focused project  every PR is expected to earn its place.
@@ -17,11 +17,11 @@ Run these commands to build and run:
 - native\build.bat            # Windows build (POSIX: make -C native)
 - native\bin\littview.exe     # sanity-run the viewer
 
-(The Rust feature builds were removed in CDR-007.)
+
 
 ## Code Style
 
-- **Rust:** rustfmt + clippy --D warnings
+- **C/C++:** 4-space indent, K&R braces, trailing semicolons
 - **GLSL/HLSL:** 4-space indent, K&R braces, trailing semicolons
 - **Markdown:** 80-char line wrap where practical
 - **Comments:** Explain why, not what. The code says what.
@@ -66,16 +66,9 @@ Every new subsystem must have:
 ## Architecture
 
 The engine structure:
-- crates/math/  SIMD types (zero deps)
-- crates/platform/  Window + input abstraction
-- crates/vulkan/  Vulkan 1.3 backend
-- crates/dx12/  DirectX 12 backend
-- crates/renderer/  Command pools, render passes
-- crates/pathtracer/  Ray tracing pipeline
-- crates/fidelityfx/  FSR 3/4, CAS, denoisers
-- crates/ecs/  Entity Component System
+- native/littcore/  Core engine modules (C/C++ headers)
+- include/  Public C/C++ headers
 - shaders/  GLSL/HLSL shader source
-- src/  Main crate
 - docs/  Documentation
 - template/  Example components + agent templates
 

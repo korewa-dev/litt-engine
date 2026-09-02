@@ -30,7 +30,7 @@ Worlds live as human-readable JSON (`litt_scene::serialization`). Agents diff sc
 The fixed-timestep loop plus POD input snapshots plus FNV-1a state hashing mean: **same inputs → same world, provably.** `litt::replay` records sessions to `.litr` files; `ReplayPlayer::verify_state()` flags desyncs the moment they appear. An agent doesn't hope its change worked — it proves it.
 
 ### Pillar 3 — Headless-first
-The GAL (`crates/gal`) ships `NullDevice`, a complete no-GPU backend. Agents develop, test, and CI entire games without a display or even a GPU. Vulkan, DX12, and AGS become interchangeable targets behind one neutral command stream — write once, replay on any backend.
+The GAL (Graphics Abstraction Layer) ships `NullDevice`, a complete no-GPU backend. Agents develop, test, and CI entire games without a display or even a GPU. Vulkan, DX12, and AGS become interchangeable targets behind one neutral command stream — write once, replay on any backend.
 
 ### Pillar 4 — Measurable everything
 The RL API (`litt_ai::rl`) formalizes gameplay into observation → action → reward so agents can *train* on engine systems, not just run them. The profiler exposes frame timing and GPU stats as data. If it can't be measured, it can't be optimized by an agent.
@@ -43,7 +43,7 @@ The RL API (`litt_ai::rl`) formalizes gameplay into observation → action → r
 ```
         ┌─────────────────────────────────────────────────┐
         │ 1. DISCOVER   read asset_index.json, scene JSON │
-        │               docs, crate APIs                  │
+        │               docs, engine APIs                 │
         └──────────────────┬──────────────────────────────┘
                            ▼
         ┌─────────────────────────────────────────────────┐

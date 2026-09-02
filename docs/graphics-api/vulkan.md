@@ -1,6 +1,6 @@
 # Vulkan Backend
 
-> Full Vulkan 1.3 backend in `crates/vulkan/`.
+> Full Vulkan 1.3 backend in `native/littcore/`.
 
 ## Modules
 
