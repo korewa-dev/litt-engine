@@ -51,9 +51,9 @@ struct Model {
 };
 
 // =============================================================================
-// Texture
+// Asset Texture (raw pixel data - separate from GPU Texture class in litt_texture.h)
 // =============================================================================
-struct Texture {
+struct AssetTexture {
     std::string path;
     uint32_t width = 0;
     uint32_t height = 0;
@@ -75,13 +75,13 @@ struct Shader {
 };
 
 // =============================================================================
-// Material
+// Asset Material (raw material data - separate from GPU PBRMaterial)
 // =============================================================================
-struct Material {
+struct AssetMaterial {
     std::string name;
     std::shared_ptr<Shader> shader;
     std::unordered_map<std::string, float> uniforms;
-    std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
+    std::unordered_map<std::string, std::shared_ptr<AssetTexture>> textures;
     
     // PBR values
     Vec3 albedo;
@@ -97,9 +97,9 @@ struct Material {
 class AssetManager {
 public:
     std::unordered_map<std::string, std::shared_ptr<Model>> models;
-    std::unordered_map<std::string, std::shared_ptr<Texture>> textures;
+    std::unordered_map<std::string, std::shared_ptr<AssetTexture>> textures;
     std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
-    std::unordered_map<std::string, std::shared_ptr<Material>> materials;
+    std::unordered_map<std::string, std::shared_ptr<AssetMaterial>> materials;
     
     template<typename T>
     std::shared_ptr<T> load(const std::string& path) {
@@ -132,12 +132,12 @@ public:
         return model;
     }
     
-    std::shared_ptr<Texture> loadTexture(const std::string& path) {
+    std::shared_ptr<AssetTexture> loadTexture(const std::string& path) {
         auto it = textures.find(path);
         if (it != textures.end()) return it->second;
         
         // Load image
-        auto texture = std::make_shared<Texture>();
+        auto texture = std::make_shared<AssetTexture>();
         texture->path = path;
         
         // TGA loader (simple)
@@ -198,7 +198,7 @@ private:
         fclose(f);
     }
     
-    void loadTga(const std::string& path, Texture& texture) {
+    void loadTga(const std::string& path, AssetTexture& texture) {
         // Simple TGA loader
         FILE* f = fopen(path.c_str(), "rb");
         if (!f) return;

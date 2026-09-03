@@ -11,7 +11,7 @@
 
 namespace litt {
 
-enum class UIElement {
+enum class UIElementKind {
     Button,
     Text,
     Image,

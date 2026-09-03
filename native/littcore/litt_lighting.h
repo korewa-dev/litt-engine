@@ -19,9 +19,9 @@ enum class LightType {
 // Light structure
 struct Light {
     LightType type = LightType::DIRECTIONAL;
-    Vec3 position = Vec3(0.0f);
+    Vec3 position = Vec3::zero();
     Vec3 direction = Vec3(0.0f, -1.0f, 0.0f);
-    Vec3 color = Vec3(1.0f);
+    Vec3 color = Vec3::one();
     float intensity = 1.0f;
     float range = 10.0f;
     float spot_angle = 45.0f;
@@ -31,7 +31,7 @@ struct Light {
 };
 
 // PBR Lighting calculations
-class PBR Lighting {
+class PBRLighting {
 public:
     // Calculate direct lighting contribution
     static Vec3 calculate_direct_light(const Light& light, 

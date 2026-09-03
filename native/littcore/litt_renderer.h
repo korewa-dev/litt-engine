@@ -1,9 +1,14 @@
 // LittRenderer - Complete rendering system
 // Uses unified types from litt_math.h (Vec3, Vec2, Aabb, etc.)
+// Lighting types from litt_lighting.h, textures from litt_texture.h,
+// render passes from litt_render_pass.h.
 
 #pragma once
 #include "litt_math.h"
 #include "litt_ecs.h"
+#include "litt_lighting.h"
+#include "litt_texture.h"
+#include "litt_render_pass.h"
 #include "litt_dither.h"
 #include <cstdint>
 #include <string>
@@ -74,28 +79,6 @@ struct RenderMaterial {
 };
 
 // =============================================================================
-// Light
-// =============================================================================
-
-enum class LightType {
-    Point,
-    Directional,
-    Spot,
-    Area
-};
-
-struct RenderLight {
-    LightType type = LightType::Point;
-    Vec3 position = Vec3::zero();
-    Vec3 direction = Vec3::up();
-    Vec3 color = Vec3::one();
-    float intensity = 1.0f;
-    float range = 10.0f;
-    float spot_angle = 45.0f;
-    bool cast_shadows = true;
-};
-
-// =============================================================================
 // Camera
 // =============================================================================
 
@@ -133,15 +116,8 @@ struct RenderCamera {
 };
 
 // =============================================================================
-// Render Pass
+// Render Pass (uses RenderPass from litt_render_pass.h)
 // =============================================================================
-
-struct RenderPass {
-    std::string name;
-    std::function<void()> begin;
-    std::function<void()> end;
-    std::function<void(const RenderCamera&)> render;
-};
 
 // =============================================================================
 // Renderer Interface
@@ -185,7 +161,7 @@ struct RenderNode {
     // Components
     std::shared_ptr<RenderMesh> mesh;
     std::shared_ptr<RenderMaterial> material;
-    std::shared_ptr<RenderLight> light;
+    std::shared_ptr<Light> light;
     std::shared_ptr<RenderCamera> camera;
 
     // Visibility
@@ -218,7 +194,7 @@ struct RenderNode {
 class RenderScene {
 public:
     std::unique_ptr<RenderNode> root;
-    std::vector<std::shared_ptr<RenderLight>> lights;
+    std::vector<std::shared_ptr<Light>> lights;
     std::vector<std::shared_ptr<RenderCamera>> cameras;
 
     RenderScene() {
@@ -359,7 +335,7 @@ public:
     }
 
     // Add light
-    void add_light(std::shared_ptr<RenderLight> light) {
+    void add_light(std::shared_ptr<Light> light) {
         lights_.push_back(light);
     }
 
@@ -400,7 +376,7 @@ private:
     RenderCamera current_camera_;
     bool current_camera_set_ = false;
 
-    std::vector<std::shared_ptr<RenderLight>> lights_;
+    std::vector<std::shared_ptr<Light>> lights_;
     std::vector<std::shared_ptr<RenderCamera>> cameras_;
 
     // =============================================================================

@@ -69,7 +69,7 @@ void test_path_tracing() {
     std::vector<PT_Triangle> tris = {tri};
     UnidirectionalPathTracer tracer;
     tracer.set_triangles(&tris);
-    auto& bvh = tracer.build_bvh();
+    auto bvh = tracer.build_bvh();
     check(bvh != nullptr, "bvh_build");
     
     Vec3 color = tracer.trace_path(ray, 0);

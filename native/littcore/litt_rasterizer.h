@@ -3,7 +3,13 @@
 #pragma once
 
 #include "litt_math.h"
-using namespace litt;
+#include "litt_material.h"
+#include <cstdint>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+namespace litt {
 
 // Rasterization Pipeline State
 struct RasterState {
@@ -47,7 +53,7 @@ public:
     // Render a triangle with material
     void render_triangle(const Vec3& v1, const Vec3& v2, const Vec3& v3,
                         const Vec3& n1, const Vec3& n2, const Vec3& n3,
-                        const Vec3& color = Vec3(1.0f));
+                        const Vec3& color = Vec3::one());
     
     // Render triangle with PBR material
     void render_triangle_pbr(const Vec3& v1, const Vec3& v2, const Vec3& v3,
@@ -135,7 +141,7 @@ public:
     
     void resize(int width, int height);
     
-    const std::vector<Vec3>& get_color_buffer() const { return color_buffer_; }
+    const std::vector<Vec3>& get_color_buffer() const { return color_attachments_[0]; }
     const std::vector<float>& get_depth_buffer() const { return depth_buffer_; }
     
     // Multiple buffers for MRT
@@ -181,3 +187,5 @@ public:
                                const float inv_view_matrix[16],
                                const float inv_projection_matrix[16]);
 };
+
+} // namespace litt

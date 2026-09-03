@@ -1,11 +1,11 @@
 // Litt World - Complete world simulation with rendering
 // Port of src/world_bridge.rs to C++
 
-#include "littcore/litt_math.h"
-#include "littcore/litt_ecs.h"
-#include "littcore/litt_world.h"
-#include "littcore/litt_obj.h"
-#include "littcore/litt_json.h"
+#include "litt_math.h"
+#include "litt_ecs.h"
+#include "litt_world.h"
+#include "litt_obj.h"
+#include "litt_json.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

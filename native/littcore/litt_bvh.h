@@ -8,14 +8,14 @@ using namespace litt;
 // BVH Primitive (Triangle for now, extensible)
 struct BVHPrimitive {
     uint32_t id;
-    AABB bounds;
+    Aabb bounds;
     // Additional primitive data (normal, material, texcoord)
 };
 
 // BVH Node
 class BVHNode {
 public:
-    AABB bounds;
+    Aabb bounds;
     std::unique_ptr<BVHNode> left;
     std::unique_ptr<BVHNode> right;
     uint32_t primitive_index; // UINT32_MAX for internal nodes
@@ -52,7 +52,7 @@ public:
                                  std::vector<std::vector<BVHPrimitive>>& buckets);
     
     // Compute bounds of primitives
-    static AABB compute_bounds(const std::vector<BVHPrimitive>& primitives);
+    static Aabb compute_bounds(const std::vector<BVHPrimitive>& primitives);
 };
 
 // BVH Ray Intersect - Fast ray tracing through BVH
@@ -61,40 +61,40 @@ public:
     // Ray-BVH intersection
     static bool intersect(const BVHNode* node, const Ray& ray, 
                          float& t, Vec3& normal, uint32_t& primitive_id,
-                         float t_max = FLT_MAX);
+                         float t_max = 1e10f);
     
-    // Ray-AABB intersection test
-    static bool intersect_aabb(const AABB& bounds, const Ray& ray, 
-                              float& t, float t_max = FLT_MAX);
+    // Ray-Aabb intersection test
+    static bool intersect_aabb(const Aabb& bounds, const Ray& ray, 
+                              float& t, float t_max = 1e10f);
     
     // Intersect triangle with ray
     static bool intersect_triangle(const Vec3& A, const Vec3& B, const Vec3& C,
                                   const Vec3& normal, const Ray& ray,
-                                  float& t, Vec3& barycentric, float t_max = FLT_MAX);
+                                  float& t, Vec3& barycentric, float t_max = 1e10f);
     
     // BVH traversal
     static bool traverse_bvh(const BVHNode* node, const Ray& ray,
                             float& t, Vec3& normal, uint32_t& primitive_id,
-                            float t_max = FLT_MAX);
+                            float t_max = 1e10f);
     
     // Intersect scene with BVH
     static void intersect_scene(const BVHNode* root, const Ray& ray,
                                std::vector<float>& hits, std::vector<Vec3>& normals,
                                std::vector<uint32_t>& primitive_ids,
-                               float t_max = FLT_MAX);
+                               float t_max = 1e10f);
     
     // Intersect sphere with ray (test primitive)
     static bool intersect_sphere(const Vec3& center, float radius, const Ray& ray,
-                                float& t, Vec3& normal, float t_max = FLT_MAX);
+                                float& t, Vec3& normal, float t_max = 1e10f);
     
     // Intersect box with ray (test primitive)
     static bool intersect_box(const Vec3& min, const Vec3& max, const Ray& ray,
-                             float& t, Vec3& normal, float t_max = FLT_MAX);
+                             float& t, Vec3& normal, float t_max = 1e10f);
     
     // Progress tracking for BVH
     static void traverse_with_progress(const BVHNode* node, const Ray& ray,
                                       float& t, Vec3& normal, uint32_t& primitive_id,
-                                      float t_max = FLT_MAX,
+                                      float t_max = 1e10f,
                                       int& node_visits = node_visits_);
     
     static int get_node_visits() { return node_visits_; }
@@ -129,7 +129,7 @@ public:
     
     // Ray intersect scene
     bool intersect_scene(const Ray& ray, float& t, Vec3& normal, 
-                       uint32_t& primitive_id, float t_max = FLT_MAX) {
+                       uint32_t& primitive_id, float t_max = 1e10f) {
         if (!root_) return false;
         return BVHRayIntersect::intersect(root_.get(), ray, t, normal, primitive_id, t_max);
     }

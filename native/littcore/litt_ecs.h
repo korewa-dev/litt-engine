@@ -178,29 +178,7 @@ struct RigidBody {
     bool is_static = false;
 };
 
-struct Mesh {
-    int id = 0;
-};
-
-struct Material {
-    Vec3 color = Vec3::one();
-    float roughness = 0.5f;
-    float metalness = 0.0f;
-};
-
-struct Light {
-    Vec3 color = Vec3::one();
-    float intensity = 1.0f;
-    float range = 10.0f;
-};
-
-struct Camera {
-    float fov = 60.0f;
-    float aspect = 16.0f/9.0f;
-    float near_ = 0.1f;
-    float far_ = 1000.0f;
-    Mat4 view = Mat4::identity();
-    Mat4 proj = Mat4::identity();
-};
+// Mesh, Material, Light, Camera are defined in litt_renderer.h
+// to avoid type conflicts between ECS stubs and the full renderer implementations.
 
 } // namespace litt

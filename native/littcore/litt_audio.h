@@ -18,6 +18,14 @@ enum class AudioState {
     Paused
 };
 
+// Audio PCM format
+enum class AudioFormat {
+    MONO8,
+    STEREO8,
+    MONO16,
+    STEREO16
+};
+
 struct AudioClip {
     std::string path;
     std::vector<float> data;

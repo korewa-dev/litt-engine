@@ -96,7 +96,9 @@ struct alignas(16) Vec3 {
     Vec3 operator+(const Vec3& b) const { return {x+b.x, y+b.y, z+b.z}; }
     Vec3 operator-(const Vec3& b) const { return {x-b.x, y-b.y, z-b.z}; }
     Vec3 operator*(float s) const { return {x*s, y*s, z*s}; }
+    Vec3 operator*(const Vec3& b) const { return {x*b.x, y*b.y, z*b.z}; }
     Vec3 operator/(float s) const { float i = 1.0f/s; return {x*i, y*i, z*i}; }
+    Vec3 operator/(const Vec3& b) const { return {x/b.x, y/b.y, z/b.z}; }
     Vec3 operator-() const { return {-x, -y, -z}; }
     
     Vec3& operator+=(const Vec3& b) { x += b.x; y += b.y; z += b.z; return *this; }
@@ -445,6 +447,14 @@ struct alignas(16) Quat {
 // ================================================================
 // AABB
 // ================================================================
+struct OBB {
+    Mat4 transform;
+    Vec3 half_extents;
+    
+    OBB() : transform(Mat4::identity()), half_extents(Vec3::one()) {}
+    OBB(const Mat4& t, const Vec3& h) : transform(t), half_extents(h) {}
+};
+
 struct Aabb {
     Vec3 min, max;
     constexpr Aabb() : min(0,0,0), max(0,0,0) {}

@@ -75,7 +75,7 @@ public:
     uint32_t get_height() const { return desc_.height; }
     
     // Get format
-    TextureFormat get_format() const { return desc_.desc_.format; }
+    TextureFormat get_format() const { return desc_.format; }
     
     // Set data
     void set_data(const void* data, size_t size);

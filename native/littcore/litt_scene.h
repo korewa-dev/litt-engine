@@ -3,6 +3,7 @@
 #pragma once
 #include "litt_math.h"
 #include "litt_ecs.h"
+#include "litt_renderer.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -23,14 +24,14 @@ struct SceneNode {
     std::vector<std::unique_ptr<SceneNode>> children;
     SceneNode* parent = nullptr;
     
-    // Components
+    // Components (renderer types from litt_renderer.h)
     Transform* transformComponent = nullptr;
     Collider* colliderComponent = nullptr;
     RigidBody* rigidBodyComponent = nullptr;
-    Mesh* meshComponent = nullptr;
-    Material* materialComponent = nullptr;
+    MeshData* meshComponent = nullptr;
+    RenderMaterial* materialComponent = nullptr;
     Light* lightComponent = nullptr;
-    Camera* cameraComponent = nullptr;
+    RenderCamera* cameraComponent = nullptr;
     
     // Visibility
     bool visible = true;

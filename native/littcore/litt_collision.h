@@ -9,7 +9,7 @@ using namespace litt;
 enum class QueryType {
     RAY,
     SPHERE,
-    AABB,
+    Aabb,
     OBB,
     FRUSTUM
 };
@@ -51,17 +51,17 @@ public:
     bool sphere_collision(uint32_t object_id, const Vec3& center, float radius,
                          CollisionResult& result) const;
     
-    // AABB collision
-    bool aabb_collision(uint32_t object_id_a, const AABB& bounds_a,
-                       uint32_t object_id_b, const AABB& bounds_b,
+    // Aabb collision
+    bool aabb_collision(uint32_t object_id_a, const Aabb& bounds_a,
+                       uint32_t object_id_b, const Aabb& bounds_b,
                        CollisionResult& result) const;
     
     // Sweep and prune broad phase
-    void sweep_and_prune(const std::vector<AABB>& bounds, 
+    void sweep_and_prune(const std::vector<Aabb>& bounds, 
                         std::vector<std::pair<uint32_t, uint32_t>>& pairs);
     
     // BVH broad phase
-    bool bvh_collision(const std::vector<AABB>& bounds,
+    bool bvh_collision(const std::vector<Aabb>& bounds,
                       uint32_t object_id_a, uint32_t object_id_b,
                       CollisionResult& result) const;
     
@@ -69,10 +69,10 @@ public:
     void detect_collisions(std::vector<CollisionResult>& results);
     
     // Add object to collision system
-    void add_object(uint32_t object_id, const AABB& bounds);
+    void add_object(uint32_t object_id, const Aabb& bounds);
     
     // Update object bounds
-    void update_object_bounds(uint32_t object_id, const AABB& bounds);
+    void update_object_bounds(uint32_t object_id, const Aabb& bounds);
     
     // Remove object
     void remove_object(uint32_t object_id);
@@ -81,25 +81,25 @@ public:
     void set_collision_filter(std::shared_ptr<CollisionFilter> filter);
     
     // Get object bounds
-    const AABB& get_object_bounds(uint32_t object_id) const;
+    const Aabb& get_object_bounds(uint32_t object_id) const;
     
     // Check if object exists
     bool has_object(uint32_t object_id) const { return objects_.find(object_id) != objects_.end(); }
 
 private:
     std::shared_ptr<CollisionFilter> filter_;
-    std::unordered_map<uint32_t, AABB> objects_;
-    std::vector<AABB> bounds_cache_;
+    std::unordered_map<uint32_t, Aabb> objects_;
+    std::vector<Aabb> bounds_cache_;
     
     // Helper methods
-    bool check_ray_aabb(const Ray& ray, const AABB& bounds, 
+    bool check_ray_aabb(const Ray& ray, const Aabb& bounds, 
                        float max_distance, Vec3& hit_point, 
                        Vec3& hit_normal, float& distance) const;
     
     bool check_sphere_aabb(const Vec3& sphere_center, float sphere_radius,
-                          const AABB& bounds, CollisionResult& result) const;
+                          const Aabb& bounds, CollisionResult& result) const;
     
-    bool check_aabb_aabb(const AABB& bounds_a, const AABB& bounds_b,
+    bool check_aabb_aabb(const Aabb& bounds_a, const Aabb& bounds_b,
                         CollisionResult& result) const;
     
     void update_bounds_cache();
@@ -157,8 +157,8 @@ public:
                                        const Vec3& center_b, float radius_b,
                                        CollisionResult& result);
     
-    // AABB-OBB collision
-    static bool aabb_obb_collision(const AABB& aabb, const OBB& obb,
+    // Aabb-OBB collision
+    static bool aabb_obb_collision(const Aabb& aabb, const OBB& obb,
                                   CollisionResult& result);
     
     // Sphere-OBB collision
@@ -196,19 +196,19 @@ public:
 // Object Collider - Wrapper for collision components
 class ObjectCollider {
 public:
-    ObjectCollider(uint32_t id, const AABB& bounds, float mass = 1.0f);
+    ObjectCollider(uint32_t id, const Aabb& bounds, float mass = 1.0f);
     
     // Get collision shape type
     enum class ShapeType {
         SPHERE,
-        AABB,
+        Aabb,
         OBB,
         CAPSULE
     };
     
     // Set shape
     void set_sphere(float radius);
-    void set_aabb(const AABB& bounds);
+    void set_aabb(const Aabb& bounds);
     void set_obb(const Mat4& transform, const Vec3& half_extents);
     void set_capsule(const Vec3& p1, const Vec3& p2, float radius);
     
@@ -219,7 +219,7 @@ public:
     ShapeType get_shape_type() const { return shape_type_; }
     
     // Get collider bounds
-    AABB get_bounds() const;
+    Aabb get_bounds() const;
     
     // Ray cast
     bool raycast(const Ray& ray, float max_distance, 
@@ -248,10 +248,10 @@ public:
 
 private:
     uint32_t id_;
-    ShapeType shape_type_ = ShapeType::AABB;
+    ShapeType shape_type_ = ShapeType::Aabb;
     float mass_ = 1.0f;
-    Vec3 position_ = Vec3(0.0f);
-    Vec3 velocity_ = Vec3(0.0f);
+    Vec3 position_ = Vec3::zero();
+    Vec3 velocity_ = Vec3::zero();
     
     // Shape-specific data
     union ShapeData {
@@ -278,18 +278,18 @@ private:
             box.half_extents[0] = 0.0f;
             box.half_extents[1] = 0.0f;
             box.half_extents[2] = 0.0f;
-            capsule.center = Vec3(0.0f);
+            capsule.center = Vec3::zero();
             capsule.radius = 0.0f;
             obb.transform = Mat4::identity();
-            obb.half_extents = Vec3(0.0f);
+            obb.half_extents = Vec3::zero();
         }
     } shape_data_;
     
     // Helper methods
-    static AABB compute_aabb_from_sphere(const Vec3& center, float radius);
-    static AABB compute_aabb_from_box(const Vec3& center, const Vec3& half_extents);
-    static AABB compute_aabb_from_capsule(const Vec3& p1, const Vec3& p2, float radius);
-    static AABB compute_aabb_from_obb(const Mat4& transform, const Vec3& half_extents);
+    static Aabb compute_aabb_from_sphere(const Vec3& center, float radius);
+    static Aabb compute_aabb_from_box(const Vec3& center, const Vec3& half_extents);
+    static Aabb compute_aabb_from_capsule(const Vec3& p1, const Vec3& p2, float radius);
+    static Aabb compute_aabb_from_obb(const Mat4& transform, const Vec3& half_extents);
 };
 
 // Collision Scene - Manages all colliders in a scene

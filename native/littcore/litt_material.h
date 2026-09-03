@@ -3,7 +3,14 @@
 #pragma once
 
 #include "litt_math.h"
-using namespace litt;
+#include <string>
+#include <vector>
+#include <cmath>
+
+namespace litt {
+
+constexpr float PI = 3.14159265358979323846f;
+inline float mix(float a, float b, float t) { return a * (1.0f - t) + b * t; }
 
 // PBR Material Structure - Physically Based Rendering
 struct PBRMaterial {
@@ -12,7 +19,7 @@ struct PBRMaterial {
     float metallic = 0.0f;          // 0.0 = dielectric, 1.0 = metallic
     float roughness = 0.5f;         // 0.0 = smooth, 1.0 = rough
     float ao = 1.0f;                // Ambient occlusion (0.0-1.0)
-    Vec3 emission = Vec3(0.0f);     // Self-illumination
+    Vec3 emission = Vec3::zero();     // Self-illumination
     float opacity = 1.0f;           // Transparency (0.0 = transparent, 1.0 = opaque)
     
     // Textures (file paths for now)
@@ -217,3 +224,5 @@ public:
         return mat;
     }
 };
+
+} // namespace litt
