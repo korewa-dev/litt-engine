@@ -8,18 +8,20 @@ AI-driven game engine designed for autonomous AI agents to build, control, and r
 
 **Current state:** Header-heavy with partial implementations. Core math, OBJ loading, JSON parsing, and dither rendering are working. ECS, physics, renderer, audio, UI, and input are stubs awaiting implementation.
 
-## AI Editor - Make Any AI Build Editors
+## AI Editor - Build Your Own Editor With Litt Engine
 
-Litt Engine now includes a complete **AI Editor** that enables any AI system to build game editors:
+Litt Engine provides the **foundation** for any AI system to build game editors. Here's what's included as a starting point:
 
-### 🌐 Web Editor
-Open [`editor/index.html`](editor/index.html) in any browser for a Unity-like interface:
+### 🌐 Web Editor Example
+[`editor/index.html`](editor/index.html) demonstrates how to build a Unity-like interface using Litt Engine:
 - Entity hierarchy panel
 - Component inspector
 - 3D viewport with grid
 - AI chat for natural language commands
 - Export/import JSON scenes
 - Run/stop game simulation
+
+**This is an example** - you extend or replace it for your own tools.
 
 ### 🐍 Python API
 ```python
@@ -36,7 +38,7 @@ editor.export_scene("my_game.json")
 Full JSON-RPC protocol for any language. See [`docs/ai_editor_protocol.md`](docs/ai_editor_protocol.md).
 
 ### 🤖 AI Commands
-Use natural language in the editor:
+Use natural language in your editor:
 - "create player at 0,0,0"
 - "add physics to player with mass 70"
 - "export scene to game.json"

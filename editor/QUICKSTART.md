@@ -1,24 +1,17 @@
-# Litt Editor - Quick Start
+# Litt Editor Example - Quick Start
 
-## Running the Editor
+This is an **example editor** showing how to build editor tools on top of Litt Engine. You extend or replace this for your own tools.
 
-### Option 1: Build and Run
+## Running the Example Editor
 
+### Option 1: Direct in Browser
 ```bash
-# Build C++ core
-cd native
-.\build.bat
-
-# Build editor
-cd ..\editor
-.\build.bat
-
-# Run
-.\cs\bin\Release\LittEditor.exe
+cd editor
+python -m http.server 8080
+# Open http://localhost:8080
 ```
 
-### Option 2: Using .NET SDK
-
+### Option 2: Using .NET SDK (if C# bindings built)
 ```bash
 cd editor\cs
 dotnet run
@@ -26,7 +19,7 @@ dotnet run
 
 ## Using the Chat System
 
-The integrated chat works like DeepSeek Harness:
+The integrated chat demonstrates AI-driven editing:
 
 1. Type commands starting with `/` for editor commands
 2. Type regular text for AI assistance

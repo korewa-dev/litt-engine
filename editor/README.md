@@ -1,14 +1,14 @@
-# Litt Engine Web Editor
+# Litt Editor Example
 
-A browser-based editor for Litt Engine that allows AI systems and humans to visually build game scenes.
+A **browser-based example editor** demonstrating how to build editor tools on top of Litt Engine. This is a starting point - you extend or replace it for your own tools.
 
 ## Quick Start
 
-1. Open `index.html` in any modern browser
+1. Open `index.html` in any modern browser (or serve via `python -m http.server 8080`)
 2. Use the AI Chat panel to describe what you want to build
 3. Or use the UI to manually create entities
 
-## Features
+## Features (Demo)
 
 - **Entity Hierarchy** - Tree view of all game objects
 - **Component Inspector** - View and edit entity components
@@ -16,11 +16,11 @@ A browser-based editor for Litt Engine that allows AI systems and humans to visu
 - **Transform Tools** - Move, rotate, scale entities
 - **AI Chat** - Natural language commands to build scenes
 - **Export/Import** - Save scenes as JSON
-- **Run/Stop** - Test your game
+- **Run/Stop** - Test your game simulation
 
 ## Commands
 
-### AI Chat Commands
+### AI Chat Commands (Demo)
 Type in the console or AI chat:
 - `create player` - Create a new entity named "player"
 - `create enemy at 10,5,0` - Create entity with position
