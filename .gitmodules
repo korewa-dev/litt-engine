@@ -1,3 +1,3 @@
 [submodule "template/tools/worldgen/godogen"]
-	path = template/tools/worldgen/godogen
+	path = tools/template/template/tools/worldgen/godogen
 	url = https://github.com/htdt/godogen.git
