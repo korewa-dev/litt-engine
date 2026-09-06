@@ -806,6 +806,7 @@ public:
 // Networking
 // =============================================================================
 
+// NetworkManager
 class NetworkManager {
 public:
     enum class Mode { CLIENT, SERVER };
@@ -816,18 +817,21 @@ public:
     void shutdown() {}
 };
 
-// Profiler matching test expectations
+// Profiler stub (full implementation in litt_profiler.h)
 class Profiler {
 public:
-    Profiler() = default;
     void begin_scope(const char* name) { (void)name; }
     void end_scope() {}
+    void update_fps() {}
+    static Profiler& get_instance() {
+        static Profiler instance;
+        return instance;
+    }
 };
 
-// LODSystem matching test expectations
+// LODSystem stub for tests (full implementation in litt_lod.h)
 class LODSystem {
 public:
-    LODSystem() = default;
     std::vector<float> distances = {10.0f, 50.0f, 200.0f, 1000.0f};
     int select_lod(float distance) const {
         for (int i = 0; i < (int)distances.size(); i++) {
@@ -1003,18 +1007,11 @@ public:
 };
 
 // =============================================================================
-// Job System
+// Job System - forward declaration (full implementation in litt_thread_pool.h)
+// Include litt_thread_pool.h directly in .cpp files that need threading
 // =============================================================================
 
-class JobSystem {
-public:
-    int num_threads = 4;
-    
-    template<typename Fn>
-    void dispatch(Fn&& fn) {
-        fn();
-    }
-};
+// LODSystem defined in litt_lod.h
 
 // =============================================================================
 // Serialization
@@ -1053,12 +1050,6 @@ public:
 // Engine Configuration
 // =============================================================================
 
-struct EngineConfig {
-    int width = 1920;
-    int height = 1080;
-    bool headless = false;
-    bool vsync = true;
-    int msaa_samples = 4;
-};
+// EngineConfig defined in litt_engine.h
 
 } // namespace litt
