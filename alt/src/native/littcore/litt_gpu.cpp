@@ -2,6 +2,7 @@
 // GPU abstraction layer with platform-specific backends
 
 #include "litt_gpu.h"
+#include "litt_gpu_wingl.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -24,7 +25,17 @@ std::unique_ptr<IGPUDevice> create_gpu_device(const std::string& backend_name) {
     }
 #endif
 
-    throw std::runtime_error("No GPU backend available. Compile with LITT_VULKAN_BACKEND or LITT_DX12_BACKEND.");
+#ifdef LITT_OPENGL_BACKEND
+    if (backend_name == "opengl" || backend_name == "auto") {
+        return std::make_unique<WinGLDevice>();
+    }
+#endif
+
+    if (backend_name == "software" || backend_name == "auto") {
+        return std::make_unique<SoftwareRenderer>();
+    }
+
+    throw std::runtime_error("No GPU backend available.");
 }
 
 // =============================================================================

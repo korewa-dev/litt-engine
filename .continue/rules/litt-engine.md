@@ -1,4 +1,4 @@
-# Litt Engine - AI Agent Rules
+# Litt Engine - AI Agent Rules & Implementation Guide
 
 ## What This Engine IS
 
@@ -15,12 +15,12 @@ Litt Engine is a **game engine** — not an editor. It is designed to be **drive
 - **Asset Loading** — sync/async with reference counting
 - **Scene Graph** — hierarchical transforms, dirty flag propagation
 - **Serialization** — JSON/binary for save/load
+- **Physics** — Semi-implicit Euler, impulse resolution, friction, restitution
 
 ### ❌ Stubbed (API exists, returns nullptr/empty — will fail at runtime)
 - **GPU Rendering** — VulkanDevice/D3D12Device print message, return nullptr for buffers/textures
-- **Audio** — AudioEngine::init() returns true, no actual audio output
-- **Input** — InputManager::update() polls nothing, key_pressed() always false
-- **Physics Integration** — gravity applied but no force integration, no collision response
+- **Audio Playback** — AudioEngine::init() returns true, no actual audio output
+- **Input Polling** — InputManager::update() does nothing, key_pressed() always returns false
 - **Scripting** — Lua/Python/C# engines create instances but execute nothing
 - **Editor** — no UI, no gizmos, no asset browser
 
