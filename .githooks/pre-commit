@@ -1,0 +1,22 @@
+#!/bin/bash
+# Litt Engine — Pre-commit hook for game validation
+
+echo "Running game validation..."
+
+# Check that all games are inside alt/Project/
+for dir in alt/Project/*/; do
+    if [ -d "$dir" ]; then
+        game_name=$(basename "$dir")
+        
+        # Check required files
+        for file in NOTES.md ATTRIBUTION.md LIVE_LOG.md assets/asset_index.json brief.json config/world_state.json; do
+            if [ ! -f "$dir$file" ]; then
+                echo "ERROR: $game_name is missing $file"
+                exit 1
+            fi
+        done
+    fi
+done
+
+echo "Game validation passed"
+exit 0
