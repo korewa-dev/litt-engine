@@ -103,9 +103,10 @@ def main():
         node = add(spec["name"], spec["pos"], spec["tags"],
                    spec.get("scale", (1, 1, 1)))
         # story layer: item/roster flavor text rides along as a poi notice
-        poi = spec.get("poi")
-        if poi and "poi" not in spec.get("tags", []):
-            node.setdefault("tags", []).append("poi")
+        if node is not None:
+            poi = spec.get("poi")
+            if poi and "poi" not in spec.get("tags", []):
+                node.setdefault("tags", []).append("poi")
 
     for z in brief.get("zones", []):
         r = float(z.get("radius", 15))

@@ -436,7 +436,7 @@ class MeshBuilder:
         f = ["%d/%d/%d" % (ia + 1, base + 1, ni + 1),
              "%d/%d/%d" % (ib + 1, base + 2, ni + 1),
              "%d/%d/%d" % (ic + 1, base + 3, ni + 1)]
-        self.groups[-1]["faces"].extend(f)
+        self.groups[-1]["faces"].append("f " + " ".join(f))
 
     def roof_prism(self, cx, base_y, cz, rx, rz, rh):
         L0=[cx-rx,base_y,cz-rz]; L1=[cx-rx,base_y,cz+rz]

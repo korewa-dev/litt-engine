@@ -198,6 +198,7 @@ public:
         // Setup player
         player_pos_ = scene_.spawn_point;
         player_vel_ = Vec3::zero();
+        camera_pos_ = player_pos_ + Vec3(0, 4.5f, 9);
         camera_yaw_ = 3.14159f;
         grounded_ = false;
         score_ = 0;
@@ -249,27 +250,32 @@ public:
     }
     
     // Render the current frame
-    void render() {
+    void render(float dt) {
         if (!renderer_) return;
         
         // Clear
         uint32_t bg = vec3_to_color(scene_.sky_color);
         renderer_->clear(bg);
         
-        // Build view-projection matrix
-        Vec3 eye = player_pos_ + Vec3(
+        // Smooth camera follow (lerp towards target)
+        float cam_speed = 5.0f;
+        Vec3 target_eye = player_pos_ + Vec3(
             std::sin(camera_yaw_) * 9,
             4.5f,
             std::cos(camera_yaw_) * 9
         );
+        camera_pos_ = camera_pos_ + (target_eye - camera_pos_) * cam_speed * dt;
         Vec3 look = player_pos_ + Vec3(0, 1.4f, 0);
         
-        Mat4 view = Mat4::look_at(eye, look, Vec3(0, 1, 0));
+        Mat4 view = Mat4::look_at(camera_pos_, look, Vec3(0, 1, 0));
         Mat4 proj = Mat4::perspective(62.0f, 16.0f/9.0f, 0.1f, 100.0f);
         Mat4 view_proj = proj * view;
         
         // Draw grid
         renderer_->draw_grid(2.0f, view_proj, 0x333333);
+        
+        // Draw player (simple cube at player position)
+        renderer_->draw_cube(player_pos_, 0.5f, view_proj, 0x00FF00);
         
         // Draw scene nodes
         for (const auto& node : scene_.nodes) {
@@ -297,7 +303,7 @@ public:
     // Input state queries
     bool is_key_down(Key key) const { return input_.key_down(key); }
     bool is_key_pressed(Key key) const { return input_.key_pressed(key); }
-    Vec2 get_mouse_position() const { return Vec2(0, 0); }  // Input doesn't have mouse_position
+    Vec2 get_mouse_position() const { return Vec2(0, 0); }
     
     // Game state
     Vec3 get_player_position() const { return player_pos_; }
@@ -419,6 +425,7 @@ private:
     
     Vec3 player_pos_;
     Vec3 player_vel_;
+    Vec3 camera_pos_;
     float camera_yaw_ = 0;
     bool grounded_ = false;
     int score_ = 0;

@@ -53,7 +53,7 @@ def parse_obj_groups(path):
                 groups.append((cur_mat, cur_idx))
             cur_mat, cur_idx = p[1], []
         elif p[0] == "f":
-            ids = [int(seg.split("//")[0]) - 1 for seg in p[1:]]
+            ids = [int(seg.split("/")[0]) - 1 for seg in p[1:]]
             for k in range(1, len(ids) - 1):
                 cur_idx.append((ids[0], ids[k], ids[k + 1]))
     if cur_idx:
@@ -113,7 +113,10 @@ class World:
             if not path.exists():
                 return
             lo_all = np.full(3, np.inf); hi_all = np.full(3, -np.inf)
-            for mat, v in parse_obj_groups(path):
+            groups = parse_obj_groups(path)
+            if not groups:
+                return
+            for mat, v in groups:
                 lo, hi = self._add_group(v, mat, node_name, offset, yaw)
                 lo_all = np.minimum(lo_all, lo); hi_all = np.maximum(hi_all, hi)
             center = (lo_all + hi_all) / 2.0

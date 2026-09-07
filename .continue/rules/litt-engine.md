@@ -16,11 +16,15 @@ Litt Engine is a **game engine** — not an editor. It is designed to be **drive
 - **Scene Graph** — hierarchical transforms, dirty flag propagation
 - **Serialization** — JSON/binary for save/load
 - **Physics** — Semi-implicit Euler, impulse resolution, friction, restitution
+- **GPU Rendering** — `litt_gpu_software.h` SoftwareRenderer: clear, draw_pixel, draw_line, draw_rect, fill_rect, draw_triangle (flat + depth-interpolated), draw_cube, draw_grid, draw_terrain, project, present (Windows GDI, no Vulkan SDK needed)
+- **Game Layer** — `litt_game.h` Game class: scene JSON loading, OBJ model loading, player movement, entity interactions, smooth camera follow, integrated rendering
+- **Model Loading** — `litt_obj.c` lv_obj_load: loads OBJ files with groups/usemtl
+- **JSON Parsing** — `litt_json.c` lvj_parse: dependency-free C11 JSON scanner
+- **Input** — `litt_input.h` Input class: key_down, key_pressed, mouse, gamepad
+- **Audio** — `litt_audio.h` AudioManager: init, play, stop, load WAV
 
 ### ❌ Stubbed (API exists, returns nullptr/empty — will fail at runtime)
-- **GPU Rendering** — VulkanDevice/D3D12Device print message, return nullptr for buffers/textures
-- **Audio Playback** — AudioEngine::init() returns true, no actual audio output
-- **Input Polling** — InputManager::update() does nothing, key_pressed() always returns false
+- **GPU Rendering (Vulkan/DX12)** — VulkanDevice/D3D12Device print message, return nullptr for buffers/textures
 - **Scripting** — Lua/Python/C# engines create instances but execute nothing
 - **Editor** — no UI, no gizmos, no asset browser
 
@@ -144,6 +148,20 @@ Or download single-headers:
 - "fix a bug" → Read the interface, find the stub, implement the real logic, add a test
 - "add a feature" → Check `alt/docs/Engine_Steps_Overview.md` for `[~]` or `[ ]` items
 - "make a game" (full workflow) → Create game project in the instructed folder (or `litt engine/alt/` by default). Inside: `config/world_state.json`, `assets/models/`, `assets/scenes/`, `engine/`. Use `litt_game.h` Game class. Build with `g++ -I "<path_to_litt_engine>/alt/src/native/littcore"`.
+
+## MANDATORY: Use the Engine (No Bypasses)
+
+**NEVER** use `play_native.py` or any Python/pygame/numpy fallback renderer when building a game. The Litt Engine has a complete C++ core. Use it.
+
+- **Rendering**: Use `litt_gpu_software.h` (SoftwareRenderer) — works on Windows without Vulkan SDK, compiles with `g++`
+- **Game class**: Use `litt_game.h` (Game class) — ties all subsystems together
+- **Model loading**: Use `litt_obj.c` (lv_obj_load) — loads OBJ files
+- **Scene loading**: Use `litt_json.c` (lvj_parse) — loads JSON scene files
+- **Build**: `g++ -std=c++17 -I "D:\Allgemein\AI Router\litt engine\alt\src\native\littcore" -o game.exe game.cpp litt_obj.c litt_json.c litt_world.c -lgdi32 -luser32 -lwinmm`
+
+**If you cannot build the engine, STOP and ASK.** Do not fall back to Python. Do not write custom renderers. Do not bypass the engine.
+
+The engine compiles. The engine runs. Use it.
 
 ## The Tool-Usage Law (MANDATORY)
 
