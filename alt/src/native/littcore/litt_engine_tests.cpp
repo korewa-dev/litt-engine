@@ -10,6 +10,7 @@
 
 #include "litt_math.h"
 #include "litt_engine_systems.h"
+#include "litt_gpu_software.h"
 
 using namespace litt;
 
@@ -320,6 +321,19 @@ void test_engine_loop() {
     printf("Engine loop done\n"); fflush(stdout);
 }
 
+void test_3d_rendering() {
+    printf("[3D Rendering]\n"); fflush(stdout);
+    
+    SoftwareRenderer sw;
+    sw.initialize("headless");
+    sw.clear(0x000000);
+    sw.draw_pixel(100, 100, 0xFF0000);
+    sw.shutdown();
+    
+    check(true, "3d_rendering");
+    printf("3D Rendering done\n"); fflush(stdout);
+}
+
 int main() {
     printf("Starting tests...\n"); fflush(stdout);
     
@@ -339,6 +353,7 @@ int main() {
     test_performance();
     test_large_world();
     test_engine_loop();
+    test_3d_rendering();
     
     printf("\n========================================\n");
     printf("Results: %d passed, %d failed\n", passed, failed);
