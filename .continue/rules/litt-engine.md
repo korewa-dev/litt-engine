@@ -129,20 +129,21 @@ Or download single-headers:
 
 ## Directory & Path Rules (MANDATORY)
 
-1. **NEVER create new folders** unless explicitly asked. Always work INSIDE the existing project directory.
-2. **NEVER guess paths.** The project is at `D:\Allgemein\AI Router\litt engine\` (engine) or `D:\Allgemein\AI Router\litt spill\` (games). Use these EXACT paths.
-3. **ALWAYS verify paths** with `ls` before using them. If a path doesn't exist, STOP and ask — don't guess.
-4. **NEVER work outside the project.** Don't clone to random locations, don't create temp folders elsewhere, don't redirect output to unexpected places.
-5. **ALL changes go to the existing repo.** Git commits, pushes, file edits — everything happens in `D:\Allgemein\AI Router\litt engine\`.
-6. **Game projects live in `D:\Allgemein\AI Router\litt spill\<game_name>\`. NEVER create `D:\Allgege\...` or similar typo-paths.
+1. **Work where instructed.** If the user says "work inside X folder", use that exact folder.
+2. **Default to `alt/`.** If no location is given, work inside `litt engine/alt/` (the engine's own project structure).
+3. **NEVER create new folders** unless explicitly asked. Always work INSIDE an existing project directory.
+4. **NEVER guess paths.** If you need a path and don't know it, ASK. Don't invent paths like `D:\Allgege\...` — that's how typos become phantom directories.
+5. **ALWAYS verify paths** with `ls` before using them. If a path doesn't exist, STOP and ask — don't guess.
+6. **NEVER work outside the project.** Don't clone to random locations, don't create temp folders elsewhere, don't redirect output to unexpected places.
+7. **ALL changes go to the existing repo.** Git commits, pushes, file edits — everything happens in the project you were told to work in.
 
 ## Routing (Updated)
 
 - "implement GPU/audio/input" → Read `alt/docs/IMPLEMENTATION_PLAN.md`, pick a subsystem, read the interface, implement the backend, test it
-- "make a game" → Use what works (ECS, events, math, worldgen Python API). Stubbed subsystems will fail at runtime — implement them first if you need rendering/audio/input. **Game projects go in `D:\Allgemein\AI Router\litt spill\<game_name>\`. NEVER create a new folder path.**
+- "make a game" → Use what works (ECS, events, math, worldgen Python API). Stubbed subsystems will fail at runtime — implement them first if you need rendering/audio/input. **Work where instructed, or default to `litt engine/alt/` if no location given.**
 - "fix a bug" → Read the interface, find the stub, implement the real logic, add a test
 - "add a feature" → Check `alt/docs/Engine_Steps_Overview.md` for `[~]` or `[ ]` items
-- "make a game" (full workflow) → Create `D:\Allgemein\AI Router\litt spill\<game_name>\` ONCE. Inside: `config/world_state.json`, `assets/models/`, `assets/scenes/`, `engine/`. Use `litt_game.h` Game class. Build with `g++ -I "D:\Allgemein\AI Router\litt engine\alt\src\native\littcore"`.
+- "make a game" (full workflow) → Create game project in the instructed folder (or `litt engine/alt/` by default). Inside: `config/world_state.json`, `assets/models/`, `assets/scenes/`, `engine/`. Use `litt_game.h` Game class. Build with `g++ -I "<path_to_litt_engine>/alt/src/native/littcore"`.
 
 ## The Tool-Usage Law (MANDATORY)
 
