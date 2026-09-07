@@ -127,12 +127,22 @@ Or download single-headers:
 | Checklist | `alt/docs/Engine_Steps_Overview.md` |
 | Implementation plan | `alt/docs/IMPLEMENTATION_PLAN.md` |
 
+## Directory & Path Rules (MANDATORY)
+
+1. **NEVER create new folders** unless explicitly asked. Always work INSIDE the existing project directory.
+2. **NEVER guess paths.** The project is at `D:\Allgemein\AI Router\litt engine\` (engine) or `D:\Allgemein\AI Router\litt spill\` (games). Use these EXACT paths.
+3. **ALWAYS verify paths** with `ls` before using them. If a path doesn't exist, STOP and ask — don't guess.
+4. **NEVER work outside the project.** Don't clone to random locations, don't create temp folders elsewhere, don't redirect output to unexpected places.
+5. **ALL changes go to the existing repo.** Git commits, pushes, file edits — everything happens in `D:\Allgemein\AI Router\litt engine\`.
+6. **Game projects live in `D:\Allgemein\AI Router\litt spill\<game_name>\`. NEVER create `D:\Allgege\...` or similar typo-paths.
+
 ## Routing (Updated)
 
 - "implement GPU/audio/input" → Read `alt/docs/IMPLEMENTATION_PLAN.md`, pick a subsystem, read the interface, implement the backend, test it
-- "make a game" → Use what works (ECS, events, math, worldgen Python API). Stubbed subsystems will fail at runtime — implement them first if you need rendering/audio/input
+- "make a game" → Use what works (ECS, events, math, worldgen Python API). Stubbed subsystems will fail at runtime — implement them first if you need rendering/audio/input. **Game projects go in `D:\Allgemein\AI Router\litt spill\<game_name>\`. NEVER create a new folder path.**
 - "fix a bug" → Read the interface, find the stub, implement the real logic, add a test
 - "add a feature" → Check `alt/docs/Engine_Steps_Overview.md` for `[~]` or `[ ]` items
+- "make a game" (full workflow) → Create `D:\Allgemein\AI Router\litt spill\<game_name>\` ONCE. Inside: `config/world_state.json`, `assets/models/`, `assets/scenes/`, `engine/`. Use `litt_game.h` Game class. Build with `g++ -I "D:\Allgemein\AI Router\litt engine\alt\src\native\littcore"`.
 
 ## The Tool-Usage Law (MANDATORY)
 
@@ -152,7 +162,19 @@ If you skip steps 1-3 and then report a gap, you are guessing. The human will kn
 4. Read the stub implementation (`litt_*.cpp`) to find what needs replacing
 5. THEN implement, test, and update the checklist
 
-## Determinism
+## Build Commands (Correct Paths)
+
+```bash
+# Engine tests
+cd "D:\Allgemein\AI Router\litt engine"
+g++ -std=c++17 -I alt/src/native/littcore -o tests.exe alt/src/native/littcore/litt_engine_tests.cpp alt/src/native/littcore/litt_math.cpp -lgdi32 -luser32 -lwinmm
+
+# Game project
+cd "D:\Allgemein\AI Router\litt spill\<game_name>"
+g++ -std=c++17 -I "D:\Allgemein\AI Router\litt engine\alt\src\native\littcore" -o game.exe engine/game.cpp "D:\Allgemein\AI Router\litt engine\alt\src\native\littcore\litt_obj.c" "D:\Allgemein\AI Router\litt engine\alt\src\native\littcore\litt_json.c" "D:\Allgemein\AI Router\litt engine\alt\src\native\littcore\litt_world.c" -lgdi32 -luser32 -lwinmm
+```
+
+**NEVER** create `D:\Allgege\...` or similar typo-paths. If a path doesn't exist, STOP and ask.
 
 Same seed = same bytes. World state written LAST. Asset index registered. Attribution recorded.
 
