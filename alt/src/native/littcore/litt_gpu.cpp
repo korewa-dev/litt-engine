@@ -2,7 +2,7 @@
 // GPU abstraction layer with platform-specific backends
 
 #include "litt_gpu.h"
-#include "litt_gpu_wingl.h"
+#include "litt_gpu_software.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -27,7 +27,7 @@ std::unique_ptr<IGPUDevice> create_gpu_device(const std::string& backend_name) {
 
 #ifdef LITT_OPENGL_BACKEND
     if (backend_name == "opengl" || backend_name == "auto") {
-        return std::make_unique<WinGLDevice>();
+        return nullptr;  // OpenGL backend not available - use software renderer
     }
 #endif
 
