@@ -162,7 +162,7 @@ def main():
     prop("hazard_pit", pmb)
     smb = MeshBuilder(); sk = Kit(smb); sp = sk("spikes", "spike_iron")
     for sxp in (-1.05, -0.35, 0.35, 1.05):             # symmetric cluster
-        sp.cone(sxp, -0.35, 0, 0.16, 0.5, seg=6)
+        sp.cone(sxp, -0.35, 0, 0.16, 0.5)
     prop("hazard_spikes", smb)
     for hi, (gx, gw) in enumerate(gaps):
         hx = round(gx + gw / 2, 2)
@@ -173,7 +173,7 @@ def main():
 
     # ---- goal flag: built at origin, mirrored cloth keeps centroid 0 ---
     fmb = MeshBuilder(); fk = Kit(fmb); pole = fk("pole", "pole_grey")
-    pole.cyl(0, 0, 0, 0.06, 0.05, 3.2, seg=8)
+    pole.cyl(0, 0, 0, 0.06, 0.05, 3.2)
     cloth = fk("cloth", "flag_red")
     cloth.prism(0, 2.5, 0.45, 0.05, 0.45, 0.55)
     cloth.prism(0, 2.5, -0.45, 0.05, 0.45, 0.55)

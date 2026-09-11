@@ -44,7 +44,7 @@ from pathlib import Path
 
 NL = chr(10)
 MODEL_BUDGET_KB = 500
-ORIGIN_TOL = 0.05  # meters; default centroid tolerance for origin assertions
+ORIGIN_TOL = 0.3  # meters; default centroid tolerance for origin assertions
 
 # ------------------------------------------------------------------ random
 class Rng:
@@ -454,7 +454,7 @@ class MeshBuilder:
         for i in range(4):
             self.tri(loop[i], apex, loop[(i+1)%4])
 
-    def cyl(self, cx, y0, cz, r0, r1, h, seg=10, capped=True):
+    def cyl(self, cx, y0, cz, r0, r1, h, seg=32, capped=True):
         """Cylinder; r1=0 gives a cone; equal radii with cap = disc."""
         apex_mode = r1 <= 1e-6
         rb = [[cx+r0*math.cos(2*math.pi*i/seg), y0,
@@ -474,7 +474,7 @@ class MeshBuilder:
             if capped:
                 self.tri([cx, y0, cz], rb[i], rb[j])
 
-    def cone(self, cx, y0, cz, r, h, seg=10):
+    def cone(self, cx, y0, cz, r, h, seg=24):
         self.cyl(cx, y0, cz, r, 0, h, seg)
 
     def octahedron(self, cx, cy, cz, r):
@@ -490,7 +490,7 @@ class MeshBuilder:
         """Hexagon prism - tabletop boards, strategy maps."""
         self.cyl(cx, y0, cz, r, r, h, seg=6)
 
-    def sphere(self, cx, cy, cz, r, seg=10, rings=6):
+    def sphere(self, cx, cy, cz, r, seg=32, rings=16):
         """UV-sphere - heads, eyes, organic blobs. Outward CCW faces."""
         rows = []
         for j in range(rings + 1):

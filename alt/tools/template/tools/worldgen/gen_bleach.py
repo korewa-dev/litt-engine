@@ -82,12 +82,12 @@ def p_dead_tree(rng):
     def fn(p):
         bark = p("trunk", "deadwood")
         h = 2.0 + rng.uniform(0, 1.2)
-        bark.cyl(0, 0, 0, 0.14, 0.07, h, seg=7)
+        bark.cyl(0, 0, 0, 0.14, 0.07, h)
         for k in range(3):
             bx = (rng.uniform(-1, 1)) * 0.28
             bz = (rng.uniform(-1, 1)) * 0.28
             bh = rng.uniform(0.4, 0.9)
-            bark.cyl(bx, h * 0.7, bz, 0.04, 0.0, bh, seg=5)
+            bark.cyl(bx, h * 0.7, bz, 0.04, 0.0, bh)
     return fn
 
 
@@ -111,7 +111,7 @@ def p_arch(p):
 def p_pillar(rng):
     def fn(p):
         st = p("stone", "ruin_stone")
-        st.cyl(0, 0, 0, 0.35, 0.30, 1.5 + rng.uniform(0, 1.6), seg=9)
+        st.cyl(0, 0, 0, 0.35, 0.30, 1.5 + rng.uniform(0, 1.6))
     return fn
 
 
@@ -127,53 +127,53 @@ def p_soul_orb(p):
 
 def p_bloodstain(p):
     b = p("stain", "bloodstain_green")
-    b.cyl(0, 0, 0, 0.45, 0.45, 0.02, seg=12)
-    b.cone(0, 0.02, 0, 0.08, 0.20, seg=6)
+    b.cyl(0, 0, 0, 0.45, 0.45, 0.02)
+    b.cone(0, 0.02, 0, 0.08, 0.20)
 
 
 def p_soul_torch(p):
     t = p("base", "ruin_stone")
-    t.cyl(0, 0, 0, 0.20, 0.15, 0.8, seg=8)
+    t.cyl(0, 0, 0, 0.20, 0.15, 0.8)
     flame = p("flame", "soul_torch")
-    flame.cone(0, 0.8, 0, 0.15, 0.50, seg=7)
+    flame.cone(0, 0.8, 0, 0.15, 0.50)
     glow = p("glow", "soul_blue")
-    glow.sphere(0, 1.0, 0, 0.12, seg=6, rings=4)
+    glow.sphere(0, 1.0, 0, 0.12)
 
 
 def p_hollow_mask(p):
     """Bespoke hollow mask prop - the iconic BLEACH enemy face."""
     m = p("mask", "hollow_white")
-    m.sphere(0, 0, 0, 0.35, seg=10, rings=7)
+    m.sphere(0, 0, 0, 0.35)
     teeth = p("teeth", "hollow_void")
     for i in range(5):
         angle = -0.4 + i * 0.2
         teeth.box(math.sin(angle) * 0.28, -0.15, math.cos(angle) * 0.25,
                   0.04, 0.06, 0.04)
     eye_l = p("eye_l", "hollow_void")
-    eye_l.sphere(-0.12, 0.08, -0.30, 0.06, seg=6, rings=4)
+    eye_l.sphere(-0.12, 0.08, -0.30, 0.06)
     eye_r = p("eye_r", "hollow_void")
-    eye_r.sphere(0.12, 0.08, -0.30, 0.06, seg=6, rings=4)
+    eye_r.sphere(0.12, 0.08, -0.30, 0.06)
 
 
 def p_menos_grande(p):
     """Bespoke Menos Grande boss - giant hollow with horn and mask."""
     body = p("body", "menos_body")
-    body.cyl(0, 0, 0, 0.8, 1.2, 3.5, seg=12)
-    body.cyl(0, 3.0, 0, 0.5, 0.3, 1.5, seg=10)
+    body.cyl(0, 0, 0, 0.8, 1.2, 3.5)
+    body.cyl(0, 3.0, 0, 0.5, 0.3, 1.5)
     mask = p("mask", "hollow_white")
-    mask.sphere(0, 4.2, 0, 0.55, seg=10, rings=7)
+    mask.sphere(0, 4.2, 0, 0.55)
     horn_l = p("horn_l", "menos_horn")
-    horn_l.cone(-0.35, 4.5, 0, 0.08, 0.50, seg=6)
+    horn_l.cone(-0.35, 4.5, 0, 0.08, 0.50)
     horn_r = p("horn_r", "menos_horn")
-    horn_r.cone(0.35, 4.5, 0, 0.08, 0.50, seg=6)
+    horn_r.cone(0.35, 4.5, 0, 0.08, 0.50)
     eye_l = p("eye_l", "spirit_pressure")
-    eye_l.sphere(-0.18, 4.3, -0.45, 0.10, seg=6, rings=4)
+    eye_l.sphere(-0.18, 4.3, -0.45, 0.10)
     eye_r = p("eye_r", "spirit_pressure")
-    eye_r.sphere(0.18, 4.3, -0.45, 0.10, seg=6, rings=4)
+    eye_r.sphere(0.18, 4.3, -0.45, 0.10)
     arm_l = p("arm_l", "menos_body")
-    arm_l.cyl(-1.0, 2.0, 0, 0.15, 0.10, 1.5, seg=8)
+    arm_l.cyl(-1.0, 2.0, 0, 0.15, 0.10, 1.5)
     arm_r = p("arm_r", "menos_body")
-    arm_r.cyl(1.0, 2.0, 0, 0.15, 0.10, 1.5, seg=8)
+    arm_r.cyl(1.0, 2.0, 0, 0.15, 0.10, 1.5)
     teeth = p("teeth", "hollow_void")
     for i in range(6):
         angle = -0.5 + i * 0.2
@@ -376,17 +376,17 @@ def main():
                   assets_dir=assets_dir, auto_recenter=True)
         made.append(name + ".obj")
 
-    for name, fn, centered in [("bloodstain", p_bloodstain, True),
-                               ("grave", p_grave(rng), True),
+    for name, fn, centered in [("bloodstain", p_bloodstain, False),
+                               ("grave", p_grave(rng), False),
                                ("dead_tree", p_dead_tree(rng), False),
-                               ("pillar", p_pillar(rng), True),
-                               ("arch", p_arch, True),
-                               ("fog_gate", p_fog_gate, True),
-                               ("soul_orb", p_soul_orb, True),
-                               ("soul_torch", p_soul_torch, True),
-                               ("hollow_mask", p_hollow_mask, True),
-                               ("menos_grande", p_menos_grande, True),
-                               ("zanpakuto", p_zanpakuto, True)]:
+                               ("pillar", p_pillar(rng), False),
+                               ("arch", p_arch, False),
+                               ("fog_gate", p_fog_gate, False),
+                               ("soul_orb", p_soul_orb, False),
+                               ("soul_torch", p_soul_torch, False),
+                               ("hollow_mask", p_hollow_mask, False),
+                               ("menos_grande", p_menos_grande, False),
+                               ("zanpakuto", p_zanpakuto, False)]:
         save_prop(models, name, build(MeshBuilder(), fn), "materials", merged,
                   assets_dir=assets_dir,
                   enforce_origin=centered, auto_recenter=not centered)

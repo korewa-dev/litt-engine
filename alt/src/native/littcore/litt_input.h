@@ -16,8 +16,6 @@ enum class Key : int {
     I = 73, J = 74, K = 75, L = 76, M = 77, N = 78, O = 79, P = 80, Q = 81, R = 82,
     S = 83, T = 84, U = 85, V = 86, W = 87, X = 88, Y = 89, Z = 90,
     Left = 256, Right = 257, Up = 258, Down = 259,
-    // Distinct values: these previously collided with Left/Right, so pressing
-    // an arrow also registered Escape/Shift.
     Escape = 260, Shift = 261, Ctrl = 262, Alt = 263,
     F1 = 290, F2 = 291, F3 = 292, F4 = 293, F5 = 294, F6 = 295,
     F7 = 296, F8 = 297, F9 = 298, F10 = 299, F11 = 300, F12 = 301

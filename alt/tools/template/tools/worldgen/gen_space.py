@@ -68,8 +68,8 @@ def p_station(p):
     greeble = p("greeble", "hull_oxide")
     greeble.box(-1.4, 5.6, 0.9, 0.8, 0.5, 0.8)
     greeble.box(1.6, 2.6, -1.0, 0.6, 0.4, 0.6)
-    ring = p("ring", "antenna_grey"); ring.cyl(0, 3.85, 0, 3.4, 3.4, 0.30, seg=14)
-    ant  = p("mast", "antenna_grey"); ant.cone(0, 5.4, 0, 0.10, 2.6, seg=6)
+    ring = p("ring", "antenna_grey"); ring.cyl(0, 3.85, 0, 3.4, 3.4, 0.30)
+    ant  = p("mast", "antenna_grey"); ant.cone(0, 5.4, 0, 0.10, 2.6)
 
 def p_asteroid(rng):
     def fn(p):
@@ -89,8 +89,8 @@ def p_star(p):
 def p_gate(p):
     """Jump gate, modeled AT ORIGIN (x/z symmetric): two pylons + beacon bar."""
     pyl = p("pylons", "hull_steel")
-    pyl.cyl(-1.3, 0, 0, 0.10, 0.16, 2.6, seg=8)
-    pyl.cyl( 1.3, 0, 0, 0.10, 0.16, 2.6, seg=8)
+    pyl.cyl(-1.3, 0, 0, 0.10, 0.16, 2.6)
+    pyl.cyl( 1.3, 0, 0, 0.10, 0.16, 2.6)
     bcn = p("beacon", "pod_orange"); bcn.box(0, 2.72, 0, 2.9, 0.16, 0.16)
 
 def build(mb, fn):
@@ -129,7 +129,7 @@ def main():
     # hovering 1.8 m above it). Snapping pods+gate down to -1.8 instead was
     # rejected: y=0 play plane matches every other generator and keeps pod/
     # gate/station node data untouched. Documented in state.gameplay.note.
-    mb = build(MeshBuilder(), lambda p: p("void", "void_plane").cyl(0, -0.2, 0, 200, 200, 0.2, seg=24))
+    mb = build(MeshBuilder(), lambda p: p("void", "void_plane").cyl(0, -0.2, 0, 200, 200, 0.2))
     save_prop(models, "void_plane", mb, "materials", MATS, assets_dir)
     made.append("void_plane.obj")
     placed.append(("Void_Plane", [0, 0, 0], 0, ["backdrop", "terrain", "floor"]))

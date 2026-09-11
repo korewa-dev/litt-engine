@@ -66,7 +66,7 @@ def mat_at(mats, key, fallback):
 # ---------------------------------------------------------------- patterns
 def pattern_arena(rng, mats, size=14):
     mb = MeshBuilder(); k = kit_factory(mb)
-    g = k("floor", mat_at(mats, "ground", "ground")); g.cyl(0, -0.15, 0, size, size, 0.3, seg=24)
+    g = k("floor", mat_at(mats, "ground", "ground")); g.cyl(0, -0.15, 0, size, size, 0.3)
     wall = k("ring", mat_at(mats, "structure", "structure"))
     n = 16
     for i in range(n):
@@ -77,7 +77,7 @@ def pattern_arena(rng, mats, size=14):
     for i in range(6):
         a = 2.0 * math.pi * i / 6 + 0.3
         px, pz = (size - 3.5) * math.cos(a), (size - 3.5) * math.sin(a)
-        pill.cyl(round(px, 2), 1.6, round(pz, 2), 0.45, 0.4, 3.2, seg=8)
+        pill.cyl(round(px, 2), 1.6, round(pz, 2), 0.45, 0.4, 3.2)
         pill.octahedron(round(px, 2), 3.5, round(pz, 2), 0.5)
     cen = k("center", mat_at(mats, "accent", "accent"))
     cen.pyramid(0, 0.15, 0, 2.0, 2.0, 2.8)
@@ -97,7 +97,7 @@ def pattern_arena(rng, mats, size=14):
                        [ex, 0, ez], yaw, ["enemy", "aggro_small"]))
     gm = MeshBuilder(); gk = kit_factory(gm)
     gk("gem", mat_at(mats, "accent", "accent")).octahedron(0, 0, 0, 0.45)
-    gk("ring", mat_at(mats, "structure", "structure")).cyl(0, -0.62, 0, 0.62, 0.62, 0.1, seg=12)
+    gk("ring", mat_at(mats, "structure", "structure")).cyl(0, -0.62, 0, 0.62, 0.62, 0.1)
     assert_origin_centered(gm)
     extras.append(("goal_beacon", "goal_beacon", "Goal_Beacon", gm,
                    [0, 3.6, 0], 0, ["goal"]))   # hovers over the center pyramid apex
@@ -114,7 +114,7 @@ def pattern_corridor(rng, mats, length=70):
     for i in range(int(length / 7)):
         ox = 6 + i * 7 + rng.uniform(-1.5, 1.5)
         if rng.uniform() > 0.5: ob.box(round(ox, 2), 0.7, round(rng.uniform(-2.2, 2.2), 2), 0.8, 0.7, 1.6)
-        else: ob.cone(round(ox, 2), 0.5, round(rng.uniform(-2.2, 2.2), 2), 0.5, 1.0, seg=6)
+        else: ob.cone(round(ox, 2), 0.5, round(rng.uniform(-2.2, 2.2), 2), 0.5, 1.0)
     # --- game content: pickups + goal OUT of the baked mesh, emitted as
     # instanced tagged nodes via the hub_spoke extras convention so the
     # engine can see them. Placement math is unchanged from when these were
@@ -153,7 +153,7 @@ def pattern_corridor(rng, mats, length=70):
 def pattern_hub(rng, mats, spokes=5, reach=26):
     mb = MeshBuilder(); k = kit_factory(mb)
     pl = k("plaza", mat_at(mats, "structure", "structure"))
-    pl.cyl(0, 0.05, 0, 7, 7, 0.35, seg=20)
+    pl.cyl(0, 0.05, 0, 7, 7, 0.35)
     pa = k("paths", mat_at(mats, "ground", "ground"))
     for s in range(spokes):
         a = 2.0 * math.pi * s / spokes
@@ -170,7 +170,7 @@ def pattern_hub(rng, mats, spokes=5, reach=26):
         ex, ez = math.cos(a) * reach, math.sin(a) * reach
         pm = MeshBuilder(); pk = kit_factory(pm)
         st = pk("stone", mat_at(mats, "detail", "detail"))
-        st.cyl(0, 0.9, 0, 1.0, 0.8, 1.8, seg=8)
+        st.cyl(0, 0.9, 0, 1.0, 0.8, 1.8)
         top = pk("cap", mat_at(mats, "accent", "accent"))
         top.octahedron(0, 2.3, 0, 0.7)
         assert_origin_centered(pm)
@@ -189,7 +189,7 @@ def pattern_hub(rng, mats, spokes=5, reach=26):
                 break
         if near_path:
             continue
-        dec.cone(round(x, 2), 1.0, round(z, 2), 0.9, 2.0, seg=7)
+        dec.cone(round(x, 2), 1.0, round(z, 2), 0.9, 2.0)
     # --- game content: coins, stalkers, goal banner ---
     extras = []   # (emit_name_or_None, ref_model, display_name, mb_or_None, pos, yaw, tags)
     cm = MeshBuilder(); ck = kit_factory(cm)
@@ -224,7 +224,7 @@ def pattern_hub(rng, mats, spokes=5, reach=26):
     # position now carries the spoke-0 end placement. Cloth re-centered on
     # the pole so the mesh hugs the origin per the transform convention.
     bm = MeshBuilder(); bk = kit_factory(bm)
-    bk("pole", mat_at(mats, "structure", "structure")).cyl(0, 0.0, 0, 0.09, 0.07, 4.6, seg=8)
+    bk("pole", mat_at(mats, "structure", "structure")).cyl(0, 0.0, 0, 0.09, 0.07, 4.6)
     bk("cloth", mat_at(mats, "accent", "accent")).prism(0, 3.4, 0, 0.06, 0.7, 1.1)
     assert_origin_centered(bm)
     extras.append(("festival_banner", "festival_banner", "Festival_Banner", bm,
@@ -249,8 +249,8 @@ def pattern_board(rng, mats, n=4):
     extras = []   # (emit_name_or_None, ref_model, display_name, mb_or_None, pos, yaw, tags)
     tile_top = 0.14   # hex_tile(cx, 0, cz, 0.56, 0.14) top surface
     pm = MeshBuilder(); pk = kit_factory(pm)
-    pk("base", mat_at(mats, "detail", "detail")).cyl(0, 0, 0, 0.15, 0.11, 0.42, seg=8)
-    pk("collar", mat_at(mats, "detail", "detail")).cyl(0, 0.42, 0, 0.10, 0.02, 0.10, seg=8)
+    pk("base", mat_at(mats, "detail", "detail")).cyl(0, 0, 0, 0.15, 0.11, 0.42)
+    pk("collar", mat_at(mats, "detail", "detail")).cyl(0, 0.42, 0, 0.10, 0.02, 0.10)
     assert_origin_centered(pm)
     for j, qx in enumerate(range(-2, 3)):
         px, pz = round(qx * 1.15, 2), round((n - 1) * 1.15, 2)

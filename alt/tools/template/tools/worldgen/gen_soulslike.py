@@ -46,7 +46,7 @@ from worldkit import (Rng, fbm, value_noise, MeshBuilder, write_mtl_for,
                       append_log, save_prop, Placement, reserve_spot)
 from gen_props import PALETTES, build_prop, parse_mtl
 
-CHUNK, RES, AMP, FREQ = 16.0, 12, 1.2, 0.08
+CHUNK, RES, AMP, FREQ = 16.0, 24, 2.5, 0.12
 LEGACY_T, LEGACY_S = 666, 2077  # pre---seed default streams (back-compat)
 
 _M64 = (1 << 64) - 1
@@ -93,12 +93,12 @@ def p_dead_tree(rng):
     def fn(p):
         bark = p("trunk", "deadwood")
         h = 2.2 + rng.uniform(0, 1.4)
-        bark.cyl(0, 0, 0, 0.16, 0.08, h, seg=7)
+        bark.cyl(0, 0, 0, 0.16, 0.08, h)
         for k in range(3):
             bx = (rng.uniform(-1, 1)) * 0.32
             bz = (rng.uniform(-1, 1)) * 0.32
             bh = rng.uniform(0.5, 1.1)
-            bark.cyl(bx, h*0.72, bz, 0.05, 0.0, bh, seg=5)
+            bark.cyl(bx, h*0.72, bz, 0.05, 0.0, bh)
     return fn
 
 def p_grave(rng):
@@ -118,7 +118,7 @@ def p_arch(p):
 def p_pillar(rng):
     def fn(p):
         st = p("stone", "ruin_stone")
-        st.cyl(0, 0, 0, 0.38, 0.32, 1.6 + rng.uniform(0, 1.8), seg=9)
+        st.cyl(0, 0, 0, 0.38, 0.32, 1.6 + rng.uniform(0, 1.8))
     return fn
 
 def p_fog_gate(p):
@@ -129,8 +129,8 @@ def p_soul_ember(p):
 
 def p_bloodstain(p):
     b = p("stain", "bloodstain_green")
-    b.cyl(0, 0, 0, 0.48, 0.48, 0.03, seg=12)
-    b.cone(0, 0.03, 0, 0.10, 0.22, seg=6)
+    b.cyl(0, 0, 0, 0.48, 0.48, 0.03)
+    b.cone(0, 0.03, 0, 0.10, 0.22)
 
 # ------------------------------------------------------------------- layout
 LANDMARKS = [(0.0, 2.0), (0.0, 38.0), (0.0, 46.0), (0.0, 62.0)]

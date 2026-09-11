@@ -145,7 +145,7 @@ def build_prop(name, pal=None, rng=None):
 
     if name == "coin":
         mb.begin("coin", pal_get("gold"))
-        mb.cyl(0, 0.5, 0, 0.32, 0.32, 0.07, seg=12)
+        mb.cyl(0, 0.5, 0, 0.32, 0.32, 0.07)
     elif name == "gem":
         mb.begin("gem", pal_get("ember"))
         mb.octahedron(0, 0.55, 0, 0.30)
@@ -155,12 +155,12 @@ def build_prop(name, pal=None, rng=None):
         mb.pyramid(0, 0.25, 0, 0.42, 0.42, 0.35)
     elif name == "brazier":
         mb.begin("brazier", pal_get("void"))
-        mb.cyl(0, 0.0, 0, 0.42, 0.30, 1.05, seg=8)
+        mb.cyl(0, 0.0, 0, 0.42, 0.30, 1.05)
         mb.begin("brazier_flame", pal_get("ember"))
-        mb.cone(0, 1.05, 0, 0.30, 0.65, seg=7)
+        mb.cone(0, 1.05, 0, 0.30, 0.65)
     elif name == "checkpoint_flag":
         mb.begin("flag_pole", pal_get("bone"))
-        mb.cyl(0, 0.0, 0, 0.06, 0.05, 2.6, seg=6)
+        mb.cyl(0, 0.0, 0, 0.06, 0.05, 2.6)
         mb.begin("flag_cloth", pal_get("ember"))
         mb.roof_prism(0.45, 2.0, 0.0, 0.45, 0.05, 0.55)
     elif name == "drone":
@@ -168,7 +168,7 @@ def build_prop(name, pal=None, rng=None):
         mb.begin("drone_hull", pal_get("metal"))
         mb.box(0, 1.6, 0, 0.22, 0.09, 0.22)
         mb.begin("drone_canopy", pal_get("glow"))
-        mb.sphere(0, 1.73, 0, 0.12, seg=8, rings=5)
+        mb.sphere(0, 1.73, 0, 0.12)
         mb.begin("drone_eye", pal_get("blood"))
         mb.octahedron(0, 1.60, -0.26, 0.10)
         mb.begin("drone_arm_x", pal_get("metal_dk"))
@@ -178,38 +178,38 @@ def build_prop(name, pal=None, rng=None):
         for tag, px, pz in (("rotor_n", 0, -0.42), ("rotor_e", 0.42, 0),
                             ("rotor_s", 0, 0.42), ("rotor_w", -0.42, 0)):
             mb.begin("drone_" + tag, pal_get("metal_dk"))
-            mb.cyl(px, 1.70, pz, 0.16, 0.16, 0.02, seg=8)
+            mb.cyl(px, 1.70, pz, 0.16, 0.16, 0.02)
     elif name == "spike":
         mb.begin("spikes", pal_get("metal_dk"))
         for i in range(3):
             x = -0.35 + 0.35 * i
-            mb.cone(x, 0.0, 0.0, 0.13, 0.62, seg=5)
+            mb.cone(x, 0.0, 0.0, 0.13, 0.62)
     elif name == "wraith":
         # floating shroud with sleeves and a swaying lantern
         mb.begin("wraith_shroud", pal_get("void"))
-        mb.cyl(0, 0.0, 0, 0.30, 0.52, 1.7, seg=8)
+        mb.cyl(0, 0.0, 0, 0.30, 0.52, 1.7)
         mb.begin("wraith_mask", pal_get("bone"))
-        mb.sphere(0, 1.58, 0, 0.20, seg=8, rings=5)
+        mb.sphere(0, 1.58, 0, 0.20)
         mb.begin("wraith_eye_l", pal_get("glow"))
-        mb.sphere(-0.08, 1.62, -0.15, 0.045, seg=6, rings=4)
+        mb.sphere(-0.08, 1.62, -0.15, 0.045)
         mb.begin("wraith_eye_r", pal_get("glow"))
-        mb.sphere(0.08, 1.62, -0.15, 0.045, seg=6, rings=4)
+        mb.sphere(0.08, 1.62, -0.15, 0.045)
         mb.begin("wraith_sleeve_l", pal_get("void"))
-        mb.cyl(-0.42, 1.25, 0, 0.07, 0.04, 0.55, seg=6)
+        mb.cyl(-0.42, 1.25, 0, 0.07, 0.04, 0.55)
         mb.begin("wraith_sleeve_r", pal_get("void"))
-        mb.cyl(0.42, 1.25, 0, 0.07, 0.04, 0.55, seg=6)
+        mb.cyl(0.42, 1.25, 0, 0.07, 0.04, 0.55)
         mb.begin("wraith_lantern", pal_get("ember"))
-        mb.sphere(-0.55, 0.95, 0.05, 0.09, seg=6, rings=4)
+        mb.sphere(-0.55, 0.95, 0.05, 0.09)
     elif name == "brute":
         # full walker: torso, head, horns, two arms, two legs
         mb.begin("brute_torso", pal_get("blood"))
         mb.box(0, 1.15, 0, 0.31, 0.65, 0.28)
         mb.begin("brute_head", pal_get("void"))
-        mb.sphere(0, 2.02, 0, 0.20, seg=8, rings=5)
+        mb.sphere(0, 2.02, 0, 0.20)
         mb.begin("brute_horn_l", pal_get("bone"))
-        mb.cone(-0.17, 2.10, 0, 0.05, 0.24, seg=5)
+        mb.cone(-0.17, 2.10, 0, 0.05, 0.24)
         mb.begin("brute_horn_r", pal_get("bone"))
-        mb.cone(0.17, 2.10, 0, 0.05, 0.24, seg=5)
+        mb.cone(0.17, 2.10, 0, 0.05, 0.24)
         mb.begin("brute_arm_l", pal_get("hide"))
         mb.box(-0.42, 1.28, 0, 0.08, 0.44, 0.08)
         mb.begin("brute_arm_r", pal_get("hide"))
@@ -220,23 +220,23 @@ def build_prop(name, pal=None, rng=None):
         mb.box(0.18, 0.40, 0, 0.11, 0.42, 0.13)
     elif name == "bonfire":
         mb.begin("bonfire_stack", pal_get("metal_dk"))
-        mb.cyl(0, 0.0, 0, 0.55, 0.40, 0.30, seg=9)
+        mb.cyl(0, 0.0, 0, 0.55, 0.40, 0.30)
         mb.begin("bonfire_logs", pal_get("wood"))
         mb.box(0.22, 0.34, 0.10, 0.42, 0.05, 0.06)
         mb.box(-0.20, 0.36, -0.08, 0.40, 0.05, 0.06)
         mb.begin("bonfire_flame", pal_get("ember"))
-        mb.cone(0, 0.38, 0, 0.36, 1.00, seg=8)
+        mb.cone(0, 0.38, 0, 0.36, 1.00)
         mb.begin("bonfire_spark_a", pal_get("glow"))
-        mb.sphere(0.12, 0.95, 0.06, 0.05, seg=6, rings=4)
+        mb.sphere(0.12, 0.95, 0.06, 0.05)
         mb.begin("bonfire_spark_b", pal_get("glow"))
-        mb.sphere(-0.14, 1.15, -0.04, 0.04, seg=6, rings=4)
+        mb.sphere(-0.14, 1.15, -0.04, 0.04)
     elif name == "stalker":
         mb.begin("stalker_body", pal_get("void"))
-        mb.cyl(0, 0.2, 0, 0.18, 0.34, 1.5, seg=8)
+        mb.cyl(0, 0.2, 0, 0.18, 0.34, 1.5)
         mb.begin("stalker_hood", pal_get("blood"))
         mb.pyramid(0, 1.7, 0, 0.34, 0.34, 0.55)
         mb.begin("stalker_eye", pal_get("glow"))
-        mb.sphere(0, 1.52, -0.16, 0.07, seg=6, rings=4)
+        mb.sphere(0, 1.52, -0.16, 0.07)
         mb.begin("stalker_blade_l", pal_get("metal_dk"))
         mb.box(-0.44, 1.05, 0, 0.04, 0.50, 0.09)
         mb.begin("stalker_blade_r", pal_get("metal_dk"))
@@ -245,7 +245,7 @@ def build_prop(name, pal=None, rng=None):
         mb.begin("knight_torso", pal_get("metal"))
         mb.box(0, 1.15, 0, 0.28, 0.60, 0.21)
         mb.begin("knight_head", pal_get("metal"))
-        mb.sphere(0, 1.98, 0, 0.17, seg=8, rings=5)
+        mb.sphere(0, 1.98, 0, 0.17)
         mb.begin("knight_plume", pal_get("blood"))
         mb.pyramid(0, 2.18, -0.03, 0.11, 0.11, 0.34)
         mb.begin("knight_arm_l", pal_get("metal"))
@@ -260,16 +260,16 @@ def build_prop(name, pal=None, rng=None):
         mb.box(0.14, 0.42, 0, 0.09, 0.44, 0.10)
     elif name == "banner":
         mb.begin("banner_pole", pal_get("metal"))
-        mb.cyl(0, 0.0, 0, 0.09, 0.07, 4.6, seg=8)
+        mb.cyl(0, 0.0, 0, 0.09, 0.07, 4.6)
         mb.begin("banner_cloth", pal_get("blood"))
         mb.roof_prism(0.0, 3.3, 0.75, 0.06, 0.7, 1.1)
     elif name == "estus_flask":
         mb.begin("estus_glass", pal_get("ember"))
-        mb.cyl(0, 0.25, 0, 0.16, 0.20, 0.5, seg=9)
+        mb.cyl(0, 0.25, 0, 0.16, 0.20, 0.5)
         mb.begin("estus_cap", pal_get("metal_dk"))
-        mb.cyl(0, 0.75, 0, 0.09, 0.09, 0.12, seg=6)
+        mb.cyl(0, 0.75, 0, 0.09, 0.09, 0.12)
         mb.begin("estus_glow", pal_get("glow"))
-        mb.sphere(0, 0.52, 0, 0.09, seg=6, rings=4)
+        mb.sphere(0, 0.52, 0, 0.09)
 
     # ---- shared kit v2: absorbed generator bespoke meshes (fix 1.1) ----
     # Each re-created AT ORIGIN within silhouette tolerance of the
@@ -277,8 +277,8 @@ def build_prop(name, pal=None, rng=None):
     elif name == "goal_gate":
         # goal/jump gate: twin pylons + beacon bar (gen_space p_gate)
         mb.begin("gate_pylons", pal_get("metal"))
-        mb.cyl(-1.3, 0, 0, 0.10, 0.16, 2.6, seg=8)
-        mb.cyl(1.3, 0, 0, 0.10, 0.16, 2.6, seg=8)
+        mb.cyl(-1.3, 0, 0, 0.10, 0.16, 2.6)
+        mb.cyl(1.3, 0, 0, 0.10, 0.16, 2.6)
         mb.begin("gate_beacon", pal_get("glow"))
         mb.box(0, 2.72, 0, 2.9, 0.16, 0.16)
     elif name == "fog_veil":
@@ -294,13 +294,13 @@ def build_prop(name, pal=None, rng=None):
         # symmetric spike cluster (gen_platformer25d hazard_spikes)
         mb.begin("hazard_spikes", pal_get("metal_dk"))
         for sxp in (-1.05, -0.35, 0.35, 1.05):
-            mb.cone(sxp, -0.35, 0, 0.16, 0.5, seg=6)
+            mb.cone(sxp, -0.35, 0, 0.16, 0.5)
     elif name == "hex_pawn":
         # tabletop pawn: tapered body + head disc (gen_tabletop Pawn_XX)
         mb.begin("pawn_body", pal_get("gold"))
-        mb.cyl(0, 0.1, 0, 0.15, 0.11, 0.42, seg=8)
+        mb.cyl(0, 0.1, 0, 0.15, 0.11, 0.42)
         mb.begin("pawn_head", pal_get("gold"))
-        mb.cyl(0, 0.52, 0, 0.10, 0.02, 0.10, seg=8)
+        mb.cyl(0, 0.52, 0, 0.10, 0.02, 0.10)
     elif name == "token_gem":
         # pickup gem instanced on board tiles (gen_tabletop token_gem)
         mb.begin("token_gem", pal_get("gold"))
@@ -335,7 +335,7 @@ def build_prop(name, pal=None, rng=None):
         # fallen-column stump at the ref's mid-range height
         # (gen_soulslike p_pillar rolls 1.6..3.4)
         mb.begin("pillar_stone", pal_get("stone"))
-        mb.cyl(0, 0, 0, 0.38, 0.32, 2.4, seg=9)
+        mb.cyl(0, 0, 0, 0.38, 0.32, 2.4)
     else:
         return None
 

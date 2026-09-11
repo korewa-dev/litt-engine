@@ -108,8 +108,8 @@ def main():
         cname = "Pawn_%02d" % (i+1); cmat = PAWN_COLORS[i % len(PAWN_COLORS)]
         mb = MeshBuilder()
         k = Kit(mb); pw = k("pawn", cmat)
-        pw.cyl(0, 0.1, 0, 0.15, 0.11, 0.42, seg=8)
-        head = k("head", cmat); head.cyl(0, 0.52, 0, 0.10, 0.02, 0.10, seg=8)
+        pw.cyl(0, 0.1, 0, 0.15, 0.11, 0.42)
+        head = k("head", cmat); head.cyl(0, 0.52, 0, 0.10, 0.02, 0.10)
         save_prop(models, cname, mb, "materials", MATS, assets_dir,
                   enforce_origin=True)
         made.append(cname + ".obj")
@@ -134,7 +134,7 @@ def main():
     north = min(board_tiles, key=lambda t: (t[3], abs(t[2]), t[2]))
     south = max(board_tiles, key=lambda t: (t[3], -abs(t[2]), -t[2]))
     mbg = MeshBuilder(); kg = Kit(mbg); gb = kg("banner", "pawn_gold")
-    gb.cyl(0, 0, 0, 0.05, 0.04, 0.85, seg=6)
+    gb.cyl(0, 0, 0, 0.05, 0.04, 0.85)
     gb.box(0, 0.70, 0, 0.34, 0.12, 0.03)
     save_prop(models, "goal_banner", mbg, "materials", MATS, assets_dir,
               enforce_origin=True)
