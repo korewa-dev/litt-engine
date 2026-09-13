@@ -1,0 +1,180 @@
+{
+  "$schema": "https://litt.engine/schema/scene/v1",
+  "name": "Dither3D Demo",
+  "description": "Demonstrates Dither3D surface-stable fractal dithering in Litt Engine",
+  "version": "1.0.0",
+  "entities": [
+    {
+      "id": "floor",
+      "name": "Dithered Floor",
+      "type": "mesh",
+      "transform": {
+        "position": [0, -0.5, 0],
+        "rotation": [0, 0, 0],
+        "scale": [10, 0.1, 10]
+      },
+      "mesh": {
+        "type": "plane",
+        "subdivisions": 20
+      },
+      "material": {
+        "type": "standard",
+        "albedo": [0.8, 0.8, 0.85],
+        "roughness": 0.8,
+        "metalness": 0.0,
+        "dither": {
+          "enabled": true,
+          "color_mode": "grayscale",
+          "pattern": "8x8",
+          "scale": 5.0,
+          "size_variability": 0.0,
+          "contrast": 1.0
+        }
+      }
+    },
+    {
+      "id": "cube1",
+      "name": "RGB Dither Cube",
+      "type": "mesh",
+      "transform": {
+        "position": [-2, 0.5, 0],
+        "rotation": [0, 45, 0],
+        "scale": [1, 1, 1]
+      },
+      "mesh": {
+        "type": "cube"
+      },
+      "material": {
+        "type": "standard",
+        "albedo": [1.0, 0.2, 0.3],
+        "roughness": 0.3,
+        "metalness": 0.1,
+        "dither": {
+          "enabled": true,
+          "color_mode": "rgb",
+          "pattern": "8x8",
+          "scale": 4.5,
+          "size_variability": 0.5,
+          "contrast": 1.2
+        }
+      }
+    },
+    {
+      "id": "cube2",
+      "name": "CMYK Dither Sphere",
+      "type": "mesh",
+      "transform": {
+        "position": [2, 0.5, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "mesh": {
+        "type": "sphere",
+        "subdivisions": 32
+      },
+      "material": {
+        "type": "standard",
+        "albedo": [0.2, 0.6, 1.0],
+        "roughness": 0.4,
+        "metalness": 0.0,
+        "dither": {
+          "enabled": true,
+          "color_mode": "cmyk",
+          "pattern": "4x4",
+          "scale": 4.0,
+          "size_variability": 0.0,
+          "contrast": 1.5,
+          "inverse_dots": false,
+          "radial_compensation": true
+        }
+      }
+    },
+    {
+      "id": "cube3",
+      "name": "Grayscale Dither Pyramid",
+      "type": "mesh",
+      "transform": {
+        "position": [0, 1.5, 3],
+        "rotation": [0, 30, 0],
+        "scale": [1, 1.5, 1]
+      },
+      "mesh": {
+        "type": "cone",
+        "subdivisions": 4
+      },
+      "material": {
+        "type": "standard",
+        "albedo": [0.9, 0.6, 0.3],
+        "roughness": 0.6,
+        "metalness": 0.2,
+        "dither": {
+          "enabled": true,
+          "color_mode": "grayscale",
+          "pattern": "2x2",
+          "scale": 3.5,
+          "size_variability": 1.0,
+          "contrast": 0.8,
+          "quantize_layers": true
+        }
+      }
+    },
+    {
+      "id": "cube4",
+      "name": "Plain Material (no dither)",
+      "type": "mesh",
+      "transform": {
+        "position": [0, 0.5, -3],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
+      },
+      "mesh": {
+        "type": "cube"
+      },
+      "material": {
+        "type": "standard",
+        "albedo": [0.3, 0.9, 0.4],
+        "roughness": 0.5,
+        "metalness": 0.0,
+        "dither": {
+          "enabled": false
+        }
+      }
+    }
+  ],
+  "lights": [
+    {
+      "id": "main_light",
+      "type": "directional",
+      "position": [5, 10, 5],
+      "direction": [-1, -1, -1],
+      "color": [1.0, 0.95, 0.9],
+      "intensity": 1.5
+    },
+    {
+      "id": "fill_light",
+      "type": "point",
+      "position": [-3, 3, 2],
+      "color": [0.6, 0.7, 1.0],
+      "intensity": 0.5,
+      "range": 15
+    }
+  ],
+  "camera": {
+    "position": [0, 3, 8],
+    "target": [0, 0, 0],
+    "fov": 60,
+    "near_plane": 0.1,
+    "far_plane": 100
+  },
+  "post_processing": {
+    "tonemap": {
+      "exposure": 1.2,
+      "contrast": 1.1,
+      "gamma": 2.2
+    },
+    "taa": {
+      "enabled": true,
+      "alpha": 0.8
+    }
+  }
+}

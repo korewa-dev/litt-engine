@@ -1,0 +1,2017 @@
+{
+  "format": "litt-asset-index",
+  "version": 1,
+  "description": "Machine-readable asset manifest.",
+  "assets": [
+    {
+      "id": "chunk_-8_-8",
+      "type": "model",
+      "path": "models/chunk_-8_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_-7",
+      "type": "model",
+      "path": "models/chunk_-8_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_-6",
+      "type": "model",
+      "path": "models/chunk_-8_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_-5",
+      "type": "model",
+      "path": "models/chunk_-8_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_-4",
+      "type": "model",
+      "path": "models/chunk_-8_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_-3",
+      "type": "model",
+      "path": "models/chunk_-8_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_-2",
+      "type": "model",
+      "path": "models/chunk_-8_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_-1",
+      "type": "model",
+      "path": "models/chunk_-8_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_0",
+      "type": "model",
+      "path": "models/chunk_-8_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_1",
+      "type": "model",
+      "path": "models/chunk_-8_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_2",
+      "type": "model",
+      "path": "models/chunk_-8_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_3",
+      "type": "model",
+      "path": "models/chunk_-8_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_4",
+      "type": "model",
+      "path": "models/chunk_-8_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_5",
+      "type": "model",
+      "path": "models/chunk_-8_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_6",
+      "type": "model",
+      "path": "models/chunk_-8_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_7",
+      "type": "model",
+      "path": "models/chunk_-8_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_8",
+      "type": "model",
+      "path": "models/chunk_-8_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_9",
+      "type": "model",
+      "path": "models/chunk_-8_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-8_10",
+      "type": "model",
+      "path": "models/chunk_-8_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_-8",
+      "type": "model",
+      "path": "models/chunk_-7_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_-7",
+      "type": "model",
+      "path": "models/chunk_-7_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_-6",
+      "type": "model",
+      "path": "models/chunk_-7_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_-5",
+      "type": "model",
+      "path": "models/chunk_-7_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_-4",
+      "type": "model",
+      "path": "models/chunk_-7_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_-3",
+      "type": "model",
+      "path": "models/chunk_-7_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_-2",
+      "type": "model",
+      "path": "models/chunk_-7_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_-1",
+      "type": "model",
+      "path": "models/chunk_-7_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_0",
+      "type": "model",
+      "path": "models/chunk_-7_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_1",
+      "type": "model",
+      "path": "models/chunk_-7_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_2",
+      "type": "model",
+      "path": "models/chunk_-7_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_3",
+      "type": "model",
+      "path": "models/chunk_-7_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_4",
+      "type": "model",
+      "path": "models/chunk_-7_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_5",
+      "type": "model",
+      "path": "models/chunk_-7_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_6",
+      "type": "model",
+      "path": "models/chunk_-7_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_7",
+      "type": "model",
+      "path": "models/chunk_-7_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_8",
+      "type": "model",
+      "path": "models/chunk_-7_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_9",
+      "type": "model",
+      "path": "models/chunk_-7_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-7_10",
+      "type": "model",
+      "path": "models/chunk_-7_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_-8",
+      "type": "model",
+      "path": "models/chunk_-6_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_-7",
+      "type": "model",
+      "path": "models/chunk_-6_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_-6",
+      "type": "model",
+      "path": "models/chunk_-6_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_-5",
+      "type": "model",
+      "path": "models/chunk_-6_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_-4",
+      "type": "model",
+      "path": "models/chunk_-6_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_-3",
+      "type": "model",
+      "path": "models/chunk_-6_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_-2",
+      "type": "model",
+      "path": "models/chunk_-6_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_-1",
+      "type": "model",
+      "path": "models/chunk_-6_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_0",
+      "type": "model",
+      "path": "models/chunk_-6_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_1",
+      "type": "model",
+      "path": "models/chunk_-6_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_2",
+      "type": "model",
+      "path": "models/chunk_-6_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_3",
+      "type": "model",
+      "path": "models/chunk_-6_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_4",
+      "type": "model",
+      "path": "models/chunk_-6_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_5",
+      "type": "model",
+      "path": "models/chunk_-6_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_6",
+      "type": "model",
+      "path": "models/chunk_-6_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_7",
+      "type": "model",
+      "path": "models/chunk_-6_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_8",
+      "type": "model",
+      "path": "models/chunk_-6_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_9",
+      "type": "model",
+      "path": "models/chunk_-6_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-6_10",
+      "type": "model",
+      "path": "models/chunk_-6_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_-8",
+      "type": "model",
+      "path": "models/chunk_-5_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_-7",
+      "type": "model",
+      "path": "models/chunk_-5_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_-6",
+      "type": "model",
+      "path": "models/chunk_-5_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_-5",
+      "type": "model",
+      "path": "models/chunk_-5_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_-4",
+      "type": "model",
+      "path": "models/chunk_-5_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_-3",
+      "type": "model",
+      "path": "models/chunk_-5_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_-2",
+      "type": "model",
+      "path": "models/chunk_-5_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_-1",
+      "type": "model",
+      "path": "models/chunk_-5_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_0",
+      "type": "model",
+      "path": "models/chunk_-5_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_1",
+      "type": "model",
+      "path": "models/chunk_-5_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_2",
+      "type": "model",
+      "path": "models/chunk_-5_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_3",
+      "type": "model",
+      "path": "models/chunk_-5_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_4",
+      "type": "model",
+      "path": "models/chunk_-5_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_5",
+      "type": "model",
+      "path": "models/chunk_-5_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_6",
+      "type": "model",
+      "path": "models/chunk_-5_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_7",
+      "type": "model",
+      "path": "models/chunk_-5_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_8",
+      "type": "model",
+      "path": "models/chunk_-5_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_9",
+      "type": "model",
+      "path": "models/chunk_-5_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-5_10",
+      "type": "model",
+      "path": "models/chunk_-5_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_-8",
+      "type": "model",
+      "path": "models/chunk_-4_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_-7",
+      "type": "model",
+      "path": "models/chunk_-4_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_-6",
+      "type": "model",
+      "path": "models/chunk_-4_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_-5",
+      "type": "model",
+      "path": "models/chunk_-4_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_-4",
+      "type": "model",
+      "path": "models/chunk_-4_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_-3",
+      "type": "model",
+      "path": "models/chunk_-4_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_-2",
+      "type": "model",
+      "path": "models/chunk_-4_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_-1",
+      "type": "model",
+      "path": "models/chunk_-4_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_0",
+      "type": "model",
+      "path": "models/chunk_-4_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_1",
+      "type": "model",
+      "path": "models/chunk_-4_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_2",
+      "type": "model",
+      "path": "models/chunk_-4_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_3",
+      "type": "model",
+      "path": "models/chunk_-4_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_4",
+      "type": "model",
+      "path": "models/chunk_-4_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_5",
+      "type": "model",
+      "path": "models/chunk_-4_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_6",
+      "type": "model",
+      "path": "models/chunk_-4_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_7",
+      "type": "model",
+      "path": "models/chunk_-4_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_8",
+      "type": "model",
+      "path": "models/chunk_-4_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_9",
+      "type": "model",
+      "path": "models/chunk_-4_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-4_10",
+      "type": "model",
+      "path": "models/chunk_-4_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_-8",
+      "type": "model",
+      "path": "models/chunk_-3_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_-7",
+      "type": "model",
+      "path": "models/chunk_-3_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_-6",
+      "type": "model",
+      "path": "models/chunk_-3_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_-5",
+      "type": "model",
+      "path": "models/chunk_-3_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_-4",
+      "type": "model",
+      "path": "models/chunk_-3_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_-3",
+      "type": "model",
+      "path": "models/chunk_-3_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_-2",
+      "type": "model",
+      "path": "models/chunk_-3_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_-1",
+      "type": "model",
+      "path": "models/chunk_-3_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_0",
+      "type": "model",
+      "path": "models/chunk_-3_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_1",
+      "type": "model",
+      "path": "models/chunk_-3_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_2",
+      "type": "model",
+      "path": "models/chunk_-3_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_3",
+      "type": "model",
+      "path": "models/chunk_-3_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_4",
+      "type": "model",
+      "path": "models/chunk_-3_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_5",
+      "type": "model",
+      "path": "models/chunk_-3_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_6",
+      "type": "model",
+      "path": "models/chunk_-3_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_7",
+      "type": "model",
+      "path": "models/chunk_-3_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_8",
+      "type": "model",
+      "path": "models/chunk_-3_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_9",
+      "type": "model",
+      "path": "models/chunk_-3_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-3_10",
+      "type": "model",
+      "path": "models/chunk_-3_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_-8",
+      "type": "model",
+      "path": "models/chunk_-2_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_-7",
+      "type": "model",
+      "path": "models/chunk_-2_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_-6",
+      "type": "model",
+      "path": "models/chunk_-2_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_-5",
+      "type": "model",
+      "path": "models/chunk_-2_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_-4",
+      "type": "model",
+      "path": "models/chunk_-2_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_-3",
+      "type": "model",
+      "path": "models/chunk_-2_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_-2",
+      "type": "model",
+      "path": "models/chunk_-2_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_-1",
+      "type": "model",
+      "path": "models/chunk_-2_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_0",
+      "type": "model",
+      "path": "models/chunk_-2_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_1",
+      "type": "model",
+      "path": "models/chunk_-2_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_2",
+      "type": "model",
+      "path": "models/chunk_-2_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_3",
+      "type": "model",
+      "path": "models/chunk_-2_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_4",
+      "type": "model",
+      "path": "models/chunk_-2_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_5",
+      "type": "model",
+      "path": "models/chunk_-2_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_6",
+      "type": "model",
+      "path": "models/chunk_-2_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_7",
+      "type": "model",
+      "path": "models/chunk_-2_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_8",
+      "type": "model",
+      "path": "models/chunk_-2_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_9",
+      "type": "model",
+      "path": "models/chunk_-2_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-2_10",
+      "type": "model",
+      "path": "models/chunk_-2_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-8",
+      "type": "model",
+      "path": "models/chunk_-1_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-7",
+      "type": "model",
+      "path": "models/chunk_-1_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-6",
+      "type": "model",
+      "path": "models/chunk_-1_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-5",
+      "type": "model",
+      "path": "models/chunk_-1_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-4",
+      "type": "model",
+      "path": "models/chunk_-1_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-3",
+      "type": "model",
+      "path": "models/chunk_-1_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-2",
+      "type": "model",
+      "path": "models/chunk_-1_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_-1",
+      "type": "model",
+      "path": "models/chunk_-1_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_0",
+      "type": "model",
+      "path": "models/chunk_-1_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_1",
+      "type": "model",
+      "path": "models/chunk_-1_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_2",
+      "type": "model",
+      "path": "models/chunk_-1_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_3",
+      "type": "model",
+      "path": "models/chunk_-1_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_4",
+      "type": "model",
+      "path": "models/chunk_-1_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_5",
+      "type": "model",
+      "path": "models/chunk_-1_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_6",
+      "type": "model",
+      "path": "models/chunk_-1_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_7",
+      "type": "model",
+      "path": "models/chunk_-1_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_8",
+      "type": "model",
+      "path": "models/chunk_-1_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_9",
+      "type": "model",
+      "path": "models/chunk_-1_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_-1_10",
+      "type": "model",
+      "path": "models/chunk_-1_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-8",
+      "type": "model",
+      "path": "models/chunk_0_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-7",
+      "type": "model",
+      "path": "models/chunk_0_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-6",
+      "type": "model",
+      "path": "models/chunk_0_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-5",
+      "type": "model",
+      "path": "models/chunk_0_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-4",
+      "type": "model",
+      "path": "models/chunk_0_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-3",
+      "type": "model",
+      "path": "models/chunk_0_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-2",
+      "type": "model",
+      "path": "models/chunk_0_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_-1",
+      "type": "model",
+      "path": "models/chunk_0_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_0",
+      "type": "model",
+      "path": "models/chunk_0_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_1",
+      "type": "model",
+      "path": "models/chunk_0_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_2",
+      "type": "model",
+      "path": "models/chunk_0_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_3",
+      "type": "model",
+      "path": "models/chunk_0_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_4",
+      "type": "model",
+      "path": "models/chunk_0_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_5",
+      "type": "model",
+      "path": "models/chunk_0_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_6",
+      "type": "model",
+      "path": "models/chunk_0_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_7",
+      "type": "model",
+      "path": "models/chunk_0_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_8",
+      "type": "model",
+      "path": "models/chunk_0_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_9",
+      "type": "model",
+      "path": "models/chunk_0_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_0_10",
+      "type": "model",
+      "path": "models/chunk_0_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-8",
+      "type": "model",
+      "path": "models/chunk_1_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-7",
+      "type": "model",
+      "path": "models/chunk_1_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-6",
+      "type": "model",
+      "path": "models/chunk_1_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-5",
+      "type": "model",
+      "path": "models/chunk_1_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-4",
+      "type": "model",
+      "path": "models/chunk_1_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-3",
+      "type": "model",
+      "path": "models/chunk_1_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-2",
+      "type": "model",
+      "path": "models/chunk_1_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_-1",
+      "type": "model",
+      "path": "models/chunk_1_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_0",
+      "type": "model",
+      "path": "models/chunk_1_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_1",
+      "type": "model",
+      "path": "models/chunk_1_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_2",
+      "type": "model",
+      "path": "models/chunk_1_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_3",
+      "type": "model",
+      "path": "models/chunk_1_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_4",
+      "type": "model",
+      "path": "models/chunk_1_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_5",
+      "type": "model",
+      "path": "models/chunk_1_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_6",
+      "type": "model",
+      "path": "models/chunk_1_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_7",
+      "type": "model",
+      "path": "models/chunk_1_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_8",
+      "type": "model",
+      "path": "models/chunk_1_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_9",
+      "type": "model",
+      "path": "models/chunk_1_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_1_10",
+      "type": "model",
+      "path": "models/chunk_1_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-8",
+      "type": "model",
+      "path": "models/chunk_2_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-7",
+      "type": "model",
+      "path": "models/chunk_2_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-6",
+      "type": "model",
+      "path": "models/chunk_2_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-5",
+      "type": "model",
+      "path": "models/chunk_2_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-4",
+      "type": "model",
+      "path": "models/chunk_2_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-3",
+      "type": "model",
+      "path": "models/chunk_2_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-2",
+      "type": "model",
+      "path": "models/chunk_2_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_-1",
+      "type": "model",
+      "path": "models/chunk_2_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_0",
+      "type": "model",
+      "path": "models/chunk_2_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_1",
+      "type": "model",
+      "path": "models/chunk_2_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_2",
+      "type": "model",
+      "path": "models/chunk_2_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_3",
+      "type": "model",
+      "path": "models/chunk_2_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_4",
+      "type": "model",
+      "path": "models/chunk_2_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_5",
+      "type": "model",
+      "path": "models/chunk_2_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_6",
+      "type": "model",
+      "path": "models/chunk_2_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_7",
+      "type": "model",
+      "path": "models/chunk_2_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_8",
+      "type": "model",
+      "path": "models/chunk_2_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_9",
+      "type": "model",
+      "path": "models/chunk_2_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_2_10",
+      "type": "model",
+      "path": "models/chunk_2_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_-8",
+      "type": "model",
+      "path": "models/chunk_3_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_-7",
+      "type": "model",
+      "path": "models/chunk_3_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_-6",
+      "type": "model",
+      "path": "models/chunk_3_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_-5",
+      "type": "model",
+      "path": "models/chunk_3_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_-4",
+      "type": "model",
+      "path": "models/chunk_3_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_-3",
+      "type": "model",
+      "path": "models/chunk_3_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_-2",
+      "type": "model",
+      "path": "models/chunk_3_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_-1",
+      "type": "model",
+      "path": "models/chunk_3_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_0",
+      "type": "model",
+      "path": "models/chunk_3_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_1",
+      "type": "model",
+      "path": "models/chunk_3_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_2",
+      "type": "model",
+      "path": "models/chunk_3_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_3",
+      "type": "model",
+      "path": "models/chunk_3_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_4",
+      "type": "model",
+      "path": "models/chunk_3_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_5",
+      "type": "model",
+      "path": "models/chunk_3_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_6",
+      "type": "model",
+      "path": "models/chunk_3_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_7",
+      "type": "model",
+      "path": "models/chunk_3_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_8",
+      "type": "model",
+      "path": "models/chunk_3_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_9",
+      "type": "model",
+      "path": "models/chunk_3_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_3_10",
+      "type": "model",
+      "path": "models/chunk_3_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_-8",
+      "type": "model",
+      "path": "models/chunk_4_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_-7",
+      "type": "model",
+      "path": "models/chunk_4_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_-6",
+      "type": "model",
+      "path": "models/chunk_4_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_-5",
+      "type": "model",
+      "path": "models/chunk_4_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_-4",
+      "type": "model",
+      "path": "models/chunk_4_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_-3",
+      "type": "model",
+      "path": "models/chunk_4_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_-2",
+      "type": "model",
+      "path": "models/chunk_4_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_-1",
+      "type": "model",
+      "path": "models/chunk_4_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_0",
+      "type": "model",
+      "path": "models/chunk_4_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_1",
+      "type": "model",
+      "path": "models/chunk_4_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_2",
+      "type": "model",
+      "path": "models/chunk_4_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_3",
+      "type": "model",
+      "path": "models/chunk_4_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_4",
+      "type": "model",
+      "path": "models/chunk_4_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_5",
+      "type": "model",
+      "path": "models/chunk_4_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_6",
+      "type": "model",
+      "path": "models/chunk_4_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_7",
+      "type": "model",
+      "path": "models/chunk_4_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_8",
+      "type": "model",
+      "path": "models/chunk_4_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_9",
+      "type": "model",
+      "path": "models/chunk_4_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_4_10",
+      "type": "model",
+      "path": "models/chunk_4_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_-8",
+      "type": "model",
+      "path": "models/chunk_5_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_-7",
+      "type": "model",
+      "path": "models/chunk_5_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_-6",
+      "type": "model",
+      "path": "models/chunk_5_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_-5",
+      "type": "model",
+      "path": "models/chunk_5_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_-4",
+      "type": "model",
+      "path": "models/chunk_5_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_-3",
+      "type": "model",
+      "path": "models/chunk_5_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_-2",
+      "type": "model",
+      "path": "models/chunk_5_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_-1",
+      "type": "model",
+      "path": "models/chunk_5_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_0",
+      "type": "model",
+      "path": "models/chunk_5_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_1",
+      "type": "model",
+      "path": "models/chunk_5_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_2",
+      "type": "model",
+      "path": "models/chunk_5_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_3",
+      "type": "model",
+      "path": "models/chunk_5_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_4",
+      "type": "model",
+      "path": "models/chunk_5_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_5",
+      "type": "model",
+      "path": "models/chunk_5_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_6",
+      "type": "model",
+      "path": "models/chunk_5_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_7",
+      "type": "model",
+      "path": "models/chunk_5_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_8",
+      "type": "model",
+      "path": "models/chunk_5_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_9",
+      "type": "model",
+      "path": "models/chunk_5_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_5_10",
+      "type": "model",
+      "path": "models/chunk_5_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_-8",
+      "type": "model",
+      "path": "models/chunk_6_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_-7",
+      "type": "model",
+      "path": "models/chunk_6_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_-6",
+      "type": "model",
+      "path": "models/chunk_6_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_-5",
+      "type": "model",
+      "path": "models/chunk_6_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_-4",
+      "type": "model",
+      "path": "models/chunk_6_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_-3",
+      "type": "model",
+      "path": "models/chunk_6_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_-2",
+      "type": "model",
+      "path": "models/chunk_6_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_-1",
+      "type": "model",
+      "path": "models/chunk_6_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_0",
+      "type": "model",
+      "path": "models/chunk_6_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_1",
+      "type": "model",
+      "path": "models/chunk_6_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_2",
+      "type": "model",
+      "path": "models/chunk_6_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_3",
+      "type": "model",
+      "path": "models/chunk_6_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_4",
+      "type": "model",
+      "path": "models/chunk_6_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_5",
+      "type": "model",
+      "path": "models/chunk_6_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_6",
+      "type": "model",
+      "path": "models/chunk_6_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_7",
+      "type": "model",
+      "path": "models/chunk_6_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_8",
+      "type": "model",
+      "path": "models/chunk_6_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_9",
+      "type": "model",
+      "path": "models/chunk_6_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_6_10",
+      "type": "model",
+      "path": "models/chunk_6_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_-8",
+      "type": "model",
+      "path": "models/chunk_7_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_-7",
+      "type": "model",
+      "path": "models/chunk_7_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_-6",
+      "type": "model",
+      "path": "models/chunk_7_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_-5",
+      "type": "model",
+      "path": "models/chunk_7_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_-4",
+      "type": "model",
+      "path": "models/chunk_7_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_-3",
+      "type": "model",
+      "path": "models/chunk_7_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_-2",
+      "type": "model",
+      "path": "models/chunk_7_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_-1",
+      "type": "model",
+      "path": "models/chunk_7_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_0",
+      "type": "model",
+      "path": "models/chunk_7_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_1",
+      "type": "model",
+      "path": "models/chunk_7_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_2",
+      "type": "model",
+      "path": "models/chunk_7_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_3",
+      "type": "model",
+      "path": "models/chunk_7_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_4",
+      "type": "model",
+      "path": "models/chunk_7_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_5",
+      "type": "model",
+      "path": "models/chunk_7_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_6",
+      "type": "model",
+      "path": "models/chunk_7_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_7",
+      "type": "model",
+      "path": "models/chunk_7_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_8",
+      "type": "model",
+      "path": "models/chunk_7_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_9",
+      "type": "model",
+      "path": "models/chunk_7_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_7_10",
+      "type": "model",
+      "path": "models/chunk_7_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_-8",
+      "type": "model",
+      "path": "models/chunk_8_-8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_-7",
+      "type": "model",
+      "path": "models/chunk_8_-7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_-6",
+      "type": "model",
+      "path": "models/chunk_8_-6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_-5",
+      "type": "model",
+      "path": "models/chunk_8_-5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_-4",
+      "type": "model",
+      "path": "models/chunk_8_-4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_-3",
+      "type": "model",
+      "path": "models/chunk_8_-3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_-2",
+      "type": "model",
+      "path": "models/chunk_8_-2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_-1",
+      "type": "model",
+      "path": "models/chunk_8_-1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_0",
+      "type": "model",
+      "path": "models/chunk_8_0.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_1",
+      "type": "model",
+      "path": "models/chunk_8_1.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_2",
+      "type": "model",
+      "path": "models/chunk_8_2.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_3",
+      "type": "model",
+      "path": "models/chunk_8_3.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_4",
+      "type": "model",
+      "path": "models/chunk_8_4.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_5",
+      "type": "model",
+      "path": "models/chunk_8_5.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_6",
+      "type": "model",
+      "path": "models/chunk_8_6.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_7",
+      "type": "model",
+      "path": "models/chunk_8_7.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_8",
+      "type": "model",
+      "path": "models/chunk_8_8.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_9",
+      "type": "model",
+      "path": "models/chunk_8_9.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "chunk_8_10",
+      "type": "model",
+      "path": "models/chunk_8_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "bonfire",
+      "type": "model",
+      "path": "models/bonfire.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "stalker",
+      "type": "model",
+      "path": "models/stalker.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "knight",
+      "type": "model",
+      "path": "models/knight.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "estus_flask",
+      "type": "model",
+      "path": "models/estus_flask.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "banner",
+      "type": "model",
+      "path": "models/banner.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "bloodstain",
+      "type": "model",
+      "path": "models/bloodstain.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "grave",
+      "type": "model",
+      "path": "models/grave.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "dead_tree",
+      "type": "model",
+      "path": "models/dead_tree.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "pillar",
+      "type": "model",
+      "path": "models/pillar.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "arch",
+      "type": "model",
+      "path": "models/arch.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "fog_gate",
+      "type": "model",
+      "path": "models/fog_gate.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "soul_ember",
+      "type": "model",
+      "path": "models/soul_ember.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    }
+  ]
+}

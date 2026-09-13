@@ -1,0 +1,184 @@
+{
+ "items": [
+  {
+   "name": "Unlit Shrine",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable ash. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forsaken Sigil",
+   "kind": "relic",
+   "rarity": "common",
+   "description": "A relic cinder. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Cindered Oath",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable vigil. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Ruined Requiem",
+   "kind": "weapon",
+   "rarity": "common",
+   "description": "A weapon bell. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Cindered Cinder",
+   "kind": "weapon",
+   "rarity": "common",
+   "description": "A weapon grave. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forsaken Pyre",
+   "kind": "consumable",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Ashen Cinder",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor bell. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Twilight Cinder",
+   "kind": "consumable",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Silent Oath",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor grave. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forsaken Relic",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable relic. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Ruined Pyre",
+   "kind": "trinket",
+   "rarity": "common",
+   "description": "A trinket ember. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Cindered Shrine",
+   "kind": "relic",
+   "rarity": "common",
+   "description": "A relic pyre. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forsaken Bell",
+   "kind": "weapon",
+   "rarity": "common",
+   "description": "A weapon cinder. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Ashen Bell",
+   "kind": "trinket",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Embered Requiem",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor ash. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Silent Ember",
+   "kind": "trinket",
+   "rarity": "common",
+   "description": "A trinket oath. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Pale Oath",
+   "kind": "weapon",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Twilight Oath",
+   "kind": "armor",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Unlit Requiem",
+   "kind": "armor",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Unlit Ember",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor oath. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Silent Requiem",
+   "kind": "relic",
+   "rarity": "common",
+   "description": "A relic requiem. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Ruined Sigil",
+   "kind": "consumable",
+   "rarity": "rare",
+   "description": "Warm to the touch. The cinder remembers hands."
+  },
+  {
+   "name": "Twilight Requiem",
+   "kind": "consumable",
+   "rarity": "legendary",
+   "description": "One was forged. One was lost. You are holding it."
+  },
+  {
+   "name": "Ruined Relic",
+   "kind": "armor",
+   "rarity": "rare",
+   "description": "Warm to the touch. The pyre remembers hands."
+  },
+  {
+   "name": "Pale Relic",
+   "kind": "armor",
+   "rarity": "common",
+   "description": "A armor sigil. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Pale Ember",
+   "kind": "weapon",
+   "rarity": "common",
+   "description": "A weapon bell. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Ashen Grave",
+   "kind": "trinket",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Twilight Ember",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable oath. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Forsaken Shrine",
+   "kind": "trinket",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Forsaken Requiem",
+   "kind": "relic",
+   "rarity": "rare",
+   "description": "Warm to the touch. The shrine remembers hands."
+  }
+ ]
+}

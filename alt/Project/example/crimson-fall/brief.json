@@ -1,0 +1,125 @@
+{
+  "objective": "crimson-fall: kindle the bonfires of the underground caves court and force the fog gate at the far banner",
+  "side_objectives": [
+    "Kindle every bonfire in one run",
+    "Bank 800 points before the gate",
+    "Never die twice to the same knight"
+  ],
+  "physics": {
+    "gravity": 26,
+    "run_speed": 5.5,
+    "coyote_time_s": 0.1
+  },
+  "enemy_aggro_m": 9.0,
+  "corpse_run": true,
+  "scoring": {
+    "coins": 25
+  },
+  "roster": [
+    {
+      "name": "Hollow Knight",
+      "behavior": "guards the mid-court shrine; lunge inside 3 m"
+    },
+    {
+      "name": "Garden Stalker",
+      "behavior": "patrols the long road; drops chase at 12 m"
+    }
+  ],
+  "spawn": [
+    24.29,
+    3.6,
+    27.0
+  ],
+  "checkpoints": [
+    [
+      29.41,
+      3.6,
+      27.0
+    ],
+    [
+      44.05,
+      3.6,
+      27.0
+    ]
+  ],
+  "nodes": [
+    {
+      "name": "Bonfire_Plaza",
+      "pos": [
+        25.75,
+        3.6,
+        27.0
+      ],
+      "tags": [
+        "checkpoint",
+        "poi",
+        "model:bonfire"
+      ]
+    },
+    {
+      "name": "Knight_Sun",
+      "pos": [
+        41.86,
+        3.6,
+        27.0
+      ],
+      "tags": [
+        "enemy",
+        "model:knight"
+      ]
+    },
+    {
+      "name": "Stalker_Rose",
+      "pos": [
+        36.0,
+        3.6,
+        27.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Estus_Hidden",
+      "pos": [
+        47.71,
+        3.6,
+        27.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Fog_Gate_Banner",
+      "pos": [
+        51.74,
+        2.6,
+        27.0
+      ],
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "name": "Underground Caves Court",
+      "pos": [
+        36.0,
+        0,
+        27.0
+      ],
+      "radius": 26,
+      "tags": [
+        "music:hollow_wind"
+      ]
+    }
+  ],
+  "_prompt": "haunted mansion dungeon crawl"
+}

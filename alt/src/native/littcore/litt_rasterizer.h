@@ -136,8 +136,8 @@ class FrameBuffer {
 public:
     FrameBuffer(int width, int height);
     
-    void bind() const;
-    void unbind() const;
+    void bind();
+    void unbind();
     
     void resize(int width, int height);
     

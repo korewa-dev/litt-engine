@@ -1,0 +1,193 @@
+{
+  "format": "litt-asset-index",
+  "version": 1,
+  "description": "Machine-readable asset manifest.",
+  "assets": [
+    {
+      "id": "level_track",
+      "type": "model",
+      "path": "models/level_track.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Platform_01",
+      "type": "model",
+      "path": "models/Platform_01.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Platform_02",
+      "type": "model",
+      "path": "models/Platform_02.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Platform_03",
+      "type": "model",
+      "path": "models/Platform_03.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Platform_04",
+      "type": "model",
+      "path": "models/Platform_04.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Platform_05",
+      "type": "model",
+      "path": "models/Platform_05.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Platform_06",
+      "type": "model",
+      "path": "models/Platform_06.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Platform_07",
+      "type": "model",
+      "path": "models/Platform_07.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_01",
+      "type": "model",
+      "path": "models/Coin_01.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_02",
+      "type": "model",
+      "path": "models/Coin_02.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_03",
+      "type": "model",
+      "path": "models/Coin_03.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_04",
+      "type": "model",
+      "path": "models/Coin_04.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_05",
+      "type": "model",
+      "path": "models/Coin_05.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_06",
+      "type": "model",
+      "path": "models/Coin_06.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_07",
+      "type": "model",
+      "path": "models/Coin_07.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_08",
+      "type": "model",
+      "path": "models/Coin_08.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_09",
+      "type": "model",
+      "path": "models/Coin_09.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_10",
+      "type": "model",
+      "path": "models/Coin_10.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_11",
+      "type": "model",
+      "path": "models/Coin_11.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Coin_12",
+      "type": "model",
+      "path": "models/Coin_12.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "goal_flag",
+      "type": "model",
+      "path": "models/goal_flag.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Backdrop_Near",
+      "type": "model",
+      "path": "models/Backdrop_Near.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "Backdrop_Far",
+      "type": "model",
+      "path": "models/Backdrop_Far.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "neon_sunset_far",
+      "type": "texture",
+      "path": "assets/textures/neon_sunset_far.png",
+      "loader": "litt_asset::manager::AssetManager::load_texture"
+    },
+    {
+      "id": "neon_city_near",
+      "type": "texture",
+      "path": "assets/textures/neon_city_near.png",
+      "loader": "litt_asset::manager::AssetManager::load_texture"
+    },
+    {
+      "id": "coin",
+      "type": "model",
+      "path": "models/coin.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "gem",
+      "type": "model",
+      "path": "models/gem.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "checkpoint_flag",
+      "type": "model",
+      "path": "models/checkpoint_flag.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "drone",
+      "type": "model",
+      "path": "models/drone.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "spike",
+      "type": "model",
+      "path": "models/spike.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    },
+    {
+      "id": "banner",
+      "type": "model",
+      "path": "models/banner.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model"
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "format": "litt-asset-index",
+  "version": 1,
+  "description": "Merged by world_forge.py (CDR-011).",
+  "assets": [
+    {
+      "id": "neon-corridor__layout_main",
+      "type": "model",
+      "path": "models/neon-corridor__layout_main.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "neon-corridor"
+      }
+    },
+    {
+      "id": "neon-corridor__coin",
+      "type": "model",
+      "path": "models/neon-corridor__coin.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "neon-corridor"
+      }
+    },
+    {
+      "id": "neon-corridor__goal_banner",
+      "type": "model",
+      "path": "models/neon-corridor__goal_banner.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "neon-corridor"
+      }
+    },
+    {
+      "id": "neon-corridor__gem",
+      "type": "model",
+      "path": "models/neon-corridor__gem.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "neon-corridor"
+      }
+    },
+    {
+      "id": "neon-corridor__estus_flask",
+      "type": "model",
+      "path": "models/neon-corridor__estus_flask.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "neon-corridor"
+      }
+    },
+    {
+      "id": "neon-corridor__bonfire",
+      "type": "model",
+      "path": "models/neon-corridor__bonfire.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "neon-corridor"
+      }
+    },
+    {
+      "id": "neon-corridor__stalker",
+      "type": "model",
+      "path": "models/neon-corridor__stalker.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "neon-corridor"
+      }
+    },
+    {
+      "id": "neon-corridor__knight",
+      "type": "model",
+      "path": "models/neon-corridor__knight.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "neon-corridor"
+      }
+    },
+    {
+      "id": "neon-corridor__banner",
+      "type": "model",
+      "path": "models/neon-corridor__banner.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "neon-corridor"
+      }
+    },
+    {
+      "id": "wf_goal_gate",
+      "type": "model",
+      "path": "models/wf_goal_gate.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "__worldforge__"
+      }
+    },
+    {
+      "id": "void-station__void_plane",
+      "type": "model",
+      "path": "models/void-station__void_plane.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__star",
+      "type": "model",
+      "path": "models/void-station__star.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__derelict_station",
+      "type": "model",
+      "path": "models/void-station__derelict_station.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__jump_gate",
+      "type": "model",
+      "path": "models/void-station__jump_gate.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__asteroid_v01",
+      "type": "model",
+      "path": "models/void-station__asteroid_v01.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__asteroid_v02",
+      "type": "model",
+      "path": "models/void-station__asteroid_v02.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__asteroid_v03",
+      "type": "model",
+      "path": "models/void-station__asteroid_v03.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__asteroid_v04",
+      "type": "model",
+      "path": "models/void-station__asteroid_v04.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__escape_pod",
+      "type": "model",
+      "path": "models/void-station__escape_pod.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__coin",
+      "type": "model",
+      "path": "models/void-station__coin.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__gem",
+      "type": "model",
+      "path": "models/void-station__gem.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__heart",
+      "type": "model",
+      "path": "models/void-station__heart.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__brazier",
+      "type": "model",
+      "path": "models/void-station__brazier.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__wraith",
+      "type": "model",
+      "path": "models/void-station__wraith.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__brute",
+      "type": "model",
+      "path": "models/void-station__brute.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    },
+    {
+      "id": "void-station__spike",
+      "type": "model",
+      "path": "models/void-station__spike.obj",
+      "loader": "litt_asset::manager::AssetManager::load_model",
+      "provenance": {
+        "region": "void-station"
+      }
+    }
+  ]
+}

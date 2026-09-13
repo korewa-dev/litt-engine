@@ -1,0 +1,158 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "deep_forest",
+  "updated": "2026-08-24T21:44:29",
+  "seed": {
+    "archetype_seed": 77
+  },
+  "chunk_size": 0,
+  "radius": 0,
+  "camera": {
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "distance": 30
+  },
+  "chunks": [],
+  "palette": {
+    "canopy_dark": [
+      0.12,
+      0.28,
+      0.16
+    ],
+    "moss_bright": [
+      0.3,
+      0.52,
+      0.24
+    ],
+    "bark_brown": [
+      0.28,
+      0.21,
+      0.15
+    ],
+    "mist_green": [
+      0.55,
+      0.68,
+      0.55
+    ],
+    "mushroom_red": [
+      0.75,
+      0.2,
+      0.18
+    ],
+    "ground": [
+      0.38,
+      0.44,
+      0.34
+    ]
+  },
+  "identity": {
+    "archetype": "walking_simulator",
+    "camera": "first_person",
+    "combat": null,
+    "movement": "free_roam_movement",
+    "structure": "linear_world",
+    "pacing": "slow_paced",
+    "pattern": "hub_spoke",
+    "theme": "deep_forest"
+  },
+  "environment": {
+    "sky": {
+      "type": "clear",
+      "top_color": [
+        0.35,
+        0.55,
+        0.9
+      ],
+      "horizon_color": [
+        0.75,
+        0.85,
+        0.95
+      ],
+      "cloud_layers": [
+        {
+          "density": 0.15,
+          "height": 120,
+          "speed": 0.25
+        }
+      ]
+    },
+    "sun": {
+      "azimuth_deg": 135.0,
+      "elevation_deg": 62
+    },
+    "lighting": {
+      "global_light_intensity": 1.0,
+      "ambient_light_color": [
+        0.5,
+        0.52,
+        0.55
+      ],
+      "shadow_softness": 0.5,
+      "time_of_day": "noon"
+    },
+    "fog": {
+      "density": 0.01,
+      "height": 30,
+      "haze": 0.4
+    },
+    "weather": {
+      "type": "clear",
+      "wind_speed": 0.25,
+      "particle_density": 0.0
+    },
+    "notes": [
+      "vertical layering, god-ray gaps implied by brightness bands"
+    ]
+  },
+  "gameplay": {
+    "genre": "walking_simulator",
+    "objective": "gull-point: kindle the bonfires of the deep forest court and force the fog gate at the far banner",
+    "procgen_rules": [
+      "story prop clusters every 20-30 m along a calm spline path",
+      "landmarks visible on horizon for wayfinding"
+    ],
+    "ai_behavior": "none",
+    "environment_types": [
+      "story_scatter",
+      "landmark_silhouettes"
+    ],
+    "enemy_aggro_m": 9.0,
+    "corpse_run": true,
+    "spawn": [
+      -51.2,
+      4.2,
+      0.0
+    ],
+    "scoring": {
+      "coins": 25
+    },
+    "physics": {
+      "gravity": 26,
+      "run_speed": 5.5,
+      "coyote_time_s": 0.1
+    },
+    "side_objectives": [
+      "Kindle every bonfire in one run",
+      "Bank 800 points before the gate",
+      "Never die twice to the same knight"
+    ],
+    "roster": [
+      {
+        "name": "Hollow Knight",
+        "behavior": "guards the mid-court shrine; lunge inside 3 m"
+      },
+      {
+        "name": "Garden Stalker",
+        "behavior": "patrols the long road; drops chase at 12 m"
+      }
+    ]
+  },
+  "meta": {
+    "enriched_seed": 77
+  }
+}

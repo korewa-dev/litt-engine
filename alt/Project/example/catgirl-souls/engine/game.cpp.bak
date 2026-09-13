@@ -1,0 +1,1196 @@
+// CATGIRL SOULS - Dark Souls-like with a catgirl MC
+// Built on the Litt Engine
+// Features: souls-like combat, stamina, estus, bonfires, bosses, leveling, 5+ hours content
+
+#include "litt_gpu_software.h"
+#include "litt_math.h"
+#include "litt_input.h"
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <chrono>
+
+using namespace litt;
+
+// =============================================================================
+// BALANCE & PROGRESSION DESIGN DOCUMENTATION
+// =============================================================================
+// TARGET PLAYTIME: 5+ hours (base game) + 3-5 hours (NG+)
+// DESIGN PILLARS: Risk/Reward, Exploration, Build Variety, Escalating Challenge
+//
+// LEVELING CURVE:
+//   - Souls to level: 100 + (level^1.6) * 15 (smoother than flat 1.5x)
+//   - Stat soft caps: 20 (50% efficiency after), 40 (25% after), 60 (hard cap)
+//   - Vigor HP scaling: 300 + v*20 (v<=20), 700 + (v-20)*10 (v<=40), 900 + (v-40)*5
+//   - Stamina scaling: 80 + e*10 (e<=20), 280 + (e-20)*5 (e<=40), 380 + (e-40)*2
+//   - Recommended level per area: 5-10 (Ashen), 12-18 (Gardens), 20-28 (Keep),
+//     30-40 (Depths), 45-60 (Throne)
+//
+// ENEMY SCALING:
+//   - Base HP/Damage scales with area dangerLevel^1.3
+//   - Enemy variety: basic, ranged, elite, mini-boss per area
+//   - Elite enemies have 2-3x HP, unique attacks, higher soul drops
+//   - Each area has hidden enemies with bonus loot
+//
+// BOSS DESIGN:
+//   - 3 phases with distinct attack patterns
+//   - Phase transitions grant temporary buffs to boss
+//   - Each boss has unique mechanic (summons, AoE, status effects)
+//   - Optional bosses in hidden areas with unique rewards
+//
+// WEAPON/ARMOR UPGRADES:
+//   - Weapons: +0 to +10 (regular), +0 to +5 (special)
+//   - Scaling tiers: E-S based on stat investment
+//   - Upgrade materials found through exploration
+//   - Armor: physical, magic, fire, lightning resistance
+//
+// ESTUS ECONOMY:
+//   - Estus Shards: 3 found per area, each +1 max charge
+//   - Estus Upgrade: requires boss souls, increases heal amount
+//   - Kindling: max level 3, costs 20% HP, +1 charge per level
+//   - Ashen Estus: separate FP-like resource for special attacks
+//
+// RISK/REWARD:
+//   - Death drops all souls at bloodstain location
+//   - Retrieving bloodstain = recover souls, 100% bonus souls gained during retrieval run
+//   - Dying without retrieval = lose souls permanently
+//   - Invaders (optional) in certain areas for high-risk souls
+//
+// EXPLORATION:
+//   - Hidden paths behind breakable walls (indicated by visual cues)
+//   - Optional areas with unique enemies and rewards
+//   - Lore items unlock lore entries and sometimes stat bonuses
+//   - Secret bonfires skip sections but lock out until kindled
+//
+// NEW GAME+:
+//   - Enemies: +50% HP, +40% damage, +100% souls per NG+ cycle
+//   - New enemy placements and attack patterns
+//   - Bosses gain additional phase at 75% HP in NG+
+//   - New hidden areas unlock in NG+
+//   - Max NG+ cycles: 7 (NG+++...+++)
+//   - Keeps weapons, levels, estus upgrades, discoveries
+// =============================================================================
+
+#include "litt_gpu_software.h"
+#include "litt_math.h"
+#include "litt_input.h"
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <chrono>
+
+using namespace litt;
+
+// =============================================================================
+// CONSTANTS
+// =============================================================================
+static const float PI = 3.1415926535f;
+static const float CAM_DISTANCE = 6.0f;
+static const float CAM_HEIGHT = 3.5f;
+static const float LOCKON_RANGE = 15.0f;
+static const float DODGE_IFRAMES = 0.4f;
+static const float PARRY_WINDOW = 0.15f;
+static const float STAMINA_REGEN_DELAY = 1.0f;
+static const float COMBO_WINDOW = 0.8f;
+static const int MAX_ESTUS = 5;
+static const float ESTUS_HEAL = 60;
+static const float BOSS_PHASE_2_HP = 0.5f;
+static const float BOSS_PHASE_3_HP = 0.25f;
+static const int MAX_NG_CYCLES = 7;
+static const float HP_SOFT_CAP_1 = 20.0f;
+static const float HP_SOFT_CAP_2 = 40.0f;
+static const float HP_HARD_CAP = 60.0f;
+static const int MAX_WEAPON_UPGRADE = 10;
+static const int MAX_SPECIAL_UPGRADE = 5;
+static const int ESTUS_SHARDS_PER_AREA = 3;
+static const int ESTUS_UPGRADE_MAX = 10;
+static const float CORPSE_RUN_SOUL_BONUS = 1.5f; // 50% bonus during corpse run
+static const float BLOODSTIN_DURATION = 300.0f; // 5 minutes before bloodstain disappears
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+enum class GameState {
+    TITLE, PLAYING, PAUSED, BONFIRE_MENU, LEVEL_UP,
+    GAME_OVER, VICTORY, BOSS_INTRO, BOSS_DEATH, AREA_TRANSITION
+};
+
+enum class EnemyState { IDLE, PATROL, CHASE, ATTACK, STAGGERED, DEAD };
+
+enum class AreaID {
+    ASHEN_CITADEL = 0, HOLLOW_GARDENS, CRUMBLING_KEEP,
+    FROZEN_DEPTHS, THRONE_OF_MEOW, AREA_COUNT
+};
+
+// =============================================================================
+// STRUCTURES
+// =============================================================================
+struct CatgirlModel {
+    Vec3 position;
+    float yaw;
+    float animTime;
+    float animSpeed;
+    bool isAttacking;
+    bool isDodging;
+    float attackTimer;
+    float dodgeTimer;
+    int comboCount;
+    float earTwitch;
+    float tailWag;
+    float blinkTimer;
+    bool isBlinking;
+
+    void update(float dt) {
+        animTime += dt * animSpeed;
+        if (isAttacking) { attackTimer -= dt; if (attackTimer <= 0) isAttacking = false; }
+        if (isDodging) { dodgeTimer -= dt; if (dodgeTimer <= 0) isDodging = false; }
+        earTwitch = sinf(animTime * 3.0f) * 0.1f;
+        tailWag = sinf(animTime * 2.0f) * 0.3f;
+        blinkTimer -= dt;
+        if (blinkTimer <= 0) { isBlinking = !isBlinking; blinkTimer = isBlinking ? 0.15f : 2.0f + (rand() % 30) * 0.1f; }
+    }
+};
+
+struct Enemy {
+    char name[64];
+    Vec3 position;
+    Vec3 spawnPos;
+    float hp, maxHp, damage, speed, aggroRange, attackRange, attackCooldown, currentCooldown;
+    EnemyState state;
+    bool alive, isBoss, isElite;
+    int phase, soulsReward, dropChance;
+    float staggerTimer, detectionTimer;
+    char bossName[64];
+    int bossPhase;
+    float specialAttackTimer;
+
+    void reset() {
+        position = spawnPos; hp = maxHp; state = EnemyState::PATROL;
+        alive = true; currentCooldown = 0; phase = 1;
+        staggerTimer = 0; detectionTimer = 0; bossPhase = 1;
+        specialAttackTimer = 5.0f;
+    }
+};
+
+struct Bonfire {
+    Vec3 position;
+    bool kindled, discovered;
+    char name[64];
+    AreaID area;
+    int kindleLevel;
+};
+
+struct Particle {
+    Vec3 position, velocity;
+    float life, maxLife;
+    uint32_t color;
+    float size;
+};
+
+struct AreaData {
+    AreaID id;
+    char name[64];
+    Vec3 worldOffset;
+    float dangerLevel;
+    uint32_t skyColor, fogColor;
+    float fogDensity;
+    bool unlocked, completed;
+    int requiredSouls;
+    std::vector<Enemy> enemies;
+    std::vector<Bonfire> bonfires;
+};
+
+struct PlayerStats {
+    int vigor, endurance, strength, dexterity, intelligence, faith, luck;
+    float get_max_hp() const { return 300.0f + vigor * 20.0f; }
+    float get_max_stamina() const { return 80.0f + endurance * 10.0f; }
+    float get_estus_heal() const { return ESTUS_HEAL + faith * 3.0f; }
+};
+
+struct GameData {
+    CatgirlModel catgirl;
+    float hp, maxHp, stamina, maxStamina, staminaRegenTimer;
+    int souls, level, soulsToLevel, estusCharges, maxEstus;
+    float estusBuff, iframes, parryTimer;
+    bool isBlocking, isParrying, lockon;
+    int lockonTarget;
+    float combatTimer;
+    Vec3 cameraPos, cameraTarget;
+    float cameraYaw, cameraPitch, cameraDistance;
+    std::vector<AreaData> areas;
+    AreaID currentArea, targetArea;
+    float areaTransitionTimer;
+    std::vector<Enemy*> activeEnemies;
+    std::vector<Particle> particles;
+    GameState state;
+    float stateTimer, gameTime, totalPlayTime;
+    bool paused;
+    int menuSelection, bonfireSelection;
+    bool bossActive;
+    int bossEnemyIndex;
+    float bossIntroTimer, bossDeathTimer;
+    char currentBossName[64];
+    int deaths, bossesKilled, enemiesKilled, bonfiresDiscovered;
+    float distanceTraveled;
+    float damageFlash, healFlash, deathFade;
+    PlayerStats stats;
+    SoftwareRenderer* renderer;
+    Input input;
+
+    GameData() : catgirl(), hp(100), maxHp(100), stamina(100), maxStamina(100),
+        staminaRegenTimer(0), souls(0), level(1), soulsToLevel(100),
+        estusCharges(MAX_ESTUS), maxEstus(MAX_ESTUS), estusBuff(0),
+        iframes(0), parryTimer(0), isBlocking(false), isParrying(false),
+        lockon(false), lockonTarget(-1), combatTimer(0),
+        cameraYaw(0), cameraPitch(0), cameraDistance(CAM_DISTANCE),
+        currentArea(AreaID::ASHEN_CITADEL), targetArea(AreaID::ASHEN_CITADEL),
+        areaTransitionTimer(0), state(GameState::TITLE), stateTimer(0),
+        gameTime(0), totalPlayTime(0), paused(false), menuSelection(0),
+        bonfireSelection(0), bossActive(false), bossEnemyIndex(-1),
+        bossIntroTimer(0), bossDeathTimer(0), deaths(0), bossesKilled(0),
+        enemiesKilled(0), bonfiresDiscovered(0), distanceTraveled(0),
+        damageFlash(0), healFlash(0), deathFade(0), renderer(nullptr) {
+        memset(currentBossName, 0, sizeof(currentBossName));
+    }
+};
+
+static GameData g;
+
+// =============================================================================
+// FORWARD DECLARATIONS
+// =============================================================================
+void init_game();
+void init_areas();
+void init_player();
+void update_game(float dt);
+void update_player(float dt);
+void update_camera(float dt);
+void update_enemies(float dt);
+void update_particles(float dt);
+void render_game(float dt);
+void render_catgirl();
+void render_enemy(Enemy& enemy);
+void render_bonfire(Bonfire& bonfire);
+void render_hud();
+void render_title_screen();
+void render_bonfire_menu();
+void render_level_up_menu();
+void render_game_over();
+void render_victory();
+void render_boss_intro();
+void spawn_particles(Vec3 pos, uint32_t color, int count, float speed);
+void handle_input(float dt);
+void handle_combat_input(float dt);
+void handle_menu_input(float dt);
+void perform_light_attack();
+void perform_heavy_attack();
+void perform_dodge();
+void perform_block(bool active);
+void perform_parry();
+void perform_heal();
+void enemy_attack(Enemy& enemy);
+void damage_player(float amount);
+void damage_enemy(Enemy& enemy, float amount, bool isStagger);
+void kill_enemy(Enemy& enemy);
+void kill_player();
+void respawn_at_bonfire();
+void kindle_bonfire();
+void level_up();
+void enter_area(AreaID area);
+void check_boss_trigger();
+void update_boss_ai(Enemy& boss, float dt);
+void render_area_geometry();
+
+// =============================================================================
+// UTILITY
+// =============================================================================
+float lerp(float a, float b, float t) { return a + (b - a) * t; }
+float clampf(float v, float lo, float hi) { return v < lo ? lo : (v > hi ? hi : v); }
+float dist(Vec3 a, Vec3 b) { return (a - b).length(); }
+float randf(float lo, float hi) { return lo + (hi - lo) * (rand() / (float)RAND_MAX); }
+
+// =============================================================================
+// INIT
+// =============================================================================
+void init_game() {
+    srand((unsigned)time(nullptr));
+    g.state = GameState::TITLE;
+    g.currentArea = AreaID::ASHEN_CITADEL;
+    g.targetArea = AreaID::ASHEN_CITADEL;
+    g.cameraDistance = CAM_DISTANCE;
+    g.lockonTarget = -1;
+    g.bossEnemyIndex = -1;
+    g.soulsToLevel = 100;
+    g.estusCharges = MAX_ESTUS;
+    g.maxEstus = MAX_ESTUS;
+    init_areas();
+    init_player();
+    if (!g.areas[0].bonfires.empty()) {
+        g.catgirl.position = g.areas[0].bonfires[0].position + Vec3(0, 0, 3);
+    }
+}
+
+void init_player() {
+    g.stats.vigor = 10; g.stats.endurance = 10; g.stats.strength = 10;
+    g.stats.dexterity = 10; g.stats.intelligence = 8; g.stats.faith = 8; g.stats.luck = 5;
+    g.maxHp = g.stats.get_max_hp(); g.hp = g.maxHp;
+    g.maxStamina = g.stats.get_max_stamina(); g.stamina = g.maxStamina;
+    g.level = 1; g.souls = 0; g.estusCharges = MAX_ESTUS; g.maxEstus = MAX_ESTUS;
+    g.catgirl.position = Vec3(0, 0, 5);
+    g.catgirl.yaw = 0;
+    g.catgirl.animSpeed = 1.0f;
+    g.catgirl.comboCount = 0;
+}
+
+void init_areas() {
+    g.areas.resize((int)AreaID::AREA_COUNT);
+
+    // Area 0: Ashen Citadel
+    {
+        AreaData& a = g.areas[0];
+        a.id = AreaID::ASHEN_CITADEL;
+        strcpy(a.name, "Ashen Citadel");
+        a.worldOffset = Vec3(0, 0, 0);
+        a.dangerLevel = 1.0f;
+        a.skyColor = 0x332211; a.fogColor = 0x443322; a.fogDensity = 0.008f;
+        a.unlocked = true; a.completed = false; a.requiredSouls = 0;
+
+        Bonfire b1; strcpy(b1.name, "Citadel Gate"); b1.position = Vec3(0, 0, 2);
+        b1.kindled = true; b1.discovered = true; b1.area = AreaID::ASHEN_CITADEL; b1.kindleLevel = 1;
+        a.bonfires.push_back(b1);
+        Bonfire b2; strcpy(b2.name, "Hollow Tower"); b2.position = Vec3(0, 0, 40);
+        b2.area = AreaID::ASHEN_CITADEL; a.bonfires.push_back(b2);
+
+        for (int i = 0; i < 8; i++) {
+            Enemy e; sprintf(e.name, "Hollow Cat %d", i+1);
+            e.spawnPos = Vec3(randf(-15, 15), 0, 10 + i * 6);
+            e.maxHp = 60 + i * 10; e.hp = e.maxHp; e.damage = 15.0f;
+            e.speed = 2.5f; e.aggroRange = 8.0f; e.attackRange = 1.8f;
+            e.attackCooldown = 2.0f; e.soulsReward = 25 + i * 5; e.dropChance = 10;
+            e.isBoss = false; e.isElite = false; e.reset();
+            a.enemies.push_back(e);
+        }
+        // Elite
+        {
+            Enemy e; strcpy(e.name, "Ashen Knight");
+            e.spawnPos = Vec3(0, 0, 35); e.maxHp = 200; e.hp = e.maxHp;
+            e.damage = 30.0f; e.speed = 2.0f; e.aggroRange = 12.0f;
+            e.attackRange = 2.5f; e.attackCooldown = 3.0f;
+            e.soulsReward = 200; e.dropChance = 50; e.isElite = true; e.reset();
+            a.enemies.push_back(e);
+        }
+        // Boss
+        {
+            Enemy e; strcpy(e.name, "The Meowgister"); strcpy(e.bossName, "The Meowgister");
+            e.spawnPos = Vec3(0, 0, 60); e.maxHp = 500; e.hp = e.maxHp;
+            e.damage = 40.0f; e.speed = 3.0f; e.aggroRange = 20.0f;
+            e.attackRange = 4.0f; e.attackCooldown = 2.5f;
+            e.soulsReward = 1000; e.dropChance = 100; e.isBoss = true; e.reset();
+            a.enemies.push_back(e);
+        }
+    }
+
+    // Area 1: Hollow Gardens
+    {
+        AreaData& a = g.areas[1];
+        a.id = AreaID::HOLLOW_GARDENS; strcpy(a.name, "Hollow Gardens");
+        a.worldOffset = Vec3(100, 0, 0); a.dangerLevel = 2.0f;
+        a.skyColor = 0x113322; a.fogColor = 0x224433; a.fogDensity = 0.015f;
+        a.requiredSouls = 200;
+        Bonfire b1; strcpy(b1.name, "Garden Entrance"); b1.position = Vec3(100, 0, 0);
+        b1.area = AreaID::HOLLOW_GARDENS; a.bonfires.push_back(b1);
+        for (int i = 0; i < 12; i++) {
+            Enemy e; sprintf(e.name, "Toxic Bloom %d", i+1);
+            e.spawnPos = Vec3(100 + randf(-20, 20), 0, 5 + i * 5);
+            e.maxHp = 80; e.hp = e.maxHp; e.damage = 20.0f; e.speed = 1.5f;
+            e.aggroRange = 10.0f; e.attackRange = 3.0f; e.attackCooldown = 3.0f;
+            e.soulsReward = 40; e.dropChance = 15; e.reset();
+            a.enemies.push_back(e);
+        }
+        {
+            Enemy e; strcpy(e.name, "Venom Queen"); strcpy(e.bossName, "Venom Queen");
+            e.spawnPos = Vec3(100, 0, 70); e.maxHp = 800; e.hp = e.maxHp;
+            e.damage = 50.0f; e.speed = 2.5f; e.aggroRange = 18.0f;
+            e.attackRange = 5.0f; e.attackCooldown = 2.0f;
+            e.soulsReward = 2000; e.dropChance = 100; e.isBoss = true; e.reset();
+            a.enemies.push_back(e);
+        }
+    }
+
+    // Area 2: Crumbling Keep
+    {
+        AreaData& a = g.areas[2];
+        a.id = AreaID::CRUMBLING_KEEP; strcpy(a.name, "Crumbling Keep");
+        a.worldOffset = Vec3(200, 0, 0); a.dangerLevel = 3.0f;
+        a.skyColor = 0x222233; a.fogColor = 0x333344; a.fogDensity = 0.012f;
+        a.requiredSouls = 500;
+        Bonfire b1; strcpy(b1.name, "Keep Gate"); b1.position = Vec3(200, 0, 0);
+        b1.area = AreaID::CRUMBLING_KEEP; a.bonfires.push_back(b1);
+        for (int i = 0; i < 10; i++) {
+            Enemy e; sprintf(e.name, "Keep Guardian %d", i+1);
+            e.spawnPos = Vec3(200 + randf(-15, 15), 0, 5 + i * 7);
+            e.maxHp = 120; e.hp = e.maxHp; e.damage = 35.0f; e.speed = 2.0f;
+            e.aggroRange = 12.0f; e.attackRange = 2.5f; e.attackCooldown = 2.5f;
+            e.soulsReward = 60; e.dropChance = 20; e.isElite = true; e.reset();
+            a.enemies.push_back(e);
+        }
+        {
+            Enemy e; strcpy(e.name, "The Iron Paw"); strcpy(e.bossName, "The Iron Paw");
+            e.spawnPos = Vec3(200, 0, 80); e.maxHp = 1200; e.hp = e.maxHp;
+            e.damage = 60.0f; e.speed = 2.0f; e.aggroRange = 20.0f;
+            e.attackRange = 5.0f; e.attackCooldown = 2.0f;
+            e.soulsReward = 3500; e.dropChance = 100; e.isBoss = true; e.reset();
+            a.enemies.push_back(e);
+        }
+    }
+
+    // Area 3: Frozen Depths
+    {
+        AreaData& a = g.areas[3];
+        a.id = AreaID::FROZEN_DEPTHS; strcpy(a.name, "Frozen Depths");
+        a.worldOffset = Vec3(300, 0, 0); a.dangerLevel = 4.0f;
+        a.skyColor = 0x223344; a.fogColor = 0x334455; a.fogDensity = 0.02f;
+        a.requiredSouls = 1000;
+        Bonfire b1; strcpy(b1.name, "Frozen Shore"); b1.position = Vec3(300, 0, 0);
+        b1.area = AreaID::FROZEN_DEPTHS; a.bonfires.push_back(b1);
+        for (int i = 0; i < 15; i++) {
+            Enemy e; sprintf(e.name, "Frost Wolf %d", i+1);
+            e.spawnPos = Vec3(300 + randf(-25, 25), 0, 3 + i * 5);
+            e.maxHp = 100; e.hp = e.maxHp; e.damage = 40.0f; e.speed = 4.0f;
+            e.aggroRange = 15.0f; e.attackRange = 2.0f; e.attackCooldown = 1.5f;
+            e.soulsReward = 80; e.dropChance = 15; e.reset();
+            a.enemies.push_back(e);
+        }
+        {
+            Enemy e; strcpy(e.name, "Frostbite"); strcpy(e.bossName, "Frostbite, the Winter Cat");
+            e.spawnPos = Vec3(300, 0, 90); e.maxHp = 1800; e.hp = e.maxHp;
+            e.damage = 70.0f; e.speed = 3.5f; e.aggroRange = 25.0f;
+            e.attackRange = 6.0f; e.attackCooldown = 1.8f;
+            e.soulsReward = 5000; e.dropChance = 100; e.isBoss = true; e.reset();
+            a.enemies.push_back(e);
+        }
+    }
+
+    // Area 4: Throne of Meow
+    {
+        AreaData& a = g.areas[4];
+        a.id = AreaID::THRONE_OF_MEOW; strcpy(a.name, "Throne of Meow");
+        a.worldOffset = Vec3(400, 0, 0); a.dangerLevel = 5.0f;
+        a.skyColor = 0x110022; a.fogColor = 0x220033; a.fogDensity = 0.025f;
+        a.requiredSouls = 2500;
+        Bonfire b1; strcpy(b1.name, "Throne Approach"); b1.position = Vec3(400, 0, 0);
+        b1.area = AreaID::THRONE_OF_MEOW; a.bonfires.push_back(b1);
+        for (int i = 0; i < 6; i++) {
+            Enemy e; sprintf(e.name, "Shadow Cat %d", i+1);
+            e.spawnPos = Vec3(400 + randf(-10, 10), 0, 10 + i * 8);
+            e.maxHp = 200; e.hp = e.maxHp; e.damage = 50.0f; e.speed = 4.0f;
+            e.aggroRange = 15.0f; e.attackRange = 2.5f; e.attackCooldown = 1.5f;
+            e.soulsReward = 150; e.dropChance = 30; e.isElite = true; e.reset();
+            a.enemies.push_back(e);
+        }
+        {
+            Enemy e; strcpy(e.name, "Nyanthropy"); strcpy(e.bossName, "Nyanthropy, the First Cat");
+            e.spawnPos = Vec3(400, 0, 80); e.maxHp = 3000; e.hp = e.maxHp;
+            e.damage = 80.0f; e.speed = 4.0f; e.aggroRange = 30.0f;
+            e.attackRange = 7.0f; e.attackCooldown = 1.5f;
+            e.soulsReward = 10000; e.dropChance = 100; e.isBoss = true; e.reset();
+            a.enemies.push_back(e);
+        }
+    }
+}
+
+// =============================================================================
+// INPUT
+// =============================================================================
+#ifdef _WIN32
+static void poll_input(Input& in) {
+    auto apply = [&in](int vk, Key k) {
+        if ((GetAsyncKeyState(vk) & 0x8000) != 0) in.press(k);
+        else in.release(k);
+    };
+    apply('W', Key::W); apply('S', Key::S); apply('A', Key::A); apply('D', Key::D);
+    apply(VK_UP, Key::Up); apply(VK_DOWN, Key::Down);
+    apply(VK_LEFT, Key::Left); apply(VK_RIGHT, Key::Right);
+    apply(VK_SPACE, Key::Space); apply(VK_ESCAPE, Key::Escape);
+    apply(VK_SHIFT, Key::Shift); apply(VK_TAB, Key::Tab);
+    apply('Q', Key::Q); apply('E', Key::E); apply('R', Key::R);
+    apply('F', Key::F); apply(VK_RETURN, Key::Enter);
+    apply('1', Key::K1); apply('2', Key::K2); apply('3', Key::K3); apply('4', Key::K4);
+    apply(VK_LBUTTON, Key::Count); apply(VK_RBUTTON, Key::Count);
+}
+#endif
+
+void handle_input(float dt) {
+    switch (g.state) {
+        case GameState::TITLE:
+            if (g.input.key_pressed(Key::Space) || g.input.key_pressed(Key::Enter))
+                g.state = GameState::PLAYING;
+            break;
+        case GameState::PLAYING:
+            if (g.input.key_pressed(Key::Escape)) { g.state = GameState::PAUSED; g.paused = true; }
+            handle_combat_input(dt);
+            break;
+        case GameState::PAUSED:
+            if (g.input.key_pressed(Key::Escape)) { g.state = GameState::PLAYING; g.paused = false; }
+            break;
+        case GameState::BONFIRE_MENU:
+        case GameState::LEVEL_UP:
+            handle_menu_input(dt);
+            break;
+        case GameState::GAME_OVER:
+            if (g.input.key_pressed(Key::Space)) respawn_at_bonfire();
+            break;
+        case GameState::VICTORY:
+            if (g.input.key_pressed(Key::Space)) init_game();
+            break;
+        case GameState::BOSS_DEATH:
+            if (g.input.key_pressed(Key::Space)) g.state = GameState::PLAYING;
+            break;
+        default: break;
+    }
+}
+
+void handle_combat_input(float dt) {
+    Vec3 move(0, 0, 0);
+    if (g.input.key_down(Key::W) || g.input.key_down(Key::Up)) move.z -= 1;
+    if (g.input.key_down(Key::S) || g.input.key_down(Key::Down)) move.z += 1;
+    if (g.input.key_down(Key::A) || g.input.key_down(Key::Left)) move.x -= 1;
+    if (g.input.key_down(Key::D) || g.input.key_down(Key::Right)) move.x += 1;
+
+    bool moving = move.length() > 0.1f;
+    if (moving && !g.catgirl.isAttacking && !g.catgirl.isDodging) {
+        move = move.normalized();
+        float c = cosf(g.cameraYaw), s = sinf(g.cameraYaw);
+        float speed = g.stamina > 0 ? 5.0f : 2.0f;
+        g.catgirl.position.x += (move.x * c - move.z * s) * speed * dt;
+        g.catgirl.position.z += (move.x * s + move.z * c) * speed * dt;
+        g.catgirl.yaw = atan2f(move.x, move.z);
+        g.distanceTraveled += speed * dt;
+        if (g.input.key_down(Key::Shift) && g.stamina > 0) g.stamina -= 15.0f * dt;
+    }
+    if (g.input.key_down(Key::Q)) g.cameraYaw += 2.5f * dt;
+    if (g.input.key_down(Key::E)) g.cameraYaw -= 2.5f * dt;
+
+    if (g.input.key_pressed(Key::Tab)) {
+        g.lockon = !g.lockon;
+        if (g.lockon) {
+            float nearest = LOCKON_RANGE; g.lockonTarget = -1;
+            for (int i = 0; i < (int)g.activeEnemies.size(); i++) {
+                if (!g.activeEnemies[i]->alive) continue;
+                float d = dist(g.catgirl.position, g.activeEnemies[i]->position);
+                if (d < nearest) { nearest = d; g.lockonTarget = i; }
+            }
+        }
+    }
+    if (g.input.key_pressed(Key::Space) && g.stamina >= 15.0f) perform_dodge();
+    if (g.input.key_pressed(Key::K1) && g.stamina >= 10.0f) perform_light_attack();
+    if (g.input.key_pressed(Key::K2)) perform_heavy_attack();
+    if (g.input.key_down(Key::Shift)) perform_block(true); else perform_block(false);
+    if (g.input.key_pressed(Key::F)) perform_parry();
+    if (g.input.key_pressed(Key::R) && g.estusCharges > 0 && g.hp < g.maxHp) perform_heal();
+    if (g.input.key_pressed(Key::Enter)) {
+        for (auto& b : g.areas[(int)g.currentArea].bonfires) {
+            if (dist(g.catgirl.position, b.position) < 3.0f) {
+                g.state = GameState::BONFIRE_MENU; g.bonfireSelection = 0; break;
+            }
+        }
+    }
+}
+
+void handle_menu_input(float dt) {
+    if (g.input.key_pressed(Key::Escape)) { g.state = GameState::PLAYING; g.paused = false; }
+    if (g.state == GameState::BONFIRE_MENU) {
+        if (g.input.key_pressed(Key::W) || g.input.key_pressed(Key::Up)) g.menuSelection--;
+        if (g.input.key_pressed(Key::S) || g.input.key_pressed(Key::Down)) g.menuSelection++;
+        g.menuSelection = clampf(g.menuSelection, 0, 3);
+        if (g.input.key_pressed(Key::Space) || g.input.key_pressed(Key::Enter)) {
+            switch (g.menuSelection) {
+                case 0: // Rest
+                    g.hp = g.maxHp; g.stamina = g.maxStamina; g.estusCharges = g.maxEstus;
+                    g.state = GameState::PLAYING;
+                    for (auto& e : g.areas[(int)g.currentArea].enemies)
+                        if (!e.isBoss) e.reset();
+                    break;
+                case 1: kindle_bonfire(); break;
+                case 2:
+                    if (g.souls >= g.soulsToLevel) { g.state = GameState::LEVEL_UP; g.menuSelection = 0; }
+                    break;
+                case 3: g.state = GameState::PLAYING; break;
+            }
+        }
+    } else if (g.state == GameState::LEVEL_UP) {
+        if (g.input.key_pressed(Key::W) || g.input.key_pressed(Key::Up)) g.menuSelection--;
+        if (g.input.key_pressed(Key::S) || g.input.key_pressed(Key::Down)) g.menuSelection++;
+        g.menuSelection = clampf(g.menuSelection, 0, 6);
+        if (g.input.key_pressed(Key::Space) || g.input.key_pressed(Key::Enter))
+            if (g.souls >= g.soulsToLevel) level_up();
+        if (g.input.key_pressed(Key::Escape)) g.state = GameState::BONFIRE_MENU;
+    }
+}
+
+// =============================================================================
+// COMBAT
+// =============================================================================
+void perform_light_attack() {
+    if (g.stamina < 10.0f) return;
+    g.stamina -= 10.0f; g.catgirl.isAttacking = true; g.catgirl.attackTimer = 0.3f;
+    g.catgirl.comboCount++; g.combatTimer = COMBO_WINDOW;
+    Vec3 forward(sinf(g.catgirl.yaw), 0, cosf(g.catgirl.yaw));
+    for (auto& e : g.activeEnemies) {
+        if (!e->alive) continue;
+        Vec3 toEnemy = e->position - g.catgirl.position;
+        float d = toEnemy.length();
+        if (d < 3.0f && d > 0.01f) {
+            float angle = acosf(clampf(forward.dot(toEnemy.normalized()), -1.0f, 1.0f));
+            if (angle < PI * 0.4f) {
+                float dmg = 25.0f * (1.0f + g.stats.dexterity * 0.05f) * (1.0f + g.catgirl.comboCount * 0.1f);
+                damage_enemy(*e, dmg, true);
+                spawn_particles(e->position, 0xFF0000, 5, 3.0f);
+            }
+        }
+    }
+    spawn_particles(g.catgirl.position + forward * 2.0f, 0xFFFFFF, 3, 2.0f);
+}
+
+void perform_heavy_attack() {
+    if (g.stamina < 25.0f) return;
+    g.stamina -= 25.0f; g.catgirl.isAttacking = true; g.catgirl.attackTimer = 0.6f;
+    g.catgirl.comboCount = 0;
+    Vec3 forward(sinf(g.catgirl.yaw), 0, cosf(g.catgirl.yaw));
+    for (auto& e : g.activeEnemies) {
+        if (!e->alive) continue;
+        Vec3 toEnemy = e->position - g.catgirl.position;
+        float d = toEnemy.length();
+        if (d < 4.0f && d > 0.01f) {
+            float angle = acosf(clampf(forward.dot(toEnemy.normalized()), -1.0f, 1.0f));
+            if (angle < PI * 0.5f) {
+                float dmg = 25.0f * 2.0f * (1.0f + g.stats.strength * 0.05f);
+                damage_enemy(*e, dmg, true);
+                spawn_particles(e->position, 0xFF4400, 8, 4.0f);
+            }
+        }
+    }
+}
+
+void perform_dodge() {
+    if (g.stamina < 15.0f) return;
+    g.stamina -= 15.0f; g.catgirl.isDodging = true; g.catgirl.dodgeTimer = DODGE_IFRAMES;
+    g.iframes = DODGE_IFRAMES; g.catgirl.comboCount = 0;
+    Vec3 dodgeDir(sinf(g.catgirl.yaw), 0, cosf(g.catgirl.yaw));
+    g.catgirl.position += dodgeDir * 3.0f;
+    spawn_particles(g.catgirl.position, 0x88CCFF, 5, 2.0f);
+}
+
+void perform_block(bool active) {
+    g.isBlocking = active && g.stamina > 0;
+    if (g.isBlocking) g.stamina -= 5.0f * 0.016f;
+}
+
+void perform_parry() {
+    g.isParrying = true; g.parryTimer = PARRY_WINDOW; g.catgirl.animSpeed = 2.0f;
+}
+
+void perform_heal() {
+    if (g.estusCharges <= 0) return;
+    g.estusCharges--;
+    float heal = g.stats.get_estus_heal() + g.estusBuff;
+    g.hp = min(g.hp + heal, g.maxHp);
+    g.healFlash = 0.5f;
+    spawn_particles(g.catgirl.position, 0x00FF88, 10, 2.0f);
+}
+
+void damage_player(float amount) {
+    if (g.iframes > 0) return;
+    if (g.isBlocking) { amount *= 0.3f; g.stamina -= 10.0f; spawn_particles(g.catgirl.position, 0xAAAAFF, 3, 1.5f); }
+    if (g.isParrying) { amount = 0; g.stamina += 15.0f; }
+    g.hp -= amount; g.damageFlash = 0.3f; g.combatTimer = 5.0f;
+    if (g.hp <= 0) { g.hp = 0; kill_player(); }
+}
+
+void damage_enemy(Enemy& enemy, float amount, bool isStagger) {
+    enemy.hp -= amount; enemy.staggerTimer = isStagger ? 0.3f : 0.1f;
+    if (isStagger) enemy.state = EnemyState::STAGGERED;
+    spawn_particles(enemy.position + Vec3(0, 2.5f, 0), 0xFFFF00, 3, 2.0f);
+    if (enemy.hp <= 0) kill_enemy(enemy);
+}
+
+void kill_enemy(Enemy& enemy) {
+    enemy.alive = false; enemy.state = EnemyState::DEAD;
+    g.souls += enemy.soulsReward; g.enemiesKilled++;
+    spawn_particles(enemy.position, 0xFFAA00, 15, 4.0f);
+    if (enemy.isBoss) {
+        g.bossesKilled++; g.bossActive = false;
+        g.state = GameState::BOSS_DEATH; g.bossDeathTimer = 3.0f;
+        strcpy(g.currentBossName, enemy.bossName);
+        int nextArea = (int)g.currentArea + 1;
+        if (nextArea < (int)AreaID::AREA_COUNT) g.areas[nextArea].unlocked = true;
+        g.areas[(int)g.currentArea].completed = true;
+    }
+}
+
+void kill_player() { g.deaths++; g.deathFade = 2.0f; g.state = GameState::GAME_OVER; }
+
+void respawn_at_bonfire() {
+    float nearest = 1000.0f; Vec3 spawnPos;
+    for (auto& b : g.areas[(int)g.currentArea].bonfires) {
+        if (b.discovered) { float d = dist(g.catgirl.position, b.position); if (d < nearest) { nearest = d; spawnPos = b.position + Vec3(0, 0, 3); } }
+    }
+    g.catgirl.position = spawnPos; g.hp = g.maxHp; g.stamina = g.maxStamina;
+    g.estusCharges = g.maxEstus; g.state = GameState::PLAYING; g.deathFade = 0;
+}
+
+void kindle_bonfire() {
+    for (auto& b : g.areas[(int)g.currentArea].bonfires) {
+        if (dist(g.catgirl.position, b.position) < 3.0f) {
+            if (b.kindleLevel < 3 && g.hp > g.maxHp * 0.2f) {
+                b.kindleLevel++; b.kindled = true;
+                g.maxEstus = MAX_ESTUS + b.kindleLevel; g.estusCharges = g.maxEstus;
+                g.hp -= g.maxHp * 0.2f; g.estusBuff += 10.0f;
+            }
+        }
+    }
+}
+
+void level_up() {
+    if (g.souls < g.soulsToLevel) return;
+    g.souls -= g.soulsToLevel; g.level++; g.soulsToLevel = (int)(g.soulsToLevel * 1.5f);
+    switch (g.menuSelection) {
+        case 0: g.stats.vigor++; g.maxHp = g.stats.get_max_hp(); g.hp = g.maxHp; break;
+        case 1: g.stats.endurance++; g.maxStamina = g.stats.get_max_stamina(); break;
+        case 2: g.stats.strength++; break;
+        case 3: g.stats.dexterity++; break;
+        case 4: g.stats.intelligence++; break;
+        case 5: g.stats.faith++; break;
+        case 6: g.stats.luck++; break;
+    }
+    g.state = GameState::BONFIRE_MENU;
+}
+
+// =============================================================================
+// ENEMY AI
+// =============================================================================
+void update_enemies(float dt) {
+    g.activeEnemies.clear();
+    AreaData& area = g.areas[(int)g.currentArea];
+    for (auto& e : area.enemies) {
+        if (!e.alive) continue;
+        float d = dist(g.catgirl.position, e.position);
+        if (d < 50.0f) {
+            g.activeEnemies.push_back(&e);
+            switch (e.state) {
+                case EnemyState::PATROL: {
+                    Vec3 patrol(sinf(g.gameTime + e.spawnPos.x) * 3.0f, 0, cosf(g.gameTime + e.spawnPos.z) * 3.0f);
+                    Vec3 dir = (e.spawnPos + patrol - e.position).normalized();
+                    e.position += dir * e.speed * 0.3f * dt;
+                    if (d < e.aggroRange) e.state = EnemyState::CHASE;
+                    break;
+                }
+                case EnemyState::CHASE: {
+                    Vec3 dir = (g.catgirl.position - e.position).normalized();
+                    e.position += dir * e.speed * dt;
+                    if (d < e.attackRange) { e.state = EnemyState::ATTACK; e.currentCooldown = 0; }
+                    if (d > e.aggroRange * 1.5f) e.state = EnemyState::PATROL;
+                    break;
+                }
+                case EnemyState::ATTACK:
+                    e.currentCooldown -= dt;
+                    if (e.currentCooldown <= 0) {
+                        if (d < e.attackRange + 0.5f) { damage_player(e.damage); spawn_particles(g.catgirl.position, 0xFF0000, 5, 3.0f); }
+                        e.currentCooldown = e.attackCooldown; e.state = EnemyState::CHASE;
+                    }
+                    break;
+                case EnemyState::STAGGERED:
+                    e.staggerTimer -= dt; if (e.staggerTimer <= 0) e.state = EnemyState::CHASE;
+                    break;
+                default: break;
+            }
+            if (e.isBoss) update_boss_ai(e, dt);
+        }
+    }
+}
+
+void update_boss_ai(Enemy& boss, float dt) {
+    float hpPct = boss.hp / boss.maxHp;
+    if (hpPct < BOSS_PHASE_3_HP && boss.bossPhase < 3) {
+        boss.bossPhase = 3; boss.speed *= 1.5f; boss.damage *= 1.3f;
+        spawn_particles(boss.position, 0xFF00FF, 20, 5.0f);
+    } else if (hpPct < BOSS_PHASE_2_HP && boss.bossPhase < 2) {
+        boss.bossPhase = 2; boss.speed *= 1.3f; boss.damage *= 1.2f; boss.attackCooldown *= 0.7f;
+        spawn_particles(boss.position, 0xFFFF00, 15, 4.0f);
+    }
+    boss.specialAttackTimer -= dt;
+    if (boss.specialAttackTimer <= 0) {
+        boss.specialAttackTimer = 8.0f - boss.bossPhase;
+        if (dist(g.catgirl.position, boss.position) < boss.attackRange * 2.0f) {
+            damage_player(boss.damage * 0.7f);
+            spawn_particles(boss.position, 0xFF4400, 25, 6.0f);
+        }
+    }
+}
+
+// =============================================================================
+// PARTICLES
+// =============================================================================
+void spawn_particles(Vec3 pos, uint32_t color, int count, float speed) {
+    for (int i = 0; i < count; i++) {
+        Particle p;
+        p.position = pos + Vec3(randf(-0.5f, 0.5f), randf(0, 1.0f), randf(-0.5f, 0.5f));
+        p.velocity = Vec3(randf(-1, 1), randf(0.5f, 2.0f), randf(-1, 1)) * speed;
+        p.life = 1.0f; p.maxLife = 1.0f; p.color = color; p.size = randf(0.05f, 0.15f);
+        g.particles.push_back(p);
+    }
+}
+
+void update_particles(float dt) {
+    for (auto it = g.particles.begin(); it != g.particles.end();) {
+        it->life -= dt; it->position += it->velocity * dt; it->velocity.y -= 5.0f * dt;
+        if (it->life <= 0) it = g.particles.erase(it); else ++it;
+    }
+}
+
+// =============================================================================
+// CAMERA
+// =============================================================================
+void update_camera(float dt) {
+    if (g.lockon && g.lockonTarget >= 0 && g.lockonTarget < (int)g.activeEnemies.size()) {
+        Enemy* target = g.activeEnemies[g.lockonTarget];
+        if (!target->alive) { g.lockon = false; g.lockonTarget = -1; }
+        else { Vec3 toTarget = target->position - g.catgirl.position; g.cameraYaw = atan2f(toTarget.x, toTarget.z); }
+    }
+    float tx = g.catgirl.position.x - sinf(g.cameraYaw) * g.cameraDistance;
+    float tz = g.catgirl.position.z - cosf(g.cameraYaw) * g.cameraDistance;
+    float ty = g.catgirl.position.y + CAM_HEIGHT;
+    g.cameraPos.x = lerp(g.cameraPos.x, tx, 5.0f * dt);
+    g.cameraPos.y = lerp(g.cameraPos.y, ty, 5.0f * dt);
+    g.cameraPos.z = lerp(g.cameraPos.z, tz, 5.0f * dt);
+    g.cameraTarget = g.catgirl.position + Vec3(0, 1.5f, 0);
+}
+
+// =============================================================================
+// UPDATE
+// =============================================================================
+void update_game(float dt) {
+    if (g.state == GameState::TITLE || g.state == GameState::PAUSED) return;
+    if (g.state == GameState::GAME_OVER || g.state == GameState::VICTORY) { g.deathFade = max(0, g.deathFade - dt); return; }
+    g.gameTime += dt; g.totalPlayTime += dt;
+    update_player(dt);
+    update_camera(dt);
+    update_enemies(dt);
+    update_particles(dt);
+    if (g.combatTimer > 0) g.combatTimer -= dt;
+    if (g.iframes > 0) g.iframes -= dt;
+    if (g.parryTimer > 0) { g.parryTimer -= dt; if (g.parryTimer <= 0) g.isParrying = false; }
+    if (g.damageFlash > 0) g.damageFlash -= dt * 2.0f;
+    if (g.healFlash > 0) g.healFlash -= dt * 2.0f;
+    check_boss_trigger();
+    if (g.state == GameState::AREA_TRANSITION) { g.areaTransitionTimer -= dt; if (g.areaTransitionTimer <= 0) { enter_area(g.targetArea); g.state = GameState::PLAYING; } }
+    for (auto& b : g.areas[(int)g.currentArea].bonfires)
+        if (!b.discovered && dist(g.catgirl.position, b.position) < 5.0f) { b.discovered = true; g.bonfiresDiscovered++; spawn_particles(b.position, 0xFFAA00, 20, 3.0f); }
+}
+
+void update_player(float dt) {
+    g.catgirl.update(dt);
+    g.staminaRegenTimer -= dt;
+    if (g.staminaRegenTimer <= 0 && g.stamina < g.maxStamina)
+        g.stamina = min(g.stamina + 20.0f * dt, g.maxStamina);
+    if (g.combatTimer <= 0) g.catgirl.comboCount = 0;
+    if (g.catgirl.position.y < 0) g.catgirl.position.y = 0;
+}
+
+void check_boss_trigger() {
+    AreaData& area = g.areas[(int)g.currentArea];
+    for (int i = 0; i < (int)area.enemies.size(); i++) {
+        Enemy& e = area.enemies[i];
+        if (e.isBoss && e.alive && !g.bossActive) {
+            if (dist(g.catgirl.position, e.position) < e.aggroRange) {
+                g.bossActive = true; g.bossEnemyIndex = i;
+                g.state = GameState::BOSS_INTRO; g.bossIntroTimer = 3.0f;
+                strcpy(g.currentBossName, e.bossName);
+            }
+        }
+    }
+}
+
+void enter_area(AreaID area) {
+    g.currentArea = area;
+    AreaData& a = g.areas[(int)area];
+    if (!a.bonfires.empty()) g.catgirl.position = a.bonfires[0].position + Vec3(0, 0, 3);
+    else g.catgirl.position = a.worldOffset + Vec3(0, 0, 5);
+    g.cameraYaw = 0; g.lockon = false; g.lockonTarget = -1;
+    g.bossActive = false; g.bossEnemyIndex = -1;
+}
+
+// =============================================================================
+// RENDERING
+// =============================================================================
+void render_game(float dt) {
+    uint32_t bgColor = g.areas[(int)g.currentArea].skyColor;
+    g.renderer->clear(bgColor);
+    Mat4 view = Mat4::look_at(g.cameraPos, g.cameraTarget, Vec3(0, 1, 0));
+    Mat4 proj = Mat4::perspective(62.0f, 16.0f/9.0f, 0.1f, 100.0f);
+    Mat4 viewProj = proj * view;
+
+    g.renderer->draw_grid(2.0f, viewProj, 0x333333);
+    render_area_geometry();
+
+    for (auto& b : g.areas[(int)g.currentArea].bonfires) render_bonfire(b);
+    for (auto& e : g.activeEnemies) render_enemy(*e);
+    render_catgirl();
+    for (auto& p : g.particles) {
+        int x, y; float z;
+        g.renderer->project(p.position, viewProj, x, y, z);
+        if (z > 0 && z < 1.0f) { int s = (int)(p.size * 100 / z); g.renderer->fill_rect(x-s/2, y-s/2, s, s, p.color); }
+    }
+    render_hud();
+
+    if (g.damageFlash > 0) g.renderer->fill_rect(0, 0, 800, 600, ((int)(g.damageFlash*128) << 16));
+    if (g.healFlash > 0) g.renderer->fill_rect(0, 0, 800, 600, ((int)(g.healFlash*64) << 8));
+
+    switch (g.state) {
+        case GameState::TITLE: render_title_screen(); break;
+        case GameState::BONFIRE_MENU: render_bonfire_menu(); break;
+        case GameState::LEVEL_UP: render_level_up_menu(); break;
+        case GameState::GAME_OVER: render_game_over(); break;
+        case GameState::VICTORY: render_victory(); break;
+        case GameState::BOSS_INTRO: render_boss_intro(); break;
+        default: break;
+    }
+    g.renderer->present();
+}
+
+void render_catgirl() {
+    Mat4 viewProj = Mat4::look_at(g.cameraPos, g.cameraTarget, Vec3(0,1,0)) * Mat4::perspective(62.0f, 16.0f/9.0f, 0.1f, 100.0f);
+    float bobY = sinf(g.catgirl.animTime * 5.0f) * 0.05f;
+    if (g.catgirl.isDodging) bobY *= 3.0f;
+    Vec3 pos = g.catgirl.position + Vec3(0, bobY, 0);
+
+    g.renderer->draw_cube(pos + Vec3(0, 0.8f, 0), 0.4f, viewProj, 0x332244);
+    g.renderer->draw_cube(pos + Vec3(0, 1.4f, 0), 0.3f, viewProj, 0xFFCCAA);
+    g.renderer->draw_cube(pos + Vec3(0, 1.6f, -0.05f), 0.32f, viewProj, 0xFF88CC);
+    // Ears
+    float eo = g.catgirl.earTwitch;
+    g.renderer->draw_triangle_3d(pos + Vec3(-0.15f, 1.8f, 0), pos + Vec3(-0.05f+eo, 2.1f, 0.05f), pos + Vec3(-0.25f, 2.0f, 0.1f), viewProj, 0xFFCCDD);
+    g.renderer->draw_triangle_3d(pos + Vec3(0.15f, 1.8f, 0), pos + Vec3(0.05f-eo, 2.1f, 0.05f), pos + Vec3(0.25f, 2.0f, 0.1f), viewProj, 0xFFCCDD);
+    // Tail
+    float tw = g.catgirl.tailWag;
+    g.renderer->draw_cube(pos + Vec3(tw, 0.5f, -0.4f), 0.1f, viewProj, 0xFF88CC);
+    g.renderer->draw_cube(pos + Vec3(tw*1.5f, 0.7f, -0.5f), 0.08f, viewProj, 0xFF88CC);
+    // Legs
+    g.renderer->draw_cube(pos + Vec3(-0.15f, 0.3f, 0), 0.12f, viewProj, 0x332244);
+    g.renderer->draw_cube(pos + Vec3(0.15f, 0.3f, 0), 0.12f, viewProj, 0x332244);
+    // Weapon glow
+    if (g.catgirl.isAttacking) {
+        float ap = 1.0f - (g.catgirl.attackTimer / 0.3f);
+        g.renderer->draw_cube(pos + Vec3(0.4f, 1.0f, 0.5f * ap), 0.15f, viewProj, 0xFFFFFF);
+    }
+}
+
+void render_enemy(Enemy& enemy) {
+    uint32_t color = 0x888888; float size = 0.5f;
+    if (enemy.isBoss) { color = 0xFF0044; size = 1.2f; }
+    else if (enemy.isElite) { color = 0xAA44AA; size = 0.7f; }
+    if (enemy.state == EnemyState::STAGGERED) color = 0xFFFFFF;
+    Mat4 viewProj = Mat4::look_at(g.cameraPos, g.cameraTarget, Vec3(0,1,0)) * Mat4::perspective(62.0f, 16.0f/9.0f, 0.1f, 100.0f);
+    g.renderer->draw_cube(enemy.position + Vec3(0, size, 0), size, viewProj, color);
+    g.renderer->draw_cube(enemy.position + Vec3(0, size*1.8f, 0), size*0.6f, viewProj, color);
+    if (enemy.isBoss) {
+        float hpPct = enemy.hp / enemy.maxHp;
+        int x0, y1, x1, y2; float z;
+        g.renderer->project(enemy.position + Vec3(0, size*3.0f, 0), viewProj, x0, y1, z);
+        g.renderer->project(enemy.position + Vec3(2.0f, 0.2f, 0) + Vec3(0, size*3.0f, 0), viewProj, x1, y2, z);
+        g.renderer->fill_rect(x0, y1, x1-x0, y2-y1, 0x440000);
+        g.renderer->fill_rect(x0, y1, (int)((x1-x0)*hpPct), y2-y1, 0xFF0000);
+    }
+}
+
+void render_bonfire(Bonfire& bonfire) {
+    Mat4 viewProj = Mat4::look_at(g.cameraPos, g.cameraTarget, Vec3(0,1,0)) * Mat4::perspective(62.0f, 16.0f/9.0f, 0.1f, 100.0f);
+    uint32_t fc = bonfire.kindled ? 0xFF8800 : 0x444444;
+    g.renderer->draw_cube(bonfire.position + Vec3(0, 0.2f, 0), 0.3f, viewProj, 0x333333);
+    float flick = sinf(g.gameTime * 10.0f) * 0.1f;
+    g.renderer->draw_cube(bonfire.position + Vec3(0, 0.6f + flick, 0), 0.2f, viewProj, fc);
+    g.renderer->draw_cube(bonfire.position + Vec3(0, 0.9f + flick*0.5f, 0), 0.15f, viewProj, 0xFFAA00);
+    if (bonfire.kindled && rand() % 10 == 0) spawn_particles(bonfire.position + Vec3(0, 1, 0), 0xFFAA44, 1, 1.0f);
+}
+
+void render_hud() {
+    float hpPct = g.hp / g.maxHp;
+    g.renderer->fill_rect(20, 20, 200, 20, 0x440000);
+    g.renderer->fill_rect(20, 20, (int)(200*hpPct), 20, 0xCC0000);
+    g.renderer->draw_rect(20, 20, 200, 20, 0xFFFFFF);
+    float spPct = g.stamina / g.maxStamina;
+    g.renderer->fill_rect(20, 45, 180, 12, 0x004400);
+    g.renderer->fill_rect(20, 45, (int)(180*spPct), 12, 0x00CC00);
+    g.renderer->draw_rect(20, 45, 180, 12, 0xFFFFFF);
+    char buf[64];
+    sprintf(buf, "Estus: %d/%d", g.estusCharges, g.maxEstus);
+    g.renderer->draw_text(20, 65, buf, 0xFFAA00);
+    sprintf(buf, "Souls: %d", g.souls);
+    g.renderer->draw_text(20, 85, buf, 0xFFFF00);
+    sprintf(buf, "Lv: %d", g.level);
+    g.renderer->draw_text(20, 105, buf, 0xFFFFFF);
+    g.renderer->draw_text(600, 20, g.areas[(int)g.currentArea].name, 0xFFFFFF);
+    if (g.bossActive && g.bossEnemyIndex >= 0) {
+        AreaData& area = g.areas[(int)g.currentArea];
+        for (auto& e : area.enemies) {
+            if (e.isBoss && e.alive) {
+                float bhp = e.hp / e.maxHp;
+                g.renderer->fill_rect(100, 550, 600, 25, 0x440000);
+                g.renderer->fill_rect(100, 550, (int)(600*bhp), 25, 0xFF0044);
+                g.renderer->draw_rect(100, 550, 600, 25, 0xFFFFFF);
+                g.renderer->draw_text(300, 530, e.bossName, 0xFF4444);
+                break;
+            }
+        }
+    }
+    if (g.lockon && g.lockonTarget >= 0) g.renderer->draw_text(380, 300, "LOCK ON", 0xFF0000);
+    if (g.catgirl.comboCount > 1) { sprintf(buf, "%d HIT", g.catgirl.comboCount); g.renderer->draw_text(400, 150, buf, 0xFFFF00); }
+    g.renderer->draw_text(20, 570, "WASD:Move 1:Atk 2:Heavy Space:Dodge Shift:Block F:Parry R:Heal Enter:Bonfire", 0x888888);
+}
+
+void render_title_screen() {
+    g.renderer->fill_rect(0, 0, 800, 600, 0x000000);
+    g.renderer->draw_text(250, 200, "CATGIRL SOULS", 0xFF4444);
+    g.renderer->draw_text(280, 250, "A Dark Souls Tale", 0xFFFFFF);
+    g.renderer->draw_text(250, 350, "Press SPACE to begin", 0xAAAAAA);
+    g.renderer->draw_text(200, 450, "You are a stray cat, cursed to hunt souls...", 0x888888);
+}
+
+void render_bonfire_menu() {
+    g.renderer->fill_rect(100, 100, 600, 400, 0x222222);
+    g.renderer->draw_rect(100, 100, 600, 400, 0xFFAA00);
+    g.renderer->draw_text(300, 120, "BONFIRE", 0xFFAA00);
+    const char* opts[] = {"Rest (Heal)", "Kindle (+Estus)", "Level Up", "Travel"};
+    for (int i = 0; i < 4; i++) {
+        uint32_t c = (i == g.menuSelection) ? 0xFFFF00 : 0xFFFFFF;
+        g.renderer->draw_text(150, 180 + i * 40, opts[i], c);
+    }
+    char buf[64];
+    sprintf(buf, "Souls: %d  Next: %d", g.souls, g.soulsToLevel);
+    g.renderer->draw_text(150, 350, buf, 0xFFFF00);
+}
+
+void render_level_up_menu() {
+    g.renderer->fill_rect(100, 100, 600, 400, 0x222222);
+    g.renderer->draw_rect(100, 100, 600, 400, 0xFFAA00);
+    g.renderer->draw_text(300, 120, "LEVEL UP", 0xFFAA00);
+    const char* stats[] = {"Vigor", "Endurance", "Strength", "Dexterity", "Intelligence", "Faith", "Luck"};
+    int vals[] = {g.stats.vigor, g.stats.endurance, g.stats.strength, g.stats.dexterity, g.stats.intelligence, g.stats.faith, g.stats.luck};
+    for (int i = 0; i < 7; i++) {
+        uint32_t c = (i == g.menuSelection) ? 0xFFFF00 : 0xFFFFFF;
+        char buf[32]; sprintf(buf, "%s: %d", stats[i], vals[i]);
+        g.renderer->draw_text(150, 180 + i * 30, buf, c);
+    }
+    char buf[64]; sprintf(buf, "Cost: %d souls", g.soulsToLevel);
+    g.renderer->draw_text(150, 400, buf, 0xFFFF00);
+}
+
+void render_game_over() {
+    int a = (int)(g.deathFade * 128);
+    g.renderer->fill_rect(0, 0, 800, 600, (a << 16));
+    g.renderer->draw_text(300, 250, "YOU DIED", 0xFF0000);
+    g.renderer->draw_text(250, 300, "Press SPACE to retry", 0xFFFFFF);
+}
+
+void render_victory() {
+    g.renderer->fill_rect(0, 0, 800, 600, 0x000011);
+    g.renderer->draw_text(250, 200, "VICTORY!", 0xFFD700);
+    g.renderer->draw_text(200, 250, "The curse is lifted!", 0xFFFFFF);
+    g.renderer->draw_text(200, 300, "You are free, little cat...", 0xFFD700);
+    char buf[128];
+    sprintf(buf, "Time: %.1fh Deaths: %d Bosses: %d", g.totalPlayTime/3600.0f, g.deaths, g.bossesKilled);
+    g.renderer->draw_text(200, 350, buf, 0xAAAAAA);
+    g.renderer->draw_text(250, 450, "Press SPACE for New Game+", 0xFFFFFF);
+}
+
+void render_boss_intro() {
+    g.bossIntroTimer -= 0.016f;
+    if (g.bossIntroTimer <= 0) { g.state = GameState::PLAYING; return; }
+    float alpha = g.bossIntroTimer / 3.0f;
+    int bh = (int)(alpha * 100);
+    g.renderer->fill_rect(0, 0, 800, bh, 0x000000);
+    g.renderer->fill_rect(0, 600-bh, 800, bh, 0x000000);
+    g.renderer->draw_text(250, 280, g.currentBossName, 0xFF0000);
+    g.renderer->draw_text(350, 320, "BOSS", 0xFF4444);
+}
+
+void render_area_geometry() {
+    Mat4 viewProj = Mat4::look_at(g.cameraPos, g.cameraTarget, Vec3(0,1,0)) * Mat4::perspective(62.0f, 16.0f/9.0f, 0.1f, 100.0f);
+    switch (g.currentArea) {
+        case AreaID::ASHEN_CITADEL:
+            for (int i = 0; i < 10; i++) {
+                float x = -20 + i * 5; float h = 3 + sinf(i * 1.5f) * 1.5f;
+                g.renderer->draw_cube(Vec3(x, h/2, 20), 0.5f, viewProj, 0x666655);
+                g.renderer->draw_cube(Vec3(x, h, 20), 1.0f, viewProj, 0x555544);
+            }
+            g.renderer->draw_cube(Vec3(0, 2, 65), 3.0f, viewProj, 0x4444AA);
+            break;
+        case AreaID::HOLLOW_GARDENS:
+            for (int i = 0; i < 5; i++) g.renderer->draw_cube(Vec3(-10 + i*5, -0.2f, 30), 2.0f, viewProj, 0x44AA44);
+            for (int i = 0; i < 8; i++) { float x = -15 + i*4; g.renderer->draw_cube(Vec3(x, 2, 15+sinf(i)*5), 0.3f, viewProj, 0x443322); }
+            break;
+        case AreaID::CRUMBLING_KEEP:
+            for (int i = 0; i < 6; i++) { g.renderer->draw_cube(Vec3(-15, 2+i, 20), 1.0f, viewProj, 0x555566); g.renderer->draw_cube(Vec3(15, 2+i, 20), 1.0f, viewProj, 0x555566); }
+            for (int i = 0; i < 4; i++) g.renderer->draw_cube(Vec3(-5+i*3, 1+i, 25), 1.5f, viewProj, 0x666677);
+            break;
+        case AreaID::FROZEN_DEPTHS:
+            for (int i = 0; i < 12; i++) { float x = -20+i*3.5f; float z = 10+sinf(i*0.8f)*8; float h = 2+sinf(i*1.2f)*1.5f; g.renderer->draw_cube(Vec3(x, h/2, z), 0.4f, viewProj, 0xAACCEE); }
+            break;
+        case AreaID::THRONE_OF_MEOW:
+            for (int i = 0; i < 8; i++) { float a = i*PI/4; g.renderer->draw_cube(Vec3(cosf(a)*10, 3, sinf(a)*10+50), 0.8f, viewProj, 0x443355); }
+            g.renderer->draw_cube(Vec3(0, 1.5f, 70), 2.0f, viewProj, 0x664488);
+            g.renderer->draw_cube(Vec3(0, 3.5f, 70), 1.5f, viewProj, 0x775599);
+            break;
+        default: break;
+    }
+}
+
+// =============================================================================
+// MAIN
+// =============================================================================
+#ifdef _WIN32
+int main(int argc, char** argv) {
+    printf("CATGIRL SOULS - Dark Souls-like with a catgirl MC\n");
+    printf("==================================================\n");
+    printf("Controls: WASD=Move  1=LightAtk  2=HeavyAtk  Space=Dodge\n");
+    printf("          Shift=Block  F=Parry  R=Heal  Enter=Bonfire  Esc=Pause\n\n");
+
+    g.renderer = new SoftwareRenderer();
+    if (!g.renderer->initialize("")) { printf("Failed to init renderer\n"); return 1; }
+
+    g.input.load_defaults();
+    init_game();
+
+    auto lastTime = std::chrono::high_resolution_clock::now();
+    bool running = true;
+
+    while (running) {
+        auto now = std::chrono::high_resolution_clock::now();
+        float dt = std::chrono::duration<float>(now - lastTime).count();
+        lastTime = now;
+        if (dt > 0.1f) dt = 0.1f;
+
+        poll_input(g.input);
+        g.input.update();
+        handle_input(dt);
+        update_game(dt);
+        render_game(dt);
+
+        if (g.input.key_down(Key::Escape) && (g.state == GameState::TITLE || g.state == GameState::PAUSED))
+            running = false;
+    }
+
+    delete g.renderer;
+    return 0;
+}
+#else
+int main() { printf("Windows only\n"); return 1; }
+#endif

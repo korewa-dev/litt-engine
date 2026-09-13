@@ -1,0 +1,40 @@
+{
+ "items": [
+  {
+   "name": "Verdant Crown",
+   "kind": "consumable",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Forgotten Warden",
+   "kind": "trinket",
+   "rarity": "common",
+   "description": "A trinket grove. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Wyrm-Sung Briar",
+   "kind": "weapon",
+   "rarity": "common",
+   "description": "A weapon blade. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Wyrm-Sung Grove",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable grove. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Wyrm-Sung Prophecy",
+   "kind": "weapon",
+   "rarity": "uncommon",
+   "description": "Carried by someone who almost made it back."
+  },
+  {
+   "name": "Thornbound Chalice",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable warden. Serviceable, unremarkable, yours."
+  }
+ ]
+}

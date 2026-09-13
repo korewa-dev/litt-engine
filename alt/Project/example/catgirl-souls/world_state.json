@@ -1,0 +1,3046 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "emberfall-hollow",
+  "identity": {
+    "movement": "soulslike third-person stamina sprint",
+    "camera": "third-person orbit"
+  },
+  "updated": "2026-09-08T00:13:16",
+  "seed": {
+    "input": 999,
+    "terrain": 3524200805,
+    "scatter": 3591267938
+  },
+  "chunk_size": 16.0,
+  "radius": 8,
+  "camera": {
+    "target": [
+      0,
+      1.5,
+      30
+    ],
+    "distance": 30
+  },
+  "chunks": [
+    {
+      "id": "chunk_-8_-8",
+      "path": "assets/models/chunk_-8_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_-7",
+      "path": "assets/models/chunk_-8_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_-6",
+      "path": "assets/models/chunk_-8_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_-5",
+      "path": "assets/models/chunk_-8_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_-4",
+      "path": "assets/models/chunk_-8_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_-3",
+      "path": "assets/models/chunk_-8_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_-2",
+      "path": "assets/models/chunk_-8_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_-1",
+      "path": "assets/models/chunk_-8_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_0",
+      "path": "assets/models/chunk_-8_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_1",
+      "path": "assets/models/chunk_-8_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_2",
+      "path": "assets/models/chunk_-8_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_3",
+      "path": "assets/models/chunk_-8_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_4",
+      "path": "assets/models/chunk_-8_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_5",
+      "path": "assets/models/chunk_-8_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_6",
+      "path": "assets/models/chunk_-8_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_7",
+      "path": "assets/models/chunk_-8_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_8",
+      "path": "assets/models/chunk_-8_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_9",
+      "path": "assets/models/chunk_-8_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-8_10",
+      "path": "assets/models/chunk_-8_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_-8",
+      "path": "assets/models/chunk_-7_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_-7",
+      "path": "assets/models/chunk_-7_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_-6",
+      "path": "assets/models/chunk_-7_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_-5",
+      "path": "assets/models/chunk_-7_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_-4",
+      "path": "assets/models/chunk_-7_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_-3",
+      "path": "assets/models/chunk_-7_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_-2",
+      "path": "assets/models/chunk_-7_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_-1",
+      "path": "assets/models/chunk_-7_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_0",
+      "path": "assets/models/chunk_-7_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_1",
+      "path": "assets/models/chunk_-7_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_2",
+      "path": "assets/models/chunk_-7_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_3",
+      "path": "assets/models/chunk_-7_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_4",
+      "path": "assets/models/chunk_-7_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_5",
+      "path": "assets/models/chunk_-7_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_6",
+      "path": "assets/models/chunk_-7_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_7",
+      "path": "assets/models/chunk_-7_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_8",
+      "path": "assets/models/chunk_-7_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_9",
+      "path": "assets/models/chunk_-7_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-7_10",
+      "path": "assets/models/chunk_-7_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_-8",
+      "path": "assets/models/chunk_-6_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_-7",
+      "path": "assets/models/chunk_-6_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_-6",
+      "path": "assets/models/chunk_-6_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_-5",
+      "path": "assets/models/chunk_-6_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_-4",
+      "path": "assets/models/chunk_-6_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_-3",
+      "path": "assets/models/chunk_-6_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_-2",
+      "path": "assets/models/chunk_-6_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_-1",
+      "path": "assets/models/chunk_-6_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_0",
+      "path": "assets/models/chunk_-6_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_1",
+      "path": "assets/models/chunk_-6_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_2",
+      "path": "assets/models/chunk_-6_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_3",
+      "path": "assets/models/chunk_-6_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_4",
+      "path": "assets/models/chunk_-6_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_5",
+      "path": "assets/models/chunk_-6_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_6",
+      "path": "assets/models/chunk_-6_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_7",
+      "path": "assets/models/chunk_-6_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_8",
+      "path": "assets/models/chunk_-6_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_9",
+      "path": "assets/models/chunk_-6_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-6_10",
+      "path": "assets/models/chunk_-6_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_-8",
+      "path": "assets/models/chunk_-5_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_-7",
+      "path": "assets/models/chunk_-5_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_-6",
+      "path": "assets/models/chunk_-5_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_-5",
+      "path": "assets/models/chunk_-5_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_-4",
+      "path": "assets/models/chunk_-5_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_-3",
+      "path": "assets/models/chunk_-5_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_-2",
+      "path": "assets/models/chunk_-5_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_-1",
+      "path": "assets/models/chunk_-5_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_0",
+      "path": "assets/models/chunk_-5_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_1",
+      "path": "assets/models/chunk_-5_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_2",
+      "path": "assets/models/chunk_-5_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_3",
+      "path": "assets/models/chunk_-5_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_4",
+      "path": "assets/models/chunk_-5_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_5",
+      "path": "assets/models/chunk_-5_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_6",
+      "path": "assets/models/chunk_-5_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_7",
+      "path": "assets/models/chunk_-5_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_8",
+      "path": "assets/models/chunk_-5_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_9",
+      "path": "assets/models/chunk_-5_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-5_10",
+      "path": "assets/models/chunk_-5_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_-8",
+      "path": "assets/models/chunk_-4_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_-7",
+      "path": "assets/models/chunk_-4_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_-6",
+      "path": "assets/models/chunk_-4_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_-5",
+      "path": "assets/models/chunk_-4_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_-4",
+      "path": "assets/models/chunk_-4_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_-3",
+      "path": "assets/models/chunk_-4_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_-2",
+      "path": "assets/models/chunk_-4_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_-1",
+      "path": "assets/models/chunk_-4_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_0",
+      "path": "assets/models/chunk_-4_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_1",
+      "path": "assets/models/chunk_-4_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_2",
+      "path": "assets/models/chunk_-4_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_3",
+      "path": "assets/models/chunk_-4_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_4",
+      "path": "assets/models/chunk_-4_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_5",
+      "path": "assets/models/chunk_-4_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_6",
+      "path": "assets/models/chunk_-4_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_7",
+      "path": "assets/models/chunk_-4_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_8",
+      "path": "assets/models/chunk_-4_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_9",
+      "path": "assets/models/chunk_-4_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-4_10",
+      "path": "assets/models/chunk_-4_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_-8",
+      "path": "assets/models/chunk_-3_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_-7",
+      "path": "assets/models/chunk_-3_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_-6",
+      "path": "assets/models/chunk_-3_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_-5",
+      "path": "assets/models/chunk_-3_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_-4",
+      "path": "assets/models/chunk_-3_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_-3",
+      "path": "assets/models/chunk_-3_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_-2",
+      "path": "assets/models/chunk_-3_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_-1",
+      "path": "assets/models/chunk_-3_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_0",
+      "path": "assets/models/chunk_-3_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_1",
+      "path": "assets/models/chunk_-3_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_2",
+      "path": "assets/models/chunk_-3_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_3",
+      "path": "assets/models/chunk_-3_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_4",
+      "path": "assets/models/chunk_-3_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_5",
+      "path": "assets/models/chunk_-3_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_6",
+      "path": "assets/models/chunk_-3_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_7",
+      "path": "assets/models/chunk_-3_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_8",
+      "path": "assets/models/chunk_-3_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_9",
+      "path": "assets/models/chunk_-3_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-3_10",
+      "path": "assets/models/chunk_-3_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_-8",
+      "path": "assets/models/chunk_-2_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_-7",
+      "path": "assets/models/chunk_-2_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_-6",
+      "path": "assets/models/chunk_-2_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_-5",
+      "path": "assets/models/chunk_-2_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_-4",
+      "path": "assets/models/chunk_-2_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_-3",
+      "path": "assets/models/chunk_-2_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_-2",
+      "path": "assets/models/chunk_-2_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_-1",
+      "path": "assets/models/chunk_-2_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_0",
+      "path": "assets/models/chunk_-2_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_1",
+      "path": "assets/models/chunk_-2_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_2",
+      "path": "assets/models/chunk_-2_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_3",
+      "path": "assets/models/chunk_-2_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_4",
+      "path": "assets/models/chunk_-2_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_5",
+      "path": "assets/models/chunk_-2_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_6",
+      "path": "assets/models/chunk_-2_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_7",
+      "path": "assets/models/chunk_-2_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_8",
+      "path": "assets/models/chunk_-2_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_9",
+      "path": "assets/models/chunk_-2_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-2_10",
+      "path": "assets/models/chunk_-2_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_-8",
+      "path": "assets/models/chunk_-1_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_-7",
+      "path": "assets/models/chunk_-1_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_-6",
+      "path": "assets/models/chunk_-1_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_-5",
+      "path": "assets/models/chunk_-1_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_-4",
+      "path": "assets/models/chunk_-1_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_-3",
+      "path": "assets/models/chunk_-1_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_-2",
+      "path": "assets/models/chunk_-1_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_-1",
+      "path": "assets/models/chunk_-1_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_0",
+      "path": "assets/models/chunk_-1_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_1",
+      "path": "assets/models/chunk_-1_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_2",
+      "path": "assets/models/chunk_-1_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_3",
+      "path": "assets/models/chunk_-1_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_4",
+      "path": "assets/models/chunk_-1_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_5",
+      "path": "assets/models/chunk_-1_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_6",
+      "path": "assets/models/chunk_-1_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_7",
+      "path": "assets/models/chunk_-1_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_8",
+      "path": "assets/models/chunk_-1_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_9",
+      "path": "assets/models/chunk_-1_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_-1_10",
+      "path": "assets/models/chunk_-1_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_-8",
+      "path": "assets/models/chunk_0_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_-7",
+      "path": "assets/models/chunk_0_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_-6",
+      "path": "assets/models/chunk_0_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_-5",
+      "path": "assets/models/chunk_0_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_-4",
+      "path": "assets/models/chunk_0_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_-3",
+      "path": "assets/models/chunk_0_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_-2",
+      "path": "assets/models/chunk_0_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_-1",
+      "path": "assets/models/chunk_0_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_0",
+      "path": "assets/models/chunk_0_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_1",
+      "path": "assets/models/chunk_0_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_2",
+      "path": "assets/models/chunk_0_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_3",
+      "path": "assets/models/chunk_0_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_4",
+      "path": "assets/models/chunk_0_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_5",
+      "path": "assets/models/chunk_0_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_6",
+      "path": "assets/models/chunk_0_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_7",
+      "path": "assets/models/chunk_0_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_8",
+      "path": "assets/models/chunk_0_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_9",
+      "path": "assets/models/chunk_0_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_0_10",
+      "path": "assets/models/chunk_0_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_-8",
+      "path": "assets/models/chunk_1_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_-7",
+      "path": "assets/models/chunk_1_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_-6",
+      "path": "assets/models/chunk_1_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_-5",
+      "path": "assets/models/chunk_1_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_-4",
+      "path": "assets/models/chunk_1_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_-3",
+      "path": "assets/models/chunk_1_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_-2",
+      "path": "assets/models/chunk_1_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_-1",
+      "path": "assets/models/chunk_1_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_0",
+      "path": "assets/models/chunk_1_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_1",
+      "path": "assets/models/chunk_1_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_2",
+      "path": "assets/models/chunk_1_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_3",
+      "path": "assets/models/chunk_1_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_4",
+      "path": "assets/models/chunk_1_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_5",
+      "path": "assets/models/chunk_1_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_6",
+      "path": "assets/models/chunk_1_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_7",
+      "path": "assets/models/chunk_1_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_8",
+      "path": "assets/models/chunk_1_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_9",
+      "path": "assets/models/chunk_1_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_1_10",
+      "path": "assets/models/chunk_1_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_-8",
+      "path": "assets/models/chunk_2_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_-7",
+      "path": "assets/models/chunk_2_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_-6",
+      "path": "assets/models/chunk_2_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_-5",
+      "path": "assets/models/chunk_2_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_-4",
+      "path": "assets/models/chunk_2_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_-3",
+      "path": "assets/models/chunk_2_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_-2",
+      "path": "assets/models/chunk_2_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_-1",
+      "path": "assets/models/chunk_2_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_0",
+      "path": "assets/models/chunk_2_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_1",
+      "path": "assets/models/chunk_2_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_2",
+      "path": "assets/models/chunk_2_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_3",
+      "path": "assets/models/chunk_2_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_4",
+      "path": "assets/models/chunk_2_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_5",
+      "path": "assets/models/chunk_2_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_6",
+      "path": "assets/models/chunk_2_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_7",
+      "path": "assets/models/chunk_2_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_8",
+      "path": "assets/models/chunk_2_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_9",
+      "path": "assets/models/chunk_2_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_2_10",
+      "path": "assets/models/chunk_2_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_-8",
+      "path": "assets/models/chunk_3_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_-7",
+      "path": "assets/models/chunk_3_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_-6",
+      "path": "assets/models/chunk_3_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_-5",
+      "path": "assets/models/chunk_3_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_-4",
+      "path": "assets/models/chunk_3_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_-3",
+      "path": "assets/models/chunk_3_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_-2",
+      "path": "assets/models/chunk_3_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_-1",
+      "path": "assets/models/chunk_3_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_0",
+      "path": "assets/models/chunk_3_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_1",
+      "path": "assets/models/chunk_3_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_2",
+      "path": "assets/models/chunk_3_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_3",
+      "path": "assets/models/chunk_3_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_4",
+      "path": "assets/models/chunk_3_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_5",
+      "path": "assets/models/chunk_3_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_6",
+      "path": "assets/models/chunk_3_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_7",
+      "path": "assets/models/chunk_3_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_8",
+      "path": "assets/models/chunk_3_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_9",
+      "path": "assets/models/chunk_3_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_3_10",
+      "path": "assets/models/chunk_3_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_-8",
+      "path": "assets/models/chunk_4_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_-7",
+      "path": "assets/models/chunk_4_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_-6",
+      "path": "assets/models/chunk_4_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_-5",
+      "path": "assets/models/chunk_4_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_-4",
+      "path": "assets/models/chunk_4_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_-3",
+      "path": "assets/models/chunk_4_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_-2",
+      "path": "assets/models/chunk_4_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_-1",
+      "path": "assets/models/chunk_4_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_0",
+      "path": "assets/models/chunk_4_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_1",
+      "path": "assets/models/chunk_4_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_2",
+      "path": "assets/models/chunk_4_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_3",
+      "path": "assets/models/chunk_4_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_4",
+      "path": "assets/models/chunk_4_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_5",
+      "path": "assets/models/chunk_4_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_6",
+      "path": "assets/models/chunk_4_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_7",
+      "path": "assets/models/chunk_4_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_8",
+      "path": "assets/models/chunk_4_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_9",
+      "path": "assets/models/chunk_4_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_4_10",
+      "path": "assets/models/chunk_4_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_-8",
+      "path": "assets/models/chunk_5_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_-7",
+      "path": "assets/models/chunk_5_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_-6",
+      "path": "assets/models/chunk_5_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_-5",
+      "path": "assets/models/chunk_5_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_-4",
+      "path": "assets/models/chunk_5_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_-3",
+      "path": "assets/models/chunk_5_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_-2",
+      "path": "assets/models/chunk_5_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_-1",
+      "path": "assets/models/chunk_5_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_0",
+      "path": "assets/models/chunk_5_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_1",
+      "path": "assets/models/chunk_5_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_2",
+      "path": "assets/models/chunk_5_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_3",
+      "path": "assets/models/chunk_5_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_4",
+      "path": "assets/models/chunk_5_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_5",
+      "path": "assets/models/chunk_5_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_6",
+      "path": "assets/models/chunk_5_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_7",
+      "path": "assets/models/chunk_5_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_8",
+      "path": "assets/models/chunk_5_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_9",
+      "path": "assets/models/chunk_5_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_5_10",
+      "path": "assets/models/chunk_5_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_-8",
+      "path": "assets/models/chunk_6_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_-7",
+      "path": "assets/models/chunk_6_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_-6",
+      "path": "assets/models/chunk_6_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_-5",
+      "path": "assets/models/chunk_6_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_-4",
+      "path": "assets/models/chunk_6_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_-3",
+      "path": "assets/models/chunk_6_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_-2",
+      "path": "assets/models/chunk_6_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_-1",
+      "path": "assets/models/chunk_6_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_0",
+      "path": "assets/models/chunk_6_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_1",
+      "path": "assets/models/chunk_6_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_2",
+      "path": "assets/models/chunk_6_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_3",
+      "path": "assets/models/chunk_6_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_4",
+      "path": "assets/models/chunk_6_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_5",
+      "path": "assets/models/chunk_6_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_6",
+      "path": "assets/models/chunk_6_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_7",
+      "path": "assets/models/chunk_6_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_8",
+      "path": "assets/models/chunk_6_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_9",
+      "path": "assets/models/chunk_6_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_6_10",
+      "path": "assets/models/chunk_6_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_-8",
+      "path": "assets/models/chunk_7_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_-7",
+      "path": "assets/models/chunk_7_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_-6",
+      "path": "assets/models/chunk_7_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_-5",
+      "path": "assets/models/chunk_7_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_-4",
+      "path": "assets/models/chunk_7_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_-3",
+      "path": "assets/models/chunk_7_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_-2",
+      "path": "assets/models/chunk_7_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_-1",
+      "path": "assets/models/chunk_7_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_0",
+      "path": "assets/models/chunk_7_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_1",
+      "path": "assets/models/chunk_7_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_2",
+      "path": "assets/models/chunk_7_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_3",
+      "path": "assets/models/chunk_7_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_4",
+      "path": "assets/models/chunk_7_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_5",
+      "path": "assets/models/chunk_7_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_6",
+      "path": "assets/models/chunk_7_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_7",
+      "path": "assets/models/chunk_7_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_8",
+      "path": "assets/models/chunk_7_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_9",
+      "path": "assets/models/chunk_7_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_7_10",
+      "path": "assets/models/chunk_7_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_-8",
+      "path": "assets/models/chunk_8_-8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_-7",
+      "path": "assets/models/chunk_8_-7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_-6",
+      "path": "assets/models/chunk_8_-6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_-5",
+      "path": "assets/models/chunk_8_-5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_-4",
+      "path": "assets/models/chunk_8_-4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_-3",
+      "path": "assets/models/chunk_8_-3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_-2",
+      "path": "assets/models/chunk_8_-2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_-1",
+      "path": "assets/models/chunk_8_-1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_0",
+      "path": "assets/models/chunk_8_0.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_1",
+      "path": "assets/models/chunk_8_1.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_2",
+      "path": "assets/models/chunk_8_2.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_3",
+      "path": "assets/models/chunk_8_3.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_4",
+      "path": "assets/models/chunk_8_4.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_5",
+      "path": "assets/models/chunk_8_5.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_6",
+      "path": "assets/models/chunk_8_6.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_7",
+      "path": "assets/models/chunk_8_7.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_8",
+      "path": "assets/models/chunk_8_8.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_9",
+      "path": "assets/models/chunk_8_9.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "chunk_8_10",
+      "path": "assets/models/chunk_8_10.obj",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "palette": {
+    "ash_field": [
+      0.42,
+      0.43,
+      0.4
+    ],
+    "ash_drift": [
+      0.5,
+      0.51,
+      0.47
+    ],
+    "scorched": [
+      0.3,
+      0.27,
+      0.24
+    ],
+    "bonfire_steel": [
+      0.25,
+      0.26,
+      0.28
+    ],
+    "ember": [
+      0.95,
+      0.45,
+      0.1
+    ],
+    "ash_mound": [
+      0.48,
+      0.46,
+      0.42
+    ],
+    "hollow_skin": [
+      0.55,
+      0.53,
+      0.47
+    ],
+    "hollow_rag": [
+      0.33,
+      0.3,
+      0.26
+    ],
+    "deadwood": [
+      0.28,
+      0.23,
+      0.19
+    ],
+    "grave_stone": [
+      0.47,
+      0.48,
+      0.5
+    ],
+    "ruin_stone": [
+      0.44,
+      0.45,
+      0.46
+    ],
+    "fog_veil": [
+      0.88,
+      0.9,
+      0.92
+    ],
+    "knight_steel": [
+      0.36,
+      0.38,
+      0.42
+    ],
+    "knight_cape": [
+      0.3,
+      0.1,
+      0.1
+    ],
+    "soul_blue": [
+      0.45,
+      0.75,
+      0.95
+    ],
+    "bloodstain_green": [
+      0.35,
+      0.7,
+      0.4
+    ]
+  },
+  "gameplay": {
+    "genre": "soulslike",
+    "objective": "light the bonfire, fight up Hollow Road, cross the fog gate and fell the Ashen Knight",
+    "corpse_run": true,
+    "physics": {
+      "gravity": -22.0,
+      "jump_velocity": 8.0,
+      "run_speed": 6.5,
+      "coyote_time_s": 0.1,
+      "jump_buffer_s": 0.12
+    },
+    "enemy_aggro_m": 8.0,
+    "kill_radius_m": 2.2,
+    "interact_radius_m": 2.4,
+    "lives": 0,
+    "score_goal": 1225,
+    "scoring": {
+      "per_ember": 25,
+      "checkpoint_light": 150,
+      "boss_kill": 900
+    },
+    "hazards": [
+      "hollow ambushes along the road",
+      "the Ashen Knight beyond the fog"
+    ],
+    "checkpoints": [
+      "Bonfire"
+    ]
+  }
+}

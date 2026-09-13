@@ -1,0 +1,40 @@
+{
+ "items": [
+  {
+   "name": "Thornbound Warden",
+   "kind": "armor",
+   "rarity": "rare",
+   "description": "Warm to the touch. The crown remembers hands."
+  },
+  {
+   "name": "Thornbound Chalice",
+   "kind": "scroll",
+   "rarity": "common",
+   "description": "A scroll chalice. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Gilded Grove",
+   "kind": "scroll",
+   "rarity": "common",
+   "description": "A scroll chalice. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Wyrm-Sung Chalice",
+   "kind": "trinket",
+   "rarity": "common",
+   "description": "A trinket blade. Serviceable, unremarkable, yours."
+  },
+  {
+   "name": "Gilded Blade",
+   "kind": "consumable",
+   "rarity": "rare",
+   "description": "Warm to the touch. The blade remembers hands."
+  },
+  {
+   "name": "Moonlit Chalice",
+   "kind": "consumable",
+   "rarity": "common",
+   "description": "A consumable blade. Serviceable, unremarkable, yours."
+  }
+ ]
+}

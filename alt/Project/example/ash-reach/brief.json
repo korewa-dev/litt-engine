@@ -1,0 +1,194 @@
+{
+  "objective": "ash-reach: ride the cyberpunk neon ridge, slip the drones, plant your run at the summit banner",
+  "side_objectives": [
+    "No-death run",
+    "Every coin on the trail",
+    "Reach the banner under par"
+  ],
+  "physics": {
+    "gravity": 30,
+    "jump_velocity": 12,
+    "run_speed": 8,
+    "coyote_time_s": 0.12
+  },
+  "lives": 3,
+  "enemy_aggro_m": 4.5,
+  "corpse_run": false,
+  "scoring": {
+    "coins": 25
+  },
+  "roster": [
+    {
+      "name": "Sentinel Drone",
+      "behavior": "patrols its platform; dive on proximity"
+    }
+  ],
+  "spawn": [
+    38.5,
+    6.0,
+    0.0
+  ],
+  "checkpoints": [
+    [
+      54.6,
+      6.0,
+      0.0
+    ],
+    [
+      71.4,
+      6.0,
+      0.0
+    ],
+    [
+      88.2,
+      6.0,
+      0.0
+    ]
+  ],
+  "nodes": [
+    {
+      "name": "Drone_A",
+      "pos": [
+        61.6,
+        9.4,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Drone_B",
+      "pos": [
+        78.4,
+        9.8,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:drone"
+      ]
+    },
+    {
+      "name": "Gem_High",
+      "pos": [
+        44.8,
+        8.4,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:gem"
+      ]
+    },
+    {
+      "name": "Spikes_Mid",
+      "pos": [
+        66.5,
+        6.0,
+        0.0
+      ],
+      "tags": [
+        "hazard",
+        "model:spike"
+      ]
+    },
+    {
+      "name": "Coin_01",
+      "pos": [
+        49.0,
+        6.4,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_02",
+      "pos": [
+        58.1,
+        6.4,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_03",
+      "pos": [
+        75.6,
+        6.4,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_04",
+      "pos": [
+        84.0,
+        6.4,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Coin_05",
+      "pos": [
+        93.8,
+        6.4,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:coin"
+      ]
+    },
+    {
+      "name": "Win_Banner",
+      "pos": [
+        102.9,
+        5.0,
+        0.0
+      ],
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "name": "Cyberpunk Neon Ridge",
+      "pos": [
+        106.0,
+        0,
+        0.0
+      ],
+      "radius": 42,
+      "tags": [
+        "music:zone_platformer"
+      ]
+    }
+  ],
+  "_prompt": "neon rooftop precision jumps"
+}

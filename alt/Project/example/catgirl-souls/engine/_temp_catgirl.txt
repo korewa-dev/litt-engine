@@ -1,0 +1,146 @@
+void render_catgirl() {
+    Mat4 viewProj = Mat4::look_at(g.cameraPos, g.cameraTarget, Vec3(0,1,0)) * Mat4::perspective(62.0f, 16.0f/9.0f, 0.1f, 100.0f);
+    float bobY = sinf(g.catgirl.animTime * 5.0f) * 0.05f;
+    if (g.catgirl.isDodging) bobY *= 3.0f;
+    Vec3 pos = g.catgirl.position + Vec3(0, bobY, 0);
+    float yaw = g.catgirl.yaw;
+    float cy = cosf(yaw), sy = sinf(yaw);
+    
+    // Body (torso) - dark dress/robe
+    g.renderer->draw_cube(pos + Vec3(0, 0.8f, 0), 0.4f, viewProj, 0x332244);
+    // Dress lower
+    g.renderer->draw_cube(pos + Vec3(0, 0.45f, 0), 0.38f, viewProj, 0x221133);
+    
+    // Head
+    g.renderer->draw_cube(pos + Vec3(0, 1.4f, 0), 0.3f, viewProj, 0xFFCCAA);
+    // Hair (back of head)
+    g.renderer->draw_cube(pos + Vec3(0, 1.5f, -0.1f), 0.32f, viewProj, 0xFF88CC);
+    // Hair bangs
+    g.renderer->draw_cube(pos + Vec3(0, 1.55f, 0.12f), 0.22f, viewProj, 0xFF88CC);
+    // Hair side strands
+    g.renderer->draw_cube(pos + Vec3(-0.2f, 1.4f, 0.05f), 0.1f, viewProj, 0xFF88CC);
+    g.renderer->draw_cube(pos + Vec3(0.2f, 1.4f, 0.05f), 0.1f, viewProj, 0xFF88CC);
+    
+    // Eyes (with blinking)
+    float eyeOpen = g.catgirl.isBlinking ? 0.1f : 1.0f;
+    uint32_t eyeColor = 0x00FF88; // Cat-like green eyes
+    g.renderer->draw_cube(pos + Vec3(-0.1f, 1.42f, 0.22f), 0.04f * eyeOpen, viewProj, eyeColor);
+    g.renderer->draw_cube(pos + Vec3(0.1f, 1.42f, 0.22f), 0.04f * eyeOpen, viewProj, eyeColor);
+    // Pupils
+    if (!g.catgirl.isBlinking) {
+        g.renderer->draw_cube(pos + Vec3(-0.1f, 1.42f, 0.25f), 0.02f, viewProj, 0x000000);
+        g.renderer->draw_cube(pos + Vec3(0.1f, 1.42f, 0.25f), 0.02f, viewProj, 0x000000);
+    }
+    // Mouth (tiny cat smile)
+    g.renderer->draw_cube(pos + Vec3(-0.04f, 1.32f, 0.22f), 0.015f, viewProj, 0xFF6688);
+    g.renderer->draw_cube(pos + Vec3(0.04f, 1.32f, 0.22f), 0.015f, viewProj, 0xFF6688);
+    g.renderer->draw_cube(pos + Vec3(0, 1.30f, 0.22f), 0.02f, viewProj, 0xFF88AA);
+    
+    // Ears - improved with inner ear detail
+    float eo = g.catgirl.earTwitch;
+    // Left ear (outer)
+    g.renderer->draw_triangle_3d(
+        pos + Vec3(-0.18f, 1.65f, 0), 
+        pos + Vec3(-0.08f+eo, 2.05f, 0.05f), 
+        pos + Vec3(-0.30f, 1.95f, 0.08f), viewProj, 0xFFCCDD);
+    // Left ear (inner)
+    g.renderer->draw_triangle_3d(
+        pos + Vec3(-0.17f, 1.68f, 0.02f), 
+        pos + Vec3(-0.10f+eo*0.5f, 1.98f, 0.07f), 
+        pos + Vec3(-0.27f, 1.90f, 0.10f), viewProj, 0xFFAAAA);
+    // Right ear (outer)
+    g.renderer->draw_triangle_3d(
+        pos + Vec3(0.18f, 1.65f, 0), 
+        pos + Vec3(0.08f-eo, 2.05f, 0.05f), 
+        pos + Vec3(0.30f, 1.95f, 0.08f), viewProj, 0xFFCCDD);
+    // Right ear (inner)
+    g.renderer->draw_triangle_3d(
+        pos + Vec3(0.17f, 1.68f, 0.02f), 
+        pos + Vec3(0.10f-eo*0.5f, 1.98f, 0.07f), 
+        pos + Vec3(0.27f, 1.90f, 0.10f), viewProj, 0xFFAAAA);
+    
+    // Whiskers - 3 per side
+    float whiskerWave = sinf(g.catgirl.animTime * 4.0f) * 0.02f;
+    // Left whiskers
+    for (int i = 0; i < 3; i++) {
+        float wy = 1.34f + i * 0.04f;
+        float wlen = 0.25f + i * 0.03f;
+        float wangle = -0.1f + i * 0.08f + whiskerWave;
+        g.renderer->draw_line(
+            pos + Vec3(-0.08f, wy, 0.2f),
+            pos + Vec3(-0.08f - wlen, wy + wangle, 0.2f),
+            viewProj, 0xFFFFFF);
+    }
+    // Right whiskers
+    for (int i = 0; i < 3; i++) {
+        float wy = 1.34f + i * 0.04f;
+        float wlen = 0.25f + i * 0.03f;
+        float wangle = -0.1f + i * 0.08f + whiskerWave;
+        g.renderer->draw_line(
+            pos + Vec3(0.08f, wy, 0.2f),
+            pos + Vec3(0.08f + wlen, wy + wangle, 0.2f),
+            viewProj, 0xFFFFFF);
+    }
+    
+    // Tail - multi-segment animated
+    float tw = g.catgirl.tailWag;
+    for (int i = 0; i < 5; i++) {
+        float t = i / 4.0f;
+        float segX = tw * (0.3f + t * 0.5f);
+        float segY = 0.5f + sinf(g.catgirl.animTime * 3.0f + i * 0.5f) * 0.15f * t;
+        float segZ = -0.4f - t * 0.3f;
+        float segSize = 0.08f - t * 0.03f;
+        uint32_t tailColor = lerpColor(0xFF88CC, 0xFF66AA, t);
+        g.renderer->draw_cube(pos + Vec3(segX, segY, segZ), segSize, viewProj, tailColor);
+    }
+    
+    // Arms
+    float armSwing = g.catgirl.isAttacking ? sinf((1.0f - g.catgirl.attackTimer/0.3f) * PI) * 0.5f : 0;
+    g.renderer->draw_cube(pos + Vec3(-0.35f, 0.9f, 0), 0.1f, viewProj, 0xFFCCAA);
+    g.renderer->draw_cube(pos + Vec3(0.35f, 0.9f, 0), 0.1f, viewProj, 0xFFCCAA);
+    // Forearms
+    g.renderer->draw_cube(pos + Vec3(-0.4f, 0.7f, 0.1f + armSwing), 0.08f, viewProj, 0xFFBB99);
+    g.renderer->draw_cube(pos + Vec3(0.4f, 0.7f, 0.1f + armSwing), 0.08f, viewProj, 0xFFBB99);
+    
+    // Legs with knee detail
+    g.renderer->draw_cube(pos + Vec3(-0.15f, 0.2f, 0), 0.12f, viewProj, 0x332244);
+    g.renderer->draw_cube(pos + Vec3(0.15f, 0.2f, 0), 0.12f, viewProj, 0x332244);
+    // Boots
+    g.renderer->draw_cube(pos + Vec3(-0.15f, 0.05f, 0.02f), 0.11f, viewProj, 0x443322);
+    g.renderer->draw_cube(pos + Vec3(0.15f, 0.05f, 0.02f), 0.11f, viewProj, 0x443322);
+    
+    // Weapon - glowing katana on back
+    Vec3 weaponOffset = Vec3(sy * 0.3f, 1.2f, -cy * 0.3f);
+    uint32_t weaponColor = g.catgirl.isAttacking ? 0xFFFFFF : 0xCCCCFF;
+    g.renderer->draw_cube(pos + weaponOffset, 0.06f, viewProj, weaponColor);
+    g.renderer->draw_cube(pos + weaponOffset + Vec3(0, -0.15f, 0), 0.04f, viewProj, 0x888888);
+    
+    // Weapon trail during attack
+    if (g.catgirl.isAttacking) {
+        float ap = 1.0f - (g.catgirl.attackTimer / 0.3f);
+        for (int i = 0; i < 4; i++) {
+            float trail = i / 4.0f;
+            float tx = sy * (0.3f + trail * 1.5f * ap);
+            float tz = -cy * (0.3f + trail * 1.5f * ap);
+            float ty = 1.0f + sinf(trail * PI) * 0.8f;
+            uint32_t trailCol = ((int)(255 * (1-trail)) << 16) | ((int)(255 * (1-trail)) << 8) | (int)(255 * (1-trail));
+            g.renderer->draw_cube(pos + Vec3(tx, ty, tz), 0.04f * (1-trail), viewProj, trailCol);
+        }
+        // Slash flash
+        spawn_particles(pos + Vec3(sy*1.5f, 1.0f, -cy*1.5f), 0xFFFFFF, 3, 3.0f);
+    }
+    
+    // Block shield effect
+    if (g.isBlocking) {
+        for (int i = 0; i < 6; i++) {
+            float a = i * PI / 3 + g.catgirl.animTime * 2;
+            float r = 0.6f;
+            g.renderer->draw_cube(pos + Vec3(cosf(a)*r, 1.0f, sinf(a)*r), 0.03f, viewProj, 0x8888FF);
+        }
+    }
+    
+    // Parry sparkle
+    if (g.isParrying) {
+        spawn_particles(pos + Vec3(0.5f, 1.2f, 0), 0xFFFF88, 2, 2.0f);
+    }
+}

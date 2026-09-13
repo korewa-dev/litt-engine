@@ -1,0 +1,123 @@
+{
+  "format": "litt-scene",
+  "version": 1,
+  "root_id": 0,
+  "nodes": [
+    {
+      "name": "Root",
+      "id": 0,
+      "parent": null,
+      "children": [],
+      "position": [0, 0, 0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "tags": []
+    },
+    {
+      "name": "Floor",
+      "id": 1,
+      "parent": 0,
+      "children": [],
+      "position": [0, 0, 0],
+      "rotation": [0, 0, 0, 1],
+      "scale": [1, 1, 1],
+      "tags": ["floor", "model:layout_main"]
+    },
+    {
+      "name": "Coin_01",
+      "id": 2,
+      "parent": 0,
+      "children": [],
+      "position": [-10, 0, -10],
+      "tags": ["pickup"]
+    },
+    {
+      "name": "Coin_02",
+      "id": 3,
+      "parent": 0,
+      "children": [],
+      "position": [10, 0, -10],
+      "tags": ["pickup"]
+    },
+    {
+      "name": "Coin_03",
+      "id": 4,
+      "parent": 0,
+      "children": [],
+      "position": [-10, 0, 10],
+      "tags": ["pickup"]
+    },
+    {
+      "name": "Coin_04",
+      "id": 5,
+      "parent": 0,
+      "children": [],
+      "position": [10, 0, 10],
+      "tags": ["pickup"]
+    },
+    {
+      "name": "Coin_05",
+      "id": 6,
+      "parent": 0,
+      "children": [],
+      "position": [0, 0, -15],
+      "tags": ["pickup"]
+    },
+    {
+      "name": "Coin_06",
+      "id": 7,
+      "parent": 0,
+      "children": [],
+      "position": [0, 0, 15],
+      "tags": ["pickup"]
+    },
+    {
+      "name": "Coin_07",
+      "id": 8,
+      "parent": 0,
+      "children": [],
+      "position": [15, 0, 0],
+      "tags": ["pickup"]
+    },
+    {
+      "name": "Coin_08",
+      "id": 9,
+      "parent": 0,
+      "children": [],
+      "position": [-15, 0, 0],
+      "tags": ["pickup"]
+    },
+    {
+      "name": "Enemy_01",
+      "id": 10,
+      "parent": 0,
+      "children": [],
+      "position": [-5, 0, 0],
+      "tags": ["enemy"]
+    },
+    {
+      "name": "Enemy_02",
+      "id": 11,
+      "parent": 0,
+      "children": [],
+      "position": [5, 0, 0],
+      "tags": ["enemy"]
+    },
+    {
+      "name": "Enemy_03",
+      "id": 12,
+      "parent": 0,
+      "children": [],
+      "position": [0, 0, -8],
+      "tags": ["enemy"]
+    },
+    {
+      "name": "Goal_Zone",
+      "id": 13,
+      "parent": 0,
+      "children": [],
+      "position": [0, 0, 0],
+      "tags": ["goal"]
+    }
+  ]
+}

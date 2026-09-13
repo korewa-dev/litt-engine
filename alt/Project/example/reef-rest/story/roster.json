@@ -1,0 +1,40 @@
+{
+ "roster": [
+  {
+   "name": "the Thorn Queen",
+   "role": "boss",
+   "hp_hint": 300,
+   "description": "Act boss. Guards the way onward and remembers every death."
+  },
+  {
+   "name": "The Moonlit Grove",
+   "role": "elite",
+   "hp_hint": 120,
+   "description": "Elite patrol. Faster than it looks; respect its reach."
+  },
+  {
+   "name": "Moonlit Prophecy",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Blind to stillness; sprinting draws it."
+  },
+  {
+   "name": "Forgotten Blade",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Thornbound Briar",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Slow to anger, slow to forget."
+  },
+  {
+   "name": "Verdant Crown",
+   "role": "mook",
+   "hp_hint": 40,
+   "description": "Blind to stillness; sprinting draws it."
+  }
+ ]
+}

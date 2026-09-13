@@ -1,0 +1,282 @@
+{
+  "objective": "gull-point: kindle the bonfires of the deep forest court and force the fog gate at the far banner",
+  "side_objectives": [
+    "Kindle every bonfire in one run",
+    "Bank 800 points before the gate",
+    "Never die twice to the same knight"
+  ],
+  "physics": {
+    "gravity": 26,
+    "run_speed": 5.5,
+    "coyote_time_s": 0.1
+  },
+  "enemy_aggro_m": 9.0,
+  "corpse_run": true,
+  "scoring": {
+    "coins": 25
+  },
+  "roster": [
+    {
+      "name": "Hollow Knight",
+      "behavior": "guards the mid-court shrine; lunge inside 3 m"
+    },
+    {
+      "name": "Garden Stalker",
+      "behavior": "patrols the long road; drops chase at 12 m"
+    }
+  ],
+  "spawn": [
+    -51.2,
+    4.2,
+    0.0
+  ],
+  "checkpoints": [
+    [
+      -28.8,
+      4.2,
+      0.0
+    ],
+    [
+      35.2,
+      4.2,
+      0.0
+    ]
+  ],
+  "nodes": [
+    {
+      "name": "Bonfire_Plaza",
+      "pos": [
+        -44.8,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "checkpoint",
+        "poi",
+        "model:bonfire"
+      ]
+    },
+    {
+      "name": "Knight_Sun",
+      "pos": [
+        25.6,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:knight"
+      ]
+    },
+    {
+      "name": "Stalker_Rose",
+      "pos": [
+        0.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ]
+    },
+    {
+      "name": "Estus_Hidden",
+      "pos": [
+        51.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "pickup",
+        "score",
+        "model:estus_flask"
+      ]
+    },
+    {
+      "name": "Fog_Gate_Banner",
+      "pos": [
+        68.8,
+        3.2,
+        0.0
+      ],
+      "tags": [
+        "goal",
+        "poi",
+        "model:banner"
+      ]
+    },
+    {
+      "name": "Item_00_MoonlitBriar",
+      "pos": [
+        -38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Moonlit Briar (common)"
+    },
+    {
+      "name": "Item_01_ForgottenProphecy",
+      "pos": [
+        -19.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Forgotten Prophecy (uncommon)"
+    },
+    {
+      "name": "Item_02_ThornboundProphecy",
+      "pos": [
+        0.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Thornbound Prophecy (uncommon)"
+    },
+    {
+      "name": "Item_03_GildedBriar",
+      "pos": [
+        19.2,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:estus_flask"
+      ],
+      "poi": "Gilded Briar (legendary)"
+    },
+    {
+      "name": "Item_04_GildedProphecy",
+      "pos": [
+        38.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Gilded Prophecy (uncommon)"
+    },
+    {
+      "name": "Item_05_VerdantBriar",
+      "pos": [
+        57.6,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "scoring",
+        "model:coin"
+      ],
+      "poi": "Verdant Briar (common)"
+    },
+    {
+      "name": "Boss_0_theThornQueen",
+      "pos": [
+        -24.0,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "hazard",
+        "model:knight"
+      ],
+      "poi": "Act boss. Guards the way onward and remembers every death."
+    },
+    {
+      "name": "Elite_00_TheThornboundWar",
+      "pos": [
+        -24.96,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Elite patrol. Faster than it looks; respect its reach."
+    },
+    {
+      "name": "Mook_01_GildedCrown",
+      "pos": [
+        -5.12,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Guards loot caches along the route."
+    },
+    {
+      "name": "Mook_02_AncientProphecy",
+      "pos": [
+        14.72,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Slow to anger, slow to forget."
+    },
+    {
+      "name": "Mook_03_ForgottenChalice",
+      "pos": [
+        34.56,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Blind to stillness; sprinting draws it."
+    },
+    {
+      "name": "Mook_04_GildedWarden",
+      "pos": [
+        54.4,
+        4.2,
+        0.0
+      ],
+      "tags": [
+        "enemy",
+        "model:stalker"
+      ],
+      "poi": "Common foe. Travels in pairs when it can."
+    }
+  ],
+  "zones": [
+    {
+      "name": "Deep Forest Court",
+      "pos": [
+        0.0,
+        0,
+        0.0
+      ],
+      "radius": 26,
+      "tags": [
+        "music:hollow_wind"
+      ]
+    }
+  ],
+  "_prompt": "misty lighthouse keeper mystery, small game"
+}

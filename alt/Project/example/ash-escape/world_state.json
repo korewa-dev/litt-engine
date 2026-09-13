@@ -1,0 +1,40 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "arena_survival",
+  "updated": "2026-09-13T12:00:00",
+  "seed": { "archetype_seed": 42 },
+  "identity": {
+    "archetype": "top_down_arena",
+    "camera": "top_down",
+    "movement": "top_down_four_way",
+    "combat": "touch_to_kill",
+    "structure": "single_arena",
+    "pacing": "frantic",
+    "pattern": "arena",
+    "theme": "ash_arena"
+  },
+  "gameplay": {
+    "genre": "survival_arena",
+    "objective": "Collect all coins, reach the green goal ring far from spawn. Avoid red enemies. 3 lives.",
+    "physics": {
+      "gravity": 0,
+      "run_speed": 6.5,
+      "jump_velocity": 0
+    },
+    "enemy_aggro_m": 12.0,
+    "kill_radius_m": 1.3,
+    "interact_radius_m": 1.6,
+    "lives": 3,
+    "score_goal": 500,
+    "scoring": {
+      "coins": 50
+    }
+  },
+  "environment": {
+    "sky": { "type": "clear", "top_color": [0.1, 0.1, 0.15], "horizon_color": [0.2, 0.2, 0.25] },
+    "lighting": { "global_light_intensity": 1.0, "time_of_day": "noon" },
+    "fog": { "density": 0 }
+  }
+}

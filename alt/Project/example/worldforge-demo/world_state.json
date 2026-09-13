@@ -1,0 +1,202 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "ai-exclusive",
+  "theme": "egyptian_desert",
+  "updated": "2026-08-25T02:40:05",
+  "seed": {
+    "archetype_seed": 5,
+    "worldforge_seed": 5
+  },
+  "chunk_size": 0,
+  "radius": 0,
+  "camera": {
+    "target": [
+      0,
+      1,
+      0
+    ],
+    "distance": 30
+  },
+  "chunks": [],
+  "palette": {
+    "limestone": [
+      0.85,
+      0.78,
+      0.6
+    ],
+    "granite_grey": [
+      0.45,
+      0.44,
+      0.43
+    ],
+    "gold_leaf": [
+      0.85,
+      0.68,
+      0.25
+    ],
+    "lapis": [
+      0.15,
+      0.25,
+      0.6
+    ],
+    "sand_bright": [
+      0.88,
+      0.78,
+      0.55
+    ],
+    "ground": [
+      0.38,
+      0.44,
+      0.34
+    ]
+  },
+  "identity": {
+    "archetype": "open_world_survival",
+    "camera": "first_person",
+    "combat": "real_time_combat",
+    "movement": "free_roam_movement",
+    "structure": "open_world",
+    "pacing": "survival_pacing",
+    "pattern": "hub_spoke",
+    "theme": "egyptian_desert"
+  },
+  "environment": {
+    "sky": {
+      "type": "clear",
+      "top_color": [
+        0.35,
+        0.55,
+        0.9
+      ],
+      "horizon_color": [
+        0.75,
+        0.85,
+        0.95
+      ],
+      "cloud_layers": [
+        {
+          "density": 0.15,
+          "height": 120,
+          "speed": 0.25
+        }
+      ]
+    },
+    "sun": {
+      "azimuth_deg": 135.0,
+      "elevation_deg": 62
+    },
+    "lighting": {
+      "global_light_intensity": 1.0,
+      "ambient_light_color": [
+        0.5,
+        0.52,
+        0.55
+      ],
+      "shadow_softness": 0.5,
+      "time_of_day": "noon"
+    },
+    "fog": {
+      "density": 0.01,
+      "height": 30,
+      "haze": 0.4
+    },
+    "weather": {
+      "type": "clear",
+      "wind_speed": 0.25,
+      "particle_density": 0.0
+    },
+    "notes": [
+      "monuments aligned to cardinal directions"
+    ]
+  },
+  "gameplay": {
+    "genre": "open_world_survival",
+    "objective": "1. start: spawn at 'r01-egyptian-desert' (egyptian_desert), then head on 2. middle: cross 'r02-tropical-island' (tropical_island walking_simulator) 3. finale: final objective at 'r03-desert-dunes' (desert_dunes dungeon_crawler): complete the finale",
+    "procgen_rules": [
+      "biome fBm + danger gradient radiating from safe spawn",
+      "boss biomes locked behind gear tiers"
+    ],
+    "ai_behavior": "creature food chains, night raids",
+    "environment_types": [
+      "biome_bands",
+      "raid_targets"
+    ],
+    "enemy_aggro_m": 9.0,
+    "corpse_run": true,
+    "spawn": [
+      -51.2,
+      4.2,
+      0.0
+    ],
+    "scoring": {
+      "coins": 25
+    },
+    "physics": {
+      "gravity": 26,
+      "run_speed": 5.5,
+      "coyote_time_s": 0.1
+    },
+    "side_objectives": [
+      "Kindle every bonfire in one run",
+      "Bank 800 points before the gate",
+      "Never die twice to the same knight"
+    ],
+    "roster": [
+      {
+        "name": "Hollow Knight",
+        "behavior": "guards the mid-court shrine; lunge inside 3 m"
+      },
+      {
+        "name": "Garden Stalker",
+        "behavior": "patrols the long road; drops chase at 12 m"
+      }
+    ]
+  },
+  "meta": {
+    "enriched_seed": 5,
+    "worldforge": {
+      "schema": "litt.worldforge/1",
+      "spawn_region": "r01-egyptian-desert",
+      "regions": [
+        {
+          "id": "r01-egyptian-desert",
+          "generator": "archetype",
+          "role": "start",
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "theme": "egyptian_desert",
+          "seed": 5
+        },
+        {
+          "id": "r02-tropical-island",
+          "generator": "archetype",
+          "role": "middle",
+          "origin": [
+            70.0,
+            0.0,
+            0.0
+          ],
+          "theme": "tropical_island",
+          "seed": 6
+        },
+        {
+          "id": "r03-desert-dunes",
+          "generator": "archetype",
+          "role": "finale",
+          "origin": [
+            140.0,
+            0.0,
+            0.0
+          ],
+          "theme": "desert_dunes",
+          "seed": 7
+        }
+      ],
+      "portals": 4
+    }
+  }
+}
