@@ -1,0 +1,416 @@
+# LITT ENGINE — GTA IV CLONE (FOLLOWME2)
+# This prompt is SPECIFICALLY for building a GTA 4 clone named "Concrete Echoes".
+# It is a focused version of followme.txt for this game only.
+# Everything in followme.txt applies here, but this file is the MASTER for this specific game.
+
+## TABLE OF CONTENTS
+1. Game Identity
+2. City Layout (Greyport City)
+3. Districts and Landmarks
+4. Character and Story
+5. Core Systems (with Engine API mapping)
+6. Mission Structure
+7. Project Structure
+8. Build Process
+9. Anti-Bypass Rules
+
+#########################################################################
+# SECTION 1: GAME IDENTITY
+#########################################################################
+
+**Title:** "Concrete Echoes"
+**Genre:** Open-world, third-person action-adventure, crime, sandbox
+**Setting:** "Greyport City" — coastal metropolis, 2010s-2020s
+**Protagonist:** Elias Ward
+**Tone:** Gritty, overcast, grounded realism (NOT over-the-top)
+**Inspiration:** GTA IV (NOT V) — weighty driving, street-level drama, moral choices
+
+**Core Fantasy:**
+Player is a newcomer to a harsh city, climbing from the bottom of the
+criminal underworld while wrestling with loyalty, morality, and survival.
+
+**Core Pillars:**
+1. Grounded driving and physics — heavy, weighty vehicles
+2. Street-level combat — cover-based shooting, melee, takedowns
+3. Narrative missions — branching choices, character-driven dialogue
+4. Sandbox freedom — free-roam city, side activities, random encounters
+
+#########################################################################
+# SECTION 2: CITY LAYOUT — GREYPORT CITY
+#########################################################################
+
+**Overall Layout:**
+- Single contiguous open world with streaming sectors
+- Coastal city with multiple boroughs, bridges, docks, industrial zones
+- Dense downtown skyline, elevated train lines, riverside promenade
+- Size: Approximately 10km x 10km playable area
+- Seamless loading via sector streaming (use litt_scene.h + litt_lod.h)
+
+**Key Features:**
+- Central bridge connecting Dockside and Midtown
+- Elevated train line with stations and tracks
+- City hall plaza with protest events and police presence
+- Large stadium/arena for mid-game mission
+- Derelict factory complex for climactic shootout
+- Riverside promenade with pedestrians and side activities
+- High-rise rooftop cluster for sniper and parkour missions
+- Hidden underground tunnel system for smuggling and escape routes
+
+**Interiors:**
+- Safehouses (save, change clothes, store vehicles)
+- Bars and diners (social hubs, minor side missions)
+- Gang hideouts (combat-focused interiors)
+- Small shops (basic economy, buying clothes, food, minor items)
+
+**Terrain:**
+- Heightmap-based terrain (use litt_terrain_system.h)
+- Generate with: TerrainSystem::generate_heightmap(seed)
+- Query heights: TerrainSystem::get_height_at(world_pos)
+- Roads and sidewalks are part of the terrain mesh
+
+#########################################################################
+# SECTION 3: DISTRICTS (4 MAJOR)
+#########################################################################
+
+### District A: Dockside Quarter
+- **Features:** Cargo docks, warehouses, shipyard cranes, smuggling routes
+- **Gameplay:** Early missions, low-level gangs, car theft, smuggling jobs
+- **Landmarks:** Central cargo crane, shipping containers, dockmaster office
+- **Atmosphere:** Industrial, salt water, seagulls, constant fog
+- **Engine Use:** litt_particle_system.h (fog, smoke), litt_terrain_system.h (water)
+
+### District B: Oldstone
+- **Features:** Older brick buildings, narrow streets, small shops, tenements
+- **Gameplay:** Street chases, gang turf wars, alley shootouts
+- **Landmarks:** Tenement block, old church, underground market
+- **Atmosphere:** Gritty, neon signs, graffiti, rain-slicked streets
+- **Engine Use:** litt_ui_system.h (shop interiors), litt_bvh.h (narrow streets)
+
+### District C: Midtown Heights
+- **Features:** High-rise offices, corporate plazas, expensive apartments
+- **Gameplay:** Heists, corporate espionage, high-speed chases on wide avenues
+- **Landmarks:** Corporate tower, luxury mall, city park
+- **Atmosphere:** Wealthy, glass buildings, clean streets, helicopters
+- **Engine Use:** litt_lod.h (distant skyline), litt_gpu_software.h (glass reflections)
+
+### District D: Ironbelt Industrial
+- **Features:** Factories, rail yards, refineries, scrapyards
+- **Gameplay:** Large-scale shootouts, vehicle-based missions, stealth infiltration
+- **Landmarks:** Steel mill, rail yard, scrapyard, chemical plant
+- **Atmosphere:** Smokestacks, fire, molten metal, workers
+- **Engine Use:** litt_particle_system.h (fire, smoke), litt_collision.h (heavy objects)
+
+#########################################################################
+# SECTION 4: CHARACTER AND STORY
+#########################################################################
+
+### Main Characters
+
+**Elias Ward (Player):**
+- Reserved, observant, morally conflicted
+- Background: Immigrant with troubled past, arriving in Greyport to escape old debts
+- Motivation: Pay off debts, protect a small circle of friends/family
+- Combat style: Practical, uses whatever is available, not a super-soldier
+
+**Mara Ionescu (Early contact):**
+- Streetwise fixer, sarcastic, pragmatic
+- Introduces Elias to local jobs
+
+**Darius Cole (Gang leader):**
+- Charismatic but ruthless, runs a mid-level gang in Oldstone
+
+**Detective Rowan Hale (Corrupt cop):**
+- Uses Elias for dirty work, offers protection in exchange for favors
+
+**Juno Vega (Tech-savvy ally):**
+- Handles hacking, surveillance, and intel for high-level missions
+
+**Lena Ward (Family tie):**
+- Elias's younger sibling, non-criminal, represents moral anchor
+
+### Factions
+- **Dockside Crew:** Smugglers and dock workers turned criminals
+- **Oldstone Kings:** Street gang controlling tenements and small businesses
+- **Ironbelt Union:** Mix of workers and criminals in industrial zones
+- **Greyport PD:** Police force with both honest and corrupt elements
+
+### Story Arc (3 Acts)
+
+**Act I: Arrival & Survival**
+- Elias arrives in Greyport
+- Introduced to Mara and Dockside Crew
+- Early missions: debt collection, small-time smuggling, learning city layout
+- Climax: A botched job that draws attention from Oldstone Kings and Greyport PD
+
+**Act II: Climbing the Ladder**
+- Elias works for Darius Cole and Detective Hale
+- Missions: gang wars, police corruption, mid-level heists
+- Player makes choices: side with gang vs. cop in certain missions
+- Climax: Major betrayal or double-cross, forcing Elias to choose alliances
+
+**Act III: Consequences & Resolution**
+- City-wide tension between factions
+- High-risk missions: industrial sabotage, large-scale heists, confrontations
+- Multiple endings based on key choices:
+  - Escape the city with family
+  - Take over a faction
+  - Cooperate with Hale to become a protected asset
+
+#########################################################################
+# SECTION 5: CORE SYSTEMS (WITH ENGINE API MAPPING)
+#########################################################################
+
+### 5.1 Player Movement
+**States:** Idle, walk, jog, sprint, crouch, jump, climb, vault, cover
+**Cover System:** Snap to cover near walls, cars, low obstacles
+**Parkour-lite:** Simple vaulting over low obstacles, climbing ladders, mantling ledges
+
+**Engine API:**
+- litt_physics.h — PhysicsBody for character controller
+- litt_input.h — Input::key_down(), Input::mouse_position()
+- litt_collision.h — CollisionSystem::aabb_collision() for wall detection
+- litt_scene.h — SceneNode for position updates
+
+### 5.2 Combat
+**Weapons:** Pistols, SMGs, Shotguns, Assault Rifles, Melee (bat, pipe, knife)
+**Aiming:** Over-the-shoulder with crosshair, optional soft lock-on
+**Damage:** Health bar with partial regeneration, headshots deal extra damage
+**Cover Combat:** Blind fire from cover, pop-out aiming from cover
+**Melee:** Light and heavy attacks, contextual finishers when enemy is low
+
+**Engine API:**
+- litt_physics.h — PhysicsBody for bullets (raycasts)
+- litt_collision.h — CollisionSystem::raycast() for hit detection
+- litt_gpu_software.h — SoftwareRenderer::draw_line() for crosshair
+- litt_particle_system.h — ParticleSystem for muzzle flash, blood
+- litt_profiler.h — Profiler::begin_sample/end_sample for combat timing
+
+### 5.3 Driving
+**Vehicle Types:** Compact cars, sedans, muscle cars, vans, trucks, police cars, taxis
+**Handling:** Weighty, slightly slippery, different traction and acceleration per class
+**Damage:** Visual (dents, broken lights, smoke) + mechanical (handling, speed)
+**Camera:** Chase camera behind vehicle, optional hood/bumper camera
+**Traffic:** AI cars follow lanes, obey traffic lights loosely
+
+**Engine API:**
+- litt_physics.h — PhysicsBody for vehicle (mass, velocity, friction)
+- litt_collision.h — CollisionSystem for vehicle-vehicle and vehicle-wall
+- litt_scene.h — SceneNode for vehicle position/rotation
+- litt_lod.h — LODSystem for distant vehicles
+- litt_gpu_software.h — SoftwareRenderer::draw_triangle_3d() for vehicle rendering
+
+### 5.4 Wanted System (0-5 Stars)
+**1 Star:** Local patrol cars investigate
+**2 Stars:** Multiple patrol cars, more aggressive
+**3 Stars:** Roadblocks, more officers
+**4 Stars:** SWAT-like units, heavy weapons
+**5 Stars:** Helicopter support, extreme aggression
+**Triggers:** Crimes witnessed by civilians/police, shooting, stealing cars, running over pedestrians
+**Evasion:** Breaking line of sight and staying hidden for a duration
+
+**Engine API:**
+- litt_event.h — EventDispatcher for crime events
+- litt_ai.h (via litt_scripting_vm.h) — ScriptVM for police AI logic
+- litt_ui.h — UIManager for wanted level display
+- litt_profiler.h — Profiler for tracking wanted level duration
+
+### 5.5 Economy & Progression
+**Currency:** Cash
+**Income Sources:** Story missions, side jobs, robberies
+**Spending:** Weapons/ammo, clothes, vehicle repairs/upgrades
+**Progression:** Story missions unlock districts and contacts, reputation system
+
+**Engine API:**
+- litt_serialization.h — JSONSerializer for save/load
+- litt_config.h — Settings for game balance values
+- litt_json.h — lvj_parse() for world_state.json
+- litt_ui.h — UIManager for shop menus
+
+### 5.6 NPC AI
+**Pedestrians:** Walking, standing, talking, using phones, reacting to violence
+**Enemy AI:** Taking cover, flanking, retreating when injured, difficulty scaling
+**Police AI:** Investigate, chase, roadblocks, helicopter at high wanted levels
+
+**Engine API:**
+- litt_scripting_vm.h — ScriptVM for behavior state machines
+- litt_spatial_hash.h — SpatialHashGrid for NPC proximity queries
+- litt_bvh.h — BVHBuilder for AI raycasting (line of sight)
+- litt_event.h — EventDispatcher for NPC reactions
+
+### 5.7 Mission System
+**Mission Triggers:** Markers in the world
+**Pre-mission Briefings:** Dialogue, short cutscenes
+**Objectives:** Go to X, talk to Y, steal Z, chase, escort, defend, etc.
+**Failure Conditions:** Player death, target death, losing target, etc.
+**Checkpoints:** Within missions
+**Rewards:** Cash, reputation, unlocks
+
+**Mission State Machine:**
+INACTIVE → ACTIVE → COMPLETED or FAILED
+
+**Engine API:**
+- litt_scripting_vm.h — ScriptVM for mission logic
+- litt_event.h — EventDispatcher for mission events
+- litt_ui.h — UIManager for mission objectives display
+- litt_scene.h — SceneManager for mission scene switching
+- litt_profiler.h — Profiler for mission timing
+
+### 5.8 UI/HUD
+**Top-left:** Player health bar
+**Top-right:** Cash amount, wanted level stars
+**Bottom-left:** Mini-map with player arrow, mission markers, police markers
+**Bottom-right:** Current weapon icon, ammo count
+**Center:** Contextual prompts (e.g., "Press [E] to enter vehicle")
+
+**Engine API:**
+- litt_ui.h — UIManager, UIButton, UIText, UISlider
+- litt_gpu_software.h — SoftwareRenderer for 2D HUD drawing
+- litt_input.h — Input for key binding
+
+### 5.9 Audio
+**Ambient:** Traffic, distant sirens, construction, crowd chatter, seagulls near docks
+**Weather:** Rain with wet-surface sound effects, occasional thunder
+**Interior Ambience:** Bar music, muffled conversations, TV chatter
+**Music:** Moody, urban, low-key electronic and rock influences
+**Voice & Dialogue:** Triggered lines, mission dialogue, police radio chatter
+
+**Engine API:**
+- litt_audio_wav.h — WindowsWaveOutAudio for WAV playback
+- litt_event.h — EventDispatcher for audio triggers
+- litt_profiler.h — Profiler for audio performance
+
+### 5.10 Save/Load
+**Save:** Player position, current mission/objective, cash, inventory, reputation
+**Load:** Restore all above, reinitialize mission scripts and AI states
+
+**Engine API:**
+- litt_serialization.h — JSONSerializer for save/load
+- litt_config.h — Settings for configuration
+- litt_json.h — lvj_parse() for loading save files
+
+#########################################################################
+# SECTION 6: MISSION STRUCTURE
+#########################################################################
+
+### Mission Types (15-20 Minimum)
+1. **Chase missions** — On foot and in vehicles
+2. **Escort missions** — Protect an ally from attackers
+3. **Heist missions** — Multi-stage objectives (scouting, infiltration, escape)
+4. **Assassination missions** — Stealth or loud approaches
+5. **Defense missions** — Hold a location against waves of enemies
+6. **Investigation missions** — Follow suspects, gather intel, avoid detection
+
+### Branching Choices
+- Help Darius or Hale
+- Spare or kill a rival
+- Protect family at the cost of betraying an ally
+- These affect faction reputation, mission availability, and ending variations
+
+### Example Mission Script (using litt_scripting_vm.h opcodes)
+```
+PUSH "Dockside Warehouse"   // Location
+PUSH "Steal the cargo"     // Objective
+CALL start_mission         // Begin mission
+WAIT objective_complete    // Wait for player
+CALL reward_cash           // Give reward
+CALL next_mission          // Progress story
+```
+
+#########################################################################
+# SECTION 7: PROJECT STRUCTURE
+#########################################################################
+
+```
+alt/Project/ConcreteEchoes/
+├── brief.json                    — Game description, archetype, theme
+├── world_state.json              — Gameplay config (waves, roster, scoring)
+├── NOTES.md                      — Seed/parameter logging
+├── ATTRIBUTION.md                — Asset provenance
+├── LIVE_LOG.md                   — Action log
+├── ENGINE.bat                    — Windows launcher
+├── ENGINE.sh                     — Linux launcher
+├── VALIDATE.bat                  — Validation script
+├── VIEW.bat                      — Viewer launcher
+├── assets/
+│   ├── asset_index.json          — Asset registry
+│   ├── models/
+│   │   ├── player.obj            — Player character model
+│   │   ├── vehicles/             — All vehicle models
+│   │   ├── weapons/              — All weapon models
+│   │   ├── buildings/            — All building models
+│   │   ├── props/                — Street props (cars, trash, signs)
+│   │   └── characters/           — NPC models
+│   ├── materials.mtl             — Material definitions
+│   ├── scenes/
+│   │   ├── world.lscn.json       — Main world scene
+│   │   ├── interiors/            — Interior scenes
+│   │   └── missions/             — Mission scenes
+│   ├── audio/
+│   │   ├── ambient/              — Ambient audio
+│   │   ├── music/                — Background music
+│   │   ├── sfx/                  — Sound effects
+│   │   └── voice/                — Voice lines
+│   └── textures/                 — Texture files
+├── engine/
+│   └── game.cpp                  — Main game code
+├── config/
+│   ├── game_config.json          — Game balance settings
+│   ├── vehicle_config.json       — Vehicle stats
+│   ├── weapon_config.json        — Weapon stats
+│   └── mission_config.json       — Mission definitions
+├── saves/                        — Save files
+└── world/
+    ├── scenes/                   — World scenes
+    ├── sectors/                  — World sectors for streaming
+    └── minimap/                  — Minimap textures
+```
+
+#########################################################################
+# SECTION 8: BUILD PROCESS
+########################################################################/
+
+1. READ followme2.txt COMPLETELY
+2. READ all 51 engine headers in alt/src/native/littcore/
+3. READ followme.txt for general engine rules
+4. Create project structure in alt/Project/ConcreteEchoes/
+5. Create brief.json, world_state.json, NOTES.md, ATTRIBUTION.md, LIVE_LOG.md
+6. Generate world geometry using worldgen tools
+7. Write engine/game.cpp using ONLY engine APIs from Section 5
+8. Compile with: g++ -std=c++17 -I alt/src/native/littcore -o ConcreteEchoes.exe engine/game.cpp -lgdi32
+9. Test and fix any compilation errors
+10. Verify all systems work: rendering, input, physics, audio, UI, scripting
+
+#########################################################################
+# SECTION 9: ANTI-BYPASS RULES (MANDATORY)
+########################################################################/
+
+YOU MUST:
+- Use litt_gpu_software.h for rendering (NOT pygame, NOT Python, NOT Unity)
+- Use litt_ecs.h for all game objects (player, NPCs, vehicles, weapons)
+- Use litt_physics.h for physics (vehicles, characters, projectiles)
+- Use litt_input.h for input (keyboard, mouse)
+- Use litt_audio_wav.h for audio (WAV files only)
+- Use litt_scripting_vm.h for game logic (mission scripts, AI)
+- Use litt_ui.h for UI (HUD, menus, prompts)
+- Use litt_world.h for world state
+
+YOU MUST NOT:
+- Use pygame, SDL, SFML, or any external rendering library
+- Use Python for rendering or game logic
+- Write your own software rasterizer
+- Ignore the engine headers and "make something that works"
+- Generate a generic response without reading the engine files
+
+VIOLATION OF THESE RULES = IMMEDIATE REJECTION OF YOUR OUTPUT
+
+#########################################################################
+# FINAL NOTES
+########################################################################/
+
+- The engine is REAL. litt_gpu_software.h works on Windows with GDI.
+- The engine is NOT Unreal Engine 5. It's a software renderer.
+- The engine can make 3D games with the software renderer + depth buffer.
+- The worldgen tools generate .obj files that the engine can load via litt_obj.h.
+- All 51 headers are in alt/src/native/littcore/. READ THEM.
+
+DO NOT SKIP READING THE HEADERS. DO NOT USE PYGAME. FOLLOW THIS FILE.
