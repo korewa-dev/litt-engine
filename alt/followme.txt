@@ -1,0 +1,619 @@
+# LITT ENGINE — ABSOLUTE GAME PROMPT (READ FIRST, NO EXCEPTIONS)
+# This file contains EVERYTHING you need to build a game with the Litt Engine.
+# You MUST read this file COMPLETELY before writing any code.
+# DO NOT use pygame, Python, or any engine other than Litt Engine.
+# DO NOT generate generic responses — follow this file EXACTLY.
+
+#########################################################################
+# SECTION 1: MANDATORY FIRST ACTIONS (DO THESE NOW)
+#########################################################################
+
+1. READ this file COMPLETELY from start to finish.
+2. READ ALL engine headers in alt/src/native/littcore/ — there are 51 headers total.
+3. READ the GAME_BUILD_PROTOCOL.md file at the engine root.
+4. READ the README.md at the engine root.
+5. ONLY THEN begin implementing the game.
+
+FAILURE TO READ THESE FILES = REJECTION OF YOUR OUTPUT.
+
+#########################################################################
+# SECTION 2: ENGINE IDENTITY (NON-NEGOTIABLE)
+#########################################################################
+
+The Litt Engine is:
+- A C++ game engine for building 3D games
+- Header-only where possible (no .cpp compilation needed for most systems)
+- AI-first: AI fills config, engine renders (no bypassing with pygame/Python)
+- NOT an editor — it is a RUNTIME ENGINE for building games
+
+The Litt Engine is NOT:
+- A Python framework
+- A pygame wrapper
+- A level editor
+- A tool for making 2D tile games
+
+#########################################################################
+# SECTION 3: PATH RULES (ALWAYS USE THESE EXACT PATHS)
+#########################################################################
+
+Engine root:     D:\Allgemein\AI Router\litt engine\
+Engine source:   D:\Allgemein\AI Router\litt engine\alt\src\native\littcore\
+Games folder:    D:\Allgemein\AI Router\litt engine\alt\Project\
+Worldgen tools:  D:\Allgemein\AI Router\litt engine\alt\tools\template\tools\
+GAME_BUILD:      D:\Allgemein\AI Router\litt engine\GAME_BUILD_PROTOCOL.md
+README:          D:\Allgemein\AI Router\litt engine\README.md
+
+NEVER use these paths (they are TYPOs):
+- D:\Allgege\...     (WRONG)
+- D:\Allgein\...     (WRONG)
+- D:\Allgemein\AI Router\litt spill\...  (UNLESS user explicitly says so)
+
+#########################################################################
+# SECTION 4: BUILD INSTRUCTIONS (USE THESE COMMANDS)
+#########################################################################
+
+# Compile engine tests (verify engine works):
+g++ -std=c++17 -I alt/src/native/littcore -o litt_engine_tests.exe alt/src/native/littcore/litt_engine_tests.cpp -lgdi32
+
+# Compile a game:
+g++ -std=c++17 -I alt/src/native/littcore -o game.exe game.cpp -lgdi32
+
+# Run worldgen (Python, generates .obj files and scenes):
+python alt/tools/template/tools/worldgen/gen_soulslike.py --out-dir alt/Project/MyGame --seed 42
+python alt/tools/template/tools/worldgen/gen_bleach.py --out-dir alt/Project/MyGame --seed 42
+python alt/tools/template/tools/worldgen/gen_space.py --out-dir alt/Project/MyGame --seed 42
+python alt/tools/template/tools/worldgen/gen_platformer25d.py --out-dir alt/Project/MyGame --seed 42
+python alt/tools/template/tools/worldgen/gen_tabletop.py --out-dir alt/Project/MyGame --seed 42
+python alt/tools/template/tools/worldgen/gen_archetype.py --out-dir alt/Project/MyGame --seed 42
+
+#########################################################################
+# SECTION 5: COMPLETE ENGINE API (ALL 51 HEADERS)
+#########################################################################
+
+=== litt.h (44L) ===
+Main include header. Includes all other litt headers.
+
+=== litt_math.h (610L) ===
+Structs: Vec2, Vec3, Vec4, Mat4, Quat, OBB, Aabb, Ray, HitInfo
+Key functions:
+  Vec3::length(), normalized(), dot(), cross(), lerp()
+  Mat4::look_at(), perspective(), ortho(), translate(), rotate(), scale()
+  Mat4::transform_point(), transform_vector()
+  Quat::from_euler(), slerp()
+  Aabb::contains(), intersects()
+  Ray::at(t)
+
+=== litt_ecs.h (184L) ===
+Classes: Entity, StorageBase, Storage<T>, World, System, Transform, Collider, RigidBody
+Key functions:
+  Entity Entity::create()
+  void Entity::destroy()
+  void World::add_component<T>(Entity, T)
+  T& World::get_component<T>(Entity)
+  void World::remove_component<T>(Entity)
+  bool World::has_component<T>(Entity)
+  void World::forEach<T>(callback)
+  void World::forEachWith<T,U>(callback)
+Fields:
+  Transform: Vec3 position, rotation, scale
+  Collider: Aabb bounds, bool is_trigger
+  RigidBody: Vec3 velocity, float mass, bool is_kinematic
+
+=== litt_engine.h (277L) ===
+Classes: EngineConfig, Engine
+Key functions:
+  void Engine::initialize(EngineConfig)
+  void Engine::shutdown()
+  void Engine::run()
+  World& Engine::get_world()
+  Renderer& Engine::get_renderer()
+  Input& Engine::get_audio()
+
+=== litt_game.h (436L) ===
+Classes: SceneNode, GameScene, Game
+Key functions:
+  void Game::initialize()
+  void Game::shutdown()
+  void Game::update(float dt)
+  void Game::render()
+  void Game::handle_input()
+  void GameScene::load_from_json(string path)
+  void GameScene::load_models()
+Fields:
+  SceneNode: string name, model_path, Vec3 position/rotation/scale
+  SceneNode: vector<string> tags, bool solid, interactable, alive
+
+=== litt_engine2.h (94L) ===
+Classes: Vec3, Color, Object, World, Json
+Key functions:
+  World litt2::buildWorld(string json)
+  World litt2::buildWorldFromFile(string path)
+  Json::parse(string), operator[], d(double), size()
+
+=== litt_gpu.h (176L) ===
+Classes: IGPUDevice, NullGPUDevice, GPUBuffer, GPUTexture, GPUShader
+Key functions:
+  bool IGPUDevice::initialize(string adapter_name)
+  void IGPUDevice::shutdown()
+  void IGPUDevice::present()
+
+=== litt_gpu_software.h (437L) ===
+Classes: SoftwareRenderer, SoftwareTexture
+Key functions (ALL WORKING):
+  bool SoftwareRenderer::initialize(int w, int h, string title)
+  void SoftwareRenderer::shutdown()
+  void SoftwareRenderer::present()
+  void SoftwareRenderer::clear(Color c)
+  void SoftwareRenderer::draw_pixel(int x, int y, Color c)
+  void SoftwareRenderer::draw_line(int x1, int y1, int x2, int y2, Color c)
+  void SoftwareRenderer::draw_rect(int x, int y, int w, int h, Color c)
+  void SoftwareRenderer::fill_rect(int x, int y, int w, int h, Color c)
+  void SoftwareRenderer::draw_triangle_3d(Vec3 v1, Vec3 v2, Vec3 v3, Mat4 vp, Color c)
+  void SoftwareRenderer::draw_cube(Vec3 pos, float size, Mat4 vp, Color c)
+  Vec2 SoftwareRenderer::project(Vec3 world_pos, Mat4 view_proj)
+  void SoftwareRenderer::draw_text(int x, int y, string text, Color c)
+  uint32_t* SoftwareRenderer::get_framebuffer()
+
+=== litt_renderer.h (419L) ===
+Classes: RenderBackend, MeshData, RenderMesh, MaterialType, RenderMaterial
+Classes: RenderCamera, IRenderer, RenderNode, RenderScene, Renderer
+Key functions:
+  void Renderer::initialize()
+  void Renderer::shutdown()
+  void Renderer::render_frame()
+
+=== litt_rasterizer.h (190L) ===
+Classes: Rasterizer, SSR, FrameBuffer, RasterUtils
+Key functions:
+  void Rasterizer::render_triangle(Vec3 v1, Vec3 v2, Vec3 v3, Mat4 vp, Color c)
+  void Rasterizer::render_triangle_pbr(Vec3 v1, Vec3 v2, Vec3 v3, Mat4 vp, PBRMaterial mat)
+
+=== litt_scene.h (198L) ===
+Classes: SceneNode, Scene, SceneManager
+Key functions:
+  void Scene::load_from_file(string path)
+  void Scene::save_to_file(string path)
+  void SceneManager::set_active_scene(Scene* scene)
+  Scene* SceneManager::get_active_scene()
+
+=== litt_physics.h (280L) ===
+Classes: PhysicsBody, BroadPhase, Node, NarrowPhase, Contact, PhysicsIntegrator, PhysicsSystem
+Key functions:
+  void PhysicsSystem::add_body(PhysicsBody* body)
+  void PhysicsSystem::remove_body(PhysicsBody* body)
+  void PhysicsSystem::update(float dt)
+  void PhysicsBody::set_position(Vec3 pos)
+  void PhysicsBody::set_velocity(Vec3 vel)
+  void PhysicsBody::set_mass(float mass)
+
+=== litt_collision.h (346L) ===
+Classes: CollisionFilter, CollisionResult, CollisionSystem, CollisionResolver
+Key functions:
+  bool CollisionSystem::raycast(Ray ray, float max_dist, uint32_t& out_id)
+  bool CollisionSystem::sphere_collision(uint32_t id, Vec3 center, float radius)
+  bool CollisionSystem::aabb_collision(uint32_t id_a, Aabb bounds_a, uint32_t id_b, Aabb bounds_b)
+
+=== litt_bvh.h (180L) ===
+Classes: BVHPrimitive, BVHNode, BVHBuilder, BVHRayIntersect, BVHScene, BVHPerformanceAnalyzer
+Key functions:
+  void BVHBuilder::build_bvh(int max_depth, bool use_sah)
+  void BVHBuilder::add_primitive(BVHPrimitive prim)
+  bool BVHRayIntersect::traverse(Ray ray, HitInfo& out_hit)
+
+=== litt_input.h (109L) ===
+Classes: Key, Mouse, Input, Bind
+Key functions:
+  bool Input::key_down(Key k)
+  bool Input::key_pressed(Key k)
+  bool Input::mouse_down(Mouse m)
+  Vec2 Input::mouse_position()
+  Vec2 Input::mouse_delta()
+
+=== litt_input_windows.h (171L) ===
+Classes: WindowsInput
+Key functions:
+  bool WindowsInput::init(HWND hwnd)
+  void WindowsInput::shutdown()
+  void WindowsInput::poll()
+
+=== litt_audio.h (194L) ===
+Classes: AudioState, AudioFormat, AudioClip, AudioSource, AudioListener, AudioManager
+Key functions:
+  void AudioManager::play(AudioClip* clip)
+  void AudioManager::stop(AudioClip* clip)
+  void AudioManager::set_listener_position(Vec3 pos)
+
+=== litt_audio_wav.h (330L) ===
+Classes: WindowsWaveOutAudio
+Key functions (WORKING):
+  bool WindowsWaveOutAudio::init()
+  void WindowsWaveOutAudio::shutdown()
+  void WindowsWaveOutAudio::play_wav(string path)
+  void WindowsWaveOutAudio::update(float dt)
+
+=== litt_ui.h (275L) ===
+Classes: UIElementKind, UIStyle, UIRect, UIElementBase, UIButton, UIText, UISlider, UIWindow, UIManager
+Key functions:
+  void UIButton::set_position(Vec2 pos)
+  void UIButton::set_size(Vec2 size)
+  void UIButton::set_text(string text)
+  bool UIButton::is_pressed()
+  void UIText::set_text(string text)
+  void UIText::set_color(Color c)
+  void UISlider::set_value(float v)
+  float UISlider::get_value()
+  void UIManager::add_element(UIElementBase* elem)
+  void UIManager::remove_element(UIElementBase* elem)
+
+=== litt_ui_system.h (243L) ===
+Classes: UIElementType, UIPanel, UIButton, UILabel, UITextInput, UISlider, UIManager
+(Alternative UI system — prefer litt_ui.h)
+
+=== litt_scripting.h (129L) ===
+Classes: ScriptContext, ScriptEngine, ScriptComponent, ScriptManager
+
+=== litt_scripting_vm.h (571L) ===
+Classes: OpCode, ValueType, Value, VMFunction, CallFrame, ScriptVM
+Opcodes (40+): PUSH, POP, ADD, SUB, MUL, DIV, MOD, CALL, RET
+  JUMP, JUMP_IF_FALSE, LOAD, STORE, GET_FIELD, SET_FIELD
+  EQ, NEQ, LT, GT, LTE, GTE, AND, OR, NOT, NEG
+  PRINT, HALT, SPAWN, MOVE, ROTATE, SCALE, COLOR
+  WAIT, SIGNAL, LISTEN, EMIT, PHYSICS, COLLISION
+Key functions:
+  void ScriptVM::load_script(vector<uint8_t> bytecode)
+  void ScriptVM::execute()
+  Value ScriptVM::call_function(string name, vector<Value> args)
+  void ScriptVM::set_variable(string name, Value v)
+  Value ScriptVM::get_variable(string name)
+
+=== litt_world.h (266L) ===
+Classes: Mode, Tier, Config, WorldEntity, WorldState, WorldManager
+Key functions:
+  int WorldManager::create_session(string state_text, string scene_path)
+  void WorldManager::step(float dt)
+  void WorldManager::free_session()
+
+=== litt_material.h (228L) ===
+Classes: PBRMaterial, PBRBRDF, MaterialManager, IMaterialSampler, SimpleTextureSampler
+Fields:
+  PBRMaterial: Vec3 albedo, float metallic, float roughness, float ao, Vec3 emission
+Key functions:
+  void MaterialManager::load_material(string name, string path)
+
+=== litt_asset.h (236L) ===
+Classes: Vertex, Model, AssetTexture, Shader, AssetMaterial, AssetManager
+Key functions:
+  shared_ptr<T> AssetManager::load<T>(string path)
+  void AssetManager::register_loader(function<shared_ptr<T>(string)> loader)
+
+=== litt_obj.h (41L) ===
+C API:
+  int lv_obj_load(const char* path, LvModel* out)
+  void lv_model_free(LvModel* m)
+
+=== litt_obj_cpp.h (280L) ===
+Classes: ObjVertex, ObjFace, Index, ObjMaterial, ObjMesh, ObjModel, ObjLoader
+Key functions:
+  ObjModel ObjLoader::load(string path)
+
+=== litt_texture.h (172L) ===
+Classes: TextureFormat, TextureWrap, TextureFilter, TextureDesc, Texture2D, Cubemap, TextureAtlas, TextureManager
+Key functions:
+  void Texture2D::bind(uint32_t slot)
+  void Texture2D::unbind()
+  void Texture2D::set_data(void* data, size_t size)
+
+=== litt_lighting.h (122L) ===
+Classes: LightType, Light, PBRLighting, ShadowMap, LightManager
+Fields:
+  Light: Vec3 position, direction, color; LightType type
+
+=== litt_particle_system.h (166L) ===
+Classes: Particle, EmitterShape, ParticleSystem, ParticleManager
+Key functions:
+  void ParticleSystem::set_emitter_shape(EmitterShape shape)
+  void ParticleSystem::set_position(Vec3 pos)
+  void ParticleSystem::set_emission_rate(float rate)
+  void ParticleSystem::update(float dt)
+
+=== litt_profiler.h (93L) ===
+Classes: ProfileSample, ProfilerStats, Profiler, ScopedProfile
+Key functions:
+  void Profiler::begin_sample(string name)
+  void Profiler::end_sample(string name)
+  vector<ProfilerStats> Profiler::get_all_stats()
+
+=== litt_thread_pool.h (339L) ===
+Classes: ThreadPool, JobSystem, TaskGroup
+Key functions:
+  future<T> ThreadPool::submit(function<T()> f)
+  void JobSystem::parallel_for(int begin, int end, function<void(int)> f)
+
+=== litt_spatial_hash.h (100L) ===
+Classes: SpatialHashKey, Hash, SpatialHashGrid, SpatialHashCollision
+Key functions:
+  void SpatialHashGrid::insert(uint32_t id, Vec3 pos)
+  vector<uint32_t> SpatialHashGrid::query_sphere(Vec3 center, float radius)
+
+=== litt_culling.h (106L) ===
+Classes: Frustum, Plane, OcclusionCuller, CullingSystem
+Key functions:
+  void Frustum::set_view_proj(Mat4 vp)
+  bool Frustum::contains_sphere(Vec3 center, float radius)
+  bool Frustum::contains_aabb(Aabb box)
+
+=== litt_event.h (205L) ===
+Classes: EventKey, IEvent, StringEvent, EventDispatcher, EventQueue
+Key functions:
+  void EventDispatcher::subscribe<T>(function<void(T&)> callback)
+  void EventDispatcher::emit(T event)
+
+=== litt_config.h (172L) ===
+Classes: Settings, Presets
+Key functions:
+  bool Settings::load(string path)
+  void Settings::save(string path)
+
+=== litt_json.h (41L) ===
+C API:
+  LvJson* lvj_parse(const char* text)
+  LvJson* lvj_get(LvJson* obj, const char* key)
+  LvJson* lvj_at(LvJson* arr, int index)
+  double lvj_num(LvJson* v, double def)
+  const char* lvj_str(LvJson* v)
+  bool lvj_bool(LvJson* v, bool def)
+  void lvj_free(LvJson* v)
+
+=== litt_serialization.h (126L) ===
+Classes: JSONSerializer, BinarySerializer, SceneSerializer, SerializationManager
+Key functions:
+  bool JSONSerializer::serialize(string path, void* data)
+  void* JSONSerializer::deserialize(string path)
+  vector<uint8_t> JSONSerializer::serialize_to_buffer(void* data)
+
+=== litt_memory.h (334L) ===
+Classes: ObjectPool, AlignedAllocator, BumpAllocator, ArenaAllocator, FreeListAllocator
+Key functions:
+  template<T> T* ObjectPool<T>::allocate()
+  void ObjectPool<T>::release(T* obj)
+  void* BumpAllocator::allocate(size_t size)
+  void BumpAllocator::reset()
+
+=== litt_memory_pool.h (75L) ===
+Classes: MemoryPool, PoolManager
+
+=== litt_networking.h (151L) ===
+Classes: NetworkMessage, NetworkPeer, NetworkServer, NetworkClient, NetworkManager
+(Stub — not fully implemented)
+
+=== litt_dither.h (212L) ===
+Classes: DitherColorMode, DitherPattern, DitherMaterial, DitherTexture, DitherRampTexture
+
+=== litt_dither_layout.h (110L) ===
+Texture layout docs for Dither3D PNG files.
+
+=== litt_lod.h (88L) ===
+Classes: LODLevel, LODGroup, LODSystem, LODComponent
+
+=== litt_render_pass.h (214L) ===
+Classes: ShadowPass, GeometryPass, LightingPass, PostProcessPass, UIPass, RenderPipeline
+
+=== litt_shader_system.h (110L) ===
+Classes: ShaderType, ShaderCompileResult, ShaderProgram, ShaderLibrary
+Key functions:
+  void ShaderProgram::attach_shader(ShaderType type, string source)
+  bool ShaderProgram::link()
+  void ShaderProgram::bind()
+
+=== litt_terrain_system.h (148L) ===
+Classes: TerrainChunk, TerrainSystem, NoiseGenerator
+Key functions:
+  void TerrainSystem::generate_heightmap(uint32_t seed)
+  void TerrainSystem::set_height(uint32_t x, uint32_t z, float height)
+  float TerrainSystem::get_height_at(Vec3 world_pos)
+
+=== litt_pbr_material.h (29L) ===
+Classes: MaterialFactory
+
+=== litt_gpu_lisuan.h (262L) ===
+Classes: LisuanGPU, TrueGPUFeatures, LisuanGPUInfo, LisuanGPUDetector
+(Lisuan Tech GPU support — Chinese GPU vendor, LX 7G100)
+
+=== litt_asset_pipeline.h (146L) ===
+Classes: AssetType, AssetHandle, AssetMetadata, AssetFactory, AssetPipeline
+
+=== litt_council.h (201L) ===
+Classes: Platform, CouncilTier, Feature, Vote, Voter, Council
+(Feature flags for engine capabilities)
+
+=== litt_engine_systems.h (1055L) ===
+DEPRECATED. Contains all 81 blueprint steps in one file.
+Contains: Radiance, FresnelDielectric, RefractionCalculator, MicrofacetDistribution
+Contains: GeometricShadowing, CookTorranceBRDF, SubsurfaceScatteringMaterial
+Contains: VolumetricFog, PT_Material, PT_Triangle, PT_HitInfo, UnidirectionalPathTracer
+Contains: Rigidbody, PhysicsEngine, AudioEngine, KeyState, GamepadState, InputManager
+WARNING: Has 20+ duplicate class definitions. Use individual headers instead.
+
+#########################################################################
+# SECTION 6: GAME PROJECT STRUCTURE (REQUIRED FILES)
+#########################################################################
+
+Every game MUST have this structure:
+
+alt/Project/<GameName>/
+├── brief.json              — Game description, archetype, theme, seed
+├── world_state.json        — Gameplay config (waves, roster, scoring, physics)
+├── NOTES.md                — Seed/parameter logging
+├── ATTRIBUTION.md          — Asset provenance
+├── LIVE_LOG.md             — Action log
+├── ENGINE.bat              — Windows launcher (copy from existing project)
+├── ENGINE.sh               — Linux launcher (copy from existing project)
+├── VALIDATE.bat            — Validation script (copy from existing project)
+├── VIEW.bat                — Viewer launcher (copy from existing project)
+├── assets/
+│   ├── asset_index.json    — Asset registry
+│   ├── models/             — .obj model files
+│   ├── materials.mtl       — Material definitions
+│   ├── scenes/             — Scene JSON files (.lscn.json)
+│   └── textures/           — Texture files
+├── engine/
+│   └── game.cpp            — Main game code (C++)
+├── config/
+│   └── world_state.json    — World state
+├── saves/                  — Save files
+└── world/
+    └── scenes/             — World scenes
+
+#########################################################################
+# SECTION 7: GAME — "CONCRETE ECHOES" (GTA IV CLONE)
+#########################################################################
+
+=== IDENTITY ===
+Title: "Concrete Echoes"
+Genre: Open-world, third-person action-adventure with crime, drama, sandbox
+Setting: "Greyport City" — coastal metropolis, 2010s-2020s, overcast, gritty
+Protagonist: Elias Ward — immigrant, troubled past, morally conflicted
+Tone: Grounded realism, weighty driving, street-level drama, no over-the-top
+
+=== DISTRICTS (4 MAJOR) ===
+1. Dockside Quarter — Cargo docks, warehouses, smuggling routes, early missions
+2. Oldstone — Brick buildings, narrow streets, gang turf wars, alley shootouts
+3. Midtown Heights — High-rises, corporate plazas, heists, high-speed chases
+4. Ironbelt Industrial — Factories, rail yards, large-scale shootouts, stealth
+
+=== LANDMARKS (8 MINIMUM) ===
+1. Central bridge connecting Dockside and Midtown
+2. Elevated train line with stations and tracks
+3. City hall plaza with protest events and police presence
+4. Large stadium/arena for mid-game mission
+5. Derelict factory complex for climactic shootout
+6. Riverside promenade with pedestrians and side activities
+7. High-rise rooftop cluster for sniper/parkour missions
+8. Hidden underground tunnel system for smuggling/escapes
+
+=== INTERIORS ===
+- Safehouses (save, change clothes, store vehicles)
+- Bars/diners (social hubs, minor side missions)
+- Gang hideouts (combat-focused)
+- Small shops (buy clothes, food, minor items)
+
+=== PLAYER MOVEMENT ===
+States: Idle, walk, jog, sprint, crouch, jump, climb, vault, cover
+Cover system: Snap to cover near walls, cars, low obstacles
+Parkour-lite: Vault over low obstacles, climb ladders, mantle ledges
+Third-person camera with adjustable distance
+
+=== COMBAT ===
+Weapons: Pistols, SMGs, Shotguns, Assault Rifles, Melee (bat, pipe, knife)
+Aiming: Over-the-shoulder with crosshair, soft lock-on
+Damage: Health bar with partial regeneration, headshots bonus damage
+Cover combat: Blind fire, pop-out aiming
+Melee: Light/heavy attacks, contextual finishers
+
+=== DRIVING ===
+Vehicles: Compact cars, sedans, muscle cars, vans, trucks, police cars, taxis
+Handling: Weighty, slightly slippery, different traction per class
+Damage: Visual (dents, lights) + mechanical (handling, speed)
+Camera: Chase camera, optional hood/bumper view
+Traffic: AI cars follow lanes, obey traffic lights loosely
+
+=== WANTED SYSTEM (0-5 STARS) ===
+1 star: Local patrol cars investigate
+2 stars: Multiple patrol cars, more aggressive
+3 stars: Roadblocks, more officers
+4 stars: SWAT-like units, heavy weapons
+5 stars: Helicopter support, extreme aggression
+Triggers: Crimes witnessed by civilians/police, shooting, stealing, running over
+Evasion: Break line of sight, stay hidden, change vehicles, hide in alleys/tunnels
+
+=== ECONOMY ===
+Currency: Cash
+Income: Story missions, side jobs (taxi, courier, theft), robberies
+Spending: Weapons/ammo, clothes, vehicle repairs/upgrades
+Progression: Story unlocks districts/contacts, faction reputation, unlockable safehouses
+
+=== NPCs/AI ===
+Pedestrians: Walking, standing, phones, react to violence, flee, call police
+Enemy AI: Take cover, flanking, retreat when injured, difficulty scaling
+Police AI: Investigate, chase, roadblocks, helicopter at high wanted levels
+
+=== MISSIONS (15-20 MINIMUM) ===
+Types: Chase, Escort, Heist, Assassination, Defense, Investigation
+Structure: Trigger → Briefing → Objectives → Checkpoints → Rewards
+Choices: Branching decisions (help gang vs cop, spare/kill, protect family)
+
+=== STORY (3 ACTS) ===
+Act I: Arrival & Survival — Dockside, debt collection, botched job
+Act II: Climbing the Ladder — Gang wars, corruption, betrayal
+Act III: Consequences & Resolution — Multiple endings based on choices
+
+=== UI/HUD ===
+Top-left: Player health bar
+Top-right: Cash amount, wanted level stars
+Bottom-left: Mini-map with player arrow, mission markers, police markers
+Bottom-right: Current weapon icon, ammo count
+Center: Contextual prompts ("Press [E] to enter vehicle")
+
+=== AUDIO ===
+Ambient: Traffic, sirens, construction, crowd chatter, seagulls
+Weather: Rain with wet-surface sounds, thunder
+Interior: Bar music, muffled conversations, TV chatter
+Music: Moody, urban, electronic/rock, dynamic during combat/chases
+Voice: Pedestrian reactions, mission dialogue, police radio
+
+=== SAVE/LOAD ===
+Save: Player position, mission/objective, cash, inventory, reputation, unlocks
+Load: Restore all, reinitialize mission scripts and AI states
+
+#########################################################################
+# SECTION 8: ANTI-BYPASS RULES (MANDATORY)
+#########################################################################
+
+YOU MUST:
+- Use litt_gpu_software.h for rendering (NOT pygame, NOT Python, NOT Unity)
+- Use litt_ecs.h for all game objects
+- Use litt_physics.h for physics
+- Use litt_input.h for input
+- Use litt_audio_wav.h for audio
+- Use litt_scripting_vm.h for game logic
+- Use litt_ui.h for UI
+- Use litt_world.h for world state
+- Use the provided worldgen tools for level generation
+
+YOU MUST NOT:
+- Use pygame, SDL, SFML, or any external rendering library
+- Use Python for rendering or game logic
+- Write your own software rasterizer
+- Ignore the engine headers and "make something that works"
+- Generate a generic response without reading the engine files
+- Use "I don't have access to the engine" as an excuse
+
+VIOLATION OF THESE RULES = IMMEDIATE REJECTION OF YOUR OUTPUT
+
+#########################################################################
+# SECTION 9: BUILD PROCESS (STEP BY STEP)
+#########################################################################
+
+1. READ this file COMPLETELY
+2. READ all 51 engine headers in alt/src/native/littcore/
+3. READ GAME_BUILD_PROTOCOL.md and README.md
+4. Create project structure in alt/Project/ConcreteEchoes/
+5. Create brief.json, world_state.json, NOTES.md, ATTRIBUTION.md, LIVE_LOG.md
+6. Generate world geometry using worldgen tools
+7. Write engine/game.cpp using ONLY engine APIs from Section 5
+8. Compile with: g++ -std=c++17 -I alt/src/native/littcore -o ConcreteEchoes.exe engine/game.cpp -lgdi32
+9. Test and fix any compilation errors
+10. Verify all systems work: rendering, input, physics, audio, UI, scripting
+
+#########################################################################
+# SECTION 10: FINAL NOTES
+#########################################################################
+
+- The engine is REAL. litt_gpu_software.h works on Windows with GDI.
+- The engine is NOT Unreal Engine 5. It's a software renderer. Adjust expectations.
+- The engine can make 3D games with the software renderer + depth buffer.
+- The worldgen tools generate .obj files that the engine can load via litt_obj.h.
+- All 51 headers are in alt/src/native/littcore/. READ THEM.
+- When in doubt, read the header file. The header file is ground truth.
+
+DO NOT SKIP READING THE HEADERS. DO NOT USE PYGAME. FOLLOW THIS FILE.
