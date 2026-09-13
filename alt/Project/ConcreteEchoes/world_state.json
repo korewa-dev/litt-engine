@@ -1,0 +1,24 @@
+{
+  "format": "litt-live-state",
+  "version": 1,
+  "mode": "sandbox",
+  "theme": "greyport_city",
+  "seed": {
+    "archetype_seed": 42
+  },
+  "identity": {
+    "archetype": "gta_iv_clone",
+    "camera": "third_person",
+    "movement": "third_person_wasd",
+    "combat": "cover_based"
+  },
+  "gameplay": {
+    "genre": "open_world_action",
+    "physics": {
+      "gravity": -9.81,
+      "run_speed": 5.5,
+      "jump_velocity": 6.0
+    },
+    "starting_cash": 500
+  }
+}

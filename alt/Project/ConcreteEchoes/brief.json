@@ -1,0 +1,8 @@
+{
+  "name": "Concrete Echoes",
+  "genre": "open_world_third_person_action",
+  "archetype": "gta_iv_clone",
+  "theme": "greyport_city",
+  "seed": 42,
+  "version": "0.1.0"
+}

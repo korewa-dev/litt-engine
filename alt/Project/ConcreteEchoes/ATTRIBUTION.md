@@ -1,0 +1,3 @@
+# Attribution
+
+All assets procedural.
