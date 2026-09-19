@@ -9,6 +9,7 @@
 #include "litt_ecs.h"
 #include "litt_physics.h"
 #include "litt_scene.h"
+#include "litt_gpu_software.h"
 
 using namespace litt;
 
@@ -216,6 +217,29 @@ static void test_affine_inverse() {
           "affine_inverse_nonuniform_trs");
 }
 
+static void test_software_renderer_hardening() {
+    SoftwareRenderer renderer;
+    check(renderer.initialize("headless"), "software_headless_initializes");
+    renderer.clear(0x010203);
+    const uint32_t before = renderer.get_pixel(400, 300);
+
+    // These inputs previously reached unsafe Win32 calls, out-of-range vertex
+    // reads, or non-terminating grid loops. They must be harmless in headless
+    // fallback mode.
+    renderer.draw_text(0, 0, "headless", 0xFFFFFF);
+    renderer.draw_grid(0.0f, Mat4::identity(), 0xFFFFFF);
+    renderer.draw_grid(-1.0f, Mat4::identity(), 0xFFFFFF);
+    renderer.draw_grid(std::nanf(""), Mat4::identity(), 0xFFFFFF);
+    renderer.draw_mesh({Vec3(0, 0, 0)}, {0, 1, 2}, Mat4::identity(), 0xFFFFFF);
+    renderer.draw_pixel_depth(400, 300, std::nanf(""), 0xFFFFFF);
+    renderer.draw_pixel_depth(400, 300, -1.0f, 0xFFFFFF);
+    renderer.draw_pixel_depth(400, 300, 2.0f, 0xFFFFFF);
+
+    check(renderer.get_pixel(400, 300) == before,
+          "software_invalid_inputs_leave_framebuffer_unchanged");
+    renderer.shutdown();
+}
+
 static void test_scene_lifecycle() {
     SceneManager manager;
     Scene& first = manager.createScene("Level");
@@ -236,6 +260,7 @@ int main() {
     test_memory();
     test_ecs_generations();
     test_affine_inverse();
+    test_software_renderer_hardening();
     test_scene_lifecycle();
 
     std::printf("\nResults: %d passed, %d failed\n", passed, failed);
