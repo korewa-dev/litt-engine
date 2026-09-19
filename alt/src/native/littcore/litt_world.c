@@ -152,27 +152,58 @@ static int solid_push(LvSession *s, LvAabb a) {
     return 0;
 }
 
-/* world-space AABB of one model: union of mesh bounds scaled+translated.
- * n11: per-axis scale; m5: negative scale orders min/max so mirrored
- * nodes cannot produce inside-out solids. */
+static void quat_rotate_vec3(const float q_in[4], const float v[3], float out[3]) {
+    float x = q_in[0], y = q_in[1], z = q_in[2], w = q_in[3];
+    float n2 = x*x + y*y + z*z + w*w;
+    if (n2 < 1e-12f) {
+        out[0] = v[0]; out[1] = v[1]; out[2] = v[2];
+        return;
+    }
+    float inv_n = 1.0f / sqrtf(n2);
+    x *= inv_n; y *= inv_n; z *= inv_n; w *= inv_n;
+
+    /* q * v * q^-1, expanded. */
+    float dot = x*v[0] + y*v[1] + z*v[2];
+    float uu = x*x + y*y + z*z;
+    float cx = y*v[2] - z*v[1];
+    float cy = z*v[0] - x*v[2];
+    float cz = x*v[1] - y*v[0];
+    float common = w*w - uu;
+    out[0] = 2.0f*dot*x + common*v[0] + 2.0f*w*cx;
+    out[1] = 2.0f*dot*y + common*v[1] + 2.0f*w*cy;
+    out[2] = 2.0f*dot*z + common*v[2] + 2.0f*w*cz;
+}
+
+/* World-space AABB of one model using the generated scene's full TRS.
+ * Each mesh bound contributes all eight scaled and quaternion-rotated corners,
+ * then translation is applied. This remains conservative while honoring
+ * non-uniform/negative scale and authored rotation. */
 static int model_aabb(const char *models_dir, const char *name,
-                      const float scale[3], const float pos[3],
-                      LvAabb *out, long *tris) {
+                      const float scale[3], const float rotation[4],
+                      const float pos[3], LvAabb *out, long *tris) {
     char path[1024];
     snprintf(path, sizeof(path), "%s/%s.obj", models_dir, name);
     LvModel m;
     if (lv_obj_load(path, &m)) return 1;
     for (int k = 0; k < 3; k++) { out->min[k] = 1e9f; out->max[k] = -1e9f; }
+
     for (int i = 0; i < m.count; i++) {
         LvMesh *me = &m.meshes[i];
         *tris += me->in / 3;
-        for (int k = 0; k < 3; k++) {
-            float p0 = me->bmin[k] * scale[k] + pos[k];
-            float p1 = me->bmax[k] * scale[k] + pos[k];
-            float lo = p0 < p1 ? p0 : p1;
-            float hi = p0 < p1 ? p1 : p0;
-            if (lo < out->min[k]) out->min[k] = lo;
-            if (hi > out->max[k]) out->max[k] = hi;
+
+        for (int corner = 0; corner < 8; corner++) {
+            float local[3];
+            float rotated[3];
+            for (int k = 0; k < 3; k++) {
+                float bound = (corner & (1 << k)) ? me->bmax[k] : me->bmin[k];
+                local[k] = bound * scale[k];
+            }
+            quat_rotate_vec3(rotation, local, rotated);
+            for (int k = 0; k < 3; k++) {
+                float world = rotated[k] + pos[k];
+                if (world < out->min[k]) out->min[k] = world;
+                if (world > out->max[k]) out->max[k] = world;
+            }
         }
     }
     lv_model_free(&m);
@@ -213,16 +244,26 @@ int lv_session_create(const char *state_text, const char *scene_path,
             const char *name = lvj_str(lvj_get(n, "name"), "?");
             const LvJson *tags = lvj_get(n, "tags");
             float pos[3] = { 0, 0, 0 }, scl[3] = { 1, 1, 1 };
+            float rot[4] = { 0, 0, 0, 1 };
             lvj_arr_f3(lvj_get(n, "position"), pos);
+            const LvJson *rj = lvj_get(n, "rotation");
+            if (rj && rj->kind == LJ_ARR)
+                for (int k = 0; k < 4 && k < rj->count; k++)
+                    rot[k] = (float)jnum(lvj_at(rj, k), k == 3 ? 1.0 : 0.0);
             const LvJson *sj = lvj_get(n, "scale");
             if (sj && sj->kind == LJ_ARR)
                 for (int k = 0; k < 3 && k < sj->count; k++)   /* n11: all axes */
                     scl[k] = (float)jnum(lvj_at(sj, k), 1.0);
 
-            /* spawn */
-            if (!have_spawn && has_tag(tags, "player")) {
+            /* Player_Start is the authoritative generated spawn. The tagged
+             * fallback preserves compatibility with older scenes. Do not add
+             * a runtime-only vertical offset to authored coordinates. */
+            int semantic_spawn = !strcmp(name, "Player_Start") ||
+                                 (has_tag(tags, "player") && has_tag(tags, "start"));
+            int legacy_spawn = has_tag(tags, "player");
+            if (!have_spawn && (semantic_spawn || legacy_spawn)) {
                 out->spawn[0] = pos[0];
-                out->spawn[1] = pos[1] + 1.2f;
+                out->spawn[1] = pos[1];
                 out->spawn[2] = pos[2];
                 have_spawn = 1;
                 continue;
@@ -246,7 +287,7 @@ int lv_session_create(const char *state_text, const char *scene_path,
                  has_tag(tags, "hub") || has_tag(tags, "terrain")) && mdl) {
                 LvAabb a;
                 long tris = 0;
-                if (!model_aabb(models_dir, mdl, scl, pos, &a, &tris)) {
+                if (!model_aabb(models_dir, mdl, scl, rot, pos, &a, &tris)) {
                     if (!oom && solid_push(out, a)) oom = 1;   /* m4 */
                     out->tri_count += tris;
                 } else {
