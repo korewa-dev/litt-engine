@@ -26,7 +26,7 @@ HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
 from lint import lint_obj, validate_scene  # noqa: E402
 
-REPO = HERE.parent.parent.parent
+REPO = HERE.resolve().parents[3]
 PROJECTS = REPO / "Project"
 
 RUNTIME_CAMERAS = {"3D", "TOP", "2D5"}
