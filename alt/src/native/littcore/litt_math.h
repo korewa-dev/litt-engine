@@ -525,7 +525,7 @@ struct Ray {
     Vec3 origin, direction;
     float t_min, t_max;
     constexpr Ray() : origin(0,0,0), direction(0,0,1), t_min(0), t_max(1e10f) {}
-    constexpr Ray(const Vec3& o, const Vec3& d, float near = 0, float far = 1e10f)
+    Ray(const Vec3& o, const Vec3& d, float near = 0, float far = 1e10f)
         : origin(o), direction(d.normalized()), t_min(near), t_max(far) {}
     Vec3 at(float t) const { return origin + direction * t; }
 };
