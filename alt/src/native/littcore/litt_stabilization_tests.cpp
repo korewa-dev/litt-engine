@@ -9,7 +9,10 @@
 #include "litt_ecs.h"
 #include "litt_physics.h"
 #include "litt_scene.h"
+#include "litt_scripting_vm.h"
+#ifdef _WIN32
 #include "litt_gpu_software.h"
+#endif
 
 using namespace litt;
 
@@ -217,6 +220,8 @@ static void test_affine_inverse() {
           "affine_inverse_nonuniform_trs");
 }
 
+
+#ifdef _WIN32
 static void test_software_renderer_hardening() {
     SoftwareRenderer renderer;
     check(renderer.initialize("headless"), "software_headless_initializes");
@@ -239,6 +244,22 @@ static void test_software_renderer_hardening() {
           "software_invalid_inputs_leave_framebuffer_unchanged");
     renderer.shutdown();
 }
+#endif
+
+static void test_scripting_vm() {
+    ScriptComponent component;
+    component.set_enabled(false);
+    check(!component.is_enabled(), "script_component_disable");
+    component.set_enabled(true);
+    check(component.is_enabled(), "script_component_enable");
+
+    ScriptVM vm;
+    check(vm.initialize(), "script_vm_initialize");
+    check(vm.compile("basic", "var x = 10\nprint x\n"), "script_vm_compile_basic");
+    check(vm.execute("basic"), "script_vm_execute_basic");
+    check(!vm.execute("missing"), "script_vm_missing_rejected");
+    vm.shutdown();
+}
 
 static void test_scene_lifecycle() {
     SceneManager manager;
@@ -260,7 +281,10 @@ int main() {
     test_memory();
     test_ecs_generations();
     test_affine_inverse();
+    test_scripting_vm();
+#ifdef _WIN32
     test_software_renderer_hardening();
+#endif
     test_scene_lifecycle();
 
     std::printf("\nResults: %d passed, %d failed\n", passed, failed);
