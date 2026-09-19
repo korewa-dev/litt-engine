@@ -16,7 +16,7 @@ Audit list:
   5. world_state.json: format, identity.{camera,movement}, gameplay.physics
      keys the runtime reads verbatim
   6. asset_index.json parses and every registered path exists
-  7. launcher surface: ENGINE.bat + ENGINE.sh + VIEW.bat + play_native.py
+  7. launcher surface: ENGINE.bat + ENGINE.sh + VIEW.bat + VALIDATE.bat
 """
 import json
 import sys
@@ -126,10 +126,10 @@ def audit_game(gdir: Path):
             "no native launcher pair (need ENGINE.bat + ENGINE.sh)")
     # browser stack is PHASED OUT; VIEW.bat is the native visual checker
     view_ok = (gdir / "VIEW.bat").exists()
-    validator_ok = (gdir / "play_native.py").exists()
+    validator_ok = (gdir / "VALIDATE.bat").exists()
     if not (view_ok and validator_ok):
         warn.append("native view/validator incomplete "
-                    "(VIEW.bat=%s play_native=%s)" % (view_ok, validator_ok))
+                    "(VIEW.bat=%s VALIDATE.bat=%s)" % (view_ok, validator_ok))
 
     return problems, warn
 
