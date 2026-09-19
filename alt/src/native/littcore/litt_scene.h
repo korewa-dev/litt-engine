@@ -101,8 +101,14 @@ public:
         auto node = std::make_unique<SceneNode>();
         node->id = nextId++;
         node->name = name;
-        nodes[node->id] = std::move(node);
-        return *nodes[node->id];
+
+        // Capture identity before moving ownership. Referencing node after
+        // std::move can dereference a null unique_ptr depending on evaluation
+        // order, which previously made Scene construction crash.
+        const uint32_t id = node->id;
+        SceneNode* created = node.get();
+        nodes.emplace(id, std::move(node));
+        return *created;
     }
     
     SceneNode* getNode(uint32_t id) {
@@ -118,7 +124,10 @@ public:
     }
     
     void removeNode(uint32_t id) {
-        nodes.erase(id);
+        auto it = nodes.find(id);
+        if (it == nodes.end()) return;
+        if (root == it->second.get()) root = nullptr;
+        nodes.erase(it);
     }
     
     void update() {
