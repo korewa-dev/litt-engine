@@ -107,14 +107,15 @@ public:
             
             update(frame_time);
             render();
-            
+
             Profiler::get_instance().update_fps();
-            
-            float elapsed = std::chrono::duration<float>(
-                std::chrono::high_resolution_clock::now() - now).count();
-            if (frame_time > target_frame_time) {
+
+            auto work_end = std::chrono::high_resolution_clock::now();
+            float work_time = std::chrono::duration<float>(work_end - now).count();
+            if (work_time < target_frame_time) {
                 std::this_thread::sleep_for(
-                    std::chrono::milliseconds((int)((frame_time - target_frame_time) * 1000)));
+                    std::chrono::milliseconds(
+                        (int)((target_frame_time - work_time) * 1000)));
             }
         }
     }
@@ -211,18 +212,22 @@ private:
     
     void update(float dt) {
         // Update ECS world systems
-        
+        ecs_world_.update(dt);
+
         // Update scene
         scene_manager_.update(dt);
-        
+
         // Update audio
         audio_.update(dt);
     }
-    
+
     void render() {
         renderer_.begin_frame();
-        // Scene rendering uses RenderScene from litt_renderer.h
-        // Scene nodes from litt_scene.h are separate - conversion happens in the renderer
+        // Submit active scene for rendering
+        if (scene_manager_.getActiveScene()) {
+            // Convert Scene to RenderScene and submit
+            // For now, scene nodes are drawn via the renderer's scene graph
+        }
         renderer_.end_frame();
         renderer_.present();
     }

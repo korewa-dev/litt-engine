@@ -289,13 +289,13 @@ public:
     
     // Project 3D point to 2D screen coordinates
     void project(const Vec3& world_pos, const Mat4& view_proj, int& screen_x, int& screen_y, float& depth) {
-        Vec3 clip = view_proj * world_pos;
-        float w = clip.z; // Use z as w for perspective
+        Vec4 clip = view_proj * Vec4(world_pos.x, world_pos.y, world_pos.z, 1.0f);
+        float w = clip.w;
         if (w < 0.001f) w = 0.001f;
-        
+
         float ndc_x = clip.x / w;
         float ndc_y = clip.y / w;
-        
+
         screen_x = (int)((ndc_x * 0.5f + 0.5f) * width_);
         screen_y = (int)((-ndc_y * 0.5f + 0.5f) * height_);
         depth = w;
@@ -413,6 +413,13 @@ private:
         }
         
         void update(const void* data, uint32_t width, uint32_t height) override {
+            if (!data || width == 0 || height == 0) return;
+            if (width != desc_.width || height != desc_.height) {
+                // Resize buffer to match new dimensions
+                desc_.width = width;
+                desc_.height = height;
+                pixels_.resize(width * height * 4);
+            }
             memcpy(pixels_.data(), data, width * height * 4);
         }
         

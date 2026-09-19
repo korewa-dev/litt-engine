@@ -269,12 +269,14 @@ struct alignas(16) Mat4 {
     }
     
     Mat4 operator*(const Mat4& b) const {
+        // Column-major convention: C[i][j] = sum_k A[i][k] * B[k][j]
+        // Storage: m[row + col*4]
         Mat4 r;
         for (int i = 0; i < 4; i++)
             for (int j = 0; j < 4; j++) {
                 float s = 0;
                 for (int k = 0; k < 4; k++)
-                    s += m[k + j*4] * b.m[i + k*4];
+                    s += m[i + k*4] * b.m[k + j*4];
                 r.m[i + j*4] = s;
             }
         return r;

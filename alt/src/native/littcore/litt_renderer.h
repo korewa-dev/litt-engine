@@ -97,8 +97,8 @@ struct RenderCamera {
 
     void update() {
         view = Mat4::look_at(position, target, up);
-        projection = Mat4::perspective(
-            fov * LITT_MATH_DEG2RAD, aspect, near_plane, far_plane);
+        // perspective() expects degrees and converts internally
+        projection = Mat4::perspective(fov, aspect, near_plane, far_plane);
         view_projection = projection * view;
     }
 
@@ -350,8 +350,8 @@ public:
 
 private:
     bool init_vulkan(uint32_t, uint32_t) {
-        // Vulkan initialization
-        return true;
+        // Vulkan is NOT implemented. Return false to prevent silent stub.
+        return false;
     }
 
     bool init_dx12(uint32_t, uint32_t) {

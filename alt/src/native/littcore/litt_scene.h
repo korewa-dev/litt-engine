@@ -38,16 +38,23 @@ struct SceneNode {
     bool cullable = true;
     
     void updateTransform() {
-        // Recalculate transform matrix
-        transform = Mat4::translation(position) * 
-                    Mat4::rot_y(rotation.y) *
-                    Mat4::rot_x(rotation.x) *
-                    Mat4::rot_z(rotation.z) *
-                    Mat4::scale(scale);
-        
+        // Recalculate local transform matrix
+        Mat4 local = Mat4::translation(position) *
+                     Mat4::rot_y(rotation.y) *
+                     Mat4::rot_x(rotation.x) *
+                     Mat4::rot_z(rotation.z) *
+                     Mat4::scale(scale);
+
+        // Apply parent world transform
+        if (parent) {
+            transform = parent->transform * local;
+        } else {
+            transform = local;
+        }
+
         // Inverse for lighting calculations
         inverseTransform = transform.affine_inverse();
-        
+
         // Update children
         for (auto& child : children) {
             child->updateTransform();

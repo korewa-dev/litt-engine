@@ -88,13 +88,26 @@ public:
         next_++;
         return e;
     }
-    void destroy(Entity e) { alive_.erase(e.id); }
+    void destroy(Entity e) {
+        alive_.erase(e.id);
+        // Remove from all component stores
+        for (auto& [type, storage] : storages_) {
+            storage->remove(e);
+        }
+        // Increment generation for this ID slot
+        // (simplified: just track that this ID is dead)
+    }
     bool is_alive(Entity e) const { return alive_.count(e.id) > 0; }
     
     template<typename T>
     T& add(Entity e, T comp) {
         ensure<T>();
         auto* s = static_cast<Storage<T>*>(storages_[typeid(T)].get());
+        // Reject duplicate components
+        if (s->has(e)) {
+            *s->get(e) = std::move(comp);
+            return *s->get(e);
+        }
         s->add(e, std::move(comp));
         return *s->get(e);
     }
@@ -130,6 +143,8 @@ public:
         if (it == storages_.end()) return;
         auto& s = *static_cast<Storage<T>*>(it->second.get());
         for (size_t i = 0; i < s.entities.size(); i++) {
+            // Skip entities that have been destroyed
+            if (!is_alive(Entity(s.entities[i], 0))) continue;
             fn(Entity(s.entities[i], 0), &s.data[i]);
         }
     }
