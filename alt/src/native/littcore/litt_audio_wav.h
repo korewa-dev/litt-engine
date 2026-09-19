@@ -16,15 +16,17 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include <cmath>
+#include <tuple>
 
 namespace litt {
 
-class WindowsWaveOutAudio : public AudioEngine {
+class WindowsWaveOutAudio {
 public:
     WindowsWaveOutAudio() = default;
-    ~WindowsWaveOutAudio() override { shutdown(); }
+    ~WindowsWaveOutAudio() { shutdown(); }
     
-    bool init() override {
+    bool init() {
         if (initialized_) return true;
         
         // Setup wave format
@@ -49,7 +51,7 @@ public:
         return true;
     }
     
-    void shutdown() override {
+    void shutdown() {
         if (!initialized_) return;
         
         // Stop all sounds
@@ -69,7 +71,7 @@ public:
         initialized_ = false;
     }
     
-    void update(float dt) override {
+    void update(float dt) {
         std::lock_guard<std::mutex> lock(mutex_);
         
         // Update all active sources
@@ -88,7 +90,7 @@ public:
         }
     }
     
-    bool load_clip(const std::string& name, const std::string& path) override {
+    bool load_clip(const std::string& name, const std::string& path) {
         if (clips_.count(name)) return true;
         
         AudioClip clip;
@@ -102,7 +104,7 @@ public:
         return true;
     }
     
-    void play(const std::string& name) override {
+    void play(const std::string& name) {
         auto clip_it = clips_.find(name);
         if (clip_it == clips_.end()) return;
         
@@ -124,7 +126,7 @@ public:
         playBuffer(clip_it->second);
     }
     
-    void stop(const std::string& name) override {
+    void stop(const std::string& name) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = sources_.find(name);
         if (it != sources_.end()) {
@@ -133,7 +135,7 @@ public:
         }
     }
     
-    void pause(const std::string& name) override {
+    void pause(const std::string& name) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = sources_.find(name);
         if (it != sources_.end()) {
@@ -141,7 +143,7 @@ public:
         }
     }
     
-    void set_volume(const std::string& name, float volume) override {
+    void set_volume(const std::string& name, float volume) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = sources_.find(name);
         if (it != sources_.end()) {
@@ -149,7 +151,7 @@ public:
         }
     }
     
-    void set_pitch(const std::string& name, float pitch) override {
+    void set_pitch(const std::string& name, float pitch) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = sources_.find(name);
         if (it != sources_.end()) {
@@ -157,7 +159,7 @@ public:
         }
     }
     
-    void set_looping(const std::string& name, bool loop) override {
+    void set_looping(const std::string& name, bool loop) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = sources_.find(name);
         if (it != sources_.end()) {
@@ -165,7 +167,7 @@ public:
         }
     }
     
-    void set_position(const std::string& name, float x, float y, float z) override {
+    void set_position(const std::string& name, float x, float y, float z) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = sources_.find(name);
         if (it != sources_.end()) {
@@ -174,28 +176,28 @@ public:
         }
     }
     
-    void set_listener_position(float x, float y, float z) override {
+    void set_listener_position(float x, float y, float z) {
         std::lock_guard<std::mutex> lock(mutex_);
         listener_position_ = Vec3(x, y, z);
     }
     
-    void set_listener_orientation(float fx, float fy, float fz, float ux, float uy, float uz) override {
+    void set_listener_orientation(float fx, float fy, float fz, float ux, float uy, float uz) {
         std::lock_guard<std::mutex> lock(mutex_);
         listener_forward_ = Vec3(fx, fy, fz).normalized();
         listener_up_ = Vec3(ux, uy, uz).normalized();
     }
     
-    bool is_playing(const std::string& name) const override {
+    bool is_playing(const std::string& name) const {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = sources_.find(name);
         return it != sources_.end() && it->second.state == AudioState::Playing;
     }
     
-    float get_volume() const override {
+    float get_volume() const {
         return master_volume_;
     }
     
-    void set_master_volume(float volume) override {
+    void set_master_volume(float volume) {
         master_volume_ = volume;
         if (hwave_out_) {
             DWORD vol = (DWORD)(volume * 0xFFFF);
@@ -204,7 +206,7 @@ public:
         }
     }
     
-    void apply_reverb(const std::string& name, float room_size, float damping, float decay, float diffusion) override {
+    void apply_reverb(const std::string& name, float room_size, float damping, float decay, float diffusion) {
         std::lock_guard<std::mutex> lock(mutex_);
         reverb_params_[name] = {room_size, damping, decay, diffusion};
     }
@@ -244,16 +246,19 @@ private:
         file.read(wave, 4);
         if (strncmp(wave, "WAVE", 4) != 0) return false;
         
-        // Find fmt chunk
+        // Find fmt/data chunks. Keep format fields alive across chunk
+        // iterations because the data chunk is parsed after the fmt chunk.
         char chunkId[4];
         uint32_t chunkSize;
+        uint16_t bitsPerSample = 0;
+        bool haveFormat = false;
         while (file.read(chunkId, 4)) {
             file.read((char*)&chunkSize, 4);
             
             if (strncmp(chunkId, "fmt ", 4) == 0) {
                 uint16_t format, channels;
                 uint32_t sampleRate, byteRate;
-                uint16_t blockAlign, bitsPerSample;
+                uint16_t blockAlign;
                 
                 file.read((char*)&format, 2);
                 file.read((char*)&channels, 2);
@@ -262,13 +267,26 @@ private:
                 file.read((char*)&blockAlign, 2);
                 file.read((char*)&bitsPerSample, 2);
                 
+                if (format != 1 || channels == 0 ||
+                    (bitsPerSample != 8 && bitsPerSample != 16)) {
+                    return false;
+                }
                 clip.sampleRate = sampleRate;
                 clip.channels = channels;
+                haveFormat = true;
                 
                 if (chunkSize > 16) {
                     file.seekg(chunkSize - 16, std::ios::cur);
                 }
             } else if (strncmp(chunkId, "data", 4) == 0) {
+                if (!haveFormat || clip.channels == 0 || bitsPerSample == 0) {
+                    return false;
+                }
+                const uint32_t bytesPerSample = bitsPerSample / 8;
+                if (bytesPerSample == 0 ||
+                    chunkSize % (static_cast<uint32_t>(clip.channels) * bytesPerSample) != 0) {
+                    return false;
+                }
                 std::vector<uint8_t> raw(chunkSize);
                 file.read((char*)raw.data(), chunkSize);
                 
