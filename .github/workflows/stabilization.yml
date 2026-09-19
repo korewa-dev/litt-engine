@@ -1,8 +1,10 @@
 name: Stabilization
 
 on:
-  push:
   pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   core-stabilization:
@@ -13,3 +15,19 @@ jobs:
         run: make stabilization-test
       - name: Run stabilization regressions
         run: ./stabilization_tests.exe
+
+  windows-native:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Build native engine tests
+        shell: cmd
+        run: >-
+          cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore
+          alt\src\native\littcore\litt_engine_tests.cpp
+          alt\src\native\littcore\litt_math.cpp
+          /Fe:tests.exe gdi32.lib user32.lib winmm.lib
+      - name: Run native engine tests
+        shell: cmd
+        run: tests.exe
