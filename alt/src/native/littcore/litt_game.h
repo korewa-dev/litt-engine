@@ -64,7 +64,7 @@ public:
                            std::istreambuf_iterator<char>());
         f.close();
         
-        LvJson* root = lvj_parse(content.c_str());
+        LvJson* root = lvj_parse_strict(content.c_str());
         if (!root) return false;
         
         // Parse nodes
@@ -153,35 +153,44 @@ public:
     }
     
     bool load_models(const std::string& base_path) {
+        bool ok = true;
         for (auto& node : nodes) {
             if (node.model_path.empty()) continue;
-            
+
             std::string full_path = base_path + "/" + node.model_path;
             LvModel model = {};
-            if (lv_obj_load(full_path.c_str(), &model) == 0 && model.count > 0) {
-                // Convert OBJ to triangle list
-                for (int m = 0; m < model.count; m++) {
-                    LvMesh& mesh = model.meshes[m];
-                    uint32_t base = (uint32_t)node.vertices.size();
-                    
-                    // Add vertices
-                    for (int v = 0; v < mesh.vn; v++) {
-                        node.vertices.push_back(Vec3(
-                            mesh.verts[v*3],
-                            mesh.verts[v*3+1],
-                            mesh.verts[v*3+2]
-                        ));
-                    }
-                    
-                    // Add indices
-                    for (int idx = 0; idx < mesh.in; idx++) {
-                        node.indices.push_back(base + mesh.idx[idx]);
-                    }
-                }
+            if (lv_obj_load(full_path.c_str(), &model) != 0 || model.count <= 0) {
+                std::cerr << "[Game] Failed to load required model: " << full_path << std::endl;
                 lv_model_free(&model);
+                ok = false;
+                continue;
             }
+
+            // Convert OBJ to triangle list.
+            for (int m = 0; m < model.count; m++) {
+                LvMesh& mesh = model.meshes[m];
+                uint32_t base = (uint32_t)node.vertices.size();
+
+                for (int v = 0; v < mesh.vn; v++) {
+                    node.vertices.push_back(Vec3(
+                        mesh.verts[v*3],
+                        mesh.verts[v*3+1],
+                        mesh.verts[v*3+2]
+                    ));
+                }
+
+                for (int idx = 0; idx < mesh.in; idx++) {
+                    if (mesh.idx[idx] >= mesh.vn) {
+                        std::cerr << "[Game] Invalid model index in: " << full_path << std::endl;
+                        ok = false;
+                        continue;
+                    }
+                    node.indices.push_back(base + mesh.idx[idx]);
+                }
+            }
+            lv_model_free(&model);
         }
-        return true;
+        return ok;
     }
 };
 
@@ -203,12 +212,19 @@ public:
             return false;
         }
         
-        // Load models
-        scene_.load_models(project_dir);
+        // Required scene assets must load successfully. A generated game with
+        // missing or malformed geometry must not initialize as an empty world.
+        if (!scene_.load_models(project_dir)) {
+            std::cerr << "[Game] Required model loading failed" << std::endl;
+            return false;
+        }
 
         // Generated gameplay configuration is authoritative for physics. The
         // semantic Player_Start node remains the preferred spawn source.
-        load_project_config(project_dir + "/world_state.json");
+        if (!load_project_config(project_dir + "/world_state.json")) {
+            std::cerr << "[Game] Failed to load world_state.json" << std::endl;
+            return false;
+        }
         
         // Initialize renderer
         renderer_ = std::make_unique<SoftwareRenderer>();
