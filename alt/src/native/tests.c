@@ -292,6 +292,62 @@ int main(void) {
         remove("t_spad.obj");
     }
 
+    /* ---- generated-project contract: semantic spawn, custom physics,
+     * score config and full TRS collision agree in the canonical C runtime ---- */
+    {
+        int io = write_file("t_contract.obj",
+            "g wall\nv -2 0 -1\nv 2 0 -1\nv 2 0 1\nv -2 0 1\n"
+            "f 1 2 3\nf 1 3 4\n");
+        io |= write_file("t_contract_scene.json",
+            "{\"nodes\":["
+            "{\"name\":\"Root\",\"position\":[0,0,0],\"visible\":true,\"tags\":[]},"
+            "{\"name\":\"Player_Start\",\"position\":[2,3.6,4],"
+            "\"rotation\":[0,0,0,1],\"scale\":[1,1,1],\"visible\":true,"
+            "\"tags\":[\"player\",\"start\"]},"
+            "{\"name\":\"RotatedWall\",\"position\":[10,0,20],"
+            "\"rotation\":[0,0.70710678,0,0.70710678],"
+            "\"scale\":[2,1,0.5],\"visible\":true,"
+            "\"tags\":[\"floor\",\"model:t_contract\"]}"
+            "]}");
+        if (io) {
+            printf("FAIL io: cannot write generated contract fixture\n");
+            failures++;
+        } else {
+            const char *state =
+                "{\"identity\":{\"camera\":\"top_down\"},"
+                "\"gameplay\":{\"physics\":{\"gravity\":30,"
+                "\"jump_velocity\":9,\"run_speed\":12.5},"
+                "\"scoring\":{\"coins\":true}}}";
+            LvSession s;
+            int rc = lv_session_create(state, "t_contract_scene.json", ".", &s);
+            CHECK(rc == 0, "contract: generated fixture builds");
+            if (rc == 0) {
+                CHECK(fabsf(s.spawn[0] - 2.0f) < 1e-5f &&
+                      fabsf(s.spawn[1] - 3.6f) < 1e-5f &&
+                      fabsf(s.spawn[2] - 4.0f) < 1e-5f &&
+                      fabsf(s.pos[1] - 3.6f) < 1e-5f,
+                      "contract: Player_Start coordinates are authoritative");
+                CHECK(fabsf(s.cfg.gravity - 30.0f) < 1e-5f &&
+                      fabsf(s.cfg.jump_v - 9.0f) < 1e-5f &&
+                      fabsf(s.cfg.run_speed - 12.5f) < 1e-5f &&
+                      s.cfg.coins_value == 25,
+                      "contract: generated physics and scoring are authoritative");
+                CHECK(s.solid_count == 1, "contract: transformed solid loads");
+                if (s.solid_count == 1) {
+                    const LvAabb *a = &s.solids[0];
+                    CHECK(fabsf(a->min[0] - 9.5f) < 0.05f &&
+                          fabsf(a->max[0] - 10.5f) < 0.05f &&
+                          fabsf(a->min[2] - 16.0f) < 0.05f &&
+                          fabsf(a->max[2] - 24.0f) < 0.05f,
+                          "contract: collision applies scale then quaternion rotation then translation");
+                }
+                lv_session_free(&s);
+            }
+        }
+        remove("t_contract_scene.json");
+        remove("t_contract.obj");
+    }
+
     /* ---- respawn must drop stale coyote/buffer/grounded (n5) ----
      * Deterministic walk into a hazard: player lands (~f20), walks north
      * off the pad edge (~f37, coyote refreshed), enters the kill radius
