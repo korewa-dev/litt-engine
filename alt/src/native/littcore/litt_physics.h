@@ -48,12 +48,17 @@ public:
     std::vector<Node> nodes;
     int root = -1;
     
-    void addBody(PhysicsBody* body) {
+    bool addBody(PhysicsBody* body) {
+        if (!body) return false;
+        if (std::find(bodies.begin(), bodies.end(), body) != bodies.end()) {
+            return false;
+        }
         bodies.push_back(body);
         // NOTE: sweep-and-prune over `bodies` is the active broadphase. The
         // AABB-tree node array below is reserved for future work; we
         // deliberately do NOT append a node here any more, because removed
         // bodies left dangling pointers in it forever.
+        return true;
     }
     
     void removeBody(PhysicsBody* body) {
@@ -196,10 +201,17 @@ public:
     PhysicsSystem(float dt = 1.0f / 60.0f, const Vec3& gravity = Vec3{0, -9.81f, 0})
         : integrator(dt, gravity) {}
     
-    void addBody(PhysicsBody* body) {
+    bool addBody(PhysicsBody* body) {
+        if (!body) return false;
+        if (std::find(bodies.begin(), bodies.end(), body) != bodies.end()) {
+            return false;
+        }
         body->updateAabb();
+        if (!broadPhase.addBody(body)) {
+            return false;
+        }
         bodies.push_back(body);
-        broadPhase.addBody(body);
+        return true;
     }
     
     void removeBody(PhysicsBody* body) {

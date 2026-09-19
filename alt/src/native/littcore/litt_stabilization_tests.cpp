@@ -60,6 +60,26 @@ static void test_physics_normals() {
           "physics_normal_above_to_below");
 }
 
+static void test_physics_registration() {
+    PhysicsBody a = body_at(Vec3(0, 0, 0));
+    PhysicsBody b = body_at(Vec3(0.5f, 0, 0));
+    PhysicsSystem physics(0.0f, Vec3::zero());
+
+    check(physics.addBody(&a), "physics_first_registration_succeeds");
+    check(!physics.addBody(&a), "physics_duplicate_registration_rejected");
+    check(physics.bodies.size() == 1 && physics.broadPhase.bodies.size() == 1,
+          "physics_duplicate_not_stored_twice");
+
+    check(physics.addBody(&b), "physics_second_body_registration_succeeds");
+    physics.update();
+    check(physics.narrowPhase.contacts.size() == 1,
+          "physics_duplicate_does_not_create_repeated_contacts");
+
+    physics.removeBody(&a);
+    check(physics.bodies.size() == 1 && physics.broadPhase.bodies.size() == 1,
+          "physics_remove_after_duplicate_attempt_unregisters_once");
+}
+
 static void test_physics_resolution() {
     {
         PhysicsBody a = body_at(Vec3(0, 0, 0));
@@ -296,6 +316,7 @@ int main() {
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     std::printf("[Stabilization]\n");
     test_physics_normals();
+    test_physics_registration();
     test_physics_resolution();
     test_memory();
     test_ecs_generations();
