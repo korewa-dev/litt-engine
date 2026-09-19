@@ -174,8 +174,9 @@ public:
     
     void draw_pixel_depth(int x, int y, float depth, uint32_t color) {
         if (x < 0 || x >= (int)width_ || y < 0 || y >= (int)height_) return;
+        if (!std::isfinite(depth)) return;
         uint32_t idx = y * width_ + x;
-        if (depth >= depth_buffer_[idx]) return;
+        if (depth < 0.0f || depth > 1.0f || depth >= depth_buffer_[idx]) return;
         depth_buffer_[idx] = depth;
         uint32_t pidx = idx * 4;
         framebuffer_[pidx + 0] = (color >> 0) & 0xFF;
@@ -214,9 +215,13 @@ public:
     }
     
     void draw_text(int x, int y, const std::string& text, uint32_t color) {
+        // GDI text is only available for a window-backed renderer. Headless
+        // mode deliberately has no device context, so treat text as a no-op
+        // instead of passing a null HDC into Win32.
+        if (!hdc_ || text.empty()) return;
         SetTextColor(hdc_, RGB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF));
         SetBkMode(hdc_, TRANSPARENT);
-        TextOutA(hdc_, x, y, text.c_str(), text.length());
+        TextOutA(hdc_, x, y, text.c_str(), static_cast<int>(text.size()));
     }
     
     // === 3D Triangle Rasterization ===
@@ -363,10 +368,15 @@ public:
     void draw_mesh(const std::vector<Vec3>& vertices, const std::vector<uint32_t>& indices,
                    const Mat4& view_proj, uint32_t color) {
         for (size_t i = 0; i + 2 < indices.size(); i += 3) {
-            draw_triangle_3d(
-                vertices[indices[i]], vertices[indices[i+1]], vertices[indices[i+2]],
-                view_proj, color
-            );
+            const uint32_t i0 = indices[i];
+            const uint32_t i1 = indices[i + 1];
+            const uint32_t i2 = indices[i + 2];
+            // Asset data is not trusted. A malformed mesh must not turn into
+            // an out-of-bounds read in the software fallback renderer.
+            if (i0 >= vertices.size() || i1 >= vertices.size() || i2 >= vertices.size()) {
+                continue;
+            }
+            draw_triangle_3d(vertices[i0], vertices[i1], vertices[i2], view_proj, color);
         }
     }
     
@@ -406,6 +416,8 @@ public:
     
     // Draw a grid (for ground plane)
     void draw_grid(float spacing, const Mat4& view_proj, uint32_t color) {
+        // Prevent a zero/negative/NaN spacing from producing an infinite loop.
+        if (!std::isfinite(spacing) || spacing <= 0.0f) return;
         for (float x = -10.0f; x <= 10.0f; x += spacing) {
             Vec3 start(x, 0, -10);
             Vec3 end(x, 0, 10);
