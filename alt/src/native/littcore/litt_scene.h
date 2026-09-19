@@ -27,8 +27,14 @@ struct SceneNode {
     std::vector<SceneNode*> children;
     SceneNode* parent = nullptr;
     
-    // Components (renderer types from litt_renderer.h)
-    Transform* transformComponent = nullptr;
+    // SceneNode is the sole transform authority for scene-graph nodes.
+    // Do not cache a raw Transform* from ECS storage here: packed component
+    // storage can move elements, and a second mutable transform would let the
+    // scene graph and ECS disagree about world position. Systems that bridge
+    // Scene and ECS must copy/synchronize through an Entity handle instead.
+    //
+    // Remaining component pointers are legacy non-owning attachments and
+    // should only reference storage with a lifetime that exceeds this node.
     Collider* colliderComponent = nullptr;
     RigidBody* rigidBodyComponent = nullptr;
     MeshData* meshComponent = nullptr;
