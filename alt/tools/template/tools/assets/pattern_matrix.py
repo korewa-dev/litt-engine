@@ -22,7 +22,7 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 WORLDGEN = HERE.parent / "worldgen"
-REPO = HERE.parent.parent.parent
+REPO = HERE.resolve().parents[3]
 
 PATTERNS = ["arena_ring", "corridor_run", "hub_spoke", "grid_board",
             "spline_track", "room_graph"]
