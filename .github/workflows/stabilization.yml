@@ -43,15 +43,19 @@ jobs:
         shell: pwsh
         run: |
           $headers = Get-ChildItem alt\src\native\littcore\*.h
+          $failed = @()
           foreach ($header in $headers) {
             $name = $header.Name
             Set-Content header_smoke.cpp "#include `"$name`""
             Add-Content header_smoke.cpp 'int main() { return 0; }'
             cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c header_smoke.cpp /Fo:header_smoke.obj
             if ($LASTEXITCODE -ne 0) {
-              Write-Error "Standalone header compile failed: $name"
-              exit $LASTEXITCODE
+              $failed += $name
             }
+          }
+          if ($failed.Count -gt 0) {
+            Write-Error ("Standalone header compile failures: " + ($failed -join ", "))
+            exit 1
           }
       - name: Build Windows stabilization regressions
         shell: cmd
