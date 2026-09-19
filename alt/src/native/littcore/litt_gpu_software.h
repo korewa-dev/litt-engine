@@ -1,12 +1,14 @@
-// Windows Software Renderer - Real framebuffer output using GDI
-// No external dependencies - uses Windows built-in GDI for pixel output
+// Software Renderer - portable headless framebuffer with optional Win32 GDI presentation
+// The rasterizer is platform-neutral. Window creation/presentation is compiled only on Windows.
 
 #pragma once
 #include "litt_gpu.h"
+#ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
 #include <windows.h>
+#endif
 #include <vector>
 #include <cstring>
 #include <iostream>
@@ -44,17 +46,20 @@ public:
         if (adapter_name == "headless") {
             if (!resize_buffers()) return false;
             
+#ifdef _WIN32
             bmp_info_.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
             bmp_info_.bmiHeader.biWidth = width_;
             bmp_info_.bmiHeader.biHeight = -height_;
             bmp_info_.bmiHeader.biPlanes = 1;
             bmp_info_.bmiHeader.biBitCount = 32;
             bmp_info_.bmiHeader.biCompression = BI_RGB;
+#endif
             
             initialized_ = true;
             return true;
         }
         
+#ifdef _WIN32
         // Register window class
         WNDCLASSEX wc = {};
         wc.cbSize = sizeof(WNDCLASSEX);
@@ -95,19 +100,27 @@ public:
         UpdateWindow(hwnd_);
         
         std::cout << "[SW] Software renderer initialized: " << width_ << "x" << height_ << std::endl;
+#else
+        (void)adapter_name;
+        return false;
+#endif
         initialized_ = true;
         return true;
     }
     
     void shutdown() override {
+#ifdef _WIN32
         if (hwnd_) {
             DestroyWindow(hwnd_);
             hwnd_ = nullptr;
         }
+        hdc_ = nullptr;
+#endif
         initialized_ = false;
     }
     
     void present() override {
+#ifdef _WIN32
         // Headless mode intentionally has no device context.
         if (!hdc_ || framebuffer_.empty()) return;
         SetDIBitsToDevice(
@@ -115,6 +128,7 @@ public:
             0, 0, 0, height_,
             framebuffer_.data(), &bmp_info_, DIB_RGB_COLORS
         );
+#endif
     }
     
     std::unique_ptr<GPUBuffer> create_buffer(const BufferDesc& desc) override {
@@ -215,6 +229,7 @@ public:
     }
     
     void draw_text(int x, int y, const std::string& text, uint32_t color) {
+#ifdef _WIN32
         // GDI text is only available for a window-backed renderer. Headless
         // mode deliberately has no device context, so treat text as a no-op
         // instead of passing a null HDC into Win32.
@@ -222,6 +237,9 @@ public:
         SetTextColor(hdc_, RGB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF));
         SetBkMode(hdc_, TRANSPARENT);
         TextOutA(hdc_, x, y, text.c_str(), static_cast<int>(text.size()));
+#else
+        (void)x; (void)y; (void)text; (void)color;
+#endif
     }
     
     // === 3D Triangle Rasterization ===
@@ -466,7 +484,11 @@ public:
         }
     }
     
+#ifdef _WIN32
     HWND get_window() const { return hwnd_; }
+#else
+    void* get_window() const { return nullptr; }
+#endif
 
     uint32_t get_pixel(int x, int y) const {
         if (x < 0 || x >= static_cast<int>(width_) ||
@@ -576,11 +598,13 @@ private:
         TextureDesc desc_;
     };
     
+#ifdef _WIN32
     HWND hwnd_ = nullptr;
     HDC hdc_ = nullptr;
+    BITMAPINFO bmp_info_ = {};
+#endif
     std::vector<uint8_t> framebuffer_;
     std::vector<float> depth_buffer_;
-    BITMAPINFO bmp_info_ = {};
     uint32_t width_ = 800;
     uint32_t height_ = 600;
     bool initialized_ = false;
