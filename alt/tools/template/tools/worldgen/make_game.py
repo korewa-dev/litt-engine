@@ -41,7 +41,8 @@ from pathlib import Path
 HERE = Path(__file__).parent
 WORLDGEN = HERE / "worldgen" if (HERE / "worldgen").exists() else HERE.parent / "worldgen"
 ASSETS_TOOLS = HERE if (HERE / "lint.py").exists() else HERE.parent / "assets"
-REPO = ASSETS_TOOLS.parent.parent.parent   # .../template/tools/assets -> engine root
+REPO = ASSETS_TOOLS.resolve().parents[3]  # alt/
+NATIVE_BIN = REPO / "src" / "native" / "bin"
 sys.path.insert(0, str(ASSETS_TOOLS))
 sys.path.insert(0, str(WORLDGEN))
 from lint import lint_game, solid_count  # noqa: E402
@@ -519,35 +520,36 @@ def native_proof_gate(game_dir, name, cli, view, sim_json=None):
 
 
 def deploy_runtime(game_dir, port_seed):
+    """Write supported native launchers and a static validation launcher.
+
+    The old play_native.py runtime was retired. Generated games must not
+    resurrect or depend on it.
+    """
+    del port_seed
     g = Path(game_dir)
     (g / "viewer").mkdir(exist_ok=True)
-    rt = REPO / "template/tools/runtime"
-    ex = REPO / "Project/example-village"
-    # HTML/browser stack is PHASED OUT entirely. Two native paths remain:
-    #  - ENGINE.bat/.sh  -> the engine's Vulkan player (`litt play <dir>`):
-    #    FSR, path tracing, every render feature. THE way to play.
-    #  - VIEW.bat        -> littview, the C++ orbit viewer from native/:
-    #    zero-dependency visual check of the built world.
-    shutil.copy(ex / "play_native.py", g / "")
-    # native C++ orbit viewer launcher (littview window)
+
     view = ("@echo off\nrem %s - native C++ viewer (littview)\n"
             "cd /d \"%%~dp0\"\n"
-            "start \"littview\" \"..\\..\\native\\bin\\littview.exe\" window .\n"
-            % g.name)
+            "set \"VIEW=..\\..\\src\\native\\bin\\littview.exe\"\n"
+            "if not exist \"%%VIEW%%\" (echo [view] littview.exe not built & exit /b 1)\n"
+            "\"%%VIEW%%\" window .\n" % g.name)
     (g / "VIEW.bat").write_text(view, encoding="ascii")
-    nbat = ("@echo off\nrem %s headless validation (CI smoke)\ncd /d \"%%~dp0\"\n"
-            "python play_native.py --frames 60 --dummy\nif errorlevel 1 pause" % g.name)
-    (g / "VALIDATE.bat").write_text(nbat, encoding="ascii")
-    # cross-platform native launchers (Windows + Linux/macOS)
+
+    validate = (
+        "@echo off\nrem %s static project validation\n"
+        "cd /d \"%%~dp0\"\n"
+        "python \"..\\..\\tools\\template\\tools\\assets\\verify_project.py\" \"%s\"\n"
+        "exit /b %%errorlevel%%\n" % (g.name, g.name))
+    (g / "VALIDATE.bat").write_text(validate, encoding="ascii")
+
     from gen_launchers import BAT as _LBAT, SH as _LSH
     (g / "ENGINE.bat").write_text(
         _LBAT.replace("\\\\", "\\"), encoding="ascii", newline="\r\n")
     sh_path = g / "ENGINE.sh"
     sh_path.write_text(_LSH, encoding="utf-8", newline="\n")
     sh_path.chmod(0o755)
-    del rt
     return 0
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -769,24 +771,25 @@ def main():
 
     tris = "?"
     # native C validator (Stage-1 littcore) when built; Python fallback else
-    cli = REPO / "native" / "bin" / "littcli.exe"
+    cli = NATIVE_BIN / "littcli.exe"
     if not cli.exists():
-        cli = REPO / "native" / "bin" / "littcli"
-    view = REPO / "native" / "bin" / "littview.exe"
+        cli = NATIVE_BIN / "littcli"
+    view = NATIVE_BIN / "littview.exe"
     if not view.exists():
-        view = REPO / "native" / "bin" / "littview"
+        view = NATIVE_BIN / "littview"
     sim_json = None
     if not a.skip_validate:
         if cli.exists():
             sim_json = littcli_validate(out, cli)
         else:
-            run(out / "play_native.py", "--project", str(out),
-                "--frames", "30", "--dummy")
+            print("[make] native validator not built; static lint/asset validation passed")
 
     # ITEM 8: native proof gate (validate assertions + rendered-pixel proof)
     proof = None
     if a.skip_native_proof:
         print("[make] native-proof: SKIPPED (--skip-native-proof)")
+    elif not cli.exists() or not view.exists():
+        print("[make] native-proof: UNAVAILABLE (build alt/src/native/bin/littcli and littview)")
     else:
         proof = native_proof_gate(out, name, cli, view, sim_json)
     deploy_runtime(out, seed)

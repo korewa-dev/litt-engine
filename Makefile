@@ -12,7 +12,7 @@ game:
 
 # Validate existing game
 validate:
-	cd alt/Project/$(GAME) && python play_native.py --project . --frames 30 --dummy
+	python alt/tools/template/tools/assets/verify_project.py $(GAME)
 
 # Clean game build
 clean:

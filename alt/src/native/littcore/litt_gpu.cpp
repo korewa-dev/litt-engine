@@ -14,19 +14,19 @@ namespace litt {
 
 std::unique_ptr<IGPUDevice> create_gpu_device(const std::string& backend_name) {
 #ifdef LITT_VULKAN_BACKEND
-    if (backend_name == "vulkan" || backend_name == "auto") {
+    if (backend_name == "vulkan") {
         return std::make_unique<VulkanDevice>();
     }
 #endif
 
 #ifdef LITT_DX12_BACKEND
-    if (backend_name == "dx12" || backend_name == "dx11" || backend_name == "auto") {
+    if (backend_name == "dx12") {
         return std::make_unique<D3D12Device>();
     }
 #endif
 
 #ifdef LITT_OPENGL_BACKEND
-    if (backend_name == "opengl" || backend_name == "auto") {
+    if (backend_name == "opengl") {
         return nullptr;  // OpenGL backend not available - use software renderer
     }
 #endif
@@ -45,11 +45,11 @@ std::unique_ptr<IGPUDevice> create_gpu_device(const std::string& backend_name) {
 #ifdef LITT_VULKAN_BACKEND
 
 bool VulkanDevice::initialize(const std::string& adapter_name) {
-    // Vulkan initialization would go here
-    // This is a stub for now
+    // This class is only a placeholder unless a real Vulkan implementation
+    // is wired in. Never report successful initialization for an empty backend.
     adapter_name_ = adapter_name;
-    std::cout << "[Vulkan] GPU device initialized (stub)" << std::endl;
-    return true;
+    std::cerr << "[Vulkan] Backend unavailable in this build" << std::endl;
+    return false;
 }
 
 void VulkanDevice::shutdown() {
@@ -148,10 +148,11 @@ uint32_t VulkanDevice::get_max_texture_size() const {
 #ifdef LITT_DX12_BACKEND
 
 bool D3D12Device::initialize(const std::string& adapter_name) {
-    // DirectX 12 initialization would go here
+    // This class is only a placeholder unless a real D3D12 implementation
+    // is wired in. Never report successful initialization for an empty backend.
     adapter_name_ = adapter_name;
-    std::cout << "[DX12] GPU device initialized (stub)" << std::endl;
-    return true;
+    std::cerr << "[DX12] Backend unavailable in this build" << std::endl;
+    return false;
 }
 
 void D3D12Device::shutdown() {

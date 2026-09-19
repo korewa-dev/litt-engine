@@ -18,21 +18,24 @@ setlocal
 set "HERE=%~dp0"
 set "ROOT=%HERE%..\\..\\"
 if defined LITT_ENGINE set "EXE=%LITT_ENGINE%"
-if not defined EXE set "EXE=%ROOT%native\\bin\\littview.exe"
+if not defined EXE set "EXE=%ROOT%src\\native\\bin\\littview.exe"
 if not exist "%EXE%" (
-    echo [engine] littview.exe not found - run native/build.bat
+    echo [engine] littview.exe not found - build alt/src/native first
     goto :eof
 )
-"%EXE%" window "%HERE%assets\\scenes\\world.lscn.json"
+"%EXE%" window "%HERE%"
 """
 
 SH = """#!/bin/sh
 # Litt native launcher - engine plays this world in its own window
 HERE="$(cd "$(dirname "$0")" && pwd)"
-ROOT="$(cd "$HERE/../../.." && pwd)"
+ALT="$(cd "$HERE/../.." && pwd)"
 EXE="$LITT_ENGINE"
-[ -n "$EXE" ] || EXE="$ROOT/native/bin/littview"
-[ -x "$EXE" ] || EXE="$ROOT/native/bin/littview"
+[ -n "$EXE" ] || EXE="$ALT/src/native/bin/littview"
+if [ ! -x "$EXE" ]; then
+    echo "[engine] littview not found - build alt/src/native first" >&2
+    exit 1
+fi
 exec "$EXE" window "$HERE"
 """
 

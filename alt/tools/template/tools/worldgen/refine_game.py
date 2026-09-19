@@ -35,7 +35,7 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent            # template/tools/worldgen
-REPO = HERE.parent.parent.parent                  # engine root
+REPO = HERE.resolve().parents[3]                  # engine root
 ASSETS_TOOLS = REPO / "template" / "tools" / "assets"
 sys.path.insert(0, str(ASSETS_TOOLS))
 from native_proof import proof_one_game, yaw_delta_check  # noqa: E402
@@ -48,9 +48,9 @@ MAKE_TIMEOUT_S = 900        # generous wall-clock cap per generation attempt
 
 # --------------------------------------------------------------- utilities
 def bin_paths():
-    cli = REPO / "native" / "bin" / ("littcli.exe" if os.name == "nt"
+    cli = REPO / "src" / "native" / "bin" / ("littcli.exe" if os.name == "nt"
                                      else "littcli")
-    view = REPO / "native" / "bin" / ("littview.exe" if os.name == "nt"
+    view = REPO / "src" / "native" / "bin" / ("littview.exe" if os.name == "nt"
                                       else "littview")
     return cli, view
 

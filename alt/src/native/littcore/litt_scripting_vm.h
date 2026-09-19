@@ -10,6 +10,10 @@
 #include <functional>
 #include <sstream>
 #include <cstring>
+#include <iostream>
+#include <cmath>
+#include <cctype>
+#include <cstdlib>
 
 namespace litt {
 
@@ -86,7 +90,11 @@ struct Value {
         switch (type) {
             case ValueType::FLOAT: return float_val;
             case ValueType::BOOL: return bool_val ? 1.0f : 0.0f;
-            case ValueType::STRING: return (float)std::stod(string_val);
+            case ValueType::STRING: {
+                char* end = nullptr;
+                const float v = std::strtof(string_val.c_str(), &end);
+                return (end && end != string_val.c_str() && *end == '\0') ? v : 0.0f;
+            }
             default: return 0.0f;
         }
     }
@@ -198,7 +206,8 @@ public:
         CallFrame frame;
         frame.function = func;
         frame.pc = 0;
-        frame.base = stack_.size() - func->num_params;
+        if (stack_.size() < func->num_params) return false;
+        frame.base = static_cast<uint32_t>(stack_.size() - func->num_params);
         frames_.push_back(frame);
         
         return run();
@@ -311,7 +320,7 @@ private:
         }
     }
     
-    void compileExpression(std::istringstream& ss, ScriptFunction& func) {
+    void compileExpression(std::istringstream& ss, VMFunction& func) {
         std::string token;
         ss >> token;
         
@@ -361,9 +370,11 @@ private:
             
             if (op == "+" || op == "-" || op == "*" || op == "/" || op == "%" || 
                 op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=") {
-                compileExpression(ss, func);
+                // Binary operators are emitted left-to-right so non-commutative
+                // operations (sub/div/mod/comparisons) preserve source order.
                 func.bytecode.push_back((uint8_t)OpCode::LOAD_VAR);
                 func.bytecode.push_back((uint8_t)getLocalIndex(name, func));
+                compileExpression(ss, func);
                 
                 if (op == "+") func.bytecode.push_back((uint8_t)OpCode::ADD);
                 else if (op == "-") func.bytecode.push_back((uint8_t)OpCode::SUB);
@@ -384,7 +395,7 @@ private:
         }
     }
     
-    uint32_t getLocalIndex(const std::string& name, ScriptFunction& func) {
+    uint32_t getLocalIndex(const std::string& name, VMFunction& func) {
         for (uint32_t i = 0; i < func.local_names.size(); i++) {
             if (func.local_names[i] == name) return i;
         }
@@ -395,7 +406,7 @@ private:
     bool run() {
         while (!frames_.empty()) {
             CallFrame& frame = frames_.back();
-            ScriptFunction* func = frame.function;
+            VMFunction* func = frame.function;
             
             if (frame.pc >= func->bytecode.size()) {
                 frames_.pop_back();
@@ -443,7 +454,8 @@ private:
                 case OpCode::MOD: {
                     Value b = pop();
                     Value a = pop();
-                    push(Value(fmod(a.to_float(), b.to_float())));
+                    const float divisor = b.to_float();
+                    push(Value(divisor != 0.0f ? std::fmod(a.to_float(), divisor) : 0.0f));
                     break;
                 }
                 case OpCode::NEG: {
@@ -530,8 +542,9 @@ private:
                 }
                 case OpCode::LOAD_VAR: {
                     uint8_t idx = func->bytecode[frame.pc++];
-                    if (idx < stack_.size()) {
-                        push(stack_[frame.base + idx]);
+                    const size_t slot = static_cast<size_t>(frame.base) + idx;
+                    if (slot < stack_.size()) {
+                        push(stack_[slot]);
                     } else {
                         push(Value());
                     }
@@ -551,6 +564,7 @@ private:
                     std::cout << "[Script] " << val.to_string() << std::endl;
                     break;
                 }
+                case OpCode::RETURN:
                 case OpCode::HALT:
                     frames_.pop_back();
                     break;
@@ -562,7 +576,7 @@ private:
     }
     
     std::unordered_map<std::string, Value> globals_;
-    std::unordered_map<std::string, ScriptFunction> functions_;
+    std::unordered_map<std::string, VMFunction> functions_;
     std::unordered_map<std::string, std::function<Value(const std::vector<Value>&)>> builtins_;
     std::vector<CallFrame> frames_;
     std::vector<Value> stack_;

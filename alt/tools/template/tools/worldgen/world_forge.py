@@ -56,7 +56,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ASSETS_TOOLS = HERE.parent / "assets"
-REPO = HERE.parents[2]
+REPO = HERE.resolve().parents[3]
 sys.path.insert(0, str(ASSETS_TOOLS))
 sys.path.insert(0, str(HERE))
 from lint import lint_game  # noqa: E402
@@ -752,8 +752,8 @@ def fuse_spec_into_game(spec, scratches, out_dir):
 
 # ------------------------------------------------------------------- gates
 def find_bin(name):
-    for cand in (REPO / "native" / "bin" / (name + ".exe"),
-                 REPO / "native" / "bin" / name):
+    for cand in (REPO / "src" / "native" / "bin" / (name + ".exe"),
+                 REPO / "src" / "native" / "bin" / name):
         if cand.exists():
             return cand
     return None
@@ -883,7 +883,7 @@ def write_notes(spec, stats, out_dir, proof, stripped):
 def register_manifest(spec, out_dir):
     """Record the FUSED game in Project/games.json (region scratches are
     built with LITT_NO_MANIFEST=1 and never touch the manifest)."""
-    manifest_p = HERE.parent.parent.parent / "Project" / "games.json"
+    manifest_p = HERE.resolve().parents[3] / "Project" / "games.json"
     try:
         manifest = json.loads(manifest_p.read_text(encoding="utf-8"))
     except Exception:

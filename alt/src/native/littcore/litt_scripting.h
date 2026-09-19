@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <functional>
 
 namespace litt {
 
@@ -88,7 +89,7 @@ struct ScriptComponent {
     bool execute();
     
     // Enable/disable
-    void set_enabled(bool enabled) { enabled = enabled; }
+    void set_enabled(bool value) { enabled = value; }
     bool is_enabled() const { return enabled; }
 };
 

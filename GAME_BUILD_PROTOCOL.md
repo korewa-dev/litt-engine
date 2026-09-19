@@ -22,7 +22,7 @@ python alt/tools/template/tools/worldgen/gen_props.py --game-dir alt/Project/<ga
 python alt/tools/template/tools/worldgen/enrich_game.py --game-dir alt/Project/<game_name>
 
 # Step 4: Validate
-python alt/Project/<game_name>/play_native.py --project alt/Project/<game_name> --frames 30 --dummy
+python alt/tools/template/tools/assets/verify_project.py <game_name>
 ```
 
 ## Rules (MANDATORY)
@@ -30,18 +30,17 @@ python alt/Project/<game_name>/play_native.py --project alt/Project/<game_name> 
 1. **ALL games go in `alt/Project/<game_name>/`** — nowhere else
 2. **Use `make_game.py`** — do NOT hand-write worldgen code
 3. **Register in `games.json`** — `make_game.py` does this automatically
-4. **Validate with `play_native.py`** — run before declaring done
-5. **Include all required files**: `NOTES.md`, `ATTRIBUTION.md`, `LIVE_LOG.md`, `assets/asset_index.json`, `VIEW.bat`, `VALIDATE.bat`
+4. **Validate with `verify_project.py`** - run before declaring done
+5. **Include all required files**: `NOTES.md`, `ATTRIBUTION.md`, `LIVE_LOG.md`, `assets/asset_index.json`, `ENGINE.bat`, `ENGINE.sh`, `VIEW.bat`, `VALIDATE.bat`
 
 ## Required Files Every Game Must Have
 
 ```
 alt/Project/<game_name>/
-├── config/world_state.json
+├── world_state.json
 ├── assets/models/
 ├── assets/scenes/world.lscn.json
 ├── assets/asset_index.json
-├── engine/play_native.py
 ├── NOTES.md
 ├── ATTRIBUTION.md
 ├── LIVE_LOG.md
@@ -72,3 +71,7 @@ Build: `g++ -std=c++17 -I alt/src/native/littcore -o game.exe game.cpp alt/src/n
 - Existing games: `alt/Project/`
 - Engine source: `alt/src/native/littcore/`
 - Rules: `.continue/rules/litt-engine.md`
+
+## Native proof
+
+`verify_project.py` is the always-available structural validator. When `alt/src/native/bin/littcli` and `littview` have been built, `make_game.py` also runs the native simulation/render proof. Generated projects do not depend on the retired `play_native.py` launcher.
