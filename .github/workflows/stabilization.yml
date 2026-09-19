@@ -16,6 +16,13 @@ jobs:
       - name: Run stabilization regressions
         run: ./stabilization_tests.exe
 
+  c-runtime-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run C runtime contract tests
+        run: make -C alt/src/native test
+
   windows-native:
     runs-on: windows-latest
     steps:
