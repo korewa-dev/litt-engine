@@ -22,14 +22,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
       - name: Compile Engine and Game header paths
-        shell: cmd
+        shell: pwsh
         run: |
-          echo #include "litt_engine.h" ^> engine_compile_smoke.cpp
-          echo int main() { return 0; } ^>^> engine_compile_smoke.cpp
+          Set-Content engine_compile_smoke.cpp '#include "litt_engine.h"'
+          Add-Content engine_compile_smoke.cpp 'int main() { return 0; }'
           cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c engine_compile_smoke.cpp
-          echo #include "litt_game.h" ^> game_compile_smoke.cpp
-          echo int main() { return 0; } ^>^> game_compile_smoke.cpp
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Set-Content game_compile_smoke.cpp '#include "litt_game.h"'
+          Add-Content game_compile_smoke.cpp 'int main() { return 0; }'
           cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c game_compile_smoke.cpp
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build native engine tests
         shell: cmd
         run: >-
