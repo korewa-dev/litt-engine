@@ -32,6 +32,29 @@ jobs:
           Add-Content game_compile_smoke.cpp 'int main() { return 0; }'
           cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c game_compile_smoke.cpp
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Compile every littcore header standalone
+        shell: pwsh
+        run: |
+          $headers = Get-ChildItem alt\src\native\littcore\*.h
+          foreach ($header in $headers) {
+            $name = $header.Name
+            Set-Content header_smoke.cpp "#include `"$name`""
+            Add-Content header_smoke.cpp 'int main() { return 0; }'
+            cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c header_smoke.cpp /Fo:header_smoke.obj
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Standalone header compile failed: $name"
+              exit $LASTEXITCODE
+            }
+          }
+      - name: Build Windows stabilization regressions
+        shell: cmd
+        run: >-
+          cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore
+          alt\src\native\littcore\litt_stabilization_tests.cpp
+          /Fe:stabilization_windows.exe gdi32.lib user32.lib winmm.lib
+      - name: Run Windows stabilization regressions
+        shell: cmd
+        run: stabilization_windows.exe
       - name: Build native engine tests
         shell: cmd
         run: >-
