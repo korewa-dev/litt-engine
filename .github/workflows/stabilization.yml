@@ -1,0 +1,15 @@
+name: Stabilization
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  core-stabilization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build stabilization regressions
+        run: make stabilization-test
+      - name: Run stabilization regressions
+        run: ./stabilization_tests.exe
