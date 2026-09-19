@@ -12,16 +12,16 @@ const char* litt_dither_texture_path(LittDitherPattern pattern, char* buf, size_
         "assets/dither3d/Dither3D_4x4.png",
         "assets/dither3d/Dither3D_8x8.png"
     };
+    if (!buf || cap == 0) return nullptr;
     int idx = static_cast<int>(pattern);
     if (idx < 0 || idx > 3) idx = 3;
-    strncpy(buf, paths[idx], cap - 1);
-    buf[cap - 1] = '\0';
+    std::snprintf(buf, cap, "%s", paths[idx]);
     return buf;
 }
 
 const char* litt_dither_ramp_path(char* buf, size_t cap) {
-    strncpy(buf, "assets/dither3d/Dither3D_8x8_Ramp.png", cap - 1);
-    buf[cap - 1] = '\0';
+    if (!buf || cap == 0) return nullptr;
+    std::snprintf(buf, cap, "%s", "assets/dither3d/Dither3D_8x8_Ramp.png");
     return buf;
 }
 
