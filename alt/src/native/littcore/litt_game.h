@@ -22,6 +22,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace litt {
 
@@ -153,35 +154,66 @@ public:
     }
     
     bool load_models(const std::string& base_path) {
+        bool all_loaded = true;
         for (auto& node : nodes) {
+            node.vertices.clear();
+            node.indices.clear();
             if (node.model_path.empty()) continue;
             
-            std::string full_path = base_path + "/" + node.model_path;
+            const std::string full_path = base_path + "/" + node.model_path;
             LvModel model = {};
-            if (lv_obj_load(full_path.c_str(), &model) == 0 && model.count > 0) {
-                // Convert OBJ to triangle list
-                for (int m = 0; m < model.count; m++) {
-                    LvMesh& mesh = model.meshes[m];
-                    uint32_t base = (uint32_t)node.vertices.size();
-                    
-                    // Add vertices
-                    for (int v = 0; v < mesh.vn; v++) {
-                        node.vertices.push_back(Vec3(
-                            mesh.verts[v*3],
-                            mesh.verts[v*3+1],
-                            mesh.verts[v*3+2]
-                        ));
-                    }
-                    
-                    // Add indices
-                    for (int idx = 0; idx < mesh.in; idx++) {
-                        node.indices.push_back(base + mesh.idx[idx]);
+            const int rc = lv_obj_load(full_path.c_str(), &model);
+            if (rc != 0 || model.count <= 0) {
+                if (rc == 0) lv_model_free(&model);
+                std::cerr << "[Game] Required model failed to load: "
+                          << full_path << std::endl;
+                all_loaded = false;
+                continue;
+            }
+
+            bool model_valid = true;
+            for (int m = 0; m < model.count && model_valid; m++) {
+                LvMesh& mesh = model.meshes[m];
+                if (mesh.vn <= 0 || mesh.in <= 0 || !mesh.verts || !mesh.idx) {
+                    model_valid = false;
+                    break;
+                }
+
+                const uint64_t base = static_cast<uint64_t>(node.vertices.size());
+                for (int idx = 0; idx < mesh.in; idx++) {
+                    const uint64_t local = static_cast<uint64_t>(mesh.idx[idx]);
+                    if (local >= static_cast<uint64_t>(mesh.vn) ||
+                        base + local > static_cast<uint64_t>(std::numeric_limits<uint32_t>::max())) {
+                        model_valid = false;
+                        break;
                     }
                 }
-                lv_model_free(&model);
+                if (!model_valid) break;
+
+                for (int v = 0; v < mesh.vn; v++) {
+                    node.vertices.push_back(Vec3(
+                        mesh.verts[v*3],
+                        mesh.verts[v*3+1],
+                        mesh.verts[v*3+2]
+                    ));
+                }
+                
+                for (int idx = 0; idx < mesh.in; idx++) {
+                    node.indices.push_back(
+                        static_cast<uint32_t>(base + mesh.idx[idx]));
+                }
+            }
+            lv_model_free(&model);
+
+            if (!model_valid || node.vertices.empty() || node.indices.empty()) {
+                node.vertices.clear();
+                node.indices.clear();
+                std::cerr << "[Game] Required model is invalid: "
+                          << full_path << std::endl;
+                all_loaded = false;
             }
         }
-        return true;
+        return all_loaded;
     }
 };
 
@@ -203,8 +235,12 @@ public:
             return false;
         }
         
-        // Load models
-        scene_.load_models(project_dir);
+        // Every explicit model reference in a generated scene is required.
+        // Do not silently initialize a game with missing/invisible geometry.
+        if (!scene_.load_models(project_dir)) {
+            std::cerr << "[Game] Failed to load required models" << std::endl;
+            return false;
+        }
 
         // Generated gameplay configuration is authoritative for physics. The
         // semantic Player_Start node remains the preferred spawn source.
