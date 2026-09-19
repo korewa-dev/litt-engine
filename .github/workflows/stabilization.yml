@@ -21,6 +21,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
+      - name: Compile Engine and Game header paths
+        shell: cmd
+        run: |
+          echo #include "litt_engine.h" ^> engine_compile_smoke.cpp
+          echo int main() { return 0; } ^>^> engine_compile_smoke.cpp
+          cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c engine_compile_smoke.cpp
+          echo #include "litt_game.h" ^> game_compile_smoke.cpp
+          echo int main() { return 0; } ^>^> game_compile_smoke.cpp
+          cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c game_compile_smoke.cpp
       - name: Build native engine tests
         shell: cmd
         run: >-
