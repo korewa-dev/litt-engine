@@ -248,6 +248,25 @@ static void test_scene_lifecycle() {
     check(&first == &duplicate && manager.getActiveScene() == &first,
           "scene_duplicate_does_not_replace_active");
 
+    SceneNode& parent = first.createNode("Parent");
+    SceneNode& child = first.createNode("Child");
+    const uint32_t parent_id = parent.id;
+    const uint32_t child_id = child.id;
+    check(first.setParent(child_id, parent_id) &&
+          child.parent == &parent &&
+          parent.children.size() == 1 &&
+          parent.children[0] == &child &&
+          first.getNode(child_id) == &child,
+          "scene_registry_owns_hierarchy_nodes");
+    check(!first.setParent(parent_id, child_id),
+          "scene_hierarchy_rejects_cycles");
+    first.removeNode(parent_id);
+    check(first.getNode(parent_id) == nullptr &&
+          first.getNode(child_id) == nullptr,
+          "scene_remove_parent_removes_owned_subtree");
+    check(first.root != nullptr && first.getNode(first.root->id) == first.root,
+          "scene_root_survives_subtree_removal");
+
     check(first.serializeToJson().empty(), "scene_serialize_reports_unavailable");
     check(!first.deserializeFromJson("{}"), "scene_deserialize_reports_unavailable");
 }
