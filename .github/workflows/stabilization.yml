@@ -23,6 +23,13 @@ jobs:
       - name: Build and run C runtime contract tests
         run: make -C alt/src/native test
 
+  game-runtime-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run C++ Game project contract tests
+        run: make -C alt/src/native game-contract-test
+
   windows-native:
     runs-on: windows-latest
     steps:
