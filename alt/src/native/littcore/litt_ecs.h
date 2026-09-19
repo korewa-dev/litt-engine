@@ -11,6 +11,7 @@
 #include <memory>
 #include <functional>
 #include <algorithm>
+#include <stdexcept>
 
 namespace litt {
 
@@ -19,9 +20,9 @@ constexpr EntityId INVALID = 0xFFFFFFFFu;
 
 struct Entity {
     EntityId id;
-    uint16_t gen;
+    uint32_t gen;
     Entity() : id(INVALID), gen(0) {}
-    Entity(EntityId i, uint16_t g) : id(i), gen(g) {}
+    Entity(EntityId i, uint32_t g) : id(i), gen(g) {}
     bool valid() const { return id != INVALID; }
     bool operator==(const Entity& o) const { return id == o.id && gen == o.gen; }
 };
@@ -83,24 +84,39 @@ public:
     World() : next_(0) {}
     
     Entity create() {
-        Entity e(next_, 0);
-        alive_.insert(next_);
-        next_++;
-        return e;
+        EntityId id;
+        if (!free_ids_.empty()) {
+            id = free_ids_.back();
+            free_ids_.pop_back();
+        } else {
+            id = next_++;
+            generations_.push_back(0);
+        }
+        alive_.insert(id);
+        return Entity(id, generations_[id]);
     }
+
     void destroy(Entity e) {
-        alive_.erase(e.id);
-        // Remove from all component stores
+        if (!is_alive(e)) return;
+
+        // Remove components before making the ID reusable.
         for (auto& [type, storage] : storages_) {
             storage->remove(e);
         }
-        // Increment generation for this ID slot
-        // (simplified: just track that this ID is dead)
+        alive_.erase(e.id);
+        ++generations_[e.id];
+        free_ids_.push_back(e.id);
     }
-    bool is_alive(Entity e) const { return alive_.count(e.id) > 0; }
+
+    bool is_alive(Entity e) const {
+        return e.id < generations_.size() &&
+               alive_.count(e.id) > 0 &&
+               generations_[e.id] == e.gen;
+    }
     
     template<typename T>
     T& add(Entity e, T comp) {
+        if (!is_alive(e)) throw std::invalid_argument("cannot add component to dead or stale entity");
         ensure<T>();
         auto* s = static_cast<Storage<T>*>(storages_[typeid(T)].get());
         // Reject duplicate components
@@ -114,6 +130,7 @@ public:
     
     template<typename T>
     T* get(Entity e) {
+        if (!is_alive(e)) return nullptr;
         auto it = storages_.find(typeid(T));
         if (it == storages_.end()) return nullptr;
         return static_cast<Storage<T>*>(it->second.get())->get(e);
@@ -121,19 +138,21 @@ public:
     
     template<typename T>
     bool has(Entity e) const {
+        if (!is_alive(e)) return false;
         auto it = storages_.find(typeid(T));
         return it != storages_.end() && it->second->has(e);
     }
     
     template<typename T>
     void remove(Entity e) {
+        if (!is_alive(e)) return;
         auto it = storages_.find(typeid(T));
         if (it != storages_.end()) it->second->remove(e);
     }
     
     void each(std::function<void(Entity)> fn) {
         for (EntityId id : alive_) {
-            fn(Entity(id, 0));
+            fn(Entity(id, generations_[id]));
         }
     }
     
@@ -143,9 +162,10 @@ public:
         if (it == storages_.end()) return;
         auto& s = *static_cast<Storage<T>*>(it->second.get());
         for (size_t i = 0; i < s.entities.size(); i++) {
-            // Skip entities that have been destroyed
-            if (!is_alive(Entity(s.entities[i], 0))) continue;
-            fn(Entity(s.entities[i], 0), &s.data[i]);
+            const EntityId id = s.entities[i];
+            Entity entity(id, generations_[id]);
+            if (!is_alive(entity)) continue;
+            fn(entity, &s.data[i]);
         }
     }
     struct System {
@@ -164,6 +184,8 @@ private:
     }
     
     EntityId next_;
+    std::vector<uint32_t> generations_;
+    std::vector<EntityId> free_ids_;
     std::unordered_set<EntityId> alive_;
     std::unordered_map<std::type_index, std::unique_ptr<StorageBase>> storages_;
     std::vector<std::unique_ptr<System>> systems_;

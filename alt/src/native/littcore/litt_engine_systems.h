@@ -28,6 +28,14 @@
 
 namespace litt {
 
+enum class ImplementationStatus {
+    Implemented,
+    Partial,
+    Experimental,
+    Stub,
+    Unavailable
+};
+
 // =============================================================================
 // STEP 1-4: Radiometric Quantities & Rendering Equation
 // =============================================================================
@@ -710,6 +718,7 @@ struct MotionBlur {
 struct TAA {
     float blend_factor = 0.1f;
     bool jitter = true;
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Stub; }
     void apply_taa() {}
 };
 
@@ -743,6 +752,7 @@ public:
 
 class AssetPackager {
 public:
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Stub; }
     void initialize() {}
     void update() {}
     void package_assets(const std::string& path) { (void)path; }
@@ -767,6 +777,7 @@ public:
 
 class EngineLoop {
 public:
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Stub; }
     void initialize() {}
     void run() {}
     void stop() {}
@@ -810,7 +821,8 @@ public:
 class NetworkManager {
 public:
     enum class Mode { CLIENT, SERVER };
-    bool initialize(Mode mode) { (void)mode; return true; }
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Unavailable; }
+    bool initialize(Mode mode) { (void)mode; return false; }
     void send_snapshot() {}
     void lag_compensation() {}
     void interest_management() {}
@@ -820,6 +832,7 @@ public:
 // Profiler stub (full implementation in litt_profiler.h)
 class Profiler {
 public:
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Stub; }
     void begin_scope(const char* name) { (void)name; }
     void end_scope() {}
     void update_fps() {}
@@ -847,8 +860,9 @@ public:
 
 class SaveLoadSystem {
 public:
-    void save_game(const std::string& path) { (void)path; }
-    void load_game(const std::string& path) { (void)path; }
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Unavailable; }
+    bool save_game(const std::string& path) { (void)path; return false; }
+    bool load_game(const std::string& path) { (void)path; return false; }
 };
 
 class AchievementSystem {
@@ -869,7 +883,13 @@ public:
         std::string name;
     };
     void add_quest(const Quest& q) { quests_[q.id] = q; }
-    void complete_quest(int id) { completed_[id] = true; }
+    void complete_quest(int id) {
+        if (quests_.find(id) != quests_.end()) completed_[id] = true;
+    }
+    bool is_completed(int id) const {
+        auto it = completed_.find(id);
+        return it != completed_.end() && it->second;
+    }
 private:
     std::unordered_map<int, Quest> quests_;
     std::unordered_map<int, bool> completed_;
@@ -939,6 +959,7 @@ private:
 
 class TerrainRenderer {
 public:
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Stub; }
     void initialize() {}
     void update() {}
     void render_terrain() {}
@@ -946,12 +967,14 @@ public:
 
 class FoliageSystem {
 public:
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Stub; }
     void initialize() {}
     void update() {}
 };
 
 class WorldPartitioning {
 public:
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Stub; }
     void initialize() {}
     void update() {}
     void set_partition_size(float size) { (void)size; }
@@ -959,6 +982,7 @@ public:
 
 class LevelStreaming {
 public:
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Stub; }
     void initialize() {}
     void update() {}
     void load_level(const std::string& name) { (void)name; }
@@ -1037,6 +1061,7 @@ public:
 
 class Benchmark {
 public:
+    static constexpr ImplementationStatus status() { return ImplementationStatus::Stub; }
     void run_benchmark() {}
 };
 

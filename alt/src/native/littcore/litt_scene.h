@@ -101,8 +101,14 @@ public:
         auto node = std::make_unique<SceneNode>();
         node->id = nextId++;
         node->name = name;
-        nodes[node->id] = std::move(node);
-        return *nodes[node->id];
+
+        // Capture identity before moving ownership. Referencing node after
+        // std::move can dereference a null unique_ptr depending on evaluation
+        // order, which previously made Scene construction crash.
+        const uint32_t id = node->id;
+        SceneNode* created = node.get();
+        nodes.emplace(id, std::move(node));
+        return *created;
     }
     
     SceneNode* getNode(uint32_t id) {
@@ -118,11 +124,19 @@ public:
     }
     
     void removeNode(uint32_t id) {
-        nodes.erase(id);
+        auto it = nodes.find(id);
+        if (it == nodes.end()) return;
+        if (root == it->second.get()) root = nullptr;
+        nodes.erase(it);
     }
     
     void update() {
-        if (root) root->updateTransform();
+        // Nodes created through Scene::createNode live in the scene map.
+        // Update every top-level node so independently-created nodes are not
+        // silently skipped. Children are updated recursively by their parent.
+        for (auto& [id, node] : nodes) {
+            if (!node->parent) node->updateTransform();
+        }
     }
     
     void clear() {
@@ -133,13 +147,15 @@ public:
     
     // Serialization
     std::string serializeToJson() const {
-        // Implementation would use JSON library
-        return "{}";
+        // Serialization is not implemented yet.  An empty result is an
+        // explicit failure signal; do not return valid-looking placeholder
+        // JSON that callers can mistake for persisted state.
+        return {};
     }
     
     bool deserializeFromJson(const std::string&) {
-        // Implementation would parse JSON and create nodes
-        return true;
+        // Do not claim success until scene state is actually restored.
+        return false;
     }
     
 private:
@@ -159,9 +175,15 @@ public:
     Scene* currentScene = nullptr;
     
     Scene& createScene(const std::string& name) {
+        // Never replace an existing scene behind currentScene. Returning the
+        // existing instance keeps the raw active pointer stable.
+        auto existing = scenes.find(name);
+        if (existing != scenes.end()) return *existing->second;
+
         auto scene = std::make_unique<Scene>();
-        scenes[name] = std::move(scene);
-        return *scenes[name];
+        Scene* created = scene.get();
+        scenes.emplace(name, std::move(scene));
+        return *created;
     }
     
     Scene* getScene(const std::string& name) {

@@ -31,9 +31,9 @@ namespace litt {
 struct SceneNode {
     std::string name;
     std::string model_path;
-    Vec3 position;
-    Vec3 rotation;
-    Vec3 scale;
+    Vec3 position = Vec3::zero();
+    Quat rotation = Quat::identity();
+    Vec3 scale = Vec3::one();
     std::vector<std::string> tags;
     bool solid = false;
     bool interactable = false;
@@ -52,6 +52,7 @@ class GameScene {
 public:
     std::vector<SceneNode> nodes;
     Vec3 spawn_point = Vec3(0, 1.2f, 5);
+    bool has_spawn_point = false;
     Vec3 light_dir = Vec3(0.45f, 0.78f, 0.32f);
     Vec3 sky_color = Vec3(0.53f, 0.72f, 0.83f);
     
@@ -86,10 +87,25 @@ public:
                 }
                 
                 const LvJson* rot = lvj_get(node, "rotation");
-                if (rot && rot->count >= 3) {
-                    sn.rotation.x = lvj_num(lvj_at(rot, 0), 0);
-                    sn.rotation.y = lvj_num(lvj_at(rot, 1), 0);
-                    sn.rotation.z = lvj_num(lvj_at(rot, 2), 0);
+                if (rot && rot->count >= 4) {
+                    sn.rotation = Quat(
+                        (float)lvj_num(lvj_at(rot, 0), 0),
+                        (float)lvj_num(lvj_at(rot, 1), 0),
+                        (float)lvj_num(lvj_at(rot, 2), 0),
+                        (float)lvj_num(lvj_at(rot, 3), 1)).normalized();
+                } else if (rot && rot->count >= 3) {
+                    sn.rotation = Quat::from_euler(Vec3(
+                        (float)lvj_num(lvj_at(rot, 0), 0),
+                        (float)lvj_num(lvj_at(rot, 1), 0),
+                        (float)lvj_num(lvj_at(rot, 2), 0)));
+                }
+
+                const LvJson* scale = lvj_get(node, "scale");
+                if (scale && scale->count >= 3) {
+                    sn.scale = Vec3(
+                        (float)lvj_num(lvj_at(scale, 0), 1),
+                        (float)lvj_num(lvj_at(scale, 1), 1),
+                        (float)lvj_num(lvj_at(scale, 2), 1));
                 }
                 
                 const LvJson* tags = lvj_get(node, "tags");
@@ -108,11 +124,24 @@ public:
                 
                 // Check for model reference
                 for (const auto& tag : sn.tags) {
-                    if (tag.substr(0, 6) == "model:") {
-                        sn.model_path = "assets/" + tag.substr(6) + ".obj";
+                    if (tag.rfind("model:", 0) == 0 && tag.size() > 6) {
+                        sn.model_path = "assets/models/" + tag.substr(6) + ".obj";
                     }
                 }
                 
+                bool player_start = sn.name == "Player_Start" ||
+                                    (sn.name.size() >= 12 &&
+                                     sn.name.compare(sn.name.size() - 12, 12, "Player_Start") == 0);
+                bool player_tag = false, start_tag = false;
+                for (const auto& tag : sn.tags) {
+                    player_tag = player_tag || tag == "player";
+                    start_tag = start_tag || tag == "start";
+                }
+                if (player_start || (player_tag && start_tag)) {
+                    spawn_point = sn.position;
+                    has_spawn_point = true;
+                }
+
                 if (!sn.name.empty() && sn.name != "Root") {
                     nodes.push_back(sn);
                 }
@@ -176,6 +205,10 @@ public:
         
         // Load models
         scene_.load_models(project_dir);
+
+        // Generated gameplay configuration is authoritative for physics. The
+        // semantic Player_Start node remains the preferred spawn source.
+        load_project_config(project_dir + "/world_state.json");
         
         // Initialize renderer
         renderer_ = std::make_unique<SoftwareRenderer>();
@@ -187,13 +220,11 @@ public:
         // Initialize audio
         audio_.init();
         
-        // Initialize physics
-        gravity_ = -22.0f;
-        
-        // Initialize world manager
-        world_.state.cfg.gravity = -22.0f;
-        world_.state.cfg.jump = 8.0f;
-        world_.state.cfg.speed = 7.0f;
+        // Mirror the canonical Game runtime configuration into the legacy
+        // WorldManager facade. WorldManager is no longer ticked independently.
+        world_.state.cfg.gravity = gravity_;
+        world_.state.cfg.jump = jump_speed_;
+        world_.state.cfg.speed = move_speed_;
         
         // Setup player
         player_pos_ = scene_.spawn_point;
@@ -204,6 +235,7 @@ public:
         score_ = 0;
         game_over_ = false;
         won_ = false;
+        sync_world_facade();
         
         std::cout << "[Game] Initialized with " << scene_.nodes.size() << " nodes" << std::endl;
         return true;
@@ -245,8 +277,9 @@ public:
         // Entity interactions
         handle_interactions();
         
-        // Update world
-        world_.update(dt);
+        // Keep the legacy WorldManager view synchronized without running a
+        // second, conflicting player simulation.
+        sync_world_facade();
     }
     
     // Render the current frame
@@ -290,9 +323,10 @@ public:
             
             // Draw triangles
             for (size_t i = 0; i + 2 < node.indices.size(); i += 3) {
-                Vec3 v0 = node.vertices[node.indices[i]] + node.position;
-                Vec3 v1 = node.vertices[node.indices[i+1]] + node.position;
-                Vec3 v2 = node.vertices[node.indices[i+2]] + node.position;
+                const Mat4 model = node_transform(node);
+                Vec3 v0 = model * node.vertices[node.indices[i]];
+                Vec3 v1 = model * node.vertices[node.indices[i+1]];
+                Vec3 v2 = model * node.vertices[node.indices[i+2]];
                 renderer_->draw_triangle_3d(v0, v1, v2, view_proj, color);
             }
         }
@@ -307,12 +341,12 @@ public:
     
     // Game state
     Vec3 get_player_position() const { return player_pos_; }
-    void set_player_position(const Vec3& pos) { player_pos_ = pos; }
+    void set_player_position(const Vec3& pos) { player_pos_ = pos; sync_world_facade(); }
     int get_score() const { return score_; }
-    void add_score(int points) { score_ += points; }
+    void add_score(int points) { score_ += points; sync_world_facade(); }
     bool is_game_over() const { return game_over_; }
     bool is_won() const { return won_; }
-    void set_won(bool w) { won_ = w; }
+    void set_won(bool w) { won_ = w; sync_world_facade(); }
     
     // Subsystem access
     Input& get_input() { return input_; }
@@ -323,9 +357,6 @@ public:
     
 private:
     void handle_input(float dt) {
-        float speed = 7.0f;
-        float jump = 8.0f;
-        
         Vec3 move(0, 0, 0);
         if (input_.key_down(Key::W) || input_.key_down(Key::Up)) move.z -= 1;
         if (input_.key_down(Key::S) || input_.key_down(Key::Down)) move.z += 1;
@@ -336,12 +367,12 @@ private:
             move = move.normalized();
             float c = std::cos(camera_yaw_);
             float s = std::sin(camera_yaw_);
-            player_pos_.x += (move.x * c - move.z * s) * speed * dt;
-            player_pos_.z += (move.x * s + move.z * c) * speed * dt;
+            player_pos_.x += (move.x * c - move.z * s) * move_speed_ * dt;
+            player_pos_.z += (move.x * s + move.z * c) * move_speed_ * dt;
         }
         
         if ((input_.key_down(Key::Space) || input_.action_pressed("jump")) && grounded_) {
-            player_vel_.y = jump;
+            player_vel_.y = jump_speed_;
             grounded_ = false;
         }
         
@@ -390,12 +421,14 @@ private:
             float min_z = 1e10f, max_z = -1e10f;
             float max_y = -1e10f;
             
+            const Mat4 model = node_transform(node);
             for (const auto& v : node.vertices) {
-                min_x = std::min(min_x, v.x + node.position.x);
-                max_x = std::max(max_x, v.x + node.position.x);
-                min_z = std::min(min_z, v.z + node.position.z);
-                max_z = std::max(max_z, v.z + node.position.z);
-                max_y = std::max(max_y, v.y + node.position.y);
+                const Vec3 world_v = model * v;
+                min_x = std::min(min_x, world_v.x);
+                max_x = std::max(max_x, world_v.x);
+                min_z = std::min(min_z, world_v.z);
+                max_z = std::max(max_z, world_v.z);
+                max_y = std::max(max_y, world_v.y);
             }
             
             if (min_x - 0.3f <= x && x <= max_x + 0.3f &&
@@ -408,6 +441,58 @@ private:
         return best;
     }
     
+    static Mat4 node_transform(const SceneNode& node) {
+        return Mat4::translation(node.position) *
+               node.rotation.to_mat4() *
+               Mat4::scale(node.scale);
+    }
+
+    bool load_project_config(const std::string& path) {
+        std::ifstream f(path);
+        if (!f.is_open()) return false;
+        std::string content((std::istreambuf_iterator<char>(f)),
+                            std::istreambuf_iterator<char>());
+        LvJson* root = lvj_parse(content.c_str());
+        if (!root) return false;
+
+        const LvJson* gameplay = lvj_get(root, "gameplay");
+        const LvJson* physics = gameplay ? lvj_get(gameplay, "physics") : nullptr;
+        if (physics) {
+            const float gravity_mag = (float)lvj_num(
+                lvj_get(physics, "gravity"), std::abs(gravity_));
+            gravity_ = -std::abs(gravity_mag);
+            jump_speed_ = (float)lvj_num(
+                lvj_get(physics, "jump_velocity"), jump_speed_);
+            move_speed_ = (float)lvj_num(
+                lvj_get(physics, "run_speed"), move_speed_);
+        }
+
+        // Older generated projects without a semantic Player_Start may fall
+        // back to gameplay.spawn, but when the scene contains Player_Start it
+        // is the single authoritative spawn.
+        if (!scene_.has_spawn_point && gameplay) {
+            const LvJson* spawn = lvj_get(gameplay, "spawn");
+            if (spawn && spawn->count >= 3) {
+                scene_.spawn_point = Vec3(
+                    (float)lvj_num(lvj_at(spawn, 0), scene_.spawn_point.x),
+                    (float)lvj_num(lvj_at(spawn, 1), scene_.spawn_point.y),
+                    (float)lvj_num(lvj_at(spawn, 2), scene_.spawn_point.z));
+            }
+        }
+
+        lvj_free(root);
+        return true;
+    }
+
+    void sync_world_facade() {
+        world_.state.pos = player_pos_;
+        world_.state.vel = player_vel_;
+        world_.state.grounded = grounded_ ? 1 : 0;
+        world_.state.score = static_cast<unsigned>(std::max(score_, 0));
+        world_.state.won = won_ ? 1 : 0;
+        world_.state.game_over = game_over_ ? 1 : 0;
+    }
+
     uint32_t vec3_to_color(const Vec3& c) {
         uint8_t r = (uint8_t)(c.x * 255);
         uint8_t g = (uint8_t)(c.y * 255);
@@ -422,6 +507,8 @@ private:
     Input input_;
     WorldManager world_;
     float gravity_ = -22.0f;
+    float move_speed_ = 7.0f;
+    float jump_speed_ = 8.0f;
     
     Vec3 player_pos_;
     Vec3 player_vel_;
