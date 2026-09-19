@@ -36,6 +36,11 @@ test: bin/litt_json.o bin/litt_obj.o bin/litt_world.o tests.c
 	$(CC) $(CFLAGS) $^ -o bin/littcore_tests $(LDFLAGS) $(LDLIBS)
 	cd bin && ./littcore_tests
 
+game-contract-test: bin/litt_json.o bin/litt_obj.o bin/litt_world.o littcore/litt_game_contract_tests.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) littcore/litt_game_contract_tests.cpp bin/litt_json.o bin/litt_obj.o bin/litt_world.o -o bin/litt_game_contract_tests $(LDFLAGS) $(LDLIBS)
+	cd bin && ./litt_game_contract_tests
+
 selftest: bin/littview
 	cd bin && ./littview selftest
 
@@ -50,4 +55,4 @@ dither3d_demo: bin/dither3d_demo
 clean:
 	rm -rf bin
 
-.PHONY: all test selftest clean dither3d_demo
+.PHONY: all test game-contract-test selftest clean dither3d_demo
