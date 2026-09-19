@@ -229,6 +229,7 @@ static void test_scene_lifecycle() {
 }
 
 int main() {
+    std::setvbuf(stdout, nullptr, _IONBF, 0);
     std::printf("[Stabilization]\n");
     test_physics_normals();
     test_physics_resolution();
