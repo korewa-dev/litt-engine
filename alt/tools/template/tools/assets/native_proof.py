@@ -29,9 +29,9 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).parent
-REPO = HERE.parent.parent.parent
+REPO = HERE.resolve().parents[3]
 PROJECTS = REPO / "Project"
-BIN = REPO / "native" / "bin"
+BIN = REPO / "src" / "native" / "bin"
 
 
 def _bmp_pixels(path):
