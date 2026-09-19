@@ -11,12 +11,51 @@
 #include <type_traits>
 #include <cstdlib>
 #include <cstring>
+#include <cstddef>
+#include <limits>
+#include <stdexcept>
+#include <utility>
 
 #ifndef LITT_CACHE_LINE
 #define LITT_CACHE_LINE 64
 #endif
 
 namespace litt {
+
+namespace memory_detail {
+
+inline bool is_power_of_two(size_t value) {
+    return value != 0 && (value & (value - 1)) == 0;
+}
+
+inline size_t checked_add(size_t a, size_t b) {
+    if (b > std::numeric_limits<size_t>::max() - a) throw std::bad_alloc();
+    return a + b;
+}
+
+inline size_t checked_mul(size_t a, size_t b) {
+    if (a != 0 && b > std::numeric_limits<size_t>::max() / a) throw std::bad_alloc();
+    return a * b;
+}
+
+inline size_t align_up(size_t value, size_t alignment) {
+    if (!is_power_of_two(alignment)) throw std::invalid_argument("alignment must be a power of two");
+    const size_t mask = alignment - 1;
+    return checked_add(value, mask) & ~mask;
+}
+
+inline size_t aligned_offset(const void* base, size_t offset, size_t alignment) {
+    if (!is_power_of_two(alignment)) throw std::invalid_argument("alignment must be a power of two");
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(base);
+    if (offset > std::numeric_limits<uintptr_t>::max() - addr) throw std::bad_alloc();
+    const uintptr_t current = addr + offset;
+    const uintptr_t mask = static_cast<uintptr_t>(alignment - 1);
+    if (current > std::numeric_limits<uintptr_t>::max() - mask) throw std::bad_alloc();
+    const uintptr_t aligned = (current + mask) & ~mask;
+    return static_cast<size_t>(aligned - addr);
+}
+
+} // namespace memory_detail
 
 // =============================================================================
 // Object Pool - Fixed: no invalid frees, no double-destruction, no UB
@@ -94,12 +133,14 @@ private:
 
     static PoolSlot allocate_slot() {
         PoolSlot slot;
-        size_t alloc_size = sizeof(T) + 64;
+        constexpr size_t alignment = alignof(T);
+        const size_t alloc_size = memory_detail::checked_add(sizeof(T), alignment - 1);
         slot.raw = std::malloc(alloc_size);
         if (!slot.raw) throw std::bad_alloc();
 
-        uintptr_t addr = reinterpret_cast<uintptr_t>(slot.raw);
-        uintptr_t aligned = (addr + 63) & ~63ULL;
+        const uintptr_t addr = reinterpret_cast<uintptr_t>(slot.raw);
+        const uintptr_t mask = static_cast<uintptr_t>(alignment - 1);
+        const uintptr_t aligned = (addr + mask) & ~mask;
         slot.aligned = reinterpret_cast<T*>(aligned);
         return slot;
     }
@@ -133,19 +174,25 @@ public:
     AlignedAllocator(const AlignedAllocator<U, Alignment>&) noexcept {}
 
     pointer allocate(size_type n) {
+        static_assert(Alignment != 0 && (Alignment & (Alignment - 1)) == 0,
+                      "Alignment must be a power of two");
         if (n == 0) return nullptr;
-        size_type bytes = n * sizeof(T);
-        // Use aligned allocation. Store original pointer for deallocation.
+
+        constexpr size_type type_alignment = alignof(T);
+        constexpr size_type pointer_alignment = alignof(void*);
+        constexpr size_type effective_alignment =
+            Alignment > type_alignment
+                ? (Alignment > pointer_alignment ? Alignment : pointer_alignment)
+                : (type_alignment > pointer_alignment ? type_alignment : pointer_alignment);
+
+        const size_type bytes = memory_detail::checked_mul(n, sizeof(T));
         void* raw = nullptr;
 #ifdef _WIN32
-        raw = _aligned_malloc(bytes, Alignment);
+        raw = _aligned_malloc(bytes, effective_alignment);
         if (!raw) throw std::bad_alloc();
 #else
-        // POSIX: aligned_alloc requires size to be multiple of alignment
-        size_type alloc_size = bytes;
-        if (alloc_size % Alignment != 0)
-            alloc_size += Alignment - (alloc_size % Alignment);
-        raw = std::aligned_alloc(Alignment, alloc_size);
+        const size_type alloc_size = memory_detail::align_up(bytes, effective_alignment);
+        raw = std::aligned_alloc(effective_alignment, alloc_size);
         if (!raw) throw std::bad_alloc();
 #endif
         return reinterpret_cast<pointer>(raw);
@@ -172,6 +219,11 @@ public:
         Chunk* next;
     };
 
+    struct Checkpoint {
+        Chunk* chunk = nullptr;
+        size_t offset = 0;
+    };
+
     BumpAllocator(size_t chunk_size = 1024 * 1024)
         : chunk_size_(chunk_size), current_chunk_(nullptr), offset_(0) {
         current_chunk_ = allocate_chunk(chunk_size_);
@@ -191,14 +243,26 @@ public:
     BumpAllocator& operator=(const BumpAllocator&) = delete;
 
     void* allocate(size_t size, size_t alignment = 16) {
-        size_t aligned_offset = (offset_ + alignment - 1) & ~(alignment - 1);
+        if (!memory_detail::is_power_of_two(alignment)) {
+            throw std::invalid_argument("alignment must be a power of two");
+        }
 
-        if (aligned_offset + size > current_chunk_->capacity) {
-            // New chunk, link old one
-            Chunk* new_chunk = allocate_chunk(std::max(size + alignment, chunk_size_));
+        size_t aligned_offset = memory_detail::aligned_offset(
+            current_chunk_->buffer, offset_, alignment);
+
+        if (aligned_offset > current_chunk_->capacity ||
+            size > current_chunk_->capacity - aligned_offset) {
+            const size_t minimum = memory_detail::checked_add(size, alignment - 1);
+            Chunk* new_chunk = allocate_chunk(std::max(minimum, chunk_size_));
             new_chunk->next = current_chunk_;
             current_chunk_ = new_chunk;
-            aligned_offset = 0;
+            aligned_offset = memory_detail::aligned_offset(
+                current_chunk_->buffer, 0, alignment);
+        }
+
+        if (aligned_offset > current_chunk_->capacity ||
+            size > current_chunk_->capacity - aligned_offset) {
+            throw std::bad_alloc();
         }
 
         void* ptr = current_chunk_->buffer + aligned_offset;
@@ -218,16 +282,40 @@ public:
     }
 
     void reset() {
-        // Free all chunks except the first
-        Chunk* chunk = current_chunk_->next;
-        current_chunk_->next = nullptr;
-        while (chunk) {
-            Chunk* next = chunk->next;
-            std::free(chunk->buffer);
-            std::free(chunk);
-            chunk = next;
+        // New chunks are pushed in front of the original chunk.  Drop those
+        // newer chunks and keep the oldest backing chunk for reuse.
+        while (current_chunk_ && current_chunk_->next) {
+            Chunk* old_head = current_chunk_;
+            current_chunk_ = current_chunk_->next;
+            std::free(old_head->buffer);
+            std::free(old_head);
         }
         offset_ = 0;
+    }
+
+    Checkpoint checkpoint() const { return {current_chunk_, offset_}; }
+
+    void rollback(Checkpoint cp) {
+        if (!cp.chunk || cp.offset > cp.chunk->capacity) {
+            throw std::invalid_argument("invalid bump allocator checkpoint");
+        }
+
+        bool found = false;
+        for (Chunk* chunk = current_chunk_; chunk; chunk = chunk->next) {
+            if (chunk == cp.chunk) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) throw std::invalid_argument("checkpoint does not belong to allocator");
+
+        while (current_chunk_ != cp.chunk) {
+            Chunk* newer = current_chunk_;
+            current_chunk_ = current_chunk_->next;
+            std::free(newer->buffer);
+            std::free(newer);
+        }
+        offset_ = cp.offset;
     }
 
     size_t chunk_size() const { return chunk_size_; }
@@ -277,15 +365,14 @@ public:
         return bump_.template construct<T>(std::forward<Args>(args)...);
     }
 
-    size_t checkpoint() {
-        return bump_.offset();
+    using Checkpoint = BumpAllocator::Checkpoint;
+
+    Checkpoint checkpoint() const {
+        return bump_.checkpoint();
     }
 
-    void rollback(size_t cp) {
-        // For chunked bump allocator, we can only rollback within current chunk
-        // Full implementation would track per-chunk offsets
-        // For now, this is a no-op if checkpoint is in a previous chunk
-        // A production version would store per-chunk checkpoints
+    void rollback(Checkpoint cp) {
+        bump_.rollback(cp);
     }
 
     size_t allocated() const { return bump_.offset(); }
@@ -314,9 +401,10 @@ private:
 
 public:
     explicit FreeListAllocator(size_t block_size, size_t initial_blocks = 256)
-        : block_size_(std::max(block_size, sizeof(FreeBlock)))
-        , initial_blocks_(initial_blocks) {
-        allocate_slab(initial_blocks);
+        : block_size_(memory_detail::align_up(
+              std::max(block_size, sizeof(FreeBlock)), alignof(std::max_align_t)))
+        , initial_blocks_(std::max<size_t>(initial_blocks, 1)) {
+        allocate_slab(initial_blocks_);
     }
 
     ~FreeListAllocator() {
@@ -357,7 +445,7 @@ public:
 
 private:
     static Slab* create_slab(size_t block_size, size_t count) {
-        size_t total = block_size * count;
+        const size_t total = memory_detail::checked_mul(block_size, count);
         void* raw = std::malloc(total);
         if (!raw) throw std::bad_alloc();
 

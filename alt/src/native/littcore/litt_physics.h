@@ -124,13 +124,14 @@ public:
         contact.bodyA = nullptr;
         contact.bodyB = nullptr;
         
-        // Determine normal
+        // Contact normals always point from body A toward body B.  The
+        // resolver moves A opposite the normal and B along it.
         if (minOverlap == overlap.x) {
-            contact.normal = (a.center().x < b.center().x) ? Vec3{-1, 0, 0} : Vec3{1, 0, 0};
+            contact.normal = (a.center().x < b.center().x) ? Vec3{1, 0, 0} : Vec3{-1, 0, 0};
         } else if (minOverlap == overlap.y) {
-            contact.normal = (a.center().y < b.center().y) ? Vec3{0, -1, 0} : Vec3{0, 1, 0};
+            contact.normal = (a.center().y < b.center().y) ? Vec3{0, 1, 0} : Vec3{0, -1, 0};
         } else {
-            contact.normal = (a.center().z < b.center().z) ? Vec3{0, 0, -1} : Vec3{0, 0, 1};
+            contact.normal = (a.center().z < b.center().z) ? Vec3{0, 0, 1} : Vec3{0, 0, -1};
         }
         
         contact.point = a.center();
@@ -242,35 +243,39 @@ private:
             PhysicsBody* a = contact.bodyA;
             PhysicsBody* b = contact.bodyB;
             
-            if (a->isStatic && b->isStatic) continue;
+            // Triggers report contacts but never apply physical correction or
+            // impulses.
+            if (a->isTrigger || b->isTrigger) continue;
+
+            const float invA = a->isStatic ? 0.0f : a->inverseMass;
+            const float invB = b->isStatic ? 0.0f : b->inverseMass;
+            const float totalInvMass = invA + invB;
+            if (totalInvMass <= 0.0f) continue;
             
-            float totalInvMass = a->inverseMass + b->inverseMass;
-            if (totalInvMass == 0) continue;
-            
-            // Separate
-            float penetration = contact.depth;
-            Vec3 separation = contact.normal * penetration;
-            
-            if (!a->isStatic) {
-                a->centerOfMass -= separation * (a->inverseMass / totalInvMass);
+            // Separate using effective inverse masses.  Static bodies have an
+            // effective inverse mass of zero regardless of their stored value.
+            const Vec3 separation = contact.normal * contact.depth;
+            if (invA > 0.0f) {
+                a->centerOfMass -= separation * (invA / totalInvMass);
+                a->updateAabb();
             }
-            if (!b->isStatic) {
-                b->centerOfMass += separation * (b->inverseMass / totalInvMass);
+            if (invB > 0.0f) {
+                b->centerOfMass += separation * (invB / totalInvMass);
+                b->updateAabb();
             }
             
             // Impulse
-            Vec3 relativeVel = b->velocity - a->velocity;
-            float velAlongNormal = relativeVel.dot(contact.normal);
+            const Vec3 relativeVel = b->velocity - a->velocity;
+            const float velAlongNormal = relativeVel.dot(contact.normal);
             
-            if (velAlongNormal > 0) continue; // Moving apart
+            if (velAlongNormal > 0.0f) continue; // Moving apart
             
-            float restitution = 0.3f;
-            float j = -(1.0f + restitution) * velAlongNormal / totalInvMass;
+            const float restitution = 0.3f;
+            const float j = -(1.0f + restitution) * velAlongNormal / totalInvMass;
+            const Vec3 impulse = contact.normal * j;
             
-            Vec3 impulse = contact.normal * j;
-            
-            if (!a->isStatic) a->velocity -= impulse * a->inverseMass;
-            if (!b->isStatic) b->velocity += impulse * b->inverseMass;
+            if (invA > 0.0f) a->velocity -= impulse * invA;
+            if (invB > 0.0f) b->velocity += impulse * invB;
         }
     }
 };

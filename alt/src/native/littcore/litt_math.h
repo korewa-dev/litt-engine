@@ -324,17 +324,43 @@ struct alignas(16) Mat4 {
         return r;
     }
     
-    // Fast inverse for affine transforms (no perspective)
+    // Inverse for any non-singular affine transform (translation, rotation,
+    // shear and non-uniform scale).  The previous transpose shortcut was only
+    // valid for an orthonormal 3x3 basis.
     Mat4 affine_inverse() const {
+        const float a00 = m[0],  a01 = m[4],  a02 = m[8];
+        const float a10 = m[1],  a11 = m[5],  a12 = m[9];
+        const float a20 = m[2],  a21 = m[6],  a22 = m[10];
+
+        const float det =
+            a00 * (a11 * a22 - a12 * a21) -
+            a01 * (a10 * a22 - a12 * a20) +
+            a02 * (a10 * a21 - a11 * a20);
+        if (std::abs(det) <= MATH_EPS) {
+            assert(false && "affine_inverse requires a non-singular transform");
+            return identity();
+        }
+
+        const float inv_det = 1.0f / det;
+        const float i00 =  (a11 * a22 - a12 * a21) * inv_det;
+        const float i01 =  (a02 * a21 - a01 * a22) * inv_det;
+        const float i02 =  (a01 * a12 - a02 * a11) * inv_det;
+        const float i10 =  (a12 * a20 - a10 * a22) * inv_det;
+        const float i11 =  (a00 * a22 - a02 * a20) * inv_det;
+        const float i12 =  (a02 * a10 - a00 * a12) * inv_det;
+        const float i20 =  (a10 * a21 - a11 * a20) * inv_det;
+        const float i21 =  (a01 * a20 - a00 * a21) * inv_det;
+        const float i22 =  (a00 * a11 - a01 * a10) * inv_det;
+
         Mat4 r = identity();
-        // Transpose upper 3x3
-        r.m[0] = m[0]; r.m[1] = m[4]; r.m[2] = m[8];
-        r.m[4] = m[1]; r.m[5] = m[5]; r.m[6] = m[9];
-        r.m[8] = m[2]; r.m[9] = m[6]; r.m[10] = m[10];
-        // Negate translation
-        r.m[12] = -(m[0]*m[12] + m[4]*m[13] + m[8]*m[14]);
-        r.m[13] = -(m[1]*m[12] + m[5]*m[13] + m[9]*m[14]);
-        r.m[14] = -(m[2]*m[12] + m[6]*m[13] + m[10]*m[14]);
+        r.m[0] = i00; r.m[4] = i01; r.m[8]  = i02;
+        r.m[1] = i10; r.m[5] = i11; r.m[9]  = i12;
+        r.m[2] = i20; r.m[6] = i21; r.m[10] = i22;
+
+        const float tx = m[12], ty = m[13], tz = m[14];
+        r.m[12] = -(i00 * tx + i01 * ty + i02 * tz);
+        r.m[13] = -(i10 * tx + i11 * ty + i12 * tz);
+        r.m[14] = -(i20 * tx + i21 * ty + i22 * tz);
         return r;
     }
 };
