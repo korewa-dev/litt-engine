@@ -3,6 +3,9 @@
 
 #pragma once
 #include "litt_gpu.h"
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <windows.h>
 #include <vector>
 #include <cstring>
