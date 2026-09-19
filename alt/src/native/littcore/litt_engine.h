@@ -56,8 +56,10 @@ public:
     bool initialize(const EngineConfig& config) {
         config_ = config;
         
-        // Initialize renderer
-        if (!renderer_.initialize(config_.width, config_.height, config_.backend)) {
+        // A headless engine does not need a graphics backend. Interactive
+        // modes still fail honestly when the selected backend is unavailable.
+        if (!config_.headless &&
+            !renderer_.initialize(config_.width, config_.height, config_.backend)) {
             log_error("Failed to initialize renderer");
             return false;
         }
@@ -93,7 +95,8 @@ public:
         }
         
         auto last_time = std::chrono::high_resolution_clock::now();
-        float target_frame_time = 1.0f / config_.target_fps;
+        const float target_fps = config_.target_fps > 0.0f ? config_.target_fps : 60.0f;
+        const float target_frame_time = 1.0f / target_fps;
         
         while (running_) {
             auto now = std::chrono::high_resolution_clock::now();
@@ -121,18 +124,25 @@ public:
     }
     
     void run_headless() {
-        auto last_time = std::chrono::high_resolution_clock::now();
-        
+        using Clock = std::chrono::steady_clock;
+        const float target_fps = config_.target_fps > 0.0f ? config_.target_fps : 60.0f;
+        const float fixed_dt = 1.0f / target_fps;
+        const auto tick = std::chrono::duration_cast<Clock::duration>(
+            std::chrono::duration<float>(fixed_dt));
+        auto next_tick = Clock::now();
+
         while (running_) {
-            auto now = std::chrono::high_resolution_clock::now();
-            float frame_time = std::chrono::duration<float>(now - last_time).count();
-            last_time = now;
-            
-            if (frame_time > 0.1f) frame_time = 0.1f;
-            
-            update(frame_time);
-            
+            update(fixed_dt);
             Profiler::get_instance().update_fps();
+
+            next_tick += tick;
+            const auto now = Clock::now();
+            if (next_tick > now) {
+                std::this_thread::sleep_until(next_tick);
+            } else if (now - next_tick > tick * 4) {
+                // Do not try to replay an unbounded backlog after a stall.
+                next_tick = now;
+            }
         }
     }
     
@@ -186,8 +196,7 @@ private:
         Scene& scene = scene_manager_.createScene("Default");
         scene_manager_.setActiveScene("Default");
         
-        // Create root node
-        SceneNode* root = &scene.createNode("Root");
+        // Scene already owns its root node.
         
         // Create camera
         RenderCamera cam;
@@ -223,13 +232,33 @@ private:
 
     void render() {
         renderer_.begin_frame();
-        // Submit active scene for rendering
-        if (scene_manager_.getActiveScene()) {
-            // Convert Scene to RenderScene and submit
-            // For now, scene nodes are drawn via the renderer's scene graph
+        if (Scene* scene = scene_manager_.getActiveScene()) {
+            // Scene nodes store renderer component pointers directly. Submit
+            // every top-level node and recurse through its hierarchy.
+            for (auto& [id, node] : scene->nodes) {
+                if (!node->parent) submit_scene_node(*node);
+            }
         }
         renderer_.end_frame();
         renderer_.present();
+    }
+
+    void submit_scene_node(const SceneNode& node) {
+        if (!node.visible) return;
+
+        if (node.cameraComponent) {
+            RenderCamera camera = *node.cameraComponent;
+            camera.update();
+            renderer_.set_camera(camera);
+        }
+        if (node.meshComponent && node.materialComponent) {
+            RenderMesh mesh;
+            mesh.data = *node.meshComponent;
+            renderer_.draw_mesh(mesh, node.transform, *node.materialComponent);
+        }
+        for (const auto& child : node.children) {
+            submit_scene_node(*child);
+        }
     }
     
     // Subsystems

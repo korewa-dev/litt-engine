@@ -8,8 +8,26 @@
 #include <cstring>
 #include <iostream>
 #include <algorithm>
+#include <cmath>
+#include <limits>
+#include <stdexcept>
 
 namespace litt {
+
+namespace software_detail {
+
+inline bool image_sizes(uint32_t width, uint32_t height, size_t& pixels, size_t& bytes) {
+    if (width != 0 && static_cast<size_t>(height) >
+        std::numeric_limits<size_t>::max() / static_cast<size_t>(width)) {
+        return false;
+    }
+    pixels = static_cast<size_t>(width) * static_cast<size_t>(height);
+    if (pixels > std::numeric_limits<size_t>::max() / 4u) return false;
+    bytes = pixels * 4u;
+    return true;
+}
+
+} // namespace software_detail
 
 class SoftwareRenderer : public IGPUDevice {
 public:
@@ -21,8 +39,7 @@ public:
         
         // Headless mode for testing - no window
         if (adapter_name == "headless") {
-            framebuffer_.resize(width_ * height_ * 4);
-            depth_buffer_.resize(width_ * height_);
+            if (!resize_buffers()) return false;
             
             bmp_info_.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
             bmp_info_.bmiHeader.biWidth = width_;
@@ -55,9 +72,13 @@ public:
         
         hdc_ = GetDC(hwnd_);
         
-        // Allocate framebuffer
-        framebuffer_.resize(width_ * height_ * 4);
-        depth_buffer_.resize(width_ * height_);
+        // Allocate framebuffer with checked size arithmetic.
+        if (!resize_buffers()) {
+            DestroyWindow(hwnd_);
+            hwnd_ = nullptr;
+            hdc_ = nullptr;
+            return false;
+        }
         
         // Setup bitmap info
         bmp_info_.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -84,7 +105,8 @@ public:
     }
     
     void present() override {
-        // Blit framebuffer to window
+        // Headless mode intentionally has no device context.
+        if (!hdc_ || framebuffer_.empty()) return;
         SetDIBitsToDevice(
             hdc_, 0, 0, width_, height_,
             0, 0, 0, height_,
@@ -287,32 +309,51 @@ public:
         }
     }
     
-    // Project 3D point to 2D screen coordinates
-    void project(const Vec3& world_pos, const Mat4& view_proj, int& screen_x, int& screen_y, float& depth) {
-        Vec4 clip = view_proj * Vec4(world_pos.x, world_pos.y, world_pos.z, 1.0f);
-        float w = clip.w;
-        if (w < 0.001f) w = 0.001f;
+    // Project 3D point to 2D screen coordinates. Points outside the near/far
+    // clip range are explicitly rejected instead of forcing an invalid w.
+    bool project_checked(const Vec3& world_pos, const Mat4& view_proj,
+                         int& screen_x, int& screen_y, float& depth) const {
+        const Vec4 clip = view_proj * Vec4(world_pos.x, world_pos.y, world_pos.z, 1.0f);
+        if (clip.w <= kClipEpsilon || clip.z < -clip.w || clip.z > clip.w) {
+            screen_x = screen_y = -1;
+            depth = 1.0f;
+            return false;
+        }
+        return project_clip_vertex(clip, screen_x, screen_y, depth);
+    }
 
-        float ndc_x = clip.x / w;
-        float ndc_y = clip.y / w;
-
-        screen_x = (int)((ndc_x * 0.5f + 0.5f) * width_);
-        screen_y = (int)((-ndc_y * 0.5f + 0.5f) * height_);
-        depth = w;
+    void project(const Vec3& world_pos, const Mat4& view_proj,
+                 int& screen_x, int& screen_y, float& depth) {
+        (void)project_checked(world_pos, view_proj, screen_x, screen_y, depth);
     }
     
-    // Draw a 3D triangle from world coordinates
+    // Draw a 3D triangle from world coordinates. Clip in homogeneous space
+    // before perspective division so triangles crossing the near plane remain
+    // well behaved and triangles behind the camera are rejected.
     void draw_triangle_3d(
         const Vec3& v0, const Vec3& v1, const Vec3& v2,
         const Mat4& view_proj, uint32_t color) {
-        int x0, y0, x1, y1, x2, y2;
-        float z0, z1, z2;
-        
-        project(v0, view_proj, x0, y0, z0);
-        project(v1, view_proj, x1, y1, z1);
-        project(v2, view_proj, x2, y2, z2);
-        
-        draw_triangle_depth(x0, y0, z0, x1, y1, z1, x2, y2, z2, color);
+        std::vector<Vec4> polygon = {
+            view_proj * Vec4(v0.x, v0.y, v0.z, 1.0f),
+            view_proj * Vec4(v1.x, v1.y, v1.z, 1.0f),
+            view_proj * Vec4(v2.x, v2.y, v2.z, 1.0f)
+        };
+
+        clip_polygon(polygon, 0); // w > 0
+        clip_polygon(polygon, 1); // OpenGL near plane: z >= -w
+        clip_polygon(polygon, 2); // far plane: z <= w
+        if (polygon.size() < 3) return;
+
+        for (size_t i = 1; i + 1 < polygon.size(); ++i) {
+            int x0, y0, x1, y1, x2, y2;
+            float z0, z1, z2;
+            if (!project_clip_vertex(polygon[0], x0, y0, z0) ||
+                !project_clip_vertex(polygon[i], x1, y1, z1) ||
+                !project_clip_vertex(polygon[i + 1], x2, y2, z2)) {
+                continue;
+            }
+            draw_triangle_depth(x0, y0, z0, x1, y1, z1, x2, y2, z2, color);
+        }
     }
     
     // Draw a 3D mesh
@@ -367,18 +408,20 @@ public:
             Vec3 end(x, 0, 10);
             int x0, y0, x1, y1;
             float z0, z1;
-            project(start, view_proj, x0, y0, z0);
-            project(end, view_proj, x1, y1, z1);
-            draw_line_3d(x0, y0, z0, x1, y1, z1, color);
+            if (project_checked(start, view_proj, x0, y0, z0) &&
+                project_checked(end, view_proj, x1, y1, z1)) {
+                draw_line_3d(x0, y0, z0, x1, y1, z1, color);
+            }
         }
         for (float z = -10.0f; z <= 10.0f; z += spacing) {
             Vec3 start(-10, 0, z);
             Vec3 end(10, 0, z);
             int x0, y0, x1, y1;
             float z0, z1;
-            project(start, view_proj, x0, y0, z0);
-            project(end, view_proj, x1, y1, z1);
-            draw_line_3d(x0, y0, z0, x1, y1, z1, color);
+            if (project_checked(start, view_proj, x0, y0, z0) &&
+                project_checked(end, view_proj, x1, y1, z1)) {
+                draw_line_3d(x0, y0, z0, x1, y1, z1, color);
+            }
         }
     }
     
@@ -386,7 +429,9 @@ public:
     void draw_terrain(const std::vector<float>& heightmap, uint32_t size, 
                       float scale, const Mat4& view_proj, uint32_t color) {
         if (size < 2) return;
-        if (heightmap.size() < size * size) return;
+        size_t required = 0, ignored_bytes = 0;
+        if (!software_detail::image_sizes(size, size, required, ignored_bytes) ||
+            heightmap.size() < required) return;
         
         for (uint32_t z = 0; z < size - 1; z++) {
             for (uint32_t x = 0; x < size - 1; x++) {
@@ -407,23 +452,105 @@ public:
     }
     
     HWND get_window() const { return hwnd_; }
+
+    uint32_t get_pixel(int x, int y) const {
+        if (x < 0 || x >= static_cast<int>(width_) ||
+            y < 0 || y >= static_cast<int>(height_) || framebuffer_.empty()) {
+            return 0;
+        }
+        const size_t idx = (static_cast<size_t>(y) * width_ + static_cast<size_t>(x)) * 4u;
+        const uint32_t b = framebuffer_[idx + 0];
+        const uint32_t g = framebuffer_[idx + 1];
+        const uint32_t r = framebuffer_[idx + 2];
+        return (r << 16) | (g << 8) | b;
+    }
+
+    const std::vector<uint8_t>& framebuffer_pixels() const { return framebuffer_; }
     
 private:
+    static constexpr float kClipEpsilon = 1e-5f;
+
+    bool resize_buffers() {
+        size_t pixels = 0, bytes = 0;
+        if (!software_detail::image_sizes(width_, height_, pixels, bytes)) return false;
+        framebuffer_.assign(bytes, 0);
+        depth_buffer_.assign(pixels, 1.0f);
+        return true;
+    }
+
+    static float clip_distance(const Vec4& v, int plane) {
+        switch (plane) {
+            case 0: return v.w - kClipEpsilon;
+            case 1: return v.z + v.w;
+            default: return v.w - v.z;
+        }
+    }
+
+    static void clip_polygon(std::vector<Vec4>& polygon, int plane) {
+        if (polygon.empty()) return;
+        std::vector<Vec4> output;
+        output.reserve(polygon.size() + 1);
+
+        Vec4 previous = polygon.back();
+        float previous_distance = clip_distance(previous, plane);
+        bool previous_inside = previous_distance >= 0.0f;
+
+        for (const Vec4& current : polygon) {
+            const float current_distance = clip_distance(current, plane);
+            const bool current_inside = current_distance >= 0.0f;
+
+            if (current_inside != previous_inside) {
+                const float denom = previous_distance - current_distance;
+                if (std::fabs(denom) > kClipEpsilon) {
+                    const float t = previous_distance / denom;
+                    output.push_back(previous + (current - previous) * t);
+                }
+            }
+            if (current_inside) output.push_back(current);
+
+            previous = current;
+            previous_distance = current_distance;
+            previous_inside = current_inside;
+        }
+        polygon.swap(output);
+    }
+
+    bool project_clip_vertex(const Vec4& clip, int& screen_x, int& screen_y,
+                             float& depth) const {
+        if (clip.w <= kClipEpsilon) return false;
+        const float ndc_x = clip.x / clip.w;
+        const float ndc_y = clip.y / clip.w;
+        const float ndc_z = clip.z / clip.w;
+        if (!std::isfinite(ndc_x) || !std::isfinite(ndc_y) || !std::isfinite(ndc_z)) {
+            return false;
+        }
+
+        screen_x = static_cast<int>((ndc_x * 0.5f + 0.5f) * width_);
+        screen_y = static_cast<int>((-ndc_y * 0.5f + 0.5f) * height_);
+        depth = std::clamp(ndc_z * 0.5f + 0.5f, 0.0f, 1.0f);
+        return true;
+    }
+
     class SoftwareTexture : public GPUTexture {
     public:
         SoftwareTexture(const TextureDesc& desc) : desc_(desc) {
-            pixels_.resize(desc.width * desc.height * 4);
+            size_t pixels = 0, bytes = 0;
+            if (!software_detail::image_sizes(desc.width, desc.height, pixels, bytes)) {
+                throw std::length_error("software texture dimensions overflow");
+            }
+            pixels_.resize(bytes);
         }
         
         void update(const void* data, uint32_t width, uint32_t height) override {
             if (!data || width == 0 || height == 0) return;
+            size_t pixels = 0, bytes = 0;
+            if (!software_detail::image_sizes(width, height, pixels, bytes)) return;
             if (width != desc_.width || height != desc_.height) {
-                // Resize buffer to match new dimensions
                 desc_.width = width;
                 desc_.height = height;
-                pixels_.resize(width * height * 4);
+                pixels_.resize(bytes);
             }
-            memcpy(pixels_.data(), data, width * height * 4);
+            memcpy(pixels_.data(), data, bytes);
         }
         
         uint32_t get_width() const override { return desc_.width; }

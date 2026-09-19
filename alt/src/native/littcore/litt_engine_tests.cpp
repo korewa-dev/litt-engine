@@ -337,22 +337,48 @@ void test_3d_rendering() {
     printf("[3D Rendering]\n"); fflush(stdout);
     
     SoftwareRenderer sw;
-    sw.initialize("headless");
+    check(sw.initialize("headless"), "software_renderer_headless_init");
+
     sw.clear(0x000000);
     sw.draw_pixel(100, 100, 0xFF0000);
-    
-    sw.clear(0x000000);
-    sw.draw_pixel_depth(100, 100, 0.5f, 0x00FF00);
-    
+    check(sw.get_pixel(100, 100) == 0xFF0000, "software_pixel_write");
+
     sw.clear(0x000000);
     sw.draw_triangle(10, 10, 50, 10, 30, 50, 0x0000FF);
-    
-    Mat4 view_proj = Mat4::identity();
-    sw.draw_triangle_3d(Vec3(0, 0, -5), Vec3(1, 0, -5), Vec3(0, 1, -5), view_proj, 0xFF00FF);
-    
+    check(sw.get_pixel(30, 20) == 0x0000FF, "software_filled_triangle");
+
+    const Mat4 proj = Mat4::perspective(60.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+
+    sw.clear(0x000000);
+    sw.draw_triangle_3d(
+        Vec3(-0.5f, -0.5f, -2.0f),
+        Vec3( 0.5f, -0.5f, -2.0f),
+        Vec3( 0.0f,  0.5f, -2.0f), proj, 0xFF00FF);
+    check(sw.get_pixel(400, 300) == 0xFF00FF, "software_projected_triangle_pixels");
+
+    sw.clear(0x000000);
+    sw.draw_triangle_3d(
+        Vec3(-0.5f, -0.5f, 2.0f),
+        Vec3( 0.5f, -0.5f, 2.0f),
+        Vec3( 0.0f,  0.5f, 2.0f), proj, 0xFFFFFF);
+    check(sw.get_pixel(400, 300) == 0x000000, "software_rejects_behind_camera");
+
+    sw.clear(0x000000);
+    sw.draw_triangle_3d(
+        Vec3(-0.5f, -0.5f, -0.05f),
+        Vec3( 0.6f, -0.5f, -1.0f),
+        Vec3( 0.0f,  0.6f, -1.0f), proj, 0x00FFFF);
+    bool any_color = false;
+    const auto& pixels = sw.framebuffer_pixels();
+    for (size_t i = 0; i + 3 < pixels.size(); i += 4) {
+        if (pixels[i] || pixels[i + 1] || pixels[i + 2]) {
+            any_color = true;
+            break;
+        }
+    }
+    check(any_color, "software_near_plane_clipping");
+
     sw.shutdown();
-    
-    check(true, "3d_rendering_no_crash");
     printf("3D Rendering done\n"); fflush(stdout);
 }
 
