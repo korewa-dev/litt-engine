@@ -4,6 +4,7 @@ CXX ?= c++
 CC  ?= cc
 CFLAGS = -std=c11 -O2 -Wall -Wextra -I.
 CXXFLAGS = -std=c++17 -O2 -Wall -Wextra -I.
+LDLIBS ?= -lm
 CORE = littcore/litt_json.c littcore/litt_obj.c littcore/litt_world.c
 DITHER = littcore/litt_dither.cpp littcore/litt_dither_renderer.cpp
 
@@ -32,7 +33,7 @@ bin/littview: bin/litt_json.o bin/litt_obj.o bin/litt_world.o littview.cpp
 
 test: bin/litt_json.o bin/litt_obj.o bin/litt_world.o tests.c
 	@mkdir -p bin
-	$(CC) $(CFLAGS) $^ -o bin/littcore_tests
+	$(CC) $(CFLAGS) $^ -o bin/littcore_tests $(LDFLAGS) $(LDLIBS)
 	cd bin && ./littcore_tests
 
 selftest: bin/littview
