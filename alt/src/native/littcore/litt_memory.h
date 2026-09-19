@@ -297,25 +297,34 @@ private:
 };
 
 // =============================================================================
-// Free List Allocator - For block-based allocation
+// Free List Allocator - Fixed: validates block size, tracks slabs
 // =============================================================================
 class FreeListAllocator {
 public:
+    struct FreeBlock {
+        FreeBlock* next;
+    };
+
+private:
+    struct Slab {
+        FreeBlock* blocks;
+        size_t block_count;
+        Slab* next;
+    };
+
+public:
     explicit FreeListAllocator(size_t block_size, size_t initial_blocks = 256)
-        : block_size_(block_size), next_free_(nullptr) {
-        for (size_t i = 0; i < initial_blocks; i++) {
-            free_block_t* block = static_cast<free_block_t*>(std::malloc(block_size));
-            if (!block) throw std::bad_alloc();
-            block->next = next_free_;
-            next_free_ = block;
-        }
+        : block_size_(std::max(block_size, sizeof(FreeBlock)))
+        , initial_blocks_(initial_blocks) {
+        allocate_slab(initial_blocks);
     }
 
     ~FreeListAllocator() {
-        while (next_free_) {
-            free_block_t* block = next_free_;
-            next_free_ = block->next;
-            std::free(block);
+        for (Slab* slab = slabs_; slab;) {
+            Slab* next = slab->next;
+            std::free(slab->blocks);
+            std::free(slab);
+            slab = next;
         }
     }
 
@@ -323,43 +332,63 @@ public:
     FreeListAllocator& operator=(const FreeListAllocator&) = delete;
 
     void* allocate() {
-        if (!next_free_) {
-            for (size_t i = 0; i < 32; i++) {
-                free_block_t* block = static_cast<free_block_t*>(std::malloc(block_size_));
-                if (!block) throw std::bad_alloc();
-                block->next = next_free_;
-                next_free_ = block;
-            }
+        if (!free_list_) {
+            // Growth: allocate a new slab
+            size_t count = std::max(size_t(32), initial_blocks_);
+            allocate_slab(count);
         }
-        free_block_t* block = next_free_;
-        next_free_ = block->next;
+        FreeBlock* block = free_list_;
+        free_list_ = block->next;
         return block;
     }
 
     void deallocate(void* ptr) {
         if (!ptr) return;
-        free_block_t* block = static_cast<free_block_t*>(ptr);
-        block->next = next_free_;
-        next_free_ = block;
+        FreeBlock* block = static_cast<FreeBlock*>(ptr);
+        block->next = free_list_;
+        free_list_ = block;
     }
 
     size_t free_count() const {
         size_t count = 0;
-        free_block_t* current = next_free_;
-        while (current) {
-            count++;
-            current = current->next;
-        }
+        for (FreeBlock* b = free_list_; b; b = b->next) ++count;
         return count;
     }
 
 private:
-    struct free_block_t {
-        free_block_t* next;
-    };
+    static Slab* create_slab(size_t block_size, size_t count) {
+        size_t total = block_size * count;
+        void* raw = std::malloc(total);
+        if (!raw) throw std::bad_alloc();
+
+        auto* slab = static_cast<Slab*>(std::malloc(sizeof(Slab)));
+        if (!slab) { std::free(raw); throw std::bad_alloc(); }
+
+        slab->blocks = static_cast<FreeBlock*>(raw);
+        slab->block_count = count;
+        slab->next = nullptr;
+
+        // Chain all blocks in the slab
+        auto* bytes = static_cast<std::byte*>(raw);
+        for (size_t i = 0; i < count; i++) {
+            auto* block = reinterpret_cast<FreeBlock*>(bytes + i * block_size);
+            auto* next = (i + 1 < count) ? reinterpret_cast<FreeBlock*>(bytes + (i + 1) * block_size) : nullptr;
+            block->next = next;
+        }
+        return slab;
+    }
+
+    void allocate_slab(size_t count) {
+        Slab* slab = create_slab(block_size_, count);
+        slab->next = slabs_;
+        slabs_ = slab;
+        free_list_ = slab->blocks;
+    }
 
     size_t block_size_;
-    free_block_t* next_free_;
+    size_t initial_blocks_;
+    Slab* slabs_ = nullptr;
+    FreeBlock* free_list_ = nullptr;
 };
 
 } // namespace litt

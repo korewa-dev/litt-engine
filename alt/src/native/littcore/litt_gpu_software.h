@@ -385,6 +385,9 @@ public:
     // Draw a heightmap terrain
     void draw_terrain(const std::vector<float>& heightmap, uint32_t size, 
                       float scale, const Mat4& view_proj, uint32_t color) {
+        if (size < 2) return;
+        if (heightmap.size() < size * size) return;
+        
         for (uint32_t z = 0; z < size - 1; z++) {
             for (uint32_t x = 0; x < size - 1; x++) {
                 float h00 = heightmap[z * size + x];
@@ -392,10 +395,10 @@ public:
                 float h01 = heightmap[(z + 1) * size + x];
                 float h11 = heightmap[(z + 1) * size + (x + 1)];
                 
-                Vec3 v00((x - size/2) * scale, h00 * scale, (z - size/2) * scale);
-                Vec3 v10((x + 1 - size/2) * scale, h10 * scale, (z - size/2) * scale);
-                Vec3 v01((x - size/2) * scale, h01 * scale, (z + 1 - size/2) * scale);
-                Vec3 v11((x + 1 - size/2) * scale, h11 * scale, (z + 1 - size/2) * scale);
+                Vec3 v00((static_cast<float>(x) - static_cast<float>(size) * 0.5f) * scale, h00 * scale, (static_cast<float>(z) - static_cast<float>(size) * 0.5f) * scale);
+                Vec3 v10((static_cast<float>(x) + 1.0f - static_cast<float>(size) * 0.5f) * scale, h10 * scale, (static_cast<float>(z) - static_cast<float>(size) * 0.5f) * scale);
+                Vec3 v01((static_cast<float>(x) - static_cast<float>(size) * 0.5f) * scale, h01 * scale, (static_cast<float>(z) + 1.0f - static_cast<float>(size) * 0.5f) * scale);
+                Vec3 v11((static_cast<float>(x) + 1.0f - static_cast<float>(size) * 0.5f) * scale, h11 * scale, (static_cast<float>(z) + 1.0f - static_cast<float>(size) * 0.5f) * scale);
                 
                 draw_triangle_3d(v00, v10, v01, view_proj, color);
                 draw_triangle_3d(v10, v11, v01, view_proj, color);

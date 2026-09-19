@@ -13,16 +13,14 @@ namespace litt {
 // Physics Body
 // =============================================================================
 struct PhysicsBody {
-    EntityId entity;
+    EntityId entity{};
     Aabb aabb;
     Vec3 centerOfMass;
-    float inverseMass;
-    bool isStatic;
-    bool isTrigger;
+    float inverseMass = 1.0f;
+    bool isStatic = false;
+    bool isTrigger = false;
     Vec3 velocity;
     Vec3 force;
-    
-    // For CCD
     Vec3 previousPosition;
     
     void updateAabb() {
