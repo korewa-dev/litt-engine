@@ -21,7 +21,9 @@ struct SceneNode {
     Mat4 transform = Mat4::identity();
     Mat4 inverseTransform = Mat4::identity();
     
-    std::vector<std::unique_ptr<SceneNode>> children;
+    // Scene owns nodes. Hierarchy links are non-owning pointers so a node
+    // cannot be owned both by Scene::nodes and by its parent.
+    std::vector<SceneNode*> children;
     SceneNode* parent = nullptr;
     
     // Components (renderer types from litt_renderer.h)
@@ -56,25 +58,40 @@ struct SceneNode {
         inverseTransform = transform.affine_inverse();
 
         // Update children
-        for (auto& child : children) {
-            child->updateTransform();
+        for (SceneNode* child : children) {
+            if (child) child->updateTransform();
         }
     }
     
-    void addChild(std::unique_ptr<SceneNode> child) {
+    // Hierarchy links are non-owning. Scene remains the sole node owner.
+    bool addChild(SceneNode* child) {
+        if (!child || child == this) return false;
+
+        // Reject cycles: child may not be this node or any ancestor of it.
+        for (SceneNode* p = this; p; p = p->parent) {
+            if (p == child) return false;
+        }
+
+        if (child->parent == this) return true;
+        if (child->parent) child->parent->removeChild(child);
         child->parent = this;
-        children.push_back(std::move(child));
+        children.push_back(child);
+        return true;
     }
     
-    void removeChild(SceneNode* child) {
-        children.erase(std::remove_if(children.begin(), children.end(),
-            [child](const std::unique_ptr<SceneNode>& c) { return c.get() == child; }),
-            children.end());
+    bool removeChild(SceneNode* child) {
+        if (!child) return false;
+        const auto old_size = children.size();
+        children.erase(std::remove(children.begin(), children.end(), child), children.end());
+        if (children.size() == old_size) return false;
+        if (child->parent == this) child->parent = nullptr;
+        return true;
     }
     
     SceneNode* findChild(const std::string& name) {
-        for (auto& child : children) {
-            if (child->name == name) return child.get();
+        for (SceneNode* child : children) {
+            if (!child) continue;
+            if (child->name == name) return child;
             auto found = child->findChild(name);
             if (found) return found;
         }
@@ -123,11 +140,30 @@ public:
         return nullptr;
     }
     
+    bool setParent(uint32_t childId, uint32_t parentId) {
+        SceneNode* child = getNode(childId);
+        SceneNode* newParent = getNode(parentId);
+        if (!child || !newParent || child == root) return false;
+        return newParent->addChild(child);
+    }
+
+    bool clearParent(uint32_t childId) {
+        SceneNode* child = getNode(childId);
+        if (!child || !child->parent) return false;
+        return child->parent->removeChild(child);
+    }
+    
     void removeNode(uint32_t id) {
         auto it = nodes.find(id);
         if (it == nodes.end()) return;
-        if (root == it->second.get()) root = nullptr;
-        nodes.erase(it);
+
+        SceneNode* target = it->second.get();
+        // The root is a scene invariant. Removing it would leave the Scene in
+        // a half-valid state, so callers must clear/destroy the Scene instead.
+        if (target == root) return;
+
+        if (target->parent) target->parent->removeChild(target);
+        destroyNode(target);
     }
     
     void update() {
@@ -140,6 +176,11 @@ public:
     }
     
     void clear() {
+        // Break all non-owning hierarchy links before releasing node storage.
+        for (auto& [id, node] : nodes) {
+            node->parent = nullptr;
+            node->children.clear();
+        }
         nodes.clear();
         root = nullptr;
         nextId = 0;
@@ -161,8 +202,17 @@ public:
 private:
     void destroyNode(SceneNode* node) {
         if (!node) return;
-        for (auto& child : node->children) {
-            destroyNode(child.get());
+
+        // Copy because recursive removal destroys the referenced children.
+        const std::vector<SceneNode*> descendants = node->children;
+        node->children.clear();
+        for (SceneNode* child : descendants) {
+            if (!child) continue;
+            child->parent = nullptr;
+            auto it = nodes.find(child->id);
+            if (it != nodes.end() && it->second.get() == child) {
+                destroyNode(child);
+            }
         }
         nodes.erase(node->id);
     }
