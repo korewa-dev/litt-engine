@@ -1,6 +1,6 @@
 // =============================================================================
 // Litt Engine - Complete Test Suite
-// Fixed: removed unconditional check(true) patterns. Tests assert behavior.
+// Behavioral tests assert observable state or explicit implementation status.
 // =============================================================================
 
 #include <iostream>
@@ -160,8 +160,8 @@ void test_animation() {
     anim.load_clip("Walk", clip2);
     anim.play("Walk");
     anim.update(0.016f);
-    // Verify animation state is valid (stub: just check no crash)
-    check(true, "animation_no_crash");
+    check(anim.current_clip != nullptr && anim.playback_time > 0.0f,
+          "animation_playback_state");
     printf("Animation done\n"); fflush(stdout);
 }
 
@@ -230,7 +230,7 @@ void test_advanced_rendering() {
     check(mb.num_samples == 8, "motion_blur_samples");
     TAA taa;
     taa.apply_taa();
-    check(true, "taa_no_crash");
+    check(TAA::status() == ImplementationStatus::Stub, "taa_reports_stub");
     SSR ssr;
     ssr.apply_ssr();
     check(ssr.max_steps == 64, "ssr_steps");
@@ -240,21 +240,20 @@ void test_advanced_rendering() {
 void test_networking() {
     printf("[Networking]\n"); fflush(stdout);
     NetworkManager net;
-    net.initialize(NetworkManager::Mode::CLIENT);
-    net.send_snapshot();
-    net.lag_compensation();
-    net.interest_management();
+    check(NetworkManager::status() == ImplementationStatus::Unavailable &&
+          !net.initialize(NetworkManager::Mode::CLIENT),
+          "network_reports_unavailable");
     net.shutdown();
-    check(true, "network_no_crash");
     printf("Networking done\n"); fflush(stdout);
 }
 
 void test_gameplay() {
     printf("[Gameplay]\n"); fflush(stdout);
     SaveLoadSystem saveload;
-    saveload.save_game("test.sav");
-    saveload.load_game("test.sav");
-    check(true, "saveload_no_crash");
+    check(SaveLoadSystem::status() == ImplementationStatus::Unavailable &&
+          !saveload.save_game("test.sav") &&
+          !saveload.load_game("test.sav"),
+          "saveload_reports_unavailable");
     AchievementSystem achievements;
     achievements.unlock_achievement(1);
     check(achievements.is_unlocked(1), "achievement_unlock");
@@ -264,8 +263,7 @@ void test_gameplay() {
     q.name = "Test Quest";
     quests.add_quest(q);
     quests.complete_quest(1);
-    // Verify quest state changed
-    check(true, "quest_no_crash");
+    check(quests.is_completed(1), "quest_completion_state");
     DialogueSystem dialogue;
     DialogueSystem::DialogueNode node;
     node.id = 1;
@@ -280,7 +278,7 @@ void test_performance() {
     Profiler profiler;
     profiler.begin_scope("Test");
     profiler.end_scope();
-    check(true, "profiler_no_crash");
+    check(Profiler::status() == ImplementationStatus::Stub, "profiler_reports_stub");
     OcclusionCulling occlusion;
     occlusion.initialize();
     occlusion.update();
@@ -312,7 +310,11 @@ void test_large_world() {
     LevelStreaming ls;
     ls.initialize();
     ls.update();
-    check(true, "large_world_no_crash");
+    check(TerrainRenderer::status() == ImplementationStatus::Stub &&
+          FoliageSystem::status() == ImplementationStatus::Stub &&
+          WorldPartitioning::status() == ImplementationStatus::Stub &&
+          LevelStreaming::status() == ImplementationStatus::Stub,
+          "large_world_reports_stub");
     printf("Large world done\n"); fflush(stdout);
 }
 
@@ -329,7 +331,10 @@ void test_engine_loop() {
     loop.stop();
     Benchmark bench;
     bench.run_benchmark();
-    check(true, "engine_loop_no_crash");
+    check(AssetPackager::status() == ImplementationStatus::Stub &&
+          EngineLoop::status() == ImplementationStatus::Stub &&
+          Benchmark::status() == ImplementationStatus::Stub,
+          "engine_tooling_reports_stub");
     printf("Engine loop done\n"); fflush(stdout);
 }
 
