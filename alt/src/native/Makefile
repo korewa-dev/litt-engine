@@ -79,6 +79,11 @@ test: bin/litt_json.o bin/litt_obj.o bin/litt_world.o tests.c
 selftest: bin/littview
 	cd bin && ./littview selftest
 
+gpu-contract-test:
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) littcore/litt_gpu.cpp littcore/litt_gpu_contract_tests.cpp -o bin/litt_gpu_contract_tests $(LDFLAGS) $(LDLIBS)
+	cd bin && ./litt_gpu_contract_tests
+
 # Dither3D demo
 bin/dither3d_demo: bin/litt_json.o bin/litt_obj.o bin/litt_world.o litt_dither.o litt_dither_renderer.o dither3d_demo.cpp
 	@mkdir -p bin
@@ -90,4 +95,4 @@ dither3d_demo: bin/dither3d_demo
 clean:
 	rm -rf bin dist
 
-.PHONY: all sdk install-sdk test selftest clean dither3d_demo
+.PHONY: all sdk install-sdk test selftest gpu-contract-test clean dither3d_demo
