@@ -1,4 +1,5 @@
 #include "litt_asset.h"
+#include "litt_obj.h"
 #include <cassert>
 #include <cstdio>
 #include <fstream>
@@ -59,8 +60,18 @@ int main() {
     assert(!assets.loadTexture("/tmp/litt_asset_bad.tga"));
     assert(assets.textures.find("/tmp/litt_asset_bad.tga") == assets.textures.end());
 
+    LvModel nativeModel = {nullptr, 0};
+    assert(lv_obj_load("/tmp/litt_asset_quad.obj", &nativeModel) == 0);
+    assert(nativeModel.count > 0);
+    lv_model_free(&nativeModel);
+
+    const char badObj[] = "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 99\n";
+    write_file("/tmp/litt_asset_bad.obj", badObj, sizeof(badObj) - 1);
+    assert(lv_obj_load("/tmp/litt_asset_bad.obj", &nativeModel) != 0);
+
     std::remove("/tmp/litt_asset_quad.obj");
     std::remove("/tmp/litt_asset_rgb.tga");
     std::remove("/tmp/litt_asset_bad.tga");
+    std::remove("/tmp/litt_asset_bad.obj");
     return 0;
 }
