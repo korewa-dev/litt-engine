@@ -192,6 +192,7 @@ int lv_obj_load(const char *path, LvModel *out) {
     if (!buf) { fclose(f); return 1; }
     size_t rd = fread(buf, 1, (size_t)sz, f);
     fclose(f);
+    if (rd != (size_t)sz) { free(buf); return 1; }
     buf[rd] = 0;
 
     LvModel model = { NULL, 0 };
@@ -203,7 +204,8 @@ int lv_obj_load(const char *path, LvModel *out) {
     RMap rm = {0};
     char cur_name[64] = "obj_mesh";
     int any_face = 0;
-    int oom = 0;                         /* m4: any allocation failure */
+    int oom = 0;                         /* allocation failure */
+    int parse_error = 0;                 /* malformed/unsupported face */
     LvMtlLib lib;                        /* MTL side-table (4.1/4.2) */
     char cur_mtl[64] = "";
     memset(&lib, 0, sizeof(lib));
@@ -245,7 +247,7 @@ int lv_obj_load(const char *path, LvModel *out) {
 
     char *line = buf;
     char *end = buf + rd;
-    while (line < end && !oom) {
+    while (line < end && !oom && !parse_error) {
         char *nl = memchr(line, '\n', (size_t)(end - line));
         char *next = nl ? nl + 1 : end;
         if (nl) *nl = 0;   /* last line may lack '\n' - never deref NULL */
@@ -308,9 +310,9 @@ int lv_obj_load(const char *path, LvModel *out) {
                 if (!*tok) break;
                 int vi = 0;
                 int got = sscanf(tok, "%d", &vi);
-                if (!got) break;
+                if (!got) { parse_error = 1; break; }
                 if (vi < 0) vi += (int)(gp.n / 3) + 1;      /* n4: OBJ relative wrap */
-                if (vi < 1 || vi > (int)(gp.n / 3)) { nc = 0; break; }
+                if (vi < 1 || vi > (int)(gp.n / 3)) { parse_error = 1; break; }
                 /* optional /vt[/vn] slots after the position index */
                 uvtex[nc] = -1;
                 const char *slash = strchr(tok, '/');
@@ -320,15 +322,16 @@ int lv_obj_load(const char *path, LvModel *out) {
                     if (sscanf(slash + 1, "%d", &tv) == 1) {
                         if (tv < 0) tv += (int)(gt.n / 2) + 1;  /* relative wrap */
                         if (tv >= 1 && tv <= (int)(gt.n / 2)) uvtex[nc] = tv - 1;
-                        else { nc = 0; break; }
+                        else { parse_error = 1; break; }
                     }
                 }
                 /* skip to next whitespace-delimited token */
                 while (*tok && *tok != ' ' && *tok != '\t') tok++;
                 corners[nc++] = (unsigned)(vi - 1);
             }
-            if (face_overflow) { oom = 1; }
-            if (nc >= 3 && !oom) {
+            if (face_overflow) parse_error = 1;
+            if (nc < 3) parse_error = 1;
+            if (nc >= 3 && !oom && !parse_error) {
                 for (int i = 2; i < nc && !oom; i++) {
                     unsigned tri[3] = { corners[0], corners[i - 1], corners[i] };
                     int tri_t[3] = { uvtex[0], uvtex[i - 1], uvtex[i] };
@@ -387,7 +390,7 @@ int lv_obj_load(const char *path, LvModel *out) {
     free(buf);
 
     /* m4: OOM or no usable geometry -> clean error, nothing leaked */
-    if (oom || model.count == 0 || !any_face) {
+    if (oom || parse_error || model.count == 0 || !any_face) {
         lv_model_free(&model);
         return 1;
     }
