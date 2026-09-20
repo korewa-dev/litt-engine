@@ -56,6 +56,17 @@ jobs:
           -o /tmp/litt_c_tests
       - name: Run C bridge contract tests
         run: /tmp/litt_c_tests
+      - name: Build packaged GUI SDK
+        run: make -C alt/src/native sdk
+      - name: Compile external C consumer against packaged header
+        run: |
+          cat > /tmp/litt_sdk_smoke.c <<'EOF'
+          #include <litt/litt_c.h>
+          int main(void) { LittEngine* e = litt_engine_create(); if (!e) return 1; litt_engine_destroy(e); return 0; }
+          EOF
+          cc -std=c11 -I alt/src/native/dist/include -c /tmp/litt_sdk_smoke.c -o /tmp/litt_sdk_smoke.o
+          g++ /tmp/litt_sdk_smoke.o -L alt/src/native/dist/lib -Wl,-rpath,$PWD/alt/src/native/dist/lib -llitt -o /tmp/litt_sdk_smoke
+          /tmp/litt_sdk_smoke
 
   generated-game-contract:
     runs-on: ubuntu-latest
