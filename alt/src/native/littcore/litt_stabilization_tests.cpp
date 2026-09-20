@@ -25,14 +25,14 @@ static void check(bool cond, const char* name) {
     else { ++failed; std::printf("  FAIL %s\n", name); }
 }
 
-static bool near(float a, float b, float eps = 1e-4f) {
+static bool near_float(float a, float b, float eps = 1e-4f) {
     return std::fabs(a - b) <= eps;
 }
 
 static bool near_vec(const Vec3& a, const Vec3& b, float eps = 1e-4f) {
-    return near(a.x, b.x, eps) &&
-           near(a.y, b.y, eps) &&
-           near(a.z, b.z, eps);
+    return near_float(a.x, b.x, eps) &&
+           near_float(a.y, b.y, eps) &&
+           near_float(a.z, b.z, eps);
 }
 
 static PhysicsBody body_at(const Vec3& center, float half = 1.0f) {
@@ -97,8 +97,8 @@ static void test_physics_resolution() {
         physics.addBody(&b);
         physics.update();
         check(overlap_x(a, b) < before, "physics_overlap_reduces");
-        check(near(a.aabb.center().x, a.centerOfMass.x) &&
-              near(b.aabb.center().x, b.centerOfMass.x),
+        check(near_float(a.aabb.center().x, a.centerOfMass.x) &&
+              near_float(b.aabb.center().x, b.centerOfMass.x),
               "physics_aabb_refresh");
     }
 
@@ -243,7 +243,7 @@ static void test_affine_inverse() {
                      Mat4::scale(Vec3(2.0f, 3.0f, 0.5f));
     Vec3 p(1.25f, -4.0f, 2.5f);
     Vec3 roundtrip = transform.affine_inverse() * (transform * p);
-    check(near(roundtrip.x, p.x) && near(roundtrip.y, p.y) && near(roundtrip.z, p.z),
+    check(near_float(roundtrip.x, p.x) && near_float(roundtrip.y, p.y) && near_float(roundtrip.z, p.z),
           "affine_inverse_nonuniform_trs");
 }
 
@@ -363,7 +363,7 @@ static void test_scene_component_ownership() {
           "scene_mesh_attachment_is_independent_copy");
     check(node.materialComponent && node.materialComponent->name == "owned_material",
           "scene_owns_material_attachment");
-    check(node.cameraComponent && near(node.cameraComponent->fov, 73.0f),
+    check(node.cameraComponent && near_float(node.cameraComponent->fov, 73.0f),
           "scene_owns_camera_attachment");
 }
 
