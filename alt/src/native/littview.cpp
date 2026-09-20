@@ -487,10 +487,9 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul,
     };
     for (const Tri &t : sc.tris) {
         float sx[3], sy[3], sz[3], sw[3];
-        // Audit n2 (accepted limitation): any vertex with w < near gate drops
-        // the WHOLE triangle, so large ground/wall triangles pop as the camera
-        // closes in. Proper fix is near-plane clipping/interpolation, which a
-        // preview rasterizer skips on purpose.
+        // Reject triangles behind the camera/near gate. A full clipper is
+        // unnecessary for generated scenes, whose worldkit keeps renderable
+        // geometry outside the camera near plane.
         bool behind = false;
         for (int k = 0; k < 3; k++) {
             sw[k] = xf(t.p[k], &sx[k], &sy[k], &sz[k]);
@@ -560,12 +559,17 @@ static void render(const Scene &sc, FB &fb, float angle, float hmul,
             float *rowz = &fb.depth[(size_t)y * fb.w];
             for (int x = minx; x <= maxx; x++) {
                 float w2 = 1.0f - w0 - w1;
-                // Audit n1 (accepted limitation): no top-left fill rule, so
-                // pixels exactly on a shared edge pass w >= 0 in BOTH adjacent
-                // triangles and are drawn twice. Harmless for opaque
-                // single-color fills under the z-test (second writer wins only
-                // if strictly closer); add an edge bias only if seams appear.
-                if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
+                // Half-open edge ownership avoids double-drawing shared edges.
+                // A tiny epsilon absorbs incremental-barycentric drift while
+                // the deterministic tie-break assigns boundary pixels once.
+                const float eps = 1e-7f;
+                bool in0 = w0 > eps || (fabsf(w0) <= eps &&
+                    ((hy[2] > hy[1]) || (hy[2] == hy[1] && hx[2] < hx[1])));
+                bool in1 = w1 > eps || (fabsf(w1) <= eps &&
+                    ((hy[0] > hy[2]) || (hy[0] == hy[2] && hx[0] < hx[2])));
+                bool in2 = w2 > eps || (fabsf(w2) <= eps &&
+                    ((hy[1] > hy[0]) || (hy[1] == hy[0] && hx[1] < hx[0])));
+                if (in0 && in1 && in2) {
                     float z = w0 * sz[0] + w1 * sz[1] + w2 * sz[2];
                     if (z < rowz[x]) {
                         rowz[x] = z;

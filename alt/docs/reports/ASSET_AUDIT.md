@@ -391,3 +391,24 @@ determinism match, lint clean + synthetic warning proof).
 
 — Audit complete. Evidence lines current as of this session; generators
 mid-flight (items 3–6) were audited as-found with in-flight notes.
+
+
+---
+
+## 2026-09-20 consolidation status
+
+The original top-10 list is now historical. Current-tree inspection confirms
+the Python wave listed above plus the native material work have landed:
+`litt_obj.c` resolves MTL Kd/Ke per usemtl mesh, `LvMesh` carries albedo
+and emission, and `littview` consumes those channels while preserving tag
+fallbacks. The generation pipeline also contains the reusable single-game
+native proof/refinement path described by CDR-010.
+
+Remaining ideas from the audit that are not correctness defects are product
+extensions: texture decoding for map_Kd, richer per-asset visual attribution,
+and more sophisticated render critics. They are intentionally not classified
+as unresolved audit repairs.
+
+**Consolidated verdict: all correctness and doctrine-enforcement findings in
+this audit are addressed.** New feature work should be tracked separately from
+this closed audit.

@@ -178,3 +178,20 @@ on the registry/transform helpers; within groups, fix-broken before improve.
 Sequencing note: items 1–2 are prerequisites for 6, 7, 14, 16, 17, 20. Item 3
 is the highest-value wiring fix — corridor_run is the pattern make_game forces
 for side-view kits, and today its pickups/goals are invisible to the engine.
+
+
+---
+
+## 2026-09-20 consolidation status
+
+The 22-item punch list above has been executed across the recorded wave reports
+and council progress log. Current worldgen includes the shared Placement and
+transform conventions, connectivity/track robustness, gameplay wiring,
+flagship dispatch, native proof gating, seed plumbing, instancing, structured
+hazards/goals, grounding, and deterministic generation/refinement.
+
+The audit's original BROKEN/PARTIAL labels describe the pre-wave snapshot and
+must not be read as current status. Follow-on WorldForge/refinement work is a
+feature roadmap, not unresolved debt from this audit.
+
+**Consolidated verdict: 22/22 audit repair items addressed.**
