@@ -1,8 +1,10 @@
-# NPU (Neural Processing Unit) Support
+# NPU (Neural Processing Unit) Research
 
-Litt Engine supports NPU acceleration for AI-powered rendering tasks including denoising, upscaling, and frame generation.
+> **Experimental design only:** The release-supported runtime does not currently certify NPU acceleration. The devices, APIs, and code below are research/design material and must not be read as runtime or physical-hardware support. See `../SUPPORTED_RUNTIME.md`.
 
-## Supported NPUs
+This document explores NPU acceleration for rendering and inference tasks.
+
+## Referenced NPUs
 
 ### Desktop/Laptop NPUs
 | NPU | Vendor | Architecture | TOPS (INT8) |
