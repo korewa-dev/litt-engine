@@ -56,9 +56,9 @@ Security/robustness: strict parsing and finite-number checks improve malformed-i
 ## Update 003 - Engine scene persistence facade
 
 Branch: `engine-scene-facade-20260920`  
-Implementation commit: `ce16e996c47a5fc749604d2d27145800a0bda9fc`  
-Contract-test commit: `03b867ea61ec6fc84f0d8d9bf97b087966e978e2`  
-CI-gate commit: `9adc6c4d916b90b11c713182010d9ad164bf55bf`
+PR: #55  
+Validated head: `8622ef11bd09723885bba57cccbb4b6b0635f5c0`  
+Merged main: `8f5497f8b60a3b84a2f97b819f9a1633b1acc555`
 
 ### Contract and change
 
@@ -66,26 +66,40 @@ CI-gate commit: `9adc6c4d916b90b11c713182010d9ad164bf55bf`
 
 The same update fixes an adjacent lifecycle defect: `initialize()` resets `running_` and clears stale SceneManager state before creating the default scene, making stop then reinitialize coherent rather than leaving the engine stopped with retained scenes.
 
-### Regression coverage
+### Regression coverage and CI
 
-`litt_engine_scene_tests.cpp` now covers headless initialization, active default scene creation, hierarchy setup, save to a non-empty file, save/load state round trip, replacement of an existing save, malformed-load failure with in-memory non-mutation, missing-file failure, empty-save-path failure, stop state, reinitialization, running-state reset and stale-scene cleanup.
+`litt_engine_scene_tests.cpp` covers headless initialization, active default scene creation, hierarchy setup, save/load round trip, replacement of an existing save, malformed-load non-mutation, missing-file failure, empty-save-path failure, stop state, reinitialization, running-state reset and stale-scene cleanup.
 
-The Stabilization workflow gates this contract on normal Linux, ASan/UBSan, and Windows/MSVC. The workflow change is committed but CI evidence is pending; this capability is not promoted until the PR head passes all jobs.
+Stabilization run #182 passed all six jobs on the validated PR head. The Engine scene facade contract passed normal Linux, ASan/UBSan, and Windows/MSVC gates. C runtime, C bridge/SDK, generated-game, and the wider Windows native suite also remained green. PR #55 was therefore squash-merged rather than promoted on partial evidence.
 
 ### Fresh audit
 
-Correctness: implementation and targeted regression coverage are now present. CI remains the promotion gate.
+Correctness: promoted after full cross-platform CI. Failure behavior remains explicit and malformed loads are transactional.
 
-Failure behavior: missing/empty paths and malformed scene data fail explicitly. The underlying scene transaction protects in-memory state on parse/validation failure.
+Portability: Linux/POSIX replacement is stronger than the current Windows remove-then-rename fallback. Windows ordinary write failure is protected, but replacement is not crash-atomic between removal and rename. A platform-specific atomic-replace helper remains a hardening opportunity.
 
-Portability: Linux/POSIX rename can replace an existing destination. Windows C rename cannot reliably do so, therefore the implementation removes the old destination after the complete temporary file exists. This avoids partial files from normal write failures, but Windows replacement is not crash-atomic between remove and rename. A future platform-specific atomic-replace helper could improve this without changing the public contract.
+Architecture/resource impact: dependency-free and headless-compatible. Save temporarily holds serialized JSON in memory and on disk; load holds the file buffer plus parser/candidate scene. No graphics SDK or heavyweight runtime dependency was introduced.
 
-Architecture/resource impact: remains dependency-free and headless-compatible. File IO uses standard C++ streams. Save temporarily holds serialized JSON in memory and on disk; load holds the file buffer plus the parser/candidate scene. No graphics SDK or new runtime dependency is introduced.
+Security/robustness: strict scene parsing is retained. Input-size/node-count limits remain an identified hardening task. Concurrent same-path saves are outside the v1 contract.
 
-Security/robustness: inherits strict scene parsing. Input-size/node-count limits remain an identified hardening task. Temporary filename collision is possible if concurrent writers save the same path; concurrent same-file saves are not part of the v1 contract and should not be claimed thread-safe.
+Compatibility: attachment persistence remains intentionally outside scene JSON v1. Engine save/load is scene-graph persistence, not yet complete runtime-state persistence.
 
-Compatibility: attachment persistence remains intentionally outside scene JSON v1. Engine save/load must not be described as complete runtime-state persistence until mesh/material/light/camera/physics attachment contracts are implemented.
+## Update 004 - Post-promotion C bridge truth audit
+
+Base inspected: main `8f5497f8b60a3b84a2f97b819f9a1633b1acc555`
+
+### Findings
+
+The next highest-priority truthfulness gap is confirmed in `litt_c.cpp`. `litt_world_add_component()` currently accepts a `config_json` argument, discards it unconditionally, sets only a component membership bit, and returns success. For Mesh, Physics, Light, Camera, Script, Audio, and UI this can be mistaken for successful runtime component configuration even though no configuration is consumed or wired into the native runtime.
+
+The C bridge quality and camera controls are also metadata-only today. `litt_engine_set_quality()` stores an enum without applying it to a renderer. `litt_engine_set_camera()` validates and stores camera state without driving a release-supported framebuffer/render path. GPU and framebuffer queries correctly remain unavailable, which makes the setters' implied runtime effect the inconsistent part of the contract.
+
+### Risk and next implementation contract
+
+Do not remove the lightweight metadata capability just to make the API smaller. The next slice should make the distinction explicit and testable: component membership/configuration must either be persisted and retrievable as bridge metadata or rejected when configuration cannot be honored; invalid JSON must never report success. Renderer-facing controls need capability/status semantics so callers can distinguish stored editor state from an applied renderer setting.
+
+This work should remain allocation-light and dependency-free by reusing Litt's strict JSON parser. It must extend the packaged C SDK contract and Windows compile/test coverage before promotion.
 
 ### Next work
 
-Open a focused PR and require the new Linux, sanitizer and Windows gates to pass. Fix any compiler/runtime failures before promotion. After a green merge, audit C bridge component/config truthfulness, especially component types that currently toggle metadata bits while ignoring `config_json`, plus renderer quality/camera controls that may imply effects not wired to a renderer.
+Implement the C bridge component/config truth contract on `c-bridge-component-contract-20260920`, add regression coverage for malformed JSON, missing entities, unsupported component values, config round trip or explicit rejection, removal cleanup, and transform invariants. Then audit quality/camera semantics before moving to asset/material attachment persistence.
