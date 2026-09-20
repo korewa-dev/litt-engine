@@ -5,6 +5,7 @@
 #include "litt_math.h"
 #include <vector>
 #include <memory>
+#include <cstdint>
 
 namespace litt {
 
