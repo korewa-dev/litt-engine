@@ -26,10 +26,11 @@ Litt is a low-resource, headless-first game engine and procedural game-building 
 | Vulkan/DX12/OpenGL/Metal generic facade | Experimental/unavailable in current generic backend |
 | Physics | Experimental |
 | Audio | Partial |
-| Scripting VM | Partial |
-| Python/C#/Lua integrations | Experimental unless independently verified |
+| Scripting VM | Partial, bounded execution contract |
+| C ABI / SDK | Supported, versioned and externally consumer-tested |
+| Python/C#/Lua integrations | Experimental, not release-supported |
 | Networking | Experimental |
-| FFI deployment | Incomplete |
+| Legacy FFI world deployment | Incomplete |
 | `litt_engine2.h` | Legacy |
 | Editor tooling | Demo/example; Litt GUI is a separate integration project |
 
@@ -100,3 +101,6 @@ Other historical documents can describe experimental or legacy systems. Their pr
 ## License
 
 MIT License. See `LICENSE`.
+
+
+Scripting and language binding support is defined in `alt/docs/SCRIPTING_FFI.md`.
