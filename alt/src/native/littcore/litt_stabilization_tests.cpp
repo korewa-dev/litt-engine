@@ -452,6 +452,17 @@ static void test_scripting_vm() {
     check(vm.initialize(), "script_vm_initialize");
     check(vm.compile("basic", "var x = 10\nprint x\n"), "script_vm_compile_basic");
     check(vm.execute("basic"), "script_vm_execute_basic");
+    check(vm.stack_size() == 0, "script_vm_stack_cleanup");
+    for (int i = 0; i < 32; ++i) check(vm.execute("basic"), "script_vm_repeat_execute");
+    check(vm.stack_size() == 0, "script_vm_repeat_no_stack_growth");
+    check(!vm.compile("bad-control", "if true\nprint 1\nend\n"),
+          "script_vm_rejects_unimplemented_control_flow");
+    check(!vm.compile("bad-number", "print 12oops\n"),
+          "script_vm_rejects_malformed_number");
+    VMFunction malformed("malformed");
+    malformed.bytecode.push_back(static_cast<uint8_t>(OpCode::PUSH_FLOAT));
+    check(!vm.executeFunction(&malformed), "script_vm_rejects_truncated_bytecode");
+    check(vm.stack_size() == 0, "script_vm_malformed_cleanup");
     check(!vm.execute("missing"), "script_vm_missing_rejected");
     vm.shutdown();
 }
