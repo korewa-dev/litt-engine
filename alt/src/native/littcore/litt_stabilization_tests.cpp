@@ -11,6 +11,8 @@
 #include "litt_scene.h"
 #include "litt_scripting_vm.h"
 #include "litt_event.h"
+#include "litt_serialization.h"
+#include "litt_scripting.h"
 #ifdef _WIN32
 #include "litt_gpu_software.h"
 #endif
@@ -274,6 +276,71 @@ static void test_software_renderer_hardening() {
 #endif
 
 
+
+static void test_serialization_api() {
+    JSONSerializer json;
+    json.set_data("{\"ok\":true}");
+    const auto json_bytes = json.serialize_to_buffer();
+    JSONSerializer json_copy;
+    check(json_copy.deserialize_from_buffer(json_bytes) &&
+          json_copy.get_data() == "{\"ok\":true}",
+          "serialization_json_buffer_roundtrip");
+
+    BinarySerializer binary;
+    binary.write_uint(0x78563412u);
+    binary.write_int(-17);
+    binary.write_float(3.25f);
+    binary.write_bool(true);
+    binary.write_string("litt");
+    const auto bytes = binary.serialize_to_buffer();
+
+    BinarySerializer read;
+    check(read.deserialize_from_buffer(bytes), "serialization_binary_load_buffer");
+    check(read.read_uint() == 0x78563412u, "serialization_uint_roundtrip");
+    check(read.read_int() == -17, "serialization_int_roundtrip");
+    check(near_float(read.read_float(), 3.25f), "serialization_float_roundtrip");
+    check(read.read_bool(), "serialization_bool_roundtrip");
+    check(read.read_string() == "litt", "serialization_string_roundtrip");
+    check(read.read_bytes(999999).empty(), "serialization_bounds_guard");
+
+    auto& manager = SerializationManager::get_instance();
+    auto managed = std::make_unique<JSONSerializer>();
+    managed->set_data("managed");
+    manager.register_serializer("json-test", std::move(managed));
+    check(manager.serialize_to_buffer("json-test") ==
+          std::vector<uint8_t>({'m','a','n','a','g','e','d'}),
+          "serialization_manager_dispatch");
+    manager.register_serializer("json-test", nullptr);
+    check(manager.get_serializer("json-test") == nullptr,
+          "serialization_manager_remove");
+}
+
+static void test_scripting_facade() {
+    ScriptContext context;
+    context.set_variable("speed", 4.5f);
+    check(context.has_variable("speed") && near_float(context.get_float("speed"), 4.5f),
+          "script_context_float");
+    context.set_variable("speed", std::string("fast"));
+    check(context.get_string("speed") == "fast" && near_float(context.get_float("speed"), 0.0f),
+          "script_context_type_replacement");
+
+    auto& engine = ScriptEngine::get_instance();
+    check(engine.initialize(), "script_facade_initialize");
+    int callback_calls = 0;
+    engine.register_function("tick", [&](ScriptContext& ctx) {
+        ++callback_calls;
+        ctx.set_variable("called", true);
+    });
+    check(engine.execute_function("tick", context) &&
+          callback_calls == 1 && context.get_bool("called"),
+          "script_facade_registered_function");
+    check(engine.execute("var x = 10\nprint x\n"),
+          "script_facade_vm_execution");
+    check(!engine.execute_function("missing", context),
+          "script_facade_missing_function_rejected");
+    engine.shutdown();
+}
+
 static void test_event_dispatcher() {
     EventDispatcher dispatcher;
     int calls = 0;
@@ -409,6 +476,8 @@ int main() {
     test_affine_inverse();
     test_scripting_vm();
     test_event_dispatcher();
+    test_serialization_api();
+    test_scripting_facade();
 #ifdef _WIN32
     test_software_renderer_hardening();
 #endif
