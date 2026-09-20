@@ -1,132 +1,57 @@
-# Litt Engine – AI-First, Headless Game Engine
+# Litt Engine
 
-![Litt Engine](https://raw.githubusercontent.com/korewa-dev/litt-engine/main/docs/images/logo.png)
+Litt is a low-resource, headless-first game engine and procedural game-building toolkit. The project aims for a small runtime and dependency footprint while retaining useful game, tooling, and world-generation capability.
 
-## Litt Engine – AI-First, Headless Game Engine
+> **Release contract:** the primary tested path is the native generated-game runtime in `alt/src/native` together with the WorldGen/template tools. Other APIs in the repository may be partial, experimental, or legacy. See `alt/docs/SUPPORTED_RUNTIME.md`.
 
-A headless-first, AI-driven game engine designed for building custom editors and game experiences. Litt Engine provides the core subsystems (math, rendering, physics, scripting, asset pipeline) as header-only and inline template implementations, enabling any AI system to use it to build game editors, tools, and games.
+## Philosophy
 
-### Philosophy
+- **Little runtime cost:** avoid large fixed allocations and unnecessary default dependencies.
+- **Useful capability:** prioritize features that produce playable games rather than feature-count claims.
+- **Headless first:** game/runtime validation must work without a graphics window.
+- **Deterministic generation:** seeded world generation should be reproducible and testable.
+- **Honest failure:** unavailable functionality must report failure instead of returning fabricated or successful-looking results.
 
-- **AI-First**: Designed from the ground up for AI agents to drive content creation, world generation, and editor automation.
-- **Headless-First**: No window or rendering required by default — physics, audio, scripting, and game logic run fully headless. Rendering is optional via RHI backends (Vulkan, DirectX 12).
-- **Polyglot**: Full support for C++, Python (pybind11), C# (Mono), and Lua scripting.
-- **Editor-Friendly**: Every subsystem is usable from an editor context; the editor folder is an **EXAMPLE/DEMO** showing how to build custom editors on top of Litt Engine, not a shipped editor itself.
+## Capability status
 
-### Architecture
-
-```text
-┌─────────────────────────────────────┐
-│           Python / C# / Lua           │  ← Scripting API
-└───────────────────────┬─────────────┘
-                        │ JSON-RPC / WebSocket
-┌─────────────────────────────────────┐
-│          Editor Backend (FastAPI)     │  ← Web UI ↔ Engine
-│  editor/backend/app.py                │
-└───────────────────────┬─────────────┘
-                        │ WebSockets
-┌─────────────────────────────────────┐
-│           Three.js Web Editor         │  ← UI/Interaction
-│  editor/index.html, editor/editor.js  │
-└───────────────────────┬─────────────┘
-                        │ C FFI / pybind11
-┌─────────────────────────────────────┐
-│            C++ Core                   │  ← Engine Subsystems
-│  litt_math, litt_ecs, litt_rhi,     │
-│  litt_renderer, litt_pathtracer,    │
-│  litt_physics, litt_audio, etc.     │
-└───────────────────────┬─────────────┘
-                        │ C Headers
-┌─────────────────────────────────────┐
-│           C Runtime (Standard)        │  ← malloc, thread, file I/O
-└─────────────────────────────────────┘
-```
-
-### Capability Status
-
-Litt Engine is under active stabilization. Treat APIs that compile as interfaces,
-not proof that every advertised backend or advanced subsystem is production-ready.
-
-| Area | Current status |
+| Area | Status |
 |---|---|
-| Math / core containers | Implemented and covered by native regression tests |
-| ECS | Implemented core entity/component storage with generation validation |
-| Generated-game C runtime | Primary tested gameplay contract |
-| C++ Game facade | Partial compatibility layer; being aligned with the C runtime |
-| Scene graph | Implemented hierarchy/TRS core; persistence is not yet implemented |
-| Software renderer | Partial, primarily exercised on Windows/headless fallback paths |
-| Vulkan / DX12 / GPU ray tracing | Experimental or incomplete; do not assume production backend availability |
-| Physics | Experimental AABB rigid-body solver; no full CCD/angular/manifold solver |
-| Audio | Partial; platform/backend coverage varies |
-| Python / C# / Lua | Mixed/experimental integration; verify the specific binding before relying on it |
-| Networking / save-load / advanced post FX | Experimental/partial APIs, not production-complete |
-| World generation | Active and tested, with ongoing placement/runtime-parity hardening |
-| Editor | Example/demo tooling, not a shipped production editor |
+| Generated-game native runtime | **Supported/tested** |
+| Native JSON/world/OBJ contracts | **Supported/tested** |
+| C bridge entity/component/transform contract | **Supported/tested** |
+| WorldKit helpers | **Supported/tested**, broader output quality audit ongoing |
+| C++ Engine facade | Partial |
+| Scene graph | Partial; persistence incomplete |
+| Software/native preview renderer | Partial |
+| Vulkan/DX12/OpenGL/Metal generic facade | Experimental/unavailable in current generic backend |
+| Physics | Experimental |
+| Audio | Partial |
+| Scripting VM | Partial |
+| Python/C#/Lua integrations | Experimental unless independently verified |
+| Networking | Experimental |
+| FFI deployment | Incomplete |
+| `litt_engine2.h` | Legacy |
+| Editor tooling | Demo/example; Litt GUI is a separate integration project |
 
-For the most reliable game-building path, use `GAME_BUILD_PROTOCOL.md` and run
-the repository validation/tests before declaring a generated game complete.
+## Verified build and smoke-test path
 
-### Build Instructions
+Linux:
 
-```bash
-# Clone the repository
-git clone https://github.com/korewa-dev/litt-engine.git
-cd litt-engine
-
-# Install dependencies via vcpkg (recommended)
-./vcpkg/bootstrap-vcpkg.sh
-./vcpkg/install-vcpkg.sh
-
-# Build the engine (Release mode)
-mkdir build && cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake -DLITT_ENABLE_PYTHON=ON -DLITT_ENABLE_CSHARP=ON -DLITT_ENABLE_VULKAN=ON -DLITT_ENABLE_DX12=ON
-cmake --build . --config Release
-
-# Or use Conan
-conan install . --build=missing
-
-# Run examples
-./litt_examples/ai_scene_creation.py
+```sh
+make -C alt/src/native test
+make -C alt/src/native bin/littcli bin/littview
+alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
+python3 alt/tools/template/tools/worldgen/test_worldkit.py
+python3 alt/tools/template/tools/worldgen/test_gen_props.py
 ```
 
-### Python API
+The `Stabilization` GitHub Actions workflow is the cross-platform release gate. It additionally checks ASan/UBSan, Windows native compilation/tests, standalone public-header compilation, and the C bridge contract.
 
-```python
-import litt_engine as le
+Do not enable or depend on an experimental backend merely because an interface or build option exists. Promote features to supported status only after their behavior is covered by the release matrix.
 
-# Initialize engine
-engine = le.Engine()
+## Runtime/API entry point
 
-# Create a scene
-scene = engine.create_scene()
-
-# Add a cube
-cube = scene.add_cube(position=[0, 0, 0], size=1.0)
-
-# Run headless simulation
-engine.run(headless=True)
-
-# Or with display
-engine.run(headless=False)
-```
-
-### C# API (Mono)
-
-```csharp
-using LittEngine;
-
-// Initialize
-var engine = new Engine();
-
-// Create scene
-var scene = engine.CreateScene();
-
-// Add cube
-var cube = scene.AddCube(position: new float3(0, 0, 0), size: 1.0f);
-
-// Run
-engine.Run(headless: true);
-```
+For new generated games and automated game-building work, start with the native generated-game runtime and `GAME_BUILD_PROTOCOL.md`. For the exact support boundary, read `alt/docs/SUPPORTED_RUNTIME.md`.
 
 ### License
 
