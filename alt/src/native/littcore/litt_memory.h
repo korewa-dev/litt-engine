@@ -64,8 +64,13 @@ template<typename T, size_t InitialCapacity = 128>
 class ObjectPool {
 public:
     ObjectPool() {
-        for (size_t i = 0; i < InitialCapacity; i++) {
-            available.push_back(allocate_slot());
+        try {
+            for (size_t i = 0; i < InitialCapacity; i++) {
+                available.push_back(allocate_slot());
+            }
+        } catch (...) {
+            for (auto& slot : available) std::free(slot.raw);
+            throw;
         }
     }
 
@@ -96,8 +101,13 @@ public:
             slot = allocate_slot();
         }
 
-        new (slot.aligned) T();
-        in_use.push_back(slot);
+        try {
+            new (slot.aligned) T();
+            in_use.push_back(slot);
+        } catch (...) {
+            available.push_back(slot);
+            throw;
+        }
         return slot.aligned;
     }
 
