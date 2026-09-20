@@ -468,7 +468,7 @@ private:
         if (!f.is_open()) return false;
         std::string content((std::istreambuf_iterator<char>(f)),
                             std::istreambuf_iterator<char>());
-        LvJson* root = lvj_parse(content.c_str());
+        LvJson* root = lvj_parse_strict(content.c_str());
         if (!root) return false;
 
         const LvJson* gameplay = lvj_get(root, "gameplay");
@@ -481,6 +481,18 @@ private:
                 lvj_get(physics, "jump_velocity"), jump_speed_);
             move_speed_ = (float)lvj_num(
                 lvj_get(physics, "run_speed"), move_speed_);
+        }
+        if (gameplay) {
+            world_.state.cfg.enemy_aggro = (float)lvj_num(
+                lvj_get(gameplay, "enemy_aggro_m"), world_.state.cfg.enemy_aggro);
+            world_.state.cfg.kill_m = (float)lvj_num(
+                lvj_get(gameplay, "kill_radius_m"), world_.state.cfg.kill_m);
+            world_.state.cfg.interact_m = (float)lvj_num(
+                lvj_get(gameplay, "interact_radius_m"), world_.state.cfg.interact_m);
+            const int lives = (int)lvj_num(lvj_get(gameplay, "lives"), world_.state.cfg.lives);
+            if (lives > 0) world_.state.cfg.lives = lives;
+            world_.state.cfg.score_goal = (unsigned)std::max(
+                0.0, lvj_num(lvj_get(gameplay, "score_goal"), world_.state.cfg.score_goal));
         }
 
         // Older generated projects without a semantic Player_Start may fall
