@@ -64,7 +64,8 @@ def canonical_bytes(path):
             if path.name == "world_state.json" and isinstance(obj, dict):
                 for key in VOLATILE_STATE_KEYS:
                     obj.pop(key, None)
-            obj = _canonical_json(obj)\n            return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+            obj = _canonical_json(obj)
+            return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
         except (UnicodeDecodeError, json.JSONDecodeError):
             pass
     if path.suffix.lower() in TEXT_SUFFIXES:
