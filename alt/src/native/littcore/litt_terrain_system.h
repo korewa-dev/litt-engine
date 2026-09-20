@@ -1,6 +1,7 @@
 // Phase 6: Advanced Features - Terrain System
 
 #pragma once
+#include <cstdint>
 
 #include "litt_math.h"
 #include <vector>
