@@ -44,10 +44,10 @@ from pathlib import Path
 
 NL = chr(10)
 MODEL_BUDGET_KB = 500
-PROJECT_MODEL_FILE_BUDGET = 128
+PROJECT_MODEL_FILE_BUDGET = 192
 PROJECT_MODEL_BUDGET_MB = 8
 DEFAULT_GRID_RADIUS_MAX = 4
-LARGE_GRID_RADIUS_MAX = 16
+LARGE_GRID_RADIUS_MAX = 5
 ORIGIN_TOL = 0.3  # meters; default centroid tolerance for origin assertions
 
 # ------------------------------------------------------------------ random
