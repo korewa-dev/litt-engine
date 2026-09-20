@@ -21,8 +21,9 @@ typedef struct {
      * tinting. uv table: u,v pairs parallel to verts (uv[i*2..i*2+1] for
      * vertex i); NULL when the mesh has no texture coordinates. */
     float kd[3], ke[3];
+    char map_kd[160]; /* diffuse texture path from MTL, relative to MTL/OBJ dir */
     float *uvs;        /* uv triplets->pairs, vn entries or NULL */
-    unsigned char has_kd, has_ke;
+    unsigned char has_kd, has_ke, has_map_kd;
 } LvMesh;
 
 typedef struct {
