@@ -69,6 +69,8 @@ jobs:
         run: alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
       - name: Run worldkit regression tests
         run: python alt/tools/template/tools/worldgen/test_worldkit.py
+      - name: WorldGen representative quality/resource gate
+        run: python alt/tools/template/tools/worldgen/worldgen_quality_gate.py
       - name: Run generated-prop regression tests
         run: python alt/tools/template/tools/worldgen/test_gen_props.py
 
