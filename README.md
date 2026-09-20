@@ -69,42 +69,34 @@ MIT License. See `LICENSE` for details.
 
 ---
 
-## Quick Start
+## Quick start
 
-```bash
-# Minimal build
+The supported path does not require vcpkg, Vulkan, an editor, or language bindings.
+
+```sh
 git clone https://github.com/korewa-dev/litt-engine.git
 cd litt-engine
-mkdir build && cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake
-cmake --build . --config Release
-
-# Run the web editor demo
-python -m http.server 8080  # From editor/ directory
-# Then open http://localhost:8080
+make -C alt/src/native test
+make -C alt/src/native bin/littcli bin/littview
+alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
+python3 alt/tools/template/tools/worldgen/test_worldkit.py
+python3 alt/tools/template/tools/worldgen/worldgen_quality_gate.py
 ```
+
+For Windows, use the commands encoded in `.github/workflows/stabilization.yml` as the authoritative clean-checkout build contract. The workflow compiles and runs native tests and verifies every public `littcore/*.h` header independently.
 
 ## Documentation
 
-All documentation is available in the `docs/` directory:
-- `docs/README.md` – This file
-- `docs/BUILD.md` – Detailed build steps
-- `docs/API.md` – C, C++, Python, C# API reference
-- `docs/ai_editor_agent_guide.md` – For AI agents
-- `docs/world_generation.md` – How to create custom generators
-- `docs/ai/README.md` – AI subsystem documentation
-- `docs/ai/npu-rules.md` – NPU/AMD AGS/FSR 3.1.5/FidelityFX Denoiser rules
-- `docs/ai/npu-support.md` – NPU support verification
-- `docs/ARCHITECTURE.md` – Architecture overview
-- `docs/PHILOSOPHY.md` – Project philosophy
-- `docs/IMPLEMENTATION_STATUS.md` – Current implementation status
-- `docs/AGENT_ENTRY_POINTS.md` – AI agent entry points
-- `docs/EDITOR_TOOLS.md` – Editor tools documentation
-- `docs/ASSET_PIPELINE.md` – Asset pipeline specification
-- `docs/RENDERING.md` – Rendering system details
-- And many more...
+Start with:
 
-## Contact
+- `alt/docs/SUPPORTED_RUNTIME.md` for the exact support boundary
+- `alt/docs/reports/RELEASE_READINESS_ROADMAP.md` for release gates
+- `alt/docs/reports/RESOURCE_BASELINE.md` for low-resource budgets
+- `alt/docs/reports/WORLDGEN_QUALITY_RESOURCE_AUDIT.md` for measured generator results
+- `alt/tools/template/tools/worldgen/README.md` for procedural generation usage
 
-- GitHub: https://github.com/korewa-dev/litt-engine
-- Issues: https://github.com/korewa-dev/litt-engine/issues
+Other historical documents can describe experimental or legacy systems. Their presence does not promote those systems into the release-supported contract.
+
+## License
+
+MIT License. See `LICENSE`.
