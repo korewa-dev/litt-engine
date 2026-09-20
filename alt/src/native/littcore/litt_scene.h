@@ -6,12 +6,16 @@
 #include "litt_ecs.h"
 #include "litt_renderer.h"
 #include "litt_lighting.h"
+#include "litt_json.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <memory>
 #include <algorithm>
 #include <utility>
+#include <sstream>
+#include <iomanip>
+#include <cmath>
 
 namespace litt {
 
@@ -221,17 +225,150 @@ public:
         nextId = 0;
     }
     
-    // Serialization
+    // Serialization contract v1 persists scene-graph identity, hierarchy,
+    // transforms and visibility flags. Runtime/render attachments are
+    // intentionally outside v1 until their individual persistence contracts
+    // are defined.
     std::string serializeToJson() const {
-        // Serialization is not implemented yet.  An empty result is an
-        // explicit failure signal; do not return valid-looking placeholder
-        // JSON that callers can mistake for persisted state.
-        return {};
+        auto escape = [](const std::string& s) {
+            std::string out;
+            out.reserve(s.size() + 8);
+            for (unsigned char ch : s) {
+                switch (ch) {
+                    case '"': out += "\\\""; break;
+                    case '\\': out += "\\\\"; break;
+                    case '\b': out += "\\b"; break;
+                    case '\f': out += "\\f"; break;
+                    case '\n': out += "\\n"; break;
+                    case '\r': out += "\\r"; break;
+                    case '\t': out += "\\t"; break;
+                    default:
+                        if (ch < 0x20) {
+                            static const char hex[] = "0123456789abcdef";
+                            out += "\\u00";
+                            out += hex[(ch >> 4) & 0xf];
+                            out += hex[ch & 0xf];
+                        } else out += static_cast<char>(ch);
+                }
+            }
+            return out;
+        };
+
+        std::vector<uint32_t> ids;
+        ids.reserve(nodes.size());
+        for (const auto& entry : nodes) ids.push_back(entry.first);
+        std::sort(ids.begin(), ids.end());
+
+        std::ostringstream out;
+        out << std::setprecision(9);
+        out << "{\"version\":1,\"root\":" << (root ? root->id : 0) << ",\"nodes\":[";
+        bool first = true;
+        for (uint32_t id : ids) {
+            const SceneNode& n = *nodes.at(id);
+            if (!first) out << ',';
+            first = false;
+            out << "{\"id\":" << n.id
+                << ",\"name\":\"" << escape(n.name) << "\""
+                << ",\"parent\":" << (n.parent ? std::to_string(n.parent->id) : "null")
+                << ",\"position\":[" << n.position.x << ',' << n.position.y << ',' << n.position.z << ']'
+                << ",\"rotation\":[" << n.rotation.x << ',' << n.rotation.y << ',' << n.rotation.z << ',' << n.rotation.w << ']'
+                << ",\"scale\":[" << n.scale.x << ',' << n.scale.y << ',' << n.scale.z << ']'
+                << ",\"visible\":" << (n.visible ? "true" : "false")
+                << ",\"cullable\":" << (n.cullable ? "true" : "false") << '}';
+        }
+        out << "]}";
+        return out.str();
     }
     
-    bool deserializeFromJson(const std::string&) {
-        // Do not claim success until scene state is actually restored.
-        return false;
+    bool deserializeFromJson(const std::string& json) {
+        LvJson* doc = lvj_parse_strict(json.c_str());
+        if (!doc || doc->kind != LJ_OBJ) { lvj_free(doc); return false; }
+        const LvJson* version = lvj_get(doc, "version");
+        const LvJson* rootValue = lvj_get(doc, "root");
+        const LvJson* array = lvj_get(doc, "nodes");
+        if (!version || version->kind != LJ_NUM || version->num != 1 ||
+            !rootValue || rootValue->kind != LJ_NUM ||
+            !array || array->kind != LJ_ARR || array->count <= 0) {
+            lvj_free(doc); return false;
+        }
+
+        Scene candidate;
+        candidate.clear();
+        struct PendingParent { uint32_t child; bool hasParent; uint32_t parent; };
+        std::vector<PendingParent> pending;
+        uint32_t maxId = 0;
+        bool ok = true;
+        auto finite3 = [](const LvJson* v, Vec3& dst) {
+            float a[3];
+            if (!lvj_arr_f3(v, a) || !std::isfinite(a[0]) || !std::isfinite(a[1]) || !std::isfinite(a[2])) return false;
+            dst = Vec3(a[0], a[1], a[2]); return true;
+        };
+        for (int i = 0; ok && i < array->count; ++i) {
+            const LvJson* item = lvj_at(array, i);
+            if (!item || item->kind != LJ_OBJ) { ok = false; break; }
+            const LvJson* idv = lvj_get(item, "id");
+            const LvJson* namev = lvj_get(item, "name");
+            const LvJson* parentv = lvj_get(item, "parent");
+            const LvJson* posv = lvj_get(item, "position");
+            const LvJson* rotv = lvj_get(item, "rotation");
+            const LvJson* scalev = lvj_get(item, "scale");
+            const LvJson* visv = lvj_get(item, "visible");
+            const LvJson* cullv = lvj_get(item, "cullable");
+            if (!idv || idv->kind != LJ_NUM || idv->num < 0 || idv->num > UINT32_MAX ||
+                std::floor(idv->num) != idv->num || !namev || namev->kind != LJ_STR ||
+                !rotv || rotv->kind != LJ_ARR || rotv->count != 4 ||
+                !visv || visv->kind != LJ_BOOL || !cullv || cullv->kind != LJ_BOOL) { ok = false; break; }
+            const uint32_t id = static_cast<uint32_t>(idv->num);
+            if (candidate.nodes.count(id)) { ok = false; break; }
+            auto node = std::make_unique<SceneNode>();
+            node->id = id; node->name = namev->str ? namev->str : "";
+            if (!finite3(posv, node->position) || !finite3(scalev, node->scale)) { ok = false; break; }
+            float q[4];
+            for (int qn=0; qn<4; ++qn) {
+                const LvJson* qv = lvj_at(rotv, qn);
+                if (!qv || qv->kind != LJ_NUM || !std::isfinite(qv->num)) { ok=false; break; }
+                q[qn]=static_cast<float>(qv->num);
+            }
+            if (!ok) break;
+            node->rotation = Quat(q[0],q[1],q[2],q[3]).normalized();
+            node->visible = visv->boolean != 0; node->cullable = cullv->boolean != 0;
+            bool hasParent = false; uint32_t parentId = 0;
+            if (parentv && parentv->kind != LJ_NULL) {
+                if (parentv->kind != LJ_NUM || parentv->num < 0 || parentv->num > UINT32_MAX ||
+                    std::floor(parentv->num) != parentv->num) { ok=false; break; }
+                hasParent=true; parentId=static_cast<uint32_t>(parentv->num);
+            }
+            candidate.nodes.emplace(id, std::move(node));
+            pending.push_back({id,hasParent,parentId});
+            maxId = std::max(maxId,id);
+        }
+        const uint32_t rootId = static_cast<uint32_t>(rootValue->num);
+        if (ok) {
+            candidate.root = candidate.getNode(rootId);
+            if (!candidate.root) ok=false;
+        }
+        if (ok) {
+            for (const auto& p : pending) {
+                if (!p.hasParent) continue;
+                if (p.child == rootId || !candidate.setParent(p.child,p.parent)) { ok=false; break; }
+            }
+        }
+        if (ok && candidate.root->parent) ok=false;
+        if (ok) {
+            size_t topLevel=0;
+            for (const auto& e : candidate.nodes) if (!e.second->parent) ++topLevel;
+            if (topLevel == 0) ok=false;
+        }
+        if (ok) {
+            candidate.nextId = maxId == UINT32_MAX ? UINT32_MAX : maxId + 1;
+            candidate.update();
+            clear();
+            nodes = std::move(candidate.nodes);
+            root = getNode(rootId);
+            nextId = candidate.nextId;
+        }
+        lvj_free(doc);
+        return ok;
     }
     
 private:

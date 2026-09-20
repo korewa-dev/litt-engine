@@ -3,8 +3,7 @@ name: Stabilization
 on:
   pull_request:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   core-stabilization:
@@ -15,23 +14,23 @@ jobs:
         run: make stabilization-test
       - name: Run stabilization regressions
         run: ./stabilization_tests.exe
+      - name: Build and run scene persistence contract
+        run: make scene-persistence-test && ./scene_persistence_tests.exe
 
   sanitizer-stabilization:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Build stabilization regressions with ASan/UBSan
-        run: >-
-          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer
-          -fsanitize=address,undefined
-          -I alt/src/native/littcore
-          alt/src/native/littcore/litt_stabilization_tests.cpp
-          -o stabilization_sanitized
+        run: |
+          gcc -std=c11 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json_sanitized.o
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_stabilization_runner.cpp /tmp/litt_json_sanitized.o -o stabilization_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_scene_persistence_tests.cpp /tmp/litt_json_sanitized.o -o scene_persistence_sanitized
       - name: Run ASan/UBSan stabilization regressions
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-        run: ./stabilization_sanitized
+        run: ./stabilization_sanitized && ./scene_persistence_sanitized
 
   c-runtime-contract:
     runs-on: ubuntu-latest
@@ -40,20 +39,16 @@ jobs:
       - name: Build and run C runtime contract tests
         run: make -C alt/src/native test
 
-
   c-bridge-contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Build C bridge dependencies
-        run: |
-          cc -std=c11 -O2 -Wall -Wextra -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json.o
+        run: cc -std=c11 -O2 -Wall -Wextra -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json.o
       - name: Build C bridge contract tests
         run: >-
-          g++ -std=c++17 -O2 -Wall -Wextra
-          -I alt/src/native -I alt/src/native/littcore
-          alt/src/native/litt_c.cpp alt/src/native/litt_c_tests.cpp /tmp/litt_json.o
-          -o /tmp/litt_c_tests
+          g++ -std=c++17 -O2 -Wall -Wextra -I alt/src/native -I alt/src/native/littcore
+          alt/src/native/litt_c.cpp alt/src/native/litt_c_tests.cpp /tmp/litt_json.o -o /tmp/litt_c_tests
       - name: Run C bridge contract tests
         run: /tmp/litt_c_tests
       - name: Build packaged GUI SDK
@@ -110,32 +105,26 @@ jobs:
             Set-Content header_smoke.cpp "#include `"$name`""
             Add-Content header_smoke.cpp 'int main() { return 0; }'
             cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c header_smoke.cpp /Fo:header_smoke.obj
-            if ($LASTEXITCODE -ne 0) {
-              Write-Error "Standalone header compile failed: $name"
-              exit $LASTEXITCODE
-            }
+            if ($LASTEXITCODE -ne 0) { Write-Error "Standalone header compile failed: $name"; exit $LASTEXITCODE }
           }
       - name: Compile C bridge
         shell: cmd
-        run: >-
-          cl /nologo /std:c++17 /EHsc /I alt\\src\\native /I alt\\src\\native\\littcore
-          /c alt\\src\\native\\litt_c.cpp /Fo:litt_c.obj
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native /I alt\src\native\littcore /c alt\src\native\litt_c.cpp /Fo:litt_c.obj
+      - name: Build scene JSON dependency
+        shell: cmd
+        run: cl /nologo /TC /I alt\src\native\littcore /c alt\src\native\littcore\litt_json.c /Fo:litt_json.obj
       - name: Build Windows stabilization regressions
         shell: cmd
-        run: >-
-          cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore
-          alt\src\native\littcore\litt_stabilization_tests.cpp
-          /Fe:stabilization_windows.exe gdi32.lib user32.lib winmm.lib
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_stabilization_runner.cpp litt_json.obj /Fe:stabilization_windows.exe gdi32.lib user32.lib winmm.lib
       - name: Run Windows stabilization regressions
         shell: cmd
         run: stabilization_windows.exe
+      - name: Build and run Windows scene persistence contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_scene_persistence_tests.cpp litt_json.obj /Fe:scene_persistence_windows.exe gdi32.lib user32.lib winmm.lib && scene_persistence_windows.exe
       - name: Build native engine tests
         shell: cmd
-        run: >-
-          cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore
-          alt\src\native\littcore\litt_engine_tests.cpp
-          alt\src\native\littcore\litt_math.cpp
-          /Fe:tests.exe gdi32.lib user32.lib winmm.lib
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_engine_tests.cpp alt\src\native\littcore\litt_math.cpp litt_json.obj /Fe:tests.exe gdi32.lib user32.lib winmm.lib
       - name: Run native engine tests
         shell: cmd
         run: tests.exe

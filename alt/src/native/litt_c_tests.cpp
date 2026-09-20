@@ -80,6 +80,15 @@ int main() {
 
     LittEngine* engine = litt_engine_create();
     check(engine != nullptr, "engine_create");
+    check(!litt_connect(engine, "127.0.0.1", 8080),
+          "unsupported_remote_connect_fails");
+    check(!litt_is_connected(engine),
+          "failed_remote_connect_not_connected");
+    check(litt_get_state(engine) == LITT_ENGINE_STATE_ERROR,
+          "failed_remote_connect_reports_error");
+    litt_disconnect(engine);
+    check(litt_get_state(engine) == LITT_ENGINE_STATE_DISCONNECTED,
+          "disconnect_resets_state");
     int width = -1, height = -1;
     unsigned char pixel[4]{};
     check(!litt_engine_get_framebuffer(engine, pixel, &width, &height),
