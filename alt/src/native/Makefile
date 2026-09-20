@@ -23,7 +23,7 @@ bin/litt_world.o: littcore/litt_world.c littcore/litt_world.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 bin/littcli: bin/litt_json.o bin/litt_obj.o bin/litt_world.o littcli.c
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 	@echo "[build] bin/littcli OK"
 
 bin/littview_main.o: littview.cpp
