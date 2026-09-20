@@ -8,6 +8,21 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+
+#define LITT_ABI_VERSION_MAJOR 1u
+#define LITT_ABI_VERSION_MINOR 1u
+#define LITT_ABI_VERSION ((LITT_ABI_VERSION_MAJOR << 16) | LITT_ABI_VERSION_MINOR)
+
+typedef enum {
+    LITT_OK = 0,
+    LITT_ERROR_INVALID_ARGUMENT = 1,
+    LITT_ERROR_OUT_OF_MEMORY = 2,
+    LITT_ERROR_NOT_FOUND = 3,
+    LITT_ERROR_COMPILE = 4,
+    LITT_ERROR_RUNTIME = 5,
+    LITT_ERROR_LIMIT = 6
+} LittResult;
 
 // =============================================================================
 // Basic Types
@@ -122,6 +137,7 @@ typedef enum {
 
 typedef struct LittEngine LittEngine;
 typedef struct LittWorld LittWorld;
+typedef struct LittScriptVM LittScriptVM;
 
 // =============================================================================
 // Logging Callback
@@ -217,10 +233,27 @@ void litt_engine_set_log_callback(LittEngine* eng, LittLogCb cb, void* user);
 void litt_engine_log(LittEngine* eng, const char* fmt, ...);
 
 // =============================================================================
-// Version
+// Scripting VM
+// =============================================================================
+// Ownership: create returns an owned handle. The caller must destroy it exactly
+// once with litt_script_vm_destroy. Strings returned by litt_script_vm_last_error
+// are borrowed from the VM and remain valid until the next VM call or destroy.
+
+LittScriptVM* litt_script_vm_create(void);
+void litt_script_vm_destroy(LittScriptVM* vm);
+LittResult litt_script_vm_set_limits(LittScriptVM* vm, size_t max_source_bytes,
+                                     size_t max_instructions, size_t max_stack_values);
+LittResult litt_script_vm_compile(LittScriptVM* vm, const char* script_name,
+                                  const char* source);
+LittResult litt_script_vm_execute(LittScriptVM* vm, const char* script_name);
+const char* litt_script_vm_last_error(const LittScriptVM* vm);
+
+// =============================================================================
+// Version / ABI
 // =============================================================================
 
 const char* litt_version(void);
+uint32_t litt_abi_version(void);
 
 #ifdef __cplusplus
 }
