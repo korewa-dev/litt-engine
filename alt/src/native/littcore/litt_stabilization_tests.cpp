@@ -281,6 +281,38 @@ static void test_scripting_vm() {
     vm.shutdown();
 }
 
+static void test_scene_component_ownership() {
+    Scene scene;
+    SceneNode& node = scene.createNode("OwnedComponents");
+
+    MeshData mesh;
+    mesh.name = "owned_mesh";
+    mesh.positions.push_back(Vec3(1, 2, 3));
+    RenderMaterial material;
+    material.name = "owned_material";
+    RenderCamera camera;
+    camera.fov = 73.0f;
+
+    node.setMesh(mesh);
+    node.setMaterial(material);
+    node.setCamera(camera);
+
+    // Mutating/destroying caller-side values must not alter scene attachments.
+    mesh.name = "caller_mesh";
+    mesh.positions[0] = Vec3::zero();
+    material.name = "caller_material";
+    camera.fov = 10.0f;
+
+    check(node.meshComponent && node.meshComponent->name == "owned_mesh",
+          "scene_owns_mesh_attachment");
+    check(node.meshComponent && near_vec(node.meshComponent->positions[0], Vec3(1, 2, 3)),
+          "scene_mesh_attachment_is_independent_copy");
+    check(node.materialComponent && node.materialComponent->name == "owned_material",
+          "scene_owns_material_attachment");
+    check(node.cameraComponent && near(node.cameraComponent->fov, 73.0f),
+          "scene_owns_camera_attachment");
+}
+
 static void test_scene_lifecycle() {
     SceneManager manager;
     Scene& first = manager.createScene("Level");
@@ -325,6 +357,7 @@ int main() {
 #ifdef _WIN32
     test_software_renderer_hardening();
 #endif
+    test_scene_component_ownership();
     test_scene_lifecycle();
 
     std::printf("\nResults: %d passed, %d failed\n", passed, failed);
