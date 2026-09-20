@@ -324,6 +324,45 @@ def test_write_scene_placement(tmp):
                    [("X", [3.0, 0, 0.0], 0, ["poi"])], "nofp", placement=reg)
 
 
+
+def test_resource_budgets(tmp):
+    assert wk.validate_grid_radius(1) == 1
+    assert wk.validate_grid_radius(4) == 4
+    try:
+        wk.validate_grid_radius(5)
+        raise AssertionError("large radius must require explicit opt-in")
+    except wk.ResourceBudgetError:
+        pass
+    assert wk.validate_grid_radius(5, allow_large=True) == 5
+    try:
+        wk.validate_grid_radius(17, allow_large=True)
+        raise AssertionError("stress radius must still be bounded")
+    except wk.ResourceBudgetError:
+        pass
+
+    models = os.path.join(str(tmp), "assets", "models")
+    os.makedirs(models, exist_ok=True)
+    for i in range(3):
+        with open(os.path.join(models, "m%d.obj" % i), "w", encoding="utf-8") as f:
+            f.write("o m%d\nv 0 0 0\n" % i)
+
+    stats = wk.enforce_project_budget(tmp, max_models=3, max_model_bytes=1024)
+    assert stats["models"] == 3 and stats["bytes"] > 0
+    try:
+        wk.enforce_project_budget(tmp, max_models=2, max_model_bytes=1024)
+        raise AssertionError("model-count budget must fail")
+    except wk.ResourceBudgetError:
+        pass
+    try:
+        wk.enforce_project_budget(tmp, max_models=3, max_model_bytes=1)
+        raise AssertionError("model-byte budget must fail")
+    except wk.ResourceBudgetError:
+        pass
+
+    state_path = os.path.join(str(tmp), "world_state.json")
+    wk.write_state(state_path, {"format": "budget-test"})
+    assert os.path.exists(state_path)
+
 def test_byte_determinism(tmp):
     def build(seed):
         rng = wk.Rng(seed)
