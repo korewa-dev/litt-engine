@@ -90,11 +90,11 @@ struct AssetMaterial {
     std::unordered_map<std::string, std::shared_ptr<AssetTexture>> textures;
     
     // PBR values
-    Vec3 albedo;
-    float roughness;
-    float metalness;
-    float occlusion;
-    float emissive;
+    Vec3 albedo = Vec3(0.8f, 0.8f, 0.8f);
+    float roughness = 0.5f;
+    float metalness = 0.0f;
+    float occlusion = 1.0f;
+    float emissive = 0.0f;
 };
 
 // =============================================================================
@@ -124,118 +124,208 @@ public:
     std::shared_ptr<Model> loadModel(const std::string& path) {
         auto it = models.find(path);
         if (it != models.end()) return it->second;
-        
-        // Load OBJ
+
+        if (!hasExtension(path, ".obj")) return nullptr;
         auto model = std::make_shared<Model>();
         model->path = path;
-        
-        if (path.substr(path.size() - 4) == ".obj") {
-            loadObj(path, *model);
-        }
-        
+        if (!loadObj(path, *model)) return nullptr;
+
         model->computeBounds();
-        models[path] = model;
+        models.emplace(path, model);
         return model;
     }
-    
+
     std::shared_ptr<AssetTexture> loadTexture(const std::string& path) {
         auto it = textures.find(path);
         if (it != textures.end()) return it->second;
-        
-        // Load image
+
+        if (!hasExtension(path, ".tga")) return nullptr;
         auto texture = std::make_shared<AssetTexture>();
         texture->path = path;
-        
-        // TGA loader (simple)
-        loadTga(path, *texture);
-        
-        textures[path] = texture;
+        if (!loadTga(path, *texture)) return nullptr;
+
+        textures.emplace(path, texture);
         return texture;
     }
-    
+
     std::shared_ptr<Shader> loadShader(const std::string& vertexPath, const std::string& fragmentPath) {
-        auto key = vertexPath + ":" + fragmentPath;
-        auto it = shaders.find(key);
-        if (it != shaders.end()) return it->second;
-        
-        auto shader = std::make_shared<Shader>();
-        shader->vertexPath = vertexPath;
-        shader->fragmentPath = fragmentPath;
-        
-        // Compile shaders
-        compileShader(*shader);
-        
-        shaders[key] = shader;
-        return shader;
+        (void)vertexPath;
+        (void)fragmentPath;
+        // No shader compiler backend is wired into AssetManager. Returning
+        // nullptr is deliberate: an unvalidated placeholder must never be
+        // cached or reported as a compiled shader.
+        return nullptr;
     }
-    
+
 private:
     std::unordered_map<std::string, std::function<std::shared_ptr<void>(const std::string&)>> loaders_;
     
-    void loadObj(const std::string& path, Model& model) {
-        // Simple OBJ loader
-        FILE* f = fopen(path.c_str(), "r");
-        if (!f) return;
-        
-        char line[1024];
-        while (fgets(line, sizeof(line), f)) {
-            if (strncmp(line, "v ", 2) == 0) {
+    static constexpr size_t kMaxAssetBytes = 256u * 1024u * 1024u;
+    static constexpr size_t kMaxVertices = 4u * 1024u * 1024u;
+    static constexpr size_t kMaxIndices = 12u * 1024u * 1024u;
+    static constexpr uint32_t kMaxTextureDimension = 16384u;
+
+    static bool hasExtension(const std::string& path, const char* ext) {
+        const size_t n = std::strlen(ext);
+        if (path.size() < n) return false;
+        return path.compare(path.size() - n, n, ext) == 0;
+    }
+
+    static bool parseObjIndex(const char* token, int count, int& out) {
+        if (!token || !*token) return false;
+        char* end = nullptr;
+        long v = std::strtol(token, &end, 10);
+        if (end == token || v == 0) return false;
+        long resolved = v > 0 ? v - 1 : static_cast<long>(count) + v;
+        if (resolved < 0 || resolved >= count) return false;
+        out = static_cast<int>(resolved);
+        return true;
+    }
+
+    bool loadObj(const std::string& path, Model& model) {
+        FILE* f = std::fopen(path.c_str(), "rb");
+        if (!f) return false;
+
+        if (std::fseek(f, 0, SEEK_END) != 0) { std::fclose(f); return false; }
+        const long fileSize = std::ftell(f);
+        if (fileSize <= 0 || static_cast<size_t>(fileSize) > kMaxAssetBytes) {
+            std::fclose(f);
+            return false;
+        }
+        std::rewind(f);
+
+        char line[4096];
+        while (std::fgets(line, sizeof(line), f)) {
+            if (!std::strchr(line, '\n') && !std::feof(f)) {
+                std::fclose(f);
+                return false; // reject overlong/truncated logical lines
+            }
+
+            char* p = line;
+            while (*p == ' ' || *p == '\t') ++p;
+            if (*p == '#' || *p == '\0' || *p == '\r' || *p == '\n') continue;
+
+            if (std::strncmp(p, "v ", 2) == 0) {
                 float x, y, z;
-                sscanf(line + 2, "%f %f %f", &x, &y, &z);
+                if (std::sscanf(p + 2, "%f %f %f", &x, &y, &z) != 3 ||
+                    model.positions.size() >= kMaxVertices) {
+                    std::fclose(f);
+                    return false;
+                }
                 model.positions.push_back({x, y, z});
-            } else if (strncmp(line, "vn ", 3) == 0) {
+            } else if (std::strncmp(p, "vn ", 3) == 0) {
                 float x, y, z;
-                sscanf(line + 3, "%f %f %f", &x, &y, &z);
+                if (std::sscanf(p + 3, "%f %f %f", &x, &y, &z) != 3 ||
+                    model.normals.size() >= kMaxVertices) {
+                    std::fclose(f);
+                    return false;
+                }
                 model.normals.push_back({x, y, z});
-            } else if (strncmp(line, "vt ", 3) == 0) {
+            } else if (std::strncmp(p, "vt ", 3) == 0) {
                 float u, v;
-                sscanf(line + 3, "%f %f", &u, &v);
+                if (std::sscanf(p + 3, "%f %f", &u, &v) != 2 ||
+                    model.texCoords.size() >= kMaxVertices) {
+                    std::fclose(f);
+                    return false;
+                }
                 model.texCoords.push_back({u, v});
-            } else if (strncmp(line, "f ", 2) == 0) {
-                // Parse face
-                int v1, v2, v3;
-                sscanf(line + 2, "%d/%d/%d %d/%d/%d %d/%d/%d",
-                       &v1, &v1, &v1, &v2, &v2, &v2, &v3, &v3, &v3);
-                model.indices.push_back(v1 - 1);
-                model.indices.push_back(v2 - 1);
-                model.indices.push_back(v3 - 1);
+            } else if (std::strncmp(p, "f ", 2) == 0) {
+                std::vector<uint32_t> face;
+                char* save = nullptr;
+                for (char* tok = strtok_r(p + 2, " \t\r\n", &save);
+                     tok; tok = strtok_r(nullptr, " \t\r\n", &save)) {
+                    char* slash = std::strchr(tok, '/');
+                    if (slash) *slash = '\0';
+                    int vi = 0;
+                    if (!parseObjIndex(tok, static_cast<int>(model.positions.size()), vi)) {
+                        std::fclose(f);
+                        return false;
+                    }
+                    face.push_back(static_cast<uint32_t>(vi));
+                    if (face.size() > 256u) { std::fclose(f); return false; }
+                }
+                if (face.size() < 3u) { std::fclose(f); return false; }
+                const size_t added = (face.size() - 2u) * 3u;
+                if (model.indices.size() > kMaxIndices - added) {
+                    std::fclose(f);
+                    return false;
+                }
+                for (size_t i = 2; i < face.size(); ++i) {
+                    model.indices.push_back(face[0]);
+                    model.indices.push_back(face[i - 1]);
+                    model.indices.push_back(face[i]);
+                }
             }
         }
-        fclose(f);
+
+        const bool ok = !std::ferror(f) && !model.positions.empty() && !model.indices.empty();
+        std::fclose(f);
+        return ok;
     }
-    
-    void loadTga(const std::string& path, AssetTexture& texture) {
-        // Simple TGA loader
-        FILE* f = fopen(path.c_str(), "rb");
-        if (!f) return;
-        
-        // Read header
-        char idLength, colormapType, imageType;
-        fread(&idLength, 1, 1, f);
-        fread(&colormapType, 1, 1, f);
-        fread(&imageType, 1, 1, f);
-        
-        // Skip to width/height
-        fseek(f, 12, SEEK_CUR);
-        uint16_t width, height, bpp;
-        fread(&width, 2, 1, f);
-        fread(&height, 2, 1, f);
-        fread(&bpp, 1, 1, f);
-        
+
+    bool loadTga(const std::string& path, AssetTexture& texture) {
+        FILE* f = std::fopen(path.c_str(), "rb");
+        if (!f) return false;
+
+        uint8_t h[18];
+        if (std::fread(h, 1, sizeof(h), f) != sizeof(h)) {
+            std::fclose(f);
+            return false;
+        }
+
+        const uint8_t idLength = h[0];
+        const uint8_t colorMapType = h[1];
+        const uint8_t imageType = h[2];
+        const uint16_t width = static_cast<uint16_t>(h[12] | (uint16_t(h[13]) << 8));
+        const uint16_t height = static_cast<uint16_t>(h[14] | (uint16_t(h[15]) << 8));
+        const uint8_t bpp = h[16];
+        const uint8_t descriptor = h[17];
+
+        // Explicit supported subset: uncompressed true-color, no color map,
+        // 24/32-bit pixels. Right-to-left images are rejected.
+        if (colorMapType != 0 || imageType != 2 || width == 0 || height == 0 ||
+            width > kMaxTextureDimension || height > kMaxTextureDimension ||
+            (bpp != 24 && bpp != 32) || (descriptor & 0x10u)) {
+            std::fclose(f);
+            return false;
+        }
+        if (std::fseek(f, idLength, SEEK_CUR) != 0) {
+            std::fclose(f);
+            return false;
+        }
+
+        const size_t channels = bpp / 8u;
+        const size_t pixels = static_cast<size_t>(width) * static_cast<size_t>(height);
+        if (pixels > kMaxAssetBytes / channels) {
+            std::fclose(f);
+            return false;
+        }
+
+        std::vector<uint8_t> src(pixels * channels);
+        if (std::fread(src.data(), 1, src.size(), f) != src.size()) {
+            std::fclose(f);
+            return false;
+        }
+        std::fclose(f);
+
         texture.width = width;
         texture.height = height;
-        texture.channels = bpp / 8;
-        
-        // Read image data
-        size_t imageSize = width * height * texture.channels;
-        texture.data.resize(imageSize);
-        fread(texture.data.data(), 1, imageSize, f);
-        
-        fclose(f);
-    }
-    
-    void compileShader(Shader& shader) {
-        // Simplified - actual implementation would use OpenGL/Vulkan
+        texture.channels = static_cast<uint32_t>(channels);
+        texture.data.resize(src.size());
+
+        const bool topOrigin = (descriptor & 0x20u) != 0;
+        for (uint32_t y = 0; y < height; ++y) {
+            const uint32_t sy = topOrigin ? y : (height - 1u - y);
+            for (uint32_t x = 0; x < width; ++x) {
+                const size_t s = (static_cast<size_t>(sy) * width + x) * channels;
+                const size_t d = (static_cast<size_t>(y) * width + x) * channels;
+                texture.data[d + 0] = src[s + 2]; // BGR(A) -> RGB(A)
+                texture.data[d + 1] = src[s + 1];
+                texture.data[d + 2] = src[s + 0];
+                if (channels == 4u) texture.data[d + 3] = src[s + 3];
+            }
+        }
+        return true;
     }
 };
 
