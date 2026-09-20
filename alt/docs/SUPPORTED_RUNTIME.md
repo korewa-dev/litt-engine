@@ -27,6 +27,7 @@ make -C alt/src/native bin/littcli bin/littview
 alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
 python3 alt/tools/template/tools/worldgen/test_worldkit.py
 python3 alt/tools/template/tools/worldgen/test_gen_props.py
+python3 alt/tools/template/tools/worldgen/worldgen_quality_gate.py
 ```
 
 The repository Stabilization workflow is the cross-platform release gate.
@@ -39,6 +40,7 @@ The repository Stabilization workflow is the cross-platform release gate.
 - generated-game validation/runtime path
 - hardened JSON/world/OBJ contracts covered by native tests
 - WorldKit deterministic generation helpers covered by regressions
+- representative WorldGen output/resource budgets enforced in CI
 - C bridge entity/component/transform state contract
 
 ### Partial
@@ -79,3 +81,9 @@ A partial/experimental subsystem becomes release-supported only after it has:
 3. Windows/Linux compile coverage where applicable;
 4. sanitizer coverage for memory-unsafe code paths;
 5. documentation matching the tested behavior.
+
+## Platform prerequisites
+
+The supported POSIX path needs a C11 compiler, a C++17 compiler, `make`, and Python 3 for WorldGen/tests. It does not require a graphics SDK or package manager. Windows release verification is encoded in the Stabilization workflow and uses the native compiler environment provided by the runner.
+
+For a clean-checkout verification, run the smoke-test commands above without enabling optional renderer, editor, FFI deployment, networking, or language-binding layers.
