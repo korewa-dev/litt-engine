@@ -19,6 +19,9 @@
 #include <thread>
 #include <atomic>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstdio>
 
 namespace litt {
 
@@ -56,6 +59,7 @@ public:
     
     bool initialize(const EngineConfig& config) {
         config_ = config;
+        running_ = true;
         
         // A headless engine does not need a graphics backend. Interactive
         // modes still fail honestly when the selected backend is unavailable.
@@ -65,10 +69,14 @@ public:
             return false;
         }
         
-        // Initialize audio
+        // Initialize audio. The current AudioManager has a dependency-free
+        // in-process implementation, so initialization does not select an
+        // external device/backend.
         audio_.init();
         
-        // Create default scene
+        // Reinitialization starts from one known default scene rather than
+        // retaining stale scene-manager state from a prior lifecycle.
+        scene_manager_.clearAll();
         create_default_scene();
         
         log_info("Engine initialized successfully");
@@ -169,15 +177,75 @@ public:
     // =====================================================================
     
     bool load_scene(const std::string& path) {
-        (void)path;
-        log_error("Scene loading is unavailable: Scene deserialization is not implemented");
-        return false;
+        Scene* scene = scene_manager_.getActiveScene();
+        if (!scene || path.empty()) {
+            log_error("Scene loading failed: active scene and non-empty path required");
+            return false;
+        }
+        std::ifstream in(path, std::ios::binary);
+        if (!in) {
+            log_error("Scene loading failed: cannot open " + path);
+            return false;
+        }
+        std::ostringstream buffer;
+        buffer << in.rdbuf();
+        if (!in.good() && !in.eof()) {
+            log_error("Scene loading failed while reading " + path);
+            return false;
+        }
+        // Scene::deserializeFromJson is transactional: malformed input leaves
+        // the active scene unchanged.
+        if (!scene->deserializeFromJson(buffer.str())) {
+            log_error("Scene loading failed: invalid scene persistence data in " + path);
+            return false;
+        }
+        log_info("Scene loaded: " + path);
+        return true;
     }
     
     bool save_scene(const std::string& path) {
-        (void)path;
-        log_error("Scene saving is unavailable: Scene serialization is not implemented");
-        return false;
+        Scene* scene = scene_manager_.getActiveScene();
+        if (!scene || path.empty()) {
+            log_error("Scene saving failed: active scene and non-empty path required");
+            return false;
+        }
+        const std::string data = scene->serializeToJson();
+        if (data.empty()) {
+            log_error("Scene saving failed: serialization produced no data");
+            return false;
+        }
+        // Write a sibling temporary file first so a failed write does not
+        // truncate a previously valid scene file.
+        const std::string temp = path + ".litt-tmp";
+        {
+            std::ofstream out(temp, std::ios::binary | std::ios::trunc);
+            if (!out) {
+                log_error("Scene saving failed: cannot open temporary file " + temp);
+                return false;
+            }
+            out.write(data.data(), static_cast<std::streamsize>(data.size()));
+            out.flush();
+            if (!out) {
+                out.close();
+                std::remove(temp.c_str());
+                log_error("Scene saving failed while writing " + temp);
+                return false;
+            }
+        }
+        // C rename semantics differ when the destination already exists on
+        // Windows, so remove it only after the complete temporary file exists.
+        // This is not crash-atomic on every platform, but avoids partial files
+        // on ordinary serialization/write failures without adding dependencies.
+#ifdef _WIN32
+        std::remove(path.c_str());
+#endif
+        if (std::rename(temp.c_str(), path.c_str()) != 0) {
+            std::remove(temp.c_str());
+            log_error("Scene saving failed while replacing " + path);
+            return false;
+        }
+        log_info("Scene saved: " + path);
+        return true;
     }
     
     // =====================================================================
