@@ -40,6 +40,19 @@ jobs:
       - name: Build and run C runtime contract tests
         run: make -C alt/src/native test
 
+  generated-game-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build native generated-game tools
+        run: make -C alt/src/native
+      - name: Validate checked-in generated-game fixture
+        run: alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
+      - name: Run worldgen regression tests
+        run: |
+          python alt/tools/template/tools/worldgen/test_worldkit.py
+          python alt/tools/template/tools/worldgen/test_gen_props.py
+
   windows-native:
     runs-on: windows-latest
     steps:
