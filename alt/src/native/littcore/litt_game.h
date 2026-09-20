@@ -74,7 +74,7 @@ public:
                 const LvJson* node = lvj_at(nodes_arr, i);
                 if (!node) continue;
                 
-                SceneNode sn;
+                GameSceneNode sn;
                 
                 const LvJson* name_val = lvj_get(node, "name");
                 if (name_val && name_val->str) sn.name = name_val->str;
