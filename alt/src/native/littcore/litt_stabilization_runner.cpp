@@ -41,6 +41,7 @@ int main() {
     test_physics_normals();
     test_physics_registration();
     test_physics_resolution();
+    test_physics_invalid_inputs();
     test_memory();
     test_ecs_generations();
     test_affine_inverse();

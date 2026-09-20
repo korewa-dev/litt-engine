@@ -180,6 +180,36 @@ static bool pointer_aligned(T* ptr) {
     return reinterpret_cast<uintptr_t>(ptr) % alignof(T) == 0;
 }
 
+static void test_physics_invalid_inputs() {
+    PhysicsSystem physics;
+    check(!physics.addBody(nullptr), "physics_null_body_rejected");
+
+    PhysicsBody negative;
+    negative.inverseMass = -1.0f;
+    check(!physics.addBody(&negative), "physics_negative_inverse_mass_rejected");
+
+    PhysicsBody invalid;
+    invalid.inverseMass = std::nanf("");
+    check(!physics.addBody(&invalid), "physics_nan_inverse_mass_rejected");
+
+    PhysicsBody body;
+    body.inverseMass = 1.0f;
+    body.aabb.min = Vec3(-0.5f, -0.5f, -0.5f);
+    body.aabb.max = Vec3(0.5f, 0.5f, 0.5f);
+    PhysicsIntegrator bad_step(-1.0f);
+    bad_step.applyForce(&body, Vec3(10.0f, 0.0f, 0.0f));
+    bad_step.integrate(&body);
+    check(near_vec(body.centerOfMass, Vec3::zero()) && near_vec(body.force, Vec3::zero()),
+          "physics_invalid_timestep_does_not_integrate");
+
+    PhysicsBody zero_mass;
+    zero_mass.inverseMass = 0.0f;
+    const Vec3 before = zero_mass.velocity;
+    PhysicsIntegrator integrator(1.0f / 60.0f);
+    integrator.applyImpulse(&zero_mass, Vec3(10.0f, 0.0f, 0.0f));
+    check(near_vec(zero_mass.velocity, before), "physics_zero_inverse_mass_ignores_impulse");
+}
+
 static void test_memory() {
     ObjectPool<Aligned16, 1> p16;
     ObjectPool<Aligned64, 1> p64;

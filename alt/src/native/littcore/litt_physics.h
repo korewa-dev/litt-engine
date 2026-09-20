@@ -7,6 +7,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <cmath>
 
 namespace litt {
 
@@ -50,7 +51,7 @@ public:
     int root = -1;
     
     bool addBody(PhysicsBody* body) {
-        if (!body) return false;
+        if (!body || !std::isfinite(body->inverseMass) || body->inverseMass < 0.0f) return false;
         if (std::find(bodies.begin(), bodies.end(), body) != bodies.end()) {
             return false;
         }
@@ -157,7 +158,9 @@ public:
         : dt(dt), gravity(gravity) {}
     
     void integrate(PhysicsBody* body) {
-        if (body->isStatic) return;
+        if (!body || body->isStatic) return;
+        if (!std::isfinite(dt) || dt <= 0.0f) { body->force = Vec3::zero(); return; }
+        if (!std::isfinite(body->inverseMass) || body->inverseMass <= 0.0f) { body->force = Vec3::zero(); return; }
         
         float invMass = body->inverseMass;
         
@@ -179,11 +182,12 @@ public:
     }
     
     void applyForce(PhysicsBody* body, const Vec3& force) {
+        if (!body || body->isStatic || !std::isfinite(body->inverseMass) || body->inverseMass <= 0.0f) return;
         body->force += force;
     }
     
     void applyImpulse(PhysicsBody* body, const Vec3& impulse) {
-        if (body->isStatic) return;
+        if (!body || body->isStatic || !std::isfinite(body->inverseMass) || body->inverseMass <= 0.0f) return;
         body->velocity += impulse * body->inverseMass;
     }
 };
@@ -260,8 +264,8 @@ private:
             // impulses.
             if (a->isTrigger || b->isTrigger) continue;
 
-            const float invA = a->isStatic ? 0.0f : a->inverseMass;
-            const float invB = b->isStatic ? 0.0f : b->inverseMass;
+            const float invA = (a->isStatic || !std::isfinite(a->inverseMass) || a->inverseMass <= 0.0f) ? 0.0f : a->inverseMass;
+            const float invB = (b->isStatic || !std::isfinite(b->inverseMass) || b->inverseMass <= 0.0f) ? 0.0f : b->inverseMass;
             const float totalInvMass = invA + invB;
             if (totalInvMass <= 0.0f) continue;
             
