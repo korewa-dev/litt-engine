@@ -16,9 +16,9 @@ CASES = [
     ("tabletop", "gen_tabletop.py", ["--seed","409"]),
     ("platformer25d", "gen_platformer25d.py", ["--seed","510"]),
 ]
-MAX_TOTAL_BYTES = 8 * 1024 * 1024
+MAX_TOTAL_BYTES = 3 * 1024 * 1024
 MAX_FILES = 160
-MAX_MODELS = 64
+MAX_MODELS = 56
 MAX_UNIQUE_MODELS = 48
 MAX_SECONDS = 8.0
 
