@@ -220,6 +220,9 @@ int lv_obj_load(const char *path, LvModel *out) {
                         me->ke[0] = mt->ke[0]; me->ke[1] = mt->ke[1];    \
                         me->ke[2] = mt->ke[2];                           \
                         me->has_kd = mt->has_kd; me->has_ke = mt->has_ke;\
+                        me->has_map_kd = mt->has_map;                      \
+                        if (mt->has_map) snprintf(me->map_kd,             \
+                            sizeof(me->map_kd), "%s", mt->map_kd);       \
                     }                                                    \
                 }                                                        \
                 model.count++;                                           \
