@@ -7,6 +7,12 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <functional>
+#include <typeinfo>
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
+#include <cstdint>
 
 namespace litt {
 
