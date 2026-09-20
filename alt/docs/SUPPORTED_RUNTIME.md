@@ -16,6 +16,7 @@ Release CI currently gates:
 - Windows native tests
 - standalone compilation of every public `littcore/*.h` header
 - Windows compilation of the C bridge
+- TCP loopback networking contract on Linux, sanitizers, and Windows
 
 ## Supported build smoke test
 
@@ -42,6 +43,7 @@ The repository Stabilization workflow is the cross-platform release gate.
 - WorldKit deterministic generation helpers covered by regressions
 - representative WorldGen output/resource budgets enforced in CI
 - C bridge entity/component/transform state contract
+- minimal framed TCP transport in `litt_networking.h` (listen/accept/connect/send/receive/disconnect)
 
 ### Partial
 
@@ -60,7 +62,6 @@ A partial API may be useful, but callers must not assume features beyond the beh
 - generic Vulkan/DX12/OpenGL/Metal renderer facade backends that return unavailable from their current initialization paths
 - GPU ray tracing claims
 - FFI world deployment stubs
-- networking interfaces without a release contract
 - Python/C#/Lua integrations not exercised by the Stabilization matrix
 - legacy `litt_engine2.h` JSON runtime
 
@@ -86,4 +87,4 @@ A partial/experimental subsystem becomes release-supported only after it has:
 
 The supported POSIX path needs a C11 compiler, a C++17 compiler, `make`, and Python 3 for WorldGen/tests. It does not require a graphics SDK or package manager. Windows release verification is encoded in the Stabilization workflow and uses the native compiler environment provided by the runner.
 
-For a clean-checkout verification, run the smoke-test commands above without enabling optional renderer, editor, FFI deployment, networking, or language-binding layers.
+For a clean-checkout verification, run the smoke-test commands above without enabling optional renderer, editor, FFI deployment, or language-binding layers.
