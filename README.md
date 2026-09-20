@@ -29,7 +29,7 @@ Litt is a low-resource, headless-first game engine and procedural game-building 
 | Scripting VM | Partial, bounded execution contract |
 | C ABI / SDK | Supported, versioned and externally consumer-tested |
 | Python/C#/Lua integrations | Experimental, not release-supported |
-| Networking | Experimental |
+| Networking | Minimal TCP transport supported/tested; higher-level multiplayer experimental |
 | Legacy FFI world deployment | Incomplete |
 | `litt_engine2.h` | Legacy |
 | Editor tooling | Demo/example; Litt GUI is a separate integration project |
