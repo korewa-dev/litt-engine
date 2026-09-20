@@ -16,6 +16,23 @@ jobs:
       - name: Run stabilization regressions
         run: ./stabilization_tests.exe
 
+  sanitizer-stabilization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build stabilization regressions with ASan/UBSan
+        run: >-
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer
+          -fsanitize=address,undefined
+          -I alt/src/native/littcore
+          alt/src/native/littcore/litt_stabilization_tests.cpp
+          -o stabilization_sanitized
+      - name: Run ASan/UBSan stabilization regressions
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ./stabilization_sanitized
+
   c-runtime-contract:
     runs-on: ubuntu-latest
     steps:
