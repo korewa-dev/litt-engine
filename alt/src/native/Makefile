@@ -26,9 +26,12 @@ bin/littcli: bin/litt_json.o bin/litt_obj.o bin/litt_world.o littcli.c
 	$(CC) $(CFLAGS) $^ -o $@
 	@echo "[build] bin/littcli OK"
 
-bin/littview: bin/litt_json.o bin/litt_obj.o bin/litt_world.o littview.cpp
-	$(CXX) $(CXXFLAGS) -c littview.cpp -o bin/littview_main.o
-	$(CXX) bin/litt_json.o bin/litt_obj.o bin/litt_world.o bin/littview_main.o -o $@ $(LDFLAGS) $(LDLIBS)
+bin/littview_main.o: littview.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+bin/littview: bin/litt_json.o bin/litt_obj.o bin/litt_world.o bin/littview_main.o
+	$(CXX) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 	@echo "[build] bin/littview OK"
 
 test: bin/litt_json.o bin/litt_obj.o bin/litt_world.o tests.c
