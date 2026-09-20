@@ -79,6 +79,11 @@ test: bin/litt_json.o bin/litt_obj.o bin/litt_world.o tests.c
 selftest: bin/littview
 	cd bin && ./littview selftest
 
+network-test: littcore/networking_tests.cpp littcore/litt_networking.h
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) littcore/networking_tests.cpp -o bin/networking_tests $(LDFLAGS) $(LDLIBS) -pthread
+	cd bin && ./networking_tests
+
 asset-test: littcore/litt_asset_pipeline.cpp littcore/asset_pipeline_tests.cpp
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) $^ -o bin/asset_pipeline_tests $(LDFLAGS) $(LDLIBS)
@@ -95,4 +100,4 @@ dither3d_demo: bin/dither3d_demo
 clean:
 	rm -rf bin dist
 
-.PHONY: all sdk install-sdk test selftest asset-test clean dither3d_demo
+.PHONY: all sdk install-sdk test selftest network-test asset-test clean dither3d_demo

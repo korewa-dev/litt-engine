@@ -38,6 +38,17 @@ jobs:
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
         run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized
 
+  networking-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run TCP loopback contract
+        run: make -C alt/src/native network-test
+      - name: Build and run TCP loopback contract with ASan/UBSan
+        run: |
+          g++ -std=c++17 -O1 -g -Wall -Wextra -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/networking_tests.cpp -pthread -o /tmp/networking_sanitized
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/networking_sanitized
+
   c-runtime-contract:
     runs-on: ubuntu-latest
     steps:
@@ -142,6 +153,9 @@ jobs:
       - name: Build and run Windows Engine scene facade contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_engine_scene_tests.cpp litt_json.obj /Fe:engine_scene_windows.exe gdi32.lib user32.lib winmm.lib && engine_scene_windows.exe
+      - name: Build and run Windows networking contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /W4 /I alt\src\native\littcore alt\src\native\littcore\networking_tests.cpp /Fe:networking_windows.exe ws2_32.lib && networking_windows.exe
       - name: Build native engine tests
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_engine_tests.cpp alt\src\native\littcore\litt_math.cpp litt_json.obj /Fe:tests.exe gdi32.lib user32.lib winmm.lib
