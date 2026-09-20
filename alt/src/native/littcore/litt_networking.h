@@ -1,4 +1,5 @@
-// Phase 5: Production Systems - Networking
+// Experimental networking facade. Transport is not implemented yet.
+// All operations fail explicitly rather than reporting fake success.
 
 #pragma once
 
@@ -9,6 +10,7 @@
 #include <functional>
 #include <cstdint>
 #include <unordered_map>
+#include <utility>
 
 namespace litt {
 
@@ -149,5 +151,99 @@ private:
     std::unique_ptr<NetworkServer> server_;
     std::unique_ptr<NetworkClient> client_;
 };
+
+
+inline bool NetworkServer::start(uint16_t port) {
+    (void)port;
+    running_ = false;
+    port_ = 0;
+    clients_.clear();
+    return false;
+}
+
+inline void NetworkServer::stop() {
+    running_ = false;
+    port_ = 0;
+    clients_.clear();
+}
+
+inline bool NetworkServer::send_to(uint32_t client_id, const NetworkMessage& message) {
+    (void)client_id;
+    (void)message;
+    return false;
+}
+
+inline bool NetworkServer::broadcast(const NetworkMessage& message) {
+    (void)message;
+    return false;
+}
+
+inline void NetworkServer::register_handler(
+    uint32_t message_type, std::function<void(const NetworkMessage&)> handler) {
+    if (!handler) {
+        handlers_.erase(message_type);
+        return;
+    }
+    handlers_[message_type] = std::move(handler);
+}
+
+inline void NetworkServer::process_messages() {
+    // No transport is available. Intentionally no-op.
+}
+
+inline bool NetworkClient::connect(const std::string& address, uint16_t port) {
+    (void)address;
+    (void)port;
+    connected_ = false;
+    server_.reset();
+    return false;
+}
+
+inline void NetworkClient::disconnect() {
+    connected_ = false;
+    server_.reset();
+}
+
+inline bool NetworkClient::send(const NetworkMessage& message) {
+    (void)message;
+    return false;
+}
+
+inline bool NetworkClient::receive(NetworkMessage& message) {
+    (void)message;
+    return false;
+}
+
+inline void NetworkClient::register_handler(
+    uint32_t message_type, std::function<void(const NetworkMessage&)> handler) {
+    if (!handler) {
+        handlers_.erase(message_type);
+        return;
+    }
+    handlers_[message_type] = std::move(handler);
+}
+
+inline void NetworkClient::process_messages() {
+    // No transport is available. Intentionally no-op.
+}
+
+inline bool NetworkManager::initialize() {
+    server_.reset();
+    client_.reset();
+    return false;
+}
+
+inline void NetworkManager::shutdown() {
+    server_.reset();
+    client_.reset();
+}
+
+inline NetworkServer* NetworkManager::create_server() {
+    return nullptr;
+}
+
+inline NetworkClient* NetworkManager::create_client() {
+    return nullptr;
+}
 
 } // namespace litt
