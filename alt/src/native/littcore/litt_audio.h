@@ -8,6 +8,10 @@
 #include <unordered_map>
 #include <memory>
 #include <functional>
+#include <fstream>
+#include <cstring>
+#include <algorithm>
+#include <cmath>
 
 #include "litt_math.h"
 
@@ -124,8 +128,7 @@ public:
         
         auto clip = std::make_shared<AudioClip>();
         clip->path = path;
-        // Load audio data
-        loadAudioFile(path, *clip);
+        if (!loadAudioFile(path, *clip)) return nullptr;
         clips_[path] = clip;
         return clip;
     }
@@ -184,11 +187,87 @@ private:
     int bufferFrames_ = 2048;
     float masterVolume_ = 1.0f;
     
-    void loadAudioFile(const std::string&, AudioClip& clip) {
-        // Simplified - would use actual audio library
-        clip.sampleRate = sampleRate_;
-        clip.channels = 2;
-        // Load and decode audio file
+    bool loadAudioFile(const std::string& path, AudioClip& clip) {
+        std::ifstream file(path, std::ios::binary);
+        if (!file) return false;
+
+        char riff[4]{}, wave[4]{};
+        uint32_t riff_size = 0;
+        if (!file.read(riff, 4) ||
+            !file.read(reinterpret_cast<char*>(&riff_size), 4) ||
+            !file.read(wave, 4) ||
+            std::memcmp(riff, "RIFF", 4) != 0 ||
+            std::memcmp(wave, "WAVE", 4) != 0) {
+            return false;
+        }
+
+        uint16_t format = 0;
+        uint16_t channels = 0;
+        uint32_t sample_rate = 0;
+        uint16_t bits_per_sample = 0;
+        std::vector<uint8_t> pcm;
+        bool have_fmt = false;
+
+        while (file) {
+            char id[4]{};
+            uint32_t size = 0;
+            if (!file.read(id, 4) ||
+                !file.read(reinterpret_cast<char*>(&size), 4)) break;
+
+            if (std::memcmp(id, "fmt ", 4) == 0) {
+                if (size < 16) return false;
+                uint32_t byte_rate = 0;
+                uint16_t block_align = 0;
+                if (!file.read(reinterpret_cast<char*>(&format), 2) ||
+                    !file.read(reinterpret_cast<char*>(&channels), 2) ||
+                    !file.read(reinterpret_cast<char*>(&sample_rate), 4) ||
+                    !file.read(reinterpret_cast<char*>(&byte_rate), 4) ||
+                    !file.read(reinterpret_cast<char*>(&block_align), 2) ||
+                    !file.read(reinterpret_cast<char*>(&bits_per_sample), 2)) {
+                    return false;
+                }
+                if (size > 16) file.seekg(static_cast<std::streamoff>(size - 16), std::ios::cur);
+                have_fmt = true;
+            } else if (std::memcmp(id, "data", 4) == 0) {
+                if (!have_fmt || format != 1 || channels == 0 ||
+                    sample_rate == 0 || (bits_per_sample != 8 && bits_per_sample != 16)) {
+                    return false;
+                }
+                pcm.resize(size);
+                if (size && !file.read(reinterpret_cast<char*>(pcm.data()), size)) return false;
+            } else {
+                file.seekg(static_cast<std::streamoff>(size), std::ios::cur);
+            }
+
+            if (size & 1u) file.seekg(1, std::ios::cur);
+            if (!pcm.empty()) break;
+        }
+
+        if (pcm.empty()) return false;
+
+        clip.sampleRate = sample_rate;
+        clip.channels = channels;
+        clip.data.clear();
+
+        if (bits_per_sample == 8) {
+            clip.data.reserve(pcm.size());
+            for (uint8_t sample : pcm) {
+                clip.data.push_back((static_cast<float>(sample) - 128.0f) / 128.0f);
+            }
+        } else {
+            if (pcm.size() % 2 != 0) return false;
+            clip.data.reserve(pcm.size() / 2);
+            for (size_t i = 0; i < pcm.size(); i += 2) {
+                const int16_t sample = static_cast<int16_t>(
+                    static_cast<uint16_t>(pcm[i]) |
+                    (static_cast<uint16_t>(pcm[i + 1]) << 8));
+                clip.data.push_back(static_cast<float>(sample) / 32768.0f);
+            }
+        }
+
+        if (clip.data.size() % channels != 0) return false;
+        clip.lengthSamples = static_cast<uint32_t>(clip.data.size() / channels);
+        return clip.lengthSamples > 0;
     }
 };
 
