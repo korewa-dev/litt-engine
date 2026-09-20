@@ -135,6 +135,23 @@ def auto_name(rng):
     return "%s-%s" % (rng.choice(NAME_WORDS_A), rng.choice(NAME_WORDS_B))
 
 
+def _rotate_quat(v, q):
+    """Rotate a 3-vector by scene quaternion [x,y,z,w]."""
+    x, y, z, w = [float(a) for a in q]
+    n = (x*x + y*y + z*z + w*w) ** 0.5
+    if n <= 1e-12:
+        x = y = z = 0.0
+        w = 1.0
+    else:
+        x, y, z, w = x/n, y/n, z/n, w/n
+    vx, vy, vz = v
+    # q * v * conjugate(q), expanded.
+    tx, ty, tz = 2*(y*vz-z*vy), 2*(z*vx-x*vz), 2*(x*vy-y*vx)
+    return [vx + w*tx + (y*tz-z*ty),
+            vy + w*ty + (z*tx-x*tz),
+            vz + w*tz + (x*ty-y*tx)]
+
+
 def scene_layout(game_dir):
     """Union bbox of walkable solids (floor/level/track/board/hub/terrain
     nodes), from their OBJ vertex bounds + node positions.
@@ -172,10 +189,18 @@ def scene_layout(game_dir):
         if not nv:
             continue
         pos = node.get("position", [0, 0, 0])
-        for i in range(3):
-            a, b = bmin[i] + pos[i], bmax[i] + pos[i]
-            lo[i] = a if lo[i] is None else min(lo[i], a)
-            hi[i] = b if hi[i] is None else max(hi[i], b)
+        scale = node.get("scale", [1, 1, 1])
+        rotation = node.get("rotation", [0, 0, 0, 1])
+        # Match native runtime model_aabb(): transform all eight local AABB
+        # corners by authored scale, quaternion rotation, then translation.
+        for mask in range(8):
+            local = [(bmax[i] if mask & (1 << i) else bmin[i]) * float(scale[i])
+                     for i in range(3)]
+            rotated = _rotate_quat(local, rotation)
+            world = [rotated[i] + float(pos[i]) for i in range(3)]
+            for i in range(3):
+                lo[i] = world[i] if lo[i] is None else min(lo[i], world[i])
+                hi[i] = world[i] if hi[i] is None else max(hi[i], world[i])
     if lo[0] is None or hi[0] is None:
         return None
     span_x = hi[0] - lo[0]
