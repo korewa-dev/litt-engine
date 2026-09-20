@@ -279,6 +279,10 @@ class Placement:
         o = self._items[name]
         return ((o[0], o[1]), (o[2], o[3]), o[4], o[5])
 
+    def blocks(self, name):
+        """Whether one registered footprint rejects overlaps."""
+        return bool(self._items[name][6])
+
     def clone(self):
         """Faithful deterministic copy - safe to mutate for trial runs."""
         dup = Placement()
@@ -731,7 +735,8 @@ def write_scene(path, placed, title, placement=None):
         for nm, mn, mx in fps:
             if nm not in placement:
                 b = trial.bounds(nm)
-                placement.insert(nm, b[0], b[1], top=b[2], walkable=b[3])
+                placement.insert(nm, b[0], b[1], top=b[2], walkable=b[3],
+                                 blocks=trial.blocks(nm))
     path.write_text(json.dumps(scene, indent=2) + NL, encoding="utf-8")
 
 def write_state(path, payload):
