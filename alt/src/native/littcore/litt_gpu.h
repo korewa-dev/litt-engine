@@ -46,6 +46,53 @@ enum class TextureUsage {
     COPY_DST
 };
 
+enum class GPUBackendSupport {
+    TestOnly,
+    Partial,
+    Unavailable
+};
+
+struct GPUBackendCapability {
+    const char* name;
+    GPUBackendSupport support;
+    bool hardware_accelerated;
+    bool presentation;
+    const char* reason;
+};
+
+inline GPUBackendCapability gpu_backend_capability(const std::string& backend_name) {
+    if (backend_name == "null") {
+        return {"null", GPUBackendSupport::TestOnly, false, false,
+                "headless contract device; does not render or fabricate GPU resources"};
+    }
+    if (backend_name == "software" || backend_name == "auto") {
+        return {"software", GPUBackendSupport::Partial, false,
+#ifdef _WIN32
+                true,
+#else
+                false,
+#endif
+                "CPU rasterizer; headless mode is portable, window presentation is Win32-only"};
+    }
+    if (backend_name == "vulkan") {
+        return {"vulkan", GPUBackendSupport::Unavailable, true, false,
+                "generic Vulkan backend is not implemented or hardware-certified"};
+    }
+    if (backend_name == "dx12") {
+        return {"dx12", GPUBackendSupport::Unavailable, true, false,
+                "generic DX12 backend is not implemented or hardware-certified"};
+    }
+    if (backend_name == "opengl") {
+        return {"opengl", GPUBackendSupport::Unavailable, true, false,
+                "OpenGL backend is not implemented"};
+    }
+    if (backend_name == "metal") {
+        return {"metal", GPUBackendSupport::Unavailable, true, false,
+                "Metal backend is not implemented"};
+    }
+    return {nullptr, GPUBackendSupport::Unavailable, false, false, "unknown backend"};
+}
+
 struct BufferDesc {
     size_t size = 0;
     GPUBufferUsage usage = GPUBufferUsage::VERTEX;
@@ -125,14 +172,16 @@ public:
     void present() override {}
     std::unique_ptr<GPUBuffer> create_buffer(const BufferDesc& desc) override {
         struct NullBuffer : GPUBuffer {
-            size_t sz = 0;
-            void update(const void* data, size_t size) override { sz = size; (void)data; }
+            NullBuffer(size_t size, GPUBufferUsage usage) : size_(size), usage_(usage) {}
+            void update(const void* data, size_t size) override { (void)data; size_ = size; }
             void* map() override { return nullptr; }
             void unmap() override {}
-            size_t get_size() const override { return sz; }
-            GPUBufferUsage get_type() const override { return GPUBufferUsage::VERTEX; }
+            size_t get_size() const override { return size_; }
+            GPUBufferUsage get_type() const override { return usage_; }
+            size_t size_;
+            GPUBufferUsage usage_;
         };
-        return std::make_unique<NullBuffer>();
+        return std::make_unique<NullBuffer>(desc.size, desc.usage);
     }
     void update_buffer(GPUBuffer* buffer, const void* data, size_t size) override {
         if (buffer) buffer->update(data, size);
@@ -172,5 +221,9 @@ public:
     }
     size_t get_vram_usage() const override { return 0; }
 };
+
+// Factory implemented in litt_gpu.cpp. Hardware backends remain unavailable until
+// their full runtime promotion sequence is implemented and physically validated.
+std::unique_ptr<IGPUDevice> create_gpu_device(const std::string& backend_name);
 
 } // namespace litt
