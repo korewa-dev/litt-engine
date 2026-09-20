@@ -16,6 +16,8 @@
 #include <cstdlib>
 #include <cerrno>
 #include <limits>
+#include <cstring>
+#include <cctype>
 
 namespace litt2 {
 
