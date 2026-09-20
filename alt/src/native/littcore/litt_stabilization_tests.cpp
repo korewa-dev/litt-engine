@@ -493,6 +493,12 @@ static void test_quaternion_transform_contract() {
     const Vec3 probe(1, 0, 0);
     check(near_vec(ecs.matrix * probe, node.transform * probe),
           "scene_ecs_quaternion_trs_matches");
+
+    SceneNode& singular = scene.createNode("SingularTransform");
+    singular.scale = Vec3(1, 0, 1);
+    singular.updateTransform();
+    check(!singular.inverseTransformValid,
+          "scene_singular_transform_reports_invalid_inverse");
 }
 
 static void test_scene_component_ownership() {
