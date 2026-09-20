@@ -175,23 +175,31 @@ public:
         stack_.clear();
     }
     
-    // Compile script text to bytecode
+    // Compile the supported line-oriented subset to bytecode. Unsupported
+    // control-flow is rejected rather than emitting unpatched jumps.
     bool compile(const std::string& script_name, const std::string& source) {
+        if (script_name.empty()) return false;
         VMFunction func(script_name);
-        
-        // Simple line-based compiler
+
         std::istringstream stream(source);
         std::string line;
         while (std::getline(stream, line)) {
-            if (line.empty() || line[0] == '#') continue;
-            compileLine(line, func);
+            std::istringstream probe(line);
+            std::string first;
+            probe >> first;
+            if (first.empty() || first[0] == '#') continue;
+            if (!compileLine(line, func)) return false;
+            if (func.constants.size() > 255 || func.local_names.size() > 255 ||
+                func.bytecode.size() > 65535) {
+                return false;
+            }
         }
-        
-        func.bytecode.push_back((uint8_t)OpCode::HALT);
-        functions_[script_name] = func;
+
+        func.bytecode.push_back(static_cast<uint8_t>(OpCode::HALT));
+        functions_[script_name] = std::move(func);
         return true;
     }
-    
+
     // Execute script
     bool execute(const std::string& script_name) {
         auto it = functions_.find(script_name);
@@ -201,21 +209,29 @@ public:
     
     // Execute function
     bool executeFunction(VMFunction* func) {
-        if (!func) return false;
-        
+        if (!func || stack_.size() < func->num_params) return false;
+
+        const size_t base = stack_.size() - func->num_params;
         CallFrame frame;
         frame.function = func;
         frame.pc = 0;
-        if (stack_.size() < func->num_params) return false;
-        frame.base = static_cast<uint32_t>(stack_.size() - func->num_params);
+        frame.base = static_cast<uint32_t>(base);
         frames_.push_back(frame);
-        
-        return run();
+
+        const bool ok = run();
+        frames_.clear();
+        if (stack_.size() > base) stack_.resize(base);
+        return ok;
     }
-    
+
     // Register builtin function
     void registerBuiltin(const std::string& name, std::function<Value(const std::vector<Value>&)> fn) {
-        builtins_[name] = fn;
+        if (name.empty()) return;
+        if (!fn) {
+            builtins_.erase(name);
+            return;
+        }
+        builtins_[name] = std::move(fn);
     }
     
     // Set global variable
@@ -241,7 +257,9 @@ public:
     void push(const Value& val) {
         stack_.push_back(val);
     }
-    
+
+    size_t stack_size() const { return stack_.size(); }
+
 private:
     void registerBuiltins() {
         registerBuiltin("print", [this](const std::vector<Value>& args) {
@@ -269,312 +287,316 @@ private:
         });
     }
     
-    void compileLine(const std::string& line, VMFunction& func) {
+    bool addConstant(VMFunction& func, const Value& value, uint8_t& index) {
+        if (func.constants.size() >= 256) return false;
+        func.constants.push_back(value);
+        index = static_cast<uint8_t>(func.constants.size() - 1);
+        return true;
+    }
+
+    bool getLocalIndex(const std::string& name, VMFunction& func, uint8_t& index,
+                       bool create_if_missing = true) {
+        for (size_t i = 0; i < func.local_names.size(); ++i) {
+            if (func.local_names[i] == name) {
+                index = static_cast<uint8_t>(i);
+                return true;
+            }
+        }
+        if (!create_if_missing || name.empty() || func.local_names.size() >= 256) return false;
+        func.local_names.push_back(name);
+        index = static_cast<uint8_t>(func.local_names.size() - 1);
+        return true;
+    }
+
+    bool compileLine(const std::string& line, VMFunction& func) {
         std::istringstream ss(line);
         std::string token;
         ss >> token;
-        
+        if (token.empty() || token[0] == '#') return true;
+
         if (token == "var") {
             std::string name;
-            ss >> name;
-            func.local_names.push_back(name);
-            
-            // Check for initializer
+            if (!(ss >> name) || name.empty()) return false;
+            uint8_t local = 0;
+            if (!getLocalIndex(name, func, local, true)) return false;
+
             std::string eq;
-            ss >> eq;
-            if (eq == "=") {
-                compileExpression(ss, func);
-            }
-            
-            func.bytecode.push_back((uint8_t)OpCode::STORE_VAR);
-            func.bytecode.push_back((uint8_t)func.local_names.size() - 1);
-        } else if (token == "function") {
-            std::string name;
-            ss >> name;
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_STRING);
-            func.constants.push_back(Value(name));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "print") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::PRINT);
-        } else if (token == "if") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::JUMP_IF_FALSE);
-            func.bytecode.push_back(0); // placeholder
-            func.bytecode.push_back(0); // placeholder
-        } else if (token == "while") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::JUMP_IF_FALSE);
-            func.bytecode.push_back(0); // placeholder
-            func.bytecode.push_back(0); // placeholder
-        } else if (token == "return") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::RETURN);
-        } else if (token == "end") {
-            // End of block
-        } else {
-            // Treat as expression statement
-            std::string rest = line;
-            std::istringstream rest_ss(rest);
-            compileExpression(rest_ss, func);
-        }
-    }
-    
-    void compileExpression(std::istringstream& ss, VMFunction& func) {
-        std::string token;
-        ss >> token;
-        
-        if (token.empty()) return;
-        
-        // Number literal
-        if (isdigit(token[0]) || (token[0] == '-' && token.size() > 1 && isdigit(token[1]))) {
-            float val = std::stof(token);
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_FLOAT);
-            func.constants.push_back(Value(val));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "true") {
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_BOOL);
-            func.constants.push_back(Value(true));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "false") {
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_BOOL);
-            func.constants.push_back(Value(false));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "nil") {
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_FLOAT);
-            func.constants.push_back(Value(0.0f));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token[0] == '"') {
-            // String literal
-            std::string str = token.substr(1);
-            if (str.back() == '"') str.pop_back();
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_STRING);
-            func.constants.push_back(Value(str));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "not") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::NOT);
-        } else if (token == "and") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::AND);
-        } else if (token == "or") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::OR);
-        } else {
-            // Variable or function call
-            std::string name = token;
-            
-            // Check for binary operators
-            std::string op;
-            ss >> op;
-            
-            if (op == "+" || op == "-" || op == "*" || op == "/" || op == "%" || 
-                op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=") {
-                // Binary operators are emitted left-to-right so non-commutative
-                // operations (sub/div/mod/comparisons) preserve source order.
-                func.bytecode.push_back((uint8_t)OpCode::LOAD_VAR);
-                func.bytecode.push_back((uint8_t)getLocalIndex(name, func));
-                compileExpression(ss, func);
-                
-                if (op == "+") func.bytecode.push_back((uint8_t)OpCode::ADD);
-                else if (op == "-") func.bytecode.push_back((uint8_t)OpCode::SUB);
-                else if (op == "*") func.bytecode.push_back((uint8_t)OpCode::MUL);
-                else if (op == "/") func.bytecode.push_back((uint8_t)OpCode::DIV);
-                else if (op == "%") func.bytecode.push_back((uint8_t)OpCode::MOD);
-                else if (op == "==") func.bytecode.push_back((uint8_t)OpCode::EQ);
-                else if (op == "!=") func.bytecode.push_back((uint8_t)OpCode::NEQ);
-                else if (op == "<") func.bytecode.push_back((uint8_t)OpCode::LT);
-                else if (op == ">") func.bytecode.push_back((uint8_t)OpCode::GT);
-                else if (op == "<=") func.bytecode.push_back((uint8_t)OpCode::LTE);
-                else if (op == ">=") func.bytecode.push_back((uint8_t)OpCode::GTE);
+            if (ss >> eq) {
+                if (eq != "=" || !compileExpression(ss, func)) return false;
             } else {
-                // Simple variable load
-                func.bytecode.push_back((uint8_t)OpCode::LOAD_VAR);
-                func.bytecode.push_back((uint8_t)getLocalIndex(name, func));
+                uint8_t idx = 0;
+                if (!addConstant(func, Value(), idx)) return false;
+                func.bytecode.push_back(static_cast<uint8_t>(OpCode::PUSH_FLOAT));
+                // NIL has no dedicated PUSH opcode in this VM. Use numeric zero
+                // for uninitialized locals until NIL bytecode support exists.
+                func.constants.back() = Value(0.0f);
+                func.bytecode.push_back(idx);
             }
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::STORE_VAR));
+            func.bytecode.push_back(local);
+            return true;
         }
-    }
-    
-    uint32_t getLocalIndex(const std::string& name, VMFunction& func) {
-        for (uint32_t i = 0; i < func.local_names.size(); i++) {
-            if (func.local_names[i] == name) return i;
+
+        if (token == "print") {
+            if (!compileExpression(ss, func)) return false;
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::PRINT));
+            return true;
         }
-        func.local_names.push_back(name);
-        return func.local_names.size() - 1;
+
+        if (token == "return") {
+            std::string remainder;
+            std::getline(ss, remainder);
+            std::istringstream expr(remainder);
+            std::string probe;
+            expr >> probe;
+            if (!probe.empty()) {
+                std::istringstream actual(remainder);
+                if (!compileExpression(actual, func)) return false;
+            }
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::RETURN));
+            return true;
+        }
+
+        if (token == "if" || token == "while" || token == "function" || token == "end") {
+            return false;
+        }
+
+        std::istringstream expr(line);
+        return compileExpression(expr, func);
     }
-    
+
+    bool compileExpression(std::istringstream& ss, VMFunction& func) {
+        std::string token;
+        if (!(ss >> token) || token.empty()) return false;
+
+        auto emit_constant = [&](OpCode op, const Value& value) {
+            uint8_t idx = 0;
+            if (!addConstant(func, value, idx)) return false;
+            func.bytecode.push_back(static_cast<uint8_t>(op));
+            func.bytecode.push_back(idx);
+            return true;
+        };
+
+        const bool numeric_start =
+            std::isdigit(static_cast<unsigned char>(token[0])) ||
+            (token[0] == '-' && token.size() > 1 &&
+             std::isdigit(static_cast<unsigned char>(token[1])));
+        if (numeric_start) {
+            char* end = nullptr;
+            const float value = std::strtof(token.c_str(), &end);
+            if (!end || end == token.c_str() || *end != '\0' || !std::isfinite(value)) return false;
+            return emit_constant(OpCode::PUSH_FLOAT, Value(value));
+        }
+
+        if (token == "true") return emit_constant(OpCode::PUSH_BOOL, Value(true));
+        if (token == "false") return emit_constant(OpCode::PUSH_BOOL, Value(false));
+        if (token == "nil") return emit_constant(OpCode::PUSH_FLOAT, Value(0.0f));
+
+        if (token[0] == '"') {
+            std::string str = token.substr(1);
+            while ((token.size() < 2 || token.back() != '"') && ss >> token) {
+                str.push_back(' ');
+                str += token;
+            }
+            if (token.empty() || token.back() != '"') return false;
+            if (!str.empty() && str.back() == '"') str.pop_back();
+            return emit_constant(OpCode::PUSH_STRING, Value(str));
+        }
+
+        if (token == "not") {
+            if (!compileExpression(ss, func)) return false;
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::NOT));
+            return true;
+        }
+
+        uint8_t local = 0;
+        if (!getLocalIndex(token, func, local, false)) return false;
+
+        std::string op;
+        if (!(ss >> op)) {
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::LOAD_VAR));
+            func.bytecode.push_back(local);
+            return true;
+        }
+
+        const bool binary = op == "+" || op == "-" || op == "*" || op == "/" ||
+                            op == "%" || op == "==" || op == "!=" || op == "<" ||
+                            op == ">" || op == "<=" || op == ">=";
+        if (!binary) return false;
+
+        func.bytecode.push_back(static_cast<uint8_t>(OpCode::LOAD_VAR));
+        func.bytecode.push_back(local);
+        if (!compileExpression(ss, func)) return false;
+
+        if (op == "+") func.bytecode.push_back(static_cast<uint8_t>(OpCode::ADD));
+        else if (op == "-") func.bytecode.push_back(static_cast<uint8_t>(OpCode::SUB));
+        else if (op == "*") func.bytecode.push_back(static_cast<uint8_t>(OpCode::MUL));
+        else if (op == "/") func.bytecode.push_back(static_cast<uint8_t>(OpCode::DIV));
+        else if (op == "%") func.bytecode.push_back(static_cast<uint8_t>(OpCode::MOD));
+        else if (op == "==") func.bytecode.push_back(static_cast<uint8_t>(OpCode::EQ));
+        else if (op == "!=") func.bytecode.push_back(static_cast<uint8_t>(OpCode::NEQ));
+        else if (op == "<") func.bytecode.push_back(static_cast<uint8_t>(OpCode::LT));
+        else if (op == ">") func.bytecode.push_back(static_cast<uint8_t>(OpCode::GT));
+        else if (op == "<=") func.bytecode.push_back(static_cast<uint8_t>(OpCode::LTE));
+        else func.bytecode.push_back(static_cast<uint8_t>(OpCode::GTE));
+        return true;
+    }
+
+    bool readByte(CallFrame& frame, const VMFunction& func, uint8_t& out) {
+        if (frame.pc >= func.bytecode.size()) return false;
+        out = func.bytecode[frame.pc++];
+        return true;
+    }
+
+    bool readU16(CallFrame& frame, const VMFunction& func, uint16_t& out) {
+        uint8_t lo = 0, hi = 0;
+        if (!readByte(frame, func, lo) || !readByte(frame, func, hi)) return false;
+        out = static_cast<uint16_t>(lo) | (static_cast<uint16_t>(hi) << 8);
+        return true;
+    }
+
     bool run() {
         while (!frames_.empty()) {
             CallFrame& frame = frames_.back();
             VMFunction* func = frame.function;
-            
+            if (!func) return false;
+
             if (frame.pc >= func->bytecode.size()) {
                 frames_.pop_back();
                 continue;
             }
-            
-            uint8_t op = func->bytecode[frame.pc++];
-            switch ((OpCode)op) {
-                case OpCode::NOP: break;
+
+            uint8_t raw_op = 0;
+            if (!readByte(frame, *func, raw_op)) return false;
+            const OpCode op = static_cast<OpCode>(raw_op);
+
+            switch (op) {
+                case OpCode::NOP:
+                    break;
+
                 case OpCode::PUSH_FLOAT:
                 case OpCode::PUSH_STRING:
                 case OpCode::PUSH_BOOL: {
-                    uint8_t idx = func->bytecode[frame.pc++];
-                    if (idx < func->constants.size()) {
-                        push(func->constants[idx]);
-                    }
+                    uint8_t idx = 0;
+                    if (!readByte(frame, *func, idx) || idx >= func->constants.size()) return false;
+                    push(func->constants[idx]);
                     break;
                 }
-                case OpCode::POP: pop(); break;
-                case OpCode::ADD: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(a.to_float() + b.to_float()));
+
+                case OpCode::POP:
+                    if (stack_.empty()) return false;
+                    (void)pop();
                     break;
-                }
-                case OpCode::SUB: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(a.to_float() - b.to_float()));
-                    break;
-                }
-                case OpCode::MUL: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(a.to_float() * b.to_float()));
-                    break;
-                }
-                case OpCode::DIV: {
-                    Value b = pop();
-                    Value a = pop();
-                    if (b.to_float() != 0) push(Value(a.to_float() / b.to_float()));
-                    else push(Value(0.0f));
-                    break;
-                }
-                case OpCode::MOD: {
-                    Value b = pop();
-                    Value a = pop();
-                    const float divisor = b.to_float();
-                    push(Value(divisor != 0.0f ? std::fmod(a.to_float(), divisor) : 0.0f));
-                    break;
-                }
-                case OpCode::NEG: {
-                    Value a = pop();
-                    push(Value(-a.to_float()));
-                    break;
-                }
-                case OpCode::EQ: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(a == b));
-                    break;
-                }
-                case OpCode::NEQ: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(!(a == b)));
-                    break;
-                }
-                case OpCode::LT: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(a.to_float() < b.to_float()));
-                    break;
-                }
-                case OpCode::GT: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(a.to_float() > b.to_float()));
-                    break;
-                }
-                case OpCode::LTE: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(a.to_float() <= b.to_float()));
-                    break;
-                }
-                case OpCode::GTE: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(a.to_float() >= b.to_float()));
-                    break;
-                }
-                case OpCode::AND: {
-                    Value b = pop();
-                    Value a = pop();
-                    push(Value(a.is_truthy() && b.is_truthy()));
-                    break;
-                }
+
+                case OpCode::ADD:
+                case OpCode::SUB:
+                case OpCode::MUL:
+                case OpCode::DIV:
+                case OpCode::MOD:
+                case OpCode::EQ:
+                case OpCode::NEQ:
+                case OpCode::LT:
+                case OpCode::GT:
+                case OpCode::LTE:
+                case OpCode::GTE:
+                case OpCode::AND:
                 case OpCode::OR: {
+                    if (stack_.size() < 2) return false;
                     Value b = pop();
                     Value a = pop();
-                    push(Value(a.is_truthy() || b.is_truthy()));
+                    switch (op) {
+                        case OpCode::ADD: push(Value(a.to_float() + b.to_float())); break;
+                        case OpCode::SUB: push(Value(a.to_float() - b.to_float())); break;
+                        case OpCode::MUL: push(Value(a.to_float() * b.to_float())); break;
+                        case OpCode::DIV: {
+                            const float divisor = b.to_float();
+                            if (divisor == 0.0f) return false;
+                            push(Value(a.to_float() / divisor));
+                            break;
+                        }
+                        case OpCode::MOD: {
+                            const float divisor = b.to_float();
+                            if (divisor == 0.0f) return false;
+                            push(Value(std::fmod(a.to_float(), divisor)));
+                            break;
+                        }
+                        case OpCode::EQ: push(Value(a == b)); break;
+                        case OpCode::NEQ: push(Value(!(a == b))); break;
+                        case OpCode::LT: push(Value(a.to_float() < b.to_float())); break;
+                        case OpCode::GT: push(Value(a.to_float() > b.to_float())); break;
+                        case OpCode::LTE: push(Value(a.to_float() <= b.to_float())); break;
+                        case OpCode::GTE: push(Value(a.to_float() >= b.to_float())); break;
+                        case OpCode::AND: push(Value(a.is_truthy() && b.is_truthy())); break;
+                        case OpCode::OR: push(Value(a.is_truthy() || b.is_truthy())); break;
+                        default: return false;
+                    }
                     break;
                 }
+
+                case OpCode::NEG:
                 case OpCode::NOT: {
+                    if (stack_.empty()) return false;
                     Value a = pop();
-                    push(Value(!a.is_truthy()));
+                    if (op == OpCode::NEG) push(Value(-a.to_float()));
+                    else push(Value(!a.is_truthy()));
                     break;
                 }
-                case OpCode::JUMP: {
-                    uint8_t lo = func->bytecode[frame.pc++];
-                    uint8_t hi = func->bytecode[frame.pc++];
-                    frame.pc = (hi << 8) | lo;
-                    break;
-                }
-                case OpCode::JUMP_IF_FALSE: {
-                    uint8_t lo = func->bytecode[frame.pc++];
-                    uint8_t hi = func->bytecode[frame.pc++];
-                    Value cond = pop();
-                    if (!cond.is_truthy()) {
-                        frame.pc = (hi << 8) | lo;
-                    }
-                    break;
-                }
+
+                case OpCode::JUMP:
+                case OpCode::JUMP_IF_FALSE:
                 case OpCode::JUMP_IF_TRUE: {
-                    uint8_t lo = func->bytecode[frame.pc++];
-                    uint8_t hi = func->bytecode[frame.pc++];
-                    Value cond = pop();
-                    if (cond.is_truthy()) {
-                        frame.pc = (hi << 8) | lo;
-                    }
-                    break;
-                }
-                case OpCode::LOAD_VAR: {
-                    uint8_t idx = func->bytecode[frame.pc++];
-                    const size_t slot = static_cast<size_t>(frame.base) + idx;
-                    if (slot < stack_.size()) {
-                        push(stack_[slot]);
+                    uint16_t target = 0;
+                    if (!readU16(frame, *func, target) || target >= func->bytecode.size()) return false;
+                    if (op == OpCode::JUMP) {
+                        frame.pc = target;
                     } else {
-                        push(Value());
+                        if (stack_.empty()) return false;
+                        const bool truthy = pop().is_truthy();
+                        if ((op == OpCode::JUMP_IF_FALSE && !truthy) ||
+                            (op == OpCode::JUMP_IF_TRUE && truthy)) {
+                            frame.pc = target;
+                        }
                     }
                     break;
                 }
+
+                case OpCode::LOAD_VAR: {
+                    uint8_t idx = 0;
+                    if (!readByte(frame, *func, idx)) return false;
+                    const size_t slot = static_cast<size_t>(frame.base) + idx;
+                    push(slot < stack_.size() ? stack_[slot] : Value());
+                    break;
+                }
+
                 case OpCode::STORE_VAR: {
-                    uint8_t idx = func->bytecode[frame.pc++];
+                    uint8_t idx = 0;
+                    if (!readByte(frame, *func, idx) || stack_.empty()) return false;
                     Value val = pop();
-                    while (stack_.size() <= frame.base + idx) {
-                        stack_.push_back(Value());
-                    }
-                    stack_[frame.base + idx] = val;
+                    const size_t slot = static_cast<size_t>(frame.base) + idx;
+                    if (slot > 65535) return false;
+                    while (stack_.size() <= slot) stack_.push_back(Value());
+                    stack_[slot] = val;
                     break;
                 }
-                case OpCode::PRINT: {
-                    Value val = pop();
-                    std::cout << "[Script] " << val.to_string() << std::endl;
+
+                case OpCode::PRINT:
+                    if (stack_.empty()) return false;
+                    std::cout << "[Script] " << pop().to_string() << std::endl;
                     break;
-                }
+
                 case OpCode::RETURN:
                 case OpCode::HALT:
                     frames_.pop_back();
                     break;
+
                 default:
-                    break;
+                    // The compiler does not emit the remaining opcodes yet.
+                    return false;
             }
         }
         return true;
     }
-    
+
     std::unordered_map<std::string, Value> globals_;
     std::unordered_map<std::string, VMFunction> functions_;
     std::unordered_map<std::string, std::function<Value(const std::vector<Value>&)>> builtins_;
