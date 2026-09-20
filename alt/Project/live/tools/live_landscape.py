@@ -4,7 +4,7 @@
 Generates endless grass terrain as square chunks around the origin.
 Heights are sampled in WORLD space, so neighboring chunks share edge
 vertices exactly - chunks tile seamlessly and the world can grow forever
-by raising --radius. Fully deterministic: same seed, same world.
+by raising --radius within the resource budget. Fully deterministic: same seed, same world.
 
 Usage (from anywhere):
   python live_landscape.py --radius 2 --seed 1337 \
@@ -27,6 +27,10 @@ INDEX = LIVE_DIR / "assets" / "asset_index.json"
 
 CHUNK_DEFAULT = 16.0
 RES_DEFAULT = 12
+DEFAULT_RADIUS_MAX = 4
+LARGE_RADIUS_MAX = 5
+MODEL_FILE_BUDGET = 192
+MODEL_BYTES_BUDGET = 8 * 1024 * 1024
 AMP = 1.6
 FREQ = 0.08
 
@@ -149,7 +153,9 @@ def write_scene(chunk_ids, size):
     for n,(cid,path) in enumerate(chunk_ids, start=1):
         cx,cz = cid.replace("chunk_","").split("_")
         nodes.append({"name":cid,"id":n,"parent":0,"children":[],
-            "position":[int(cx)*size,0.0,int(cz)*size],
+            # Vertices are already emitted in world space, so chunk nodes
+            # must remain at identity to avoid double-transform displacement.
+            "position":[0.0,0.0,0.0],
             "rotation":[0,0,0,1],"scale":[1,1,1],"visible":True,"layer":0,
             "tags":["live","terrain"]})
     scene = {"format":"litt-scene","version":1,"root_id":0,
@@ -173,12 +179,24 @@ def append_log(agent, prompt, made, radius, seed):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--radius", type=int, default=2)
+    ap.add_argument("--allow-large-grid", action="store_true",
+                    help="explicitly allow radius 5; larger grids require streaming")
     ap.add_argument("--seed", type=int, default=1337)
     ap.add_argument("--chunk-size", type=float, default=CHUNK_DEFAULT)
     ap.add_argument("--res", type=int, default=RES_DEFAULT)
     ap.add_argument("--agent", default="ai-agent")
     ap.add_argument("--prompt", default=None)
     a = ap.parse_args()
+
+    max_radius = LARGE_RADIUS_MAX if a.allow_large_grid else DEFAULT_RADIUS_MAX
+    if a.radius < 1 or a.radius > max_radius:
+        ap.error("radius must be 1..%d%s" %
+                 (max_radius, "" if a.allow_large_grid else
+                  " (use --allow-large-grid for radius 5)"))
+    if not math.isfinite(a.chunk_size) or a.chunk_size <= 0 or a.chunk_size > 256:
+        ap.error("chunk-size must be finite and in (0, 256]")
+    if a.res < 2 or a.res > 256:
+        ap.error("res must be in 2..256")
 
     MODELS.mkdir(parents=True, exist_ok=True)
     write_mtl()
@@ -197,6 +215,13 @@ def main():
         kb = fpath.stat().st_size/1024.0
         made.append(fname)
         print("[live] +%s (%d tris, %.1f KB)" % (fname, tris, kb))
+    obj_files = sorted(MODELS.glob("*.obj"))
+    obj_bytes = sum(p.stat().st_size for p in obj_files)
+    if len(obj_files) > MODEL_FILE_BUDGET or obj_bytes > MODEL_BYTES_BUDGET:
+        raise SystemExit(
+            "[live] resource budget exceeded: %d OBJ files, %.2f MB"
+            % (len(obj_files), obj_bytes / (1024.0 * 1024.0)))
+
     update_index(registry)
     write_scene(registry, a.chunk_size)
     state = {
@@ -205,8 +230,7 @@ def main():
         "seed": a.seed, "chunk_size": a.chunk_size, "radius": a.radius,
         "camera": {"target": [0, 0, 0], "distance": 46},
         "chunks": [{"id": cid, "path": "assets/"+p,
-                    "position": [int(cid.split("_")[1])*a.chunk_size, 0,
-                                 int(cid.split("_")[2])*a.chunk_size]}
+                    "position": [0, 0, 0]}
                    for cid, p in registry],
         "palette": {k: v for k, v in MATS.items()},
     }
