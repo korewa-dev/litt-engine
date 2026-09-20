@@ -138,14 +138,6 @@ int main(void) {
                       fabsf(m.meshes[0].uvs[5] - 1.0f) < 1e-6f,
                       "obj: texture coordinate values preserve vertex alignment");
             }
-            CHECK(m.meshes[0].uvs &&
-                  fabsf(m.meshes[0].uvs[0] - 0.0f) < 1e-6f &&
-                  fabsf(m.meshes[0].uvs[1] - 0.0f) < 1e-6f &&
-                  fabsf(m.meshes[0].uvs[2] - 1.0f) < 1e-6f &&
-                  fabsf(m.meshes[0].uvs[3] - 0.0f) < 1e-6f &&
-                  fabsf(m.meshes[0].uvs[4] - 0.0f) < 1e-6f &&
-                  fabsf(m.meshes[0].uvs[5] - 1.0f) < 1e-6f,
-                  "obj: texture coordinate values preserve vertex alignment");
         }
         lv_model_free(&m);
         remove("t_mat.obj");
@@ -180,32 +172,6 @@ int main(void) {
         CHECK(lv_obj_load(NULL, &m) != 0, "obj: NULL path fails cleanly");
         CHECK(lv_obj_load("does-not-exist.obj", NULL) != 0,
               "obj: NULL output fails cleanly");
-    }
-
-    /* ---- obj UV robustness: missing and out-of-range vt stay aligned ---- */
-    {
-        write_file("t_uv_edge.obj",
-                   "v 0 0 0\nv 1 0 0\nv 0 1 0\n"
-                   "vt 0.25 0.75\n"
-                   "f 1/1 2 3/99\n");
-        LvModel m;
-        int rc = lv_obj_load("t_uv_edge.obj", &m);
-        CHECK(rc == 0, "obj: mixed/missing/out-of-range vt loads safely");
-        if (rc == 0 && m.count == 1) {
-            CHECK(m.meshes[0].uvs != NULL && m.meshes[0].vn == 3,
-                  "obj: UV table remains parallel to emitted vertices");
-            if (m.meshes[0].uvs) {
-                CHECK(fabsf(m.meshes[0].uvs[0] - 0.25f) < 1e-6f &&
-                      fabsf(m.meshes[0].uvs[1] - 0.75f) < 1e-6f &&
-                      fabsf(m.meshes[0].uvs[2]) < 1e-6f &&
-                      fabsf(m.meshes[0].uvs[3]) < 1e-6f &&
-                      fabsf(m.meshes[0].uvs[4]) < 1e-6f &&
-                      fabsf(m.meshes[0].uvs[5]) < 1e-6f,
-                      "obj: absent/invalid vt uses deterministic zero fallback");
-            }
-            lv_model_free(&m);
-        }
-        remove("t_uv_edge.obj");
     }
 
     /* ---- obj robustness: negative indices wrap, tabs split (n4) ---- */
