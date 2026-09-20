@@ -19,6 +19,11 @@
 #include <thread>
 #include <atomic>
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <cerrno>
+#include <cmath>
+#include <limits>
 
 namespace litt {
 
@@ -34,7 +39,7 @@ struct EngineConfig {
     bool vsync = true;
     RenderBackend backend = RenderBackend::Vulkan;
     float target_fps = 60.0f;
-    bool headless = false;
+    bool headless = true;
 };
 
 // =============================================================================
@@ -55,33 +60,47 @@ public:
     // =====================================================================
     
     bool initialize(const EngineConfig& config) {
-        config_ = config;
-        
-        // A headless engine does not need a graphics backend. Interactive
-        // modes still fail honestly when the selected backend is unavailable.
-        if (!config_.headless &&
-            !renderer_.initialize(config_.width, config_.height, config_.backend)) {
-            log_error("Failed to initialize renderer");
+        if (initialized_) shutdown();
+
+        if (config.width == 0 || config.height == 0 ||
+            config.width > 16384 || config.height > 16384 ||
+            !std::isfinite(config.target_fps) || config.target_fps <= 0.0f ||
+            config.target_fps > 1000.0f) {
+            log_error("Invalid engine configuration");
             return false;
         }
-        
-        // Initialize audio
+
+        config_ = config;
+        running_ = true;
+
+        // Litt is headless-first. Interactive modes fail honestly until a
+        // production renderer backend is wired into Renderer.
+        if (!config_.headless &&
+            !renderer_.initialize(config_.width, config_.height, config_.backend)) {
+            running_ = false;
+            log_error("Requested renderer backend is unavailable");
+            return false;
+        }
+
         audio_.init();
-        
-        // Create default scene
         create_default_scene();
-        
+        initialized_ = true;
+
         log_info("Engine initialized successfully");
         return true;
     }
     
     void shutdown() {
+        if (!initialized_) {
+            running_ = false;
+            return;
+        }
+
         log_info("Shutting down engine...");
-        
-        // Shutdown in reverse order
-        renderer_.shutdown();
+        running_ = false;
+        if (!config_.headless) renderer_.shutdown();
         audio_.shutdown();
-        
+        initialized_ = false;
         log_info("Engine shutdown complete");
     }
     
@@ -90,6 +109,10 @@ public:
     // =====================================================================
     
     void run() {
+        if (!initialized_) {
+            log_error("Engine::run called before initialize");
+            return;
+        }
         if (config_.headless) {
             run_headless();
             return;
@@ -125,6 +148,10 @@ public:
     }
     
     void run_headless() {
+        if (!initialized_) {
+            log_error("Engine::run_headless called before initialize");
+            return;
+        }
         using Clock = std::chrono::steady_clock;
         const float target_fps = config_.target_fps > 0.0f ? config_.target_fps : 60.0f;
         const float fixed_dt = 1.0f / target_fps;
@@ -162,7 +189,8 @@ public:
     SceneManager& scene_manager() { return scene_manager_; }
     
     const EngineConfig& get_config() const { return config_; }
-    bool is_running() const { return running_; }
+    bool is_running() const { return initialized_ && running_; }
+    bool is_initialized() const { return initialized_; }
     
     // =====================================================================
     // Scene Management
@@ -275,41 +303,65 @@ private:
     
     // Config
     EngineConfig config_;
-    std::atomic<bool> running_{true};
+    std::atomic<bool> running_{false};
+    bool initialized_ = false;
 };
 
 // =============================================================================
 // Free Functions
 // =============================================================================
 
+inline bool parse_engine_u32(const char* text, uint32_t& out) {
+    if (!text || !*text || *text == '-') return false;
+    errno = 0;
+    char* end = nullptr;
+    const unsigned long value = std::strtoul(text, &end, 10);
+    if (errno != 0 || end == text || *end != '\0' ||
+        value == 0 || value > 16384ul) {
+        return false;
+    }
+    out = static_cast<uint32_t>(value);
+    return true;
+}
+
+inline bool parse_engine_fps(const char* text, float& out) {
+    if (!text || !*text) return false;
+    errno = 0;
+    char* end = nullptr;
+    const float value = std::strtof(text, &end);
+    if (errno != 0 || end == text || *end != '\0' ||
+        !std::isfinite(value) || value <= 0.0f || value > 1000.0f) {
+        return false;
+    }
+    out = value;
+    return true;
+}
+
 inline int run_engine(int argc, char** argv) {
     Engine engine;
-    
     EngineConfig config;
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--width") == 0 && i + 1 < argc) {
-            config.width = std::stoi(argv[i + 1]);
-            i++;
-        }
-        else if (strcmp(argv[i], "--height") == 0 && i + 1 < argc) {
-            config.height = std::stoi(argv[i + 1]);
-            i++;
-        }
-        else if (strcmp(argv[i], "--fullscreen") == 0) {
+
+    for (int i = 1; i < argc; ++i) {
+        if (std::strcmp(argv[i], "--width") == 0) {
+            if (i + 1 >= argc || !parse_engine_u32(argv[++i], config.width)) return 2;
+        } else if (std::strcmp(argv[i], "--height") == 0) {
+            if (i + 1 >= argc || !parse_engine_u32(argv[++i], config.height)) return 2;
+        } else if (std::strcmp(argv[i], "--fps") == 0) {
+            if (i + 1 >= argc || !parse_engine_fps(argv[++i], config.target_fps)) return 2;
+        } else if (std::strcmp(argv[i], "--fullscreen") == 0) {
             config.fullscreen = true;
-        }
-        else if (strcmp(argv[i], "--headless") == 0) {
+        } else if (std::strcmp(argv[i], "--headless") == 0) {
             config.headless = true;
+        } else if (std::strcmp(argv[i], "--windowed") == 0) {
+            config.headless = false;
+        } else {
+            return 2;
         }
     }
-    
-    if (!engine.initialize(config)) {
-        return 1;
-    }
-    
+
+    if (!engine.initialize(config)) return 1;
     engine.run();
     engine.shutdown();
-    
     return 0;
 }
 
