@@ -107,6 +107,34 @@ int main(void) {
     }
     remove("t_rig.obj");
 
+    /* ---- obj materials: authored MTL values survive import ---- */
+    {
+        write_file("t_mat.mtl",
+                   "newmtl painted\nKd 0.2 0.4 0.6\nKe 0.1 0.0 0.2\n"
+                   "map_Kd painted.tga\n");
+        write_file("t_mat.obj",
+                   "mtllib t_mat.mtl\nusemtl painted\n"
+                   "v 0 0 0\nv 1 0 0\nv 0 1 0\n"
+                   "vt 0 0\nvt 1 0\nvt 0 1\n"
+                   "f 1/1 2/2 3/3\n");
+        LvModel m;
+        CHECK(lv_obj_load("t_mat.obj", &m) == 0, "obj: loads MTL fixture");
+        if (m.count == 1) {
+            CHECK(m.meshes[0].has_kd && fabs(m.meshes[0].kd[1] - 0.4f) < 1e-6f,
+                  "obj: MTL Kd reaches mesh");
+            CHECK(m.meshes[0].has_ke && fabs(m.meshes[0].ke[2] - 0.2f) < 1e-6f,
+                  "obj: MTL Ke reaches mesh");
+            CHECK(m.meshes[0].has_map_kd &&
+                  !strcmp(m.meshes[0].map_kd, "painted.tga"),
+                  "obj: MTL map_Kd reaches mesh");
+            CHECK(m.meshes[0].uvs != NULL,
+                  "obj: texture coordinates survive material import");
+        }
+        lv_model_free(&m);
+        remove("t_mat.obj");
+        remove("t_mat.mtl");
+    }
+
     /* ---- obj robustness: negative indices wrap, tabs split (n4) ---- */
     {
         remove("t_neg.obj");
