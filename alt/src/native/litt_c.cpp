@@ -106,16 +106,15 @@ const char* litt_state_name(LittEngineState state) {
 
 bool litt_connect(LittEngine* eng, const char* host, int port) {
     if (!eng) return false;
-    
-    litt_engine_log(eng, "Connecting to %s:%d", host, port);
-    eng->state = LITT_ENGINE_STATE_CONNECTING;
-    
-    // Simulate connection (real implementation would use TCP)
-    // For now, just set as connected
-    eng->state = LITT_ENGINE_STATE_CONNECTED;
-    litt_engine_log(eng, "Connected to %s:%d", host, port);
-    
-    return true;
+
+    // The release-supported C bridge is an in-process API. It does not own a
+    // transport implementation yet, so claiming a successful TCP connection
+    // would violate Litt's honest-failure contract.
+    eng->state = LITT_ENGINE_STATE_ERROR;
+    litt_engine_log(eng,
+        "Remote connection unavailable (host=%s port=%d): no release-supported transport backend",
+        host ? host : "(null)", port);
+    return false;
 }
 
 void litt_disconnect(LittEngine* eng) {
