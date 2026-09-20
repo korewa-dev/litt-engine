@@ -14,6 +14,8 @@
 #include "litt_serialization.h"
 #include "litt_scripting.h"
 #include "litt_networking.h"
+#include "litt_audio.h"
+#include <fstream>
 #ifdef _WIN32
 #include "litt_gpu_software.h"
 #endif
@@ -279,6 +281,58 @@ static void test_software_renderer_hardening() {
 
 
 
+
+static void write_test_wav(const char* path) {
+    const unsigned char wav[] = {
+        'R','I','F','F', 38,0,0,0, 'W','A','V','E',
+        'f','m','t',' ', 16,0,0,0,
+        1,0, 1,0, 0x40,0x1F,0,0,
+        0x40,0x1F,0,0, 1,0, 8,0,
+        'd','a','t','a', 1,0,0,0,
+        128, 0
+    };
+    std::ofstream out(path, std::ios::binary | std::ios::trunc);
+    out.write(reinterpret_cast<const char*>(wav), sizeof(wav));
+}
+
+static void test_audio_facade() {
+    const char* path = "litt_test_audio.wav";
+    write_test_wav(path);
+
+    AudioManager audio;
+    audio.init();
+    auto clip = audio.loadClip(path);
+    check(clip != nullptr, "audio_wav_load");
+    check(clip && clip->sampleRate == 8000 && clip->channels == 1 &&
+          clip->lengthSamples == 1 && clip->data.size() == 1,
+          "audio_wav_metadata");
+    check(clip && near_float(clip->duration(), 1.0f / 8000.0f, 1e-7f),
+          "audio_wav_duration");
+
+    audio.setMasterVolume(2.0f);
+    check(near_float(audio.getMasterVolume(), 1.0f), "audio_master_volume_clamp_high");
+    audio.setMasterVolume(-1.0f);
+    check(near_float(audio.getMasterVolume(), 0.0f), "audio_master_volume_clamp_low");
+
+    bool missing_rejected = audio.loadClip("does-not-exist.wav") == nullptr;
+    check(missing_rejected, "audio_missing_file_rejected");
+
+    bool source_failed = false;
+    try { (void)audio.addSource("missing", "does-not-exist.wav"); }
+    catch (const std::runtime_error&) { source_failed = true; }
+    check(source_failed, "audio_source_missing_clip_rejected");
+
+    if (clip) {
+        AudioSource source;
+        source.clip = clip;
+        source.play();
+        source.update(1.0f);
+        check(source.state == AudioState::Stopped, "audio_source_stops_at_end");
+    }
+
+    std::remove(path);
+}
+
 static void test_networking_facade() {
     auto& server = NetworkServer::get_instance();
     check(!server.start(7777), "network_server_reports_unavailable");
@@ -497,6 +551,7 @@ int main() {
     test_affine_inverse();
     test_scripting_vm();
     test_event_dispatcher();
+    test_audio_facade();
     test_networking_facade();
     test_serialization_api();
     test_scripting_facade();
