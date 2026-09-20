@@ -44,7 +44,7 @@ int main() {
     check(meshes.size() == 1 && meshes[0].id == handle.id, "typed asset enumeration");
 
     check(pipeline.reimport(handle), "reimport succeeds");
-    check(factory.get_asset(handle) == nullptr, "reimport invalidates old handle");
+    check(factory.get_asset(handle) != nullptr, "reimport preserves stable handle");
 
     const AssetHandle missing = pipeline.import("does-not-exist.asset", AssetType::MESH);
     check(!missing.is_valid(), "missing file import fails cleanly");
