@@ -106,8 +106,11 @@ public:
     bool play(const std::string& name) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (!initialized_ || !hwave_out_) return false;
+        releaseBuffersLocked(false);
         auto clip_it = clips_.find(name);
         if (clip_it == clips_.end() || !clip_it->second) return false;
+        auto existing = sources_.find(name);
+        if (existing != sources_.end() && existing->second.state == AudioState::Playing) return false;
 
         // waveOut is opened as 44.1 kHz stereo PCM16. Until a resampler/mixer is
         // implemented, reject mismatched clips instead of playing them at the
@@ -140,8 +143,8 @@ public:
     }
 
     bool pause(const std::string& name) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return sources_.count(name) != 0 ? false : false;
+        (void)name;
+        return false;
     }
 
     bool set_volume(const std::string& name, float volume) {
@@ -227,6 +230,7 @@ private:
             file.read((char*)&chunkSize, 4);
             
             if (strncmp(chunkId, "fmt ", 4) == 0) {
+                if (haveFormat || chunkSize < 16) return false;
                 uint16_t format, channels;
                 uint32_t sampleRate, byteRate;
                 uint16_t blockAlign;
@@ -275,6 +279,8 @@ private:
             } else {
                 file.seekg(chunkSize, std::ios::cur);
             }
+            if (chunkSize & 1u) file.seekg(1, std::ios::cur);
+            if (!file) return false;
         }
         
         return clip.data.size() > 0;
