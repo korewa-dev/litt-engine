@@ -40,9 +40,24 @@ bin/littview: bin/litt_json.o bin/litt_obj.o bin/litt_world.o bin/littview_main.
 	$(CXX) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 	@echo "[build] bin/littview OK"
 
-bin/liblitt.so: litt_c.cpp litt_c.h littcore/litt_json.c littcore/litt_obj.c littcore/litt_world.c
+bin/litt_json_pic.o: littcore/litt_json.c littcore/litt_json.h
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) -fPIC -shared litt_c.cpp littcore/litt_json.c littcore/litt_obj.c littcore/litt_world.c -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+
+bin/litt_obj_pic.o: littcore/litt_obj.c littcore/litt_obj.h
+	@mkdir -p bin
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+
+bin/litt_world_pic.o: littcore/litt_world.c littcore/litt_world.h
+	@mkdir -p bin
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+
+bin/litt_c_pic.o: litt_c.cpp litt_c.h
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -fPIC -c $< -o $@
+
+bin/liblitt.so: bin/litt_json_pic.o bin/litt_obj_pic.o bin/litt_world_pic.o bin/litt_c_pic.o
+	$(CXX) -shared $^ -o $@ $(LDFLAGS) $(LDLIBS)
 	@echo "[build] bin/liblitt.so OK"
 
 sdk: bin/liblitt.so
