@@ -2,6 +2,7 @@
 // Ties all subsystems together for AI-driven game development
 
 #pragma once
+#include <cstdint>
 #include "litt_math.h"
 #include "litt_ecs.h"
 #include "litt_gpu.h"
