@@ -209,41 +209,41 @@ private:
     }
     
     bool loadTga(const std::string& path, AssetTexture& texture) {
-        // Simple TGA loader
         FILE* f = fopen(path.c_str(), "rb");
         if (!f) return false;
-        
-        // Read header
-        char idLength, colormapType, imageType;
-        fread(&idLength, 1, 1, f);
-        fread(&colormapType, 1, 1, f);
-        if (fread(&idLength, 1, 1, f) != 1 || fread(&colormapType, 1, 1, f) != 1 ||
-            fread(&imageType, 1, 1, f) != 1) { fclose(f); return false; }
-        
-        // Skip to width/height
-        fseek(f, 12, SEEK_CUR);
-        uint16_t width, height, bpp;
-        fread(&width, 2, 1, f);
-        fread(&height, 2, 1, f);
-        fread(&bpp, 1, 1, f);
-        
+
+        unsigned char header[18] = {};
+        if (fread(header, 1, sizeof(header), f) != sizeof(header)) { fclose(f); return false; }
+        const uint8_t idLength = header[0];
+        const uint8_t colormapType = header[1];
+        const uint8_t imageType = header[2];
+        const uint16_t width = static_cast<uint16_t>(header[12] | (header[13] << 8));
+        const uint16_t height = static_cast<uint16_t>(header[14] | (header[15] << 8));
+        const uint8_t bpp = header[16];
+        if (colormapType != 0 || imageType != 2 || width == 0 || height == 0 ||
+            (bpp != 24 && bpp != 32)) { fclose(f); return false; }
+
+        const size_t channels = bpp / 8u;
+        if (static_cast<size_t>(width) > std::numeric_limits<size_t>::max() / height ||
+            static_cast<size_t>(width) * height > std::numeric_limits<size_t>::max() / channels) {
+            fclose(f); return false;
+        }
+        const size_t imageSize = static_cast<size_t>(width) * height * channels;
+        constexpr size_t kMaxImageBytes = 256u * 1024u * 1024u;
+        if (imageSize == 0 || imageSize > kMaxImageBytes ||
+            fseek(f, static_cast<long>(idLength), SEEK_CUR) != 0) { fclose(f); return false; }
+
+        std::vector<uint8_t> data(imageSize);
+        const bool ok = fread(data.data(), 1, imageSize, f) == imageSize;
+        fclose(f);
+        if (!ok) return false;
         texture.width = width;
         texture.height = height;
-        texture.channels = bpp / 8;
-        
-        // Read image data
-        size_t imageSize = width * height * texture.channels;
-        texture.data.resize(imageSize);
-        fread(texture.data.data(), 1, imageSize, f);
-        
-        const bool ok = imageType == 2 && colormapType == 0 && width > 0 && height > 0 &&
-                        (bpp == 24 || bpp == 32) && imageSize <= 256u * 1024u * 1024u &&
-                        fread(texture.data.data(), 1, imageSize, f) == imageSize;
-        fclose(f);
-        if (!ok) { texture.data.clear(); texture.width = texture.height = 0; return false; }
+        texture.channels = static_cast<uint32_t>(channels);
+        texture.data = std::move(data);
         return true;
     }
-    
+
     bool compileShader(Shader&) {
         return false;
     }
