@@ -13,6 +13,7 @@
 #include "litt_scripting_vm.h"
 #include "litt_event.h"
 #include "litt_audio.h"
+#include "litt_asset.h"
 #ifdef _WIN32
 #include "litt_gpu_software.h"
 #endif
@@ -375,6 +376,28 @@ static void test_audio_wav_loading() {
     check(near_float(audio.getMasterVolume(), 0.0f), "audio_master_volume_nan_ignored");
 
     std::remove(path);
+}
+
+static void test_asset_facade_truthfulness() {
+    AssetManager assets;
+    check(assets.loadModel("") == nullptr, "asset_empty_model_path_rejected");
+    check(assets.loadModel("missing.obj") == nullptr, "asset_missing_obj_rejected");
+    check(assets.models.empty(), "asset_failed_model_not_cached");
+    check(assets.loadTexture("missing.tga") == nullptr, "asset_missing_texture_rejected");
+    check(assets.textures.empty(), "asset_failed_texture_not_cached");
+    check(assets.loadShader("missing.vert", "missing.frag") == nullptr,
+          "asset_unsupported_shader_compile_rejected");
+    check(assets.shaders.empty(), "asset_failed_shader_not_cached");
+
+    const char* obj = "litt_asset_contract.obj";
+    {
+        std::ofstream out(obj);
+        out << "v 0 0 0\n" << "v 1 0 0\n" << "v 0 1 0\n" << "f 1 2 3\n";
+    }
+    auto model = assets.loadModel(obj);
+    check(model && model->positions.size() == 3 && model->indices.size() == 3,
+          "asset_basic_obj_loads");
+    std::remove(obj);
 }
 
 static void test_event_dispatcher() {
