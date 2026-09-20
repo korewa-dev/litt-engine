@@ -3,7 +3,6 @@
 
 #pragma once
 #include <cstdint>
-#include "litt_scripting.h"
 #include <stack>
 #include <vector>
 #include <string>
