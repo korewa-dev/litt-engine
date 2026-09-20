@@ -5,6 +5,10 @@
 #include <string.h>
 #include <math.h>
 
+#ifndef _MSC_VER
+#include <strings.h>
+#endif
+
 #ifdef _MSC_VER
 #define strncasecmp _strnicmp   /* n9: no POSIX strncasecmp under MSVC */
 #endif
