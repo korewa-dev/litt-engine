@@ -176,7 +176,7 @@ private:
         if (!token || !*token) return false;
         char* end = nullptr;
         long v = std::strtol(token, &end, 10);
-        if (end == token || *end != '\\0' || v == 0) return false;
+        if (end == token || *end != '\0' || v == 0) return false;
         long resolved = v > 0 ? v - 1 : static_cast<long>(count) + v;
         if (resolved < 0 || resolved >= count) return false;
         out = static_cast<int>(resolved);
