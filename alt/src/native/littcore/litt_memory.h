@@ -64,8 +64,13 @@ template<typename T, size_t InitialCapacity = 128>
 class ObjectPool {
 public:
     ObjectPool() {
-        for (size_t i = 0; i < InitialCapacity; i++) {
-            available.push_back(allocate_slot());
+        try {
+            for (size_t i = 0; i < InitialCapacity; i++) {
+                available.push_back(allocate_slot());
+            }
+        } catch (...) {
+            for (auto& slot : available) std::free(slot.raw);
+            throw;
         }
     }
 
@@ -96,8 +101,16 @@ public:
             slot = allocate_slot();
         }
 
-        new (slot.aligned) T();
-        in_use.push_back(slot);
+        bool constructed = false;
+        try {
+            new (slot.aligned) T();
+            constructed = true;
+            in_use.push_back(slot);
+        } catch (...) {
+            if (constructed) slot.aligned->~T();
+            available.push_back(slot);
+            throw;
+        }
         return slot.aligned;
     }
 
@@ -112,6 +125,7 @@ public:
                 return;
             }
         }
+        throw std::invalid_argument("object pool handle is not live");
     }
 
     bool is_valid(Handle obj) const {
@@ -226,6 +240,7 @@ public:
 
     BumpAllocator(size_t chunk_size = 1024 * 1024)
         : chunk_size_(chunk_size), current_chunk_(nullptr), offset_(0) {
+        if (chunk_size_ == 0) throw std::invalid_argument("chunk size must be greater than zero");
         current_chunk_ = allocate_chunk(chunk_size_);
     }
 
@@ -432,6 +447,10 @@ public:
 
     void deallocate(void* ptr) {
         if (!ptr) return;
+        if (!owns(ptr)) throw std::invalid_argument("pointer does not belong to free list allocator");
+        for (FreeBlock* b = free_list_; b; b = b->next) {
+            if (b == ptr) throw std::invalid_argument("double free in free list allocator");
+        }
         FreeBlock* block = static_cast<FreeBlock*>(ptr);
         block->next = free_list_;
         free_list_ = block;
@@ -444,6 +463,19 @@ public:
     }
 
 private:
+    bool owns(const void* ptr) const {
+        const auto address = reinterpret_cast<uintptr_t>(ptr);
+        for (Slab* slab = slabs_; slab; slab = slab->next) {
+            const auto begin = reinterpret_cast<uintptr_t>(slab->blocks);
+            const size_t bytes = memory_detail::checked_mul(block_size_, slab->block_count);
+            if (address >= begin) {
+                const uintptr_t offset = address - begin;
+                if (offset < bytes && (offset % block_size_) == 0) return true;
+            }
+        }
+        return false;
+    }
+
     static Slab* create_slab(size_t block_size, size_t count) {
         const size_t total = memory_detail::checked_mul(block_size, count);
         void* raw = std::malloc(total);

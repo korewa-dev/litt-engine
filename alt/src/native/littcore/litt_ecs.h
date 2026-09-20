@@ -13,6 +13,7 @@
 #include <functional>
 #include <algorithm>
 #include <stdexcept>
+#include <limits>
 
 namespace litt {
 
@@ -90,6 +91,9 @@ public:
             id = free_ids_.back();
             free_ids_.pop_back();
         } else {
+            if (next_ == INVALID) {
+                throw std::overflow_error("entity id space exhausted");
+            }
             id = next_++;
             generations_.push_back(0);
         }
@@ -105,8 +109,14 @@ public:
             storage->remove(e);
         }
         alive_.erase(e.id);
-        ++generations_[e.id];
-        free_ids_.push_back(e.id);
+        // A wrapped generation could make a very old stale handle valid
+        // again. Retire the ID instead of recycling it at generation max.
+        if (generations_[e.id] == std::numeric_limits<uint32_t>::max()) {
+            generations_[e.id] = 0;
+        } else {
+            ++generations_[e.id];
+            free_ids_.push_back(e.id);
+        }
     }
 
     bool is_alive(Entity e) const {
@@ -152,9 +162,10 @@ public:
     }
     
     void each(std::function<void(Entity)> fn) {
-        for (EntityId id : alive_) {
-            fn(Entity(id, generations_[id]));
-        }
+        std::vector<Entity> snapshot;
+        snapshot.reserve(alive_.size());
+        for (EntityId id : alive_) snapshot.emplace_back(id, generations_[id]);
+        for (Entity e : snapshot) if (is_alive(e)) fn(e);
     }
     
     template<typename T>
@@ -162,11 +173,15 @@ public:
         auto it = storages_.find(typeid(T));
         if (it == storages_.end()) return;
         auto& s = *static_cast<Storage<T>*>(it->second.get());
-        for (size_t i = 0; i < s.entities.size(); i++) {
-            const EntityId id = s.entities[i];
-            Entity entity(id, generations_[id]);
+        std::vector<Entity> snapshot;
+        snapshot.reserve(s.entities.size());
+        for (EntityId id : s.entities) {
+            if (id < generations_.size()) snapshot.emplace_back(id, generations_[id]);
+        }
+        for (Entity entity : snapshot) {
             if (!is_alive(entity)) continue;
-            fn(entity, &s.data[i]);
+            T* component = s.get(entity);
+            if (component) fn(entity, component);
         }
     }
     struct System {
