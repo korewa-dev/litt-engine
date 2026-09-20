@@ -30,11 +30,11 @@ struct Frustum {
     // Test if sphere is inside frustum
     bool contains_sphere(const Vec3& center, float radius) const;
     
-    // Test if AABB is inside frustum
-    bool contains_aabb(const AABB& aabb) const;
+    // Test if Aabb is inside frustum
+    bool contains_aabb(const Aabb& aabb) const;
     
-    // Test if AABB intersects frustum (partial visibility)
-    bool intersects_aabb(const AABB& aabb) const;
+    // Test if Aabb intersects frustum (partial visibility)
+    bool intersects_aabb(const Aabb& aabb) const;
 };
 
 // Occlusion culling using software rasterization
@@ -49,8 +49,8 @@ public:
     // Render occluder (depth-only)
     void render_occluder(const Vec3* vertices, uint32_t count);
     
-    // Test if AABB is occluded
-    bool is_occluded(const AABB& aabb) const;
+    // Test if Aabb is occluded
+    bool is_occluded(const Aabb& aabb) const;
     
     // Test if sphere is occluded
     bool is_occluded_sphere(const Vec3& center, float radius) const;
@@ -80,15 +80,15 @@ public:
     void set_occlusion_culler(std::shared_ptr<OcclusionCuller> culler);
     
     // Perform frustum culling
-    void frustum_cull(const std::vector<AABB>& objects, 
+    void frustum_cull(const std::vector<Aabb>& objects, 
                       std::vector<uint32_t>& visible_indices);
     
     // Perform occlusion culling
-    void occlusion_cull(const std::vector<AABB>& objects,
+    void occlusion_cull(const std::vector<Aabb>& objects,
                         std::vector<uint32_t>& visible_indices);
     
     // Combined culling (frustum + occlusion)
-    void cull(const std::vector<AABB>& objects,
+    void cull(const std::vector<Aabb>& objects,
               std::vector<uint32_t>& visible_indices);
     
     // Get stats

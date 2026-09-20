@@ -52,8 +52,8 @@ public:
     // Query objects in sphere
     std::vector<uint32_t> query_sphere(const Vec3& center, float radius) const;
     
-    // Query objects in AABB
-    std::vector<uint32_t> query_aabb(const AABB& aabb) const;
+    // Query objects in Aabb
+    std::vector<uint32_t> query_aabb(const Aabb& aabb) const;
     
     // Query nearest neighbors
     std::vector<uint32_t> query_nearest(const Vec3& point, uint32_t max_count) const;
@@ -82,7 +82,7 @@ public:
     SpatialHashCollision(float cell_size = 1.0f);
     
     // Insert collider
-    void insert(uint32_t object_id, const AABB& bounds);
+    void insert(uint32_t object_id, const Aabb& bounds);
     
     // Query potential collisions
     std::vector<std::pair<uint32_t, uint32_t>> query_collision_pairs() const;
