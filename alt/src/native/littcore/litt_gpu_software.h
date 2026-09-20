@@ -135,13 +135,19 @@ public:
     }
     
     std::unique_ptr<GPUBuffer> create_buffer(const BufferDesc& desc) override {
-        return nullptr;
+        if (desc.size == 0) return nullptr;
+        return std::make_unique<SoftwareBuffer>(desc);
     }
     
-    void update_buffer(GPUBuffer* /*buffer*/, const void* /*data*/, size_t /*size*/) override {}
+    void update_buffer(GPUBuffer* buffer, const void* data, size_t size) override {
+        if (buffer) buffer->update(data, size);
+    }
     void destroy_buffer(GPUBuffer* /*buffer*/) override {}
     
     std::unique_ptr<GPUTexture> create_texture(const TextureDesc& desc) override {
+        if (desc.width == 0 || desc.height == 0 || desc.format != TextureFormat::RGBA8) {
+            return nullptr;
+        }
         return std::make_unique<SoftwareTexture>(desc);
     }
     
@@ -570,6 +576,29 @@ private:
         depth = std::clamp(ndc_z * 0.5f + 0.5f, 0.0f, 1.0f);
         return true;
     }
+
+    class SoftwareBuffer : public GPUBuffer {
+    public:
+        explicit SoftwareBuffer(const BufferDesc& desc)
+            : bytes_(desc.size), usage_(desc.usage) {
+            if (desc.data && desc.size) {
+                std::memcpy(bytes_.data(), desc.data, desc.size);
+            }
+        }
+
+        void update(const void* data, size_t size) override {
+            if (!data || size > bytes_.size()) return;
+            std::memcpy(bytes_.data(), data, size);
+        }
+        void* map() override { return bytes_.empty() ? nullptr : bytes_.data(); }
+        void unmap() override {}
+        size_t get_size() const override { return bytes_.size(); }
+        GPUBufferUsage get_type() const override { return usage_; }
+
+    private:
+        std::vector<uint8_t> bytes_;
+        GPUBufferUsage usage_;
+    };
 
     class SoftwareTexture : public GPUTexture {
     public:
