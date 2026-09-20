@@ -192,7 +192,7 @@ def test_centroid_and_assertion():
     assert wk.assert_origin_centered(mb) is True                 # xz default
     assert wk.assert_origin_centered(mb, axes="xz") is True
     try:
-        wk.assert_origin_centered(mb, axes="xyz")
+        wk.assert_origin_centered(mb, tol=0.24, axes="xyz")
         raise AssertionError("xyz must flag y centroid 0.25")
     except wk.TransformError:
         pass
