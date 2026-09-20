@@ -28,6 +28,12 @@ static bool near(float a, float b, float eps = 1e-4f) {
     return std::fabs(a - b) <= eps;
 }
 
+static bool near_vec(const Vec3& a, const Vec3& b, float eps = 1e-4f) {
+    return near(a.x, b.x, eps) &&
+           near(a.y, b.y, eps) &&
+           near(a.z, b.z, eps);
+}
+
 static PhysicsBody body_at(const Vec3& center, float half = 1.0f) {
     PhysicsBody body;
     body.centerOfMass = center;
