@@ -21,12 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build stabilization regressions with ASan/UBSan
-        run: >-
-          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer
-          -fsanitize=address,undefined
-          -I alt/src/native/littcore
-          alt/src/native/littcore/litt_stabilization_tests.cpp
-          -o stabilization_sanitized
+        run: |
+          gcc -std=c11 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json_sanitized.o
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_stabilization_tests.cpp /tmp/litt_json_sanitized.o -o stabilization_sanitized
       - name: Run ASan/UBSan stabilization regressions
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
@@ -39,7 +36,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build and run C runtime contract tests
         run: make -C alt/src/native test
-
 
   c-bridge-contract:
     runs-on: ubuntu-latest
@@ -120,11 +116,14 @@ jobs:
         run: >-
           cl /nologo /std:c++17 /EHsc /I alt\\src\\native /I alt\\src\\native\\littcore
           /c alt\\src\\native\\litt_c.cpp /Fo:litt_c.obj
+      - name: Build scene JSON dependency
+        shell: cmd
+        run: cl /nologo /TC /I alt\src\native\littcore /c alt\src\native\littcore\litt_json.c /Fo:litt_json.obj
       - name: Build Windows stabilization regressions
         shell: cmd
         run: >-
           cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore
-          alt\src\native\littcore\litt_stabilization_tests.cpp
+          alt\src\native\littcore\litt_stabilization_tests.cpp litt_json.obj
           /Fe:stabilization_windows.exe gdi32.lib user32.lib winmm.lib
       - name: Run Windows stabilization regressions
         shell: cmd
@@ -134,7 +133,7 @@ jobs:
         run: >-
           cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore
           alt\src\native\littcore\litt_engine_tests.cpp
-          alt\src\native\littcore\litt_math.cpp
+          alt\src\native\littcore\litt_math.cpp litt_json.obj
           /Fe:tests.exe gdi32.lib user32.lib winmm.lib
       - name: Run native engine tests
         shell: cmd
