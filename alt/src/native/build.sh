@@ -1,40 +1,54 @@
-// Build script for Litt Engine - lightweight, cross-platform
-# Usage: build.sh [linux|windows|android] [debug|release]
+#!/usr/bin/env bash
+# Litt Engine native build wrapper for POSIX hosts.
+# Usage: ./build.sh [linux|macos] [debug|release]
 
-#!/bin/bash
-set -e
+set -euo pipefail
 
 PLATFORM="${1:-linux}"
 CONFIG="${2:-release}"
-CFLAGS="-std=c11 -O2 -Wall"
-CXXFLAGS="-std=c++17 -O2 -Wall"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 case "$PLATFORM" in
-    windows) CFLAGS+=" -DWIN32"; CXXFLAGS+=" -DWIN32"; LIBS="-lgdi32 -lcomctl32" ;;
-    linux) CFLAGS+=" -DLINUX"; CXXFLAGS+=" -DLINUX"; LIBS="-lX11 -lvulkan-1 -ldl" ;;
-    android) CFLAGS+=" -DANDROID -fPIC"; CXXFLAGS+=" -DANDROID -fPIC"; LIBS="-landroid -lEGL -lGLESv3" ;;
+    linux|macos)
+        ;;
+    windows)
+        echo "[error] build.sh does not emulate MSVC. Use build.ps1 on Windows." >&2
+        exit 2
+        ;;
+    android)
+        echo "[error] Android is not a supported native release target yet." >&2
+        exit 2
+        ;;
+    *)
+        echo "[error] unknown platform: $PLATFORM" >&2
+        exit 2
+        ;;
 esac
 
-[ "$CONFIG" = "debug" ] && CFLAGS+=" -g -O0" && CXXFLAGS+=" -g -O0"
+case "$CONFIG" in
+    debug)
+        OPT_FLAGS="-O0 -g"
+        ;;
+    release)
+        OPT_FLAGS="-O2"
+        ;;
+    *)
+        echo "[error] unknown configuration: $CONFIG" >&2
+        exit 2
+        ;;
+esac
 
-BINDIR="bin/$PLATFORM/$CONFIG"
-mkdir -p "$BINDIR"
+CC_BIN="${CC:-cc}"
+CXX_BIN="${CXX:-c++}"
+COMMON_WARN="-Wall -Wextra"
+CFLAGS_VALUE="-std=c11 $OPT_FLAGS $COMMON_WARN -I."
+CXXFLAGS_VALUE="-std=c++17 $OPT_FLAGS $COMMON_WARN -I."
 
-echo "[build] $PLATFORM $CONFIG"
+echo "[build] Litt native $PLATFORM $CONFIG"
+make -C "$SCRIPT_DIR" clean
+make -C "$SCRIPT_DIR" \
+    CC="$CC_BIN" CXX="$CXX_BIN" \
+    CFLAGS="$CFLAGS_VALUE" CXXFLAGS="$CXXFLAGS_VALUE" \
+    all test selftest
 
-# Compile C
-for f in littcore/*.c; do
-    [ -f "$f" ] && $CC $CFLAGS -c "$f" -o "$BINDIR/$(basename $f .c).o" && echo "  [ok] $(basename $f)"
-done
-
-# Compile C++
-for f in littcore/*.cpp; do
-    [ -f "$f" ] && $CXX $CXXFLAGS -c "$f" -o "$BINDIR/$(basename $f .cpp).o" && echo "  [ok] $(basename $f)"
-done
-
-# Link
-$CC "$BINDIR"/*.o -o "$BINDIR/littcli" $LIBS 2>/dev/null && echo "  [ok] littcli"
-$CXX "$BINDIR"/*.o game.cpp -o "$BINDIR/game" $LIBS 2>/dev/null && echo "  [ok] game"
-$CXX "$BINDIR"/*.o litteditor.cpp -o "$BINDIR/LittEditor" $LIBS 2>/dev/null && echo "  [ok] LittEditor"
-
-echo "[done] bin/$PLATFORM/$CONFIG/"
+echo "[done] supported native tools and tests passed"
