@@ -85,6 +85,38 @@ def digest_tree(root):
         h.update(rel.encode("utf-8") + b"\0" + canonical_bytes(p) + b"\0")
     return h.hexdigest()
 
+def semantic_digest(root):
+    """Cross-OS digest of runtime-relevant generated structure.
+
+    Geometry is represented by topology and rounded bounds so harmless libm
+    last-bit differences do not make Windows and Linux projects look different.
+    """
+    h = hashlib.sha256()
+    for name in ("brief.json", "world_state.json", "assets/asset_index.json",
+                 "assets/scenes/world.lscn.json"):
+        p = root / name
+        if p.is_file():
+            h.update(name.encode() + b"\0" + canonical_bytes(p) + b"\0")
+    for p in sorted((root / "assets" / "models").glob("*.obj"), key=lambda x: x.name):
+        verts, faces = [], 0
+        for line in p.read_text(encoding="utf-8").splitlines():
+            parts = line.split()
+            if parts and parts[0] == "v" and len(parts) >= 4:
+                try:
+                    verts.append(tuple(float(v) for v in parts[1:4]))
+                except ValueError:
+                    pass
+            elif parts and parts[0] == "f":
+                faces += 1
+        bounds = []
+        if verts:
+            for axis in range(3):
+                bounds.extend((round(min(v[axis] for v in verts), 7),
+                               round(max(v[axis] for v in verts), 7)))
+        record = json.dumps([p.name, len(verts), faces, bounds], separators=(",", ":"))
+        h.update(record.encode("utf-8") + b"\0")
+    return h.hexdigest()
+
 def reference_problems(root):
     """Catch references that pass generation but fail on another machine."""
     problems = []
