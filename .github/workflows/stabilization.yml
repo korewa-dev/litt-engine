@@ -38,6 +38,17 @@ jobs:
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
         run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized
 
+  gpu-rendering-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run headless GPU/software contract
+        run: make -C alt/src/native gpu-contract-test
+      - name: Build and run GPU contract with ASan/UBSan
+        run: |
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gpu.cpp alt/src/native/littcore/litt_gpu_contract_tests.cpp -o /tmp/litt_gpu_sanitized
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/litt_gpu_sanitized
+
   networking-contract:
     runs-on: ubuntu-latest
     steps:
@@ -141,6 +152,9 @@ jobs:
             cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c header_smoke.cpp /Fo:header_smoke.obj
             if ($LASTEXITCODE -ne 0) { Write-Error "Standalone header compile failed: $name"; exit $LASTEXITCODE }
           }
+      - name: Build and run Windows GPU/software contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_gpu.cpp alt\\src\\native\\littcore\\litt_gpu_contract_tests.cpp /Fe:gpu_contract_windows.exe gdi32.lib user32.lib && gpu_contract_windows.exe
       - name: Compile C bridge
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\src\native /I alt\src\native\littcore /c alt\src\native\litt_c.cpp /Fo:litt_c.obj
