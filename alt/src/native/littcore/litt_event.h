@@ -11,6 +11,9 @@
 #include <algorithm>
 #include <queue>
 #include <string>
+#include <cstdint>
+#include <cstdio>
+#include <stdexcept>
 
 namespace litt {
 
@@ -54,64 +57,86 @@ struct StringEvent : IEvent {
 // Dispatcher with type-erased callbacks
 class EventDispatcher {
 public:
+    using SubscriptionId = uint64_t;
+
     EventDispatcher() = default;
     ~EventDispatcher() = default;
 
     EventDispatcher(const EventDispatcher&) = delete;
     EventDispatcher& operator=(const EventDispatcher&) = delete;
 
-    // Subscribe to an event type
     template<typename EventType>
-    void subscribe(std::function<void(const EventType&)> callback) {
-        std::type_index type = typeid(EventType);
-        
-        // Wrap typed callback in generic wrapper
-        auto generic_wrapper = [callback](const IEvent& event) {
-            const EventType& typed_event = dynamic_cast<const EventType&>(event);
-            callback(typed_event);
+    SubscriptionId subscribe(std::function<void(const EventType&)> callback) {
+        if (!callback) return 0;
+
+        auto generic_wrapper = [callback = std::move(callback)](const IEvent& event) {
+            const EventType* typed_event = dynamic_cast<const EventType*>(&event);
+            if (typed_event) callback(*typed_event);
         };
 
         std::lock_guard<std::mutex> lock(mutex_);
-        listeners_[type].push_back(generic_wrapper);
+        const SubscriptionId id = next_subscription_id_++;
+        listeners_[std::type_index(typeid(EventType))].push_back(
+            Listener{id, std::move(generic_wrapper)});
+        return id;
     }
 
-    // Unsubscribe
     template<typename EventType>
-    void unsubscribe(std::function<void(const EventType&)> callback) {
-        std::type_index type = typeid(EventType);
+    bool unsubscribe(SubscriptionId id) {
+        if (id == 0) return false;
+        std::lock_guard<std::mutex> lock(mutex_);
+        const std::type_index type = typeid(EventType);
         auto it = listeners_.find(type);
-        if (it != listeners_.end()) {
-            // Remove matching callbacks
-            auto& callbacks = it->second;
-            callbacks.erase(
-                std::remove_if(callbacks.begin(), callbacks.end(), [&](const std::function<void(const IEvent&)>& cb) {
-                    // We can't easily compare function objects, so this is a simple approach
-                    return false;
-                }),
-                callbacks.end()
-            );
-        }
+        if (it == listeners_.end()) return false;
+
+        auto& callbacks = it->second;
+        const auto old_size = callbacks.size();
+        callbacks.erase(
+            std::remove_if(callbacks.begin(), callbacks.end(),
+                           [id](const Listener& listener) {
+                               return listener.id == id;
+                           }),
+            callbacks.end());
+
+        if (callbacks.empty()) listeners_.erase(it);
+        return callbacks.size() != old_size;
     }
 
-    // Dispatch an event
+    template<typename EventType>
+    size_t unsubscribe_all() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        const auto it = listeners_.find(std::type_index(typeid(EventType)));
+        if (it == listeners_.end()) return 0;
+        const size_t removed = it->second.size();
+        listeners_.erase(it);
+        return removed;
+    }
+
     template<typename EventType>
     void dispatch(const EventType& event) {
-        std::type_index type = typeid(EventType);
-        auto it = listeners_.find(type);
-        if (it != listeners_.end()) {
-            for (auto& cb : it->second) {
-                cb(event);
+        std::vector<std::function<void(const IEvent&)>> callbacks;
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            const auto it = listeners_.find(std::type_index(typeid(EventType)));
+            if (it == listeners_.end()) return;
+            callbacks.reserve(it->second.size());
+            for (const auto& listener : it->second) {
+                callbacks.push_back(listener.callback);
             }
+        }
+
+        for (auto& callback : callbacks) {
+            callback(event);
         }
     }
 
-    // Dispatch with string event
     void dispatch_string(const std::string& message) {
         StringEvent evt(message);
         dispatch<StringEvent>(evt);
     }
 
     size_t subscriber_count() const {
+        std::lock_guard<std::mutex> lock(mutex_);
         size_t count = 0;
         for (const auto& pair : listeners_) {
             count += pair.second.size();
@@ -120,8 +145,14 @@ public:
     }
 
 private:
-    std::unordered_map<std::type_index, std::vector<std::function<void(const IEvent&)>>> listeners_;
+    struct Listener {
+        SubscriptionId id;
+        std::function<void(const IEvent&)> callback;
+    };
+
+    std::unordered_map<std::type_index, std::vector<Listener>> listeners_;
     mutable std::mutex mutex_;
+    SubscriptionId next_subscription_id_ = 1;
 };
 
 // =============================================================================
