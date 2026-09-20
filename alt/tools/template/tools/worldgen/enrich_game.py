@@ -74,23 +74,32 @@ def main():
             gp[key] = brief[key]
 
     # ---- scene surgery ----------------------------------------------------
-    next_id = scene.get("next_id", 1)
-    existing_names = {n.get("name") for n in scene["nodes"]}
+    nodes = scene.setdefault("nodes", [])
+    ids = [n.get("id") for n in nodes if isinstance(n.get("id"), int)]
+    if len(ids) != len(set(ids)):
+        raise ValueError("scene contains duplicate node ids")
+    next_id = max([scene.get("next_id", 1), 1] + [i + 1 for i in ids])
+    existing_by_name = {n.get("name"): n for n in nodes if n.get("name")}
 
     def add(name, pos, tags, scale=(1.0, 1.0, 1.0)):
         nonlocal next_id
-        if name in existing_names:
-            return   # idempotent: re-running enrich must not clone nodes
-        node = {
-            "name": name, "id": next_id, "parent": 0, "children": [],
+        values = {
             "position": [round(float(c), 3) for c in pos],
             "rotation": [0.0, 0.0, 0.0, 1.0],
             "scale": [float(s) for s in scale],
             "visible": True, "layer": 0, "tags": list(tags),
         }
+        if name in existing_by_name:
+            node = existing_by_name[name]
+            node.update(values)
+            return node
+        node = {
+            "name": name, "id": next_id, "parent": 0, "children": [],
+            **values,
+        }
         next_id += 1
-        scene["nodes"].append(node)
-        existing_names.add(name)
+        nodes.append(node)
+        existing_by_name[name] = node
         added_nodes.append((name, tags))
         return node
 
@@ -105,7 +114,7 @@ def main():
         # story layer: item/roster flavor text rides along as a poi notice
         if node is not None:
             poi = spec.get("poi")
-            if poi and "poi" not in spec.get("tags", []):
+            if poi and "poi" not in node.get("tags", []):
                 node.setdefault("tags", []).append("poi")
 
     for z in brief.get("zones", []):
