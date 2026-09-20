@@ -30,6 +30,7 @@ struct SceneNode {
     Vec3 scale = Vec3{1, 1, 1};
     Mat4 transform = Mat4::identity();
     Mat4 inverseTransform = Mat4::identity();
+    bool inverseTransformValid = true;
     
     // Scene owns nodes. Hierarchy links are non-owning pointers so a node
     // cannot be owned both by Scene::nodes and by its parent.
@@ -95,8 +96,14 @@ struct SceneNode {
             transform = local;
         }
 
-        // Inverse for lighting calculations
-        inverseTransform = transform.affine_inverse();
+        // Singular transforms (for example a zero scale axis) have no
+        // inverse. Keep that state explicit instead of asserting/crashing.
+        const float det =
+            transform.m[0] * (transform.m[5] * transform.m[10] - transform.m[9] * transform.m[6]) -
+            transform.m[4] * (transform.m[1] * transform.m[10] - transform.m[9] * transform.m[2]) +
+            transform.m[8] * (transform.m[1] * transform.m[6] - transform.m[5] * transform.m[2]);
+        inverseTransformValid = std::isfinite(det) && std::abs(det) > MATH_EPS;
+        inverseTransform = inverseTransformValid ? transform.affine_inverse() : Mat4::identity();
 
         // Update children
         for (SceneNode* child : children) {
