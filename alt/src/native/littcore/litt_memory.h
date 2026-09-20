@@ -101,10 +101,13 @@ public:
             slot = allocate_slot();
         }
 
+        bool constructed = false;
         try {
             new (slot.aligned) T();
+            constructed = true;
             in_use.push_back(slot);
         } catch (...) {
+            if (constructed) slot.aligned->~T();
             available.push_back(slot);
             throw;
         }
