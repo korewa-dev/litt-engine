@@ -43,7 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from worldkit import (Rng, fbm, value_noise, MeshBuilder, write_mtl_for,
                       emit_chunk, register_index, write_scene, write_state,
-                      append_log, save_prop, Placement, reserve_spot)
+                      append_log, save_prop, Placement, reserve_spot, validate_grid_radius)
 from gen_props import PALETTES, build_prop, parse_mtl
 
 CHUNK, RES, AMP, FREQ = 16.0, 24, 2.5, 0.12
@@ -234,13 +234,13 @@ def build(mb, fn):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=".")
-    ap.add_argument("--radius", type=int, default=2)
+    ap.add_argument("--radius", type=int, default=2)\n    ap.add_argument("--allow-large-grid", action="store_true",\n                    help="explicitly allow terrain radius 5..16 (stress/large worlds)")
     ap.add_argument("--seed", type=int, default=None,
                     help="master seed -> derived terrain/scatter streams "
                          "(omitted: legacy terrain 666 / scatter 2077)")
     ap.add_argument("--agent", default="ai-agent")
     ap.add_argument("--prompt", default=None)
-    a = ap.parse_args()
+    a = ap.parse_args()\n\n    try:\n        validate_grid_radius(a.radius, a.allow_large_grid)\n    except RuntimeError as exc:\n        ap.error(str(exc))
 
     seed_t, seed_s = (LEGACY_T, LEGACY_S) if a.seed is None else derive_seeds(a.seed)
 
