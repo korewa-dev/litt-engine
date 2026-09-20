@@ -30,7 +30,8 @@ struct AssetHandle {
     AssetType type = AssetType::TEXTURE;
     bool loaded = false;
     
-    bool is_valid() const { return id != 0 && loaded; }
+    bool is_valid() const { return id != 0; }
+    bool is_loaded() const { return loaded; }
 };
 
 // Asset metadata
@@ -153,7 +154,9 @@ public:
 
 private:
     AssetPipeline() = default;
-    bool async_loading_ = true;
+    // Imports are synchronous today. Keep the switch explicit and disabled
+    // until a real worker/queue owns loading rather than pretending it is async.
+    bool async_loading_ = false;
     std::vector<AssetHandle> import_queue_;
 };
 

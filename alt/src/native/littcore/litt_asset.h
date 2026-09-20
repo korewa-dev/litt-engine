@@ -13,6 +13,8 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
+#include <limits>
+#include <sstream>
 
 namespace litt {
 
@@ -172,38 +174,86 @@ private:
     std::unordered_map<std::string, std::function<std::shared_ptr<void>(const std::string&)>> loaders_;
     
     bool loadObj(const std::string& path, Model& model) {
-        // Simple OBJ loader
-        FILE* f = fopen(path.c_str(), "r");
-        if (!f) return false;
-        
-        char line[1024];
-        while (fgets(line, sizeof(line), f)) {
-            if (strncmp(line, "v ", 2) == 0) {
+        std::ifstream file(path);
+        if (!file) return false;
+
+        struct FaceIndex { int p = 0, t = 0, n = 0; };
+        auto resolve = [](int index, size_t count) -> int {
+            if (index > 0) return index <= static_cast<int>(count) ? index - 1 : -1;
+            if (index < 0) {
+                const int resolved = static_cast<int>(count) + index;
+                return resolved >= 0 ? resolved : -1;
+            }
+            return -1;
+        };
+        auto parse_index = [](const std::string& token, FaceIndex& out) {
+            try {
+                const size_t first = token.find('/');
+                if (first == std::string::npos) {
+                    out.p = std::stoi(token);
+                    return true;
+                }
+                const std::string p = token.substr(0, first);
+                if (p.empty()) return false;
+                out.p = std::stoi(p);
+                const size_t second = token.find('/', first + 1);
+                const std::string t = token.substr(first + 1,
+                    second == std::string::npos ? std::string::npos : second - first - 1);
+                if (!t.empty()) out.t = std::stoi(t);
+                if (second != std::string::npos) {
+                    const std::string n = token.substr(second + 1);
+                    if (!n.empty()) out.n = std::stoi(n);
+                }
+                return true;
+            } catch (...) {
+                return false;
+            }
+        };
+
+        std::string line;
+        while (std::getline(file, line)) {
+            std::istringstream stream(line);
+            std::string kind;
+            if (!(stream >> kind) || kind[0] == '#') continue;
+            if (kind == "v") {
                 float x, y, z;
-                sscanf(line + 2, "%f %f %f", &x, &y, &z);
-                model.positions.push_back({x, y, z});
-            } else if (strncmp(line, "vn ", 3) == 0) {
+                if (stream >> x >> y >> z) model.positions.push_back({x, y, z});
+            } else if (kind == "vn") {
                 float x, y, z;
-                sscanf(line + 3, "%f %f %f", &x, &y, &z);
-                model.normals.push_back({x, y, z});
-            } else if (strncmp(line, "vt ", 3) == 0) {
+                if (stream >> x >> y >> z) model.normals.push_back({x, y, z});
+            } else if (kind == "vt") {
                 float u, v;
-                sscanf(line + 3, "%f %f", &u, &v);
-                model.texCoords.push_back({u, v});
-            } else if (strncmp(line, "f ", 2) == 0) {
-                // Parse face
-                int v1, v2, v3;
-                sscanf(line + 2, "%d/%d/%d %d/%d/%d %d/%d/%d",
-                       &v1, &v1, &v1, &v2, &v2, &v2, &v3, &v3, &v3);
-                model.indices.push_back(v1 - 1);
-                model.indices.push_back(v2 - 1);
-                model.indices.push_back(v3 - 1);
+                if (stream >> u >> v) model.texCoords.push_back({u, v});
+            } else if (kind == "f") {
+                std::vector<FaceIndex> face;
+                std::string token;
+                while (stream >> token) {
+                    FaceIndex index;
+                    if (!parse_index(token, index)) { face.clear(); break; }
+                    face.push_back(index);
+                }
+                if (face.size() < 3) continue;
+                for (size_t i = 1; i + 1 < face.size(); ++i) {
+                    const FaceIndex tri[3] = {face[0], face[i], face[i + 1]};
+                    for (const FaceIndex& source : tri) {
+                        const int p = resolve(source.p, model.positions.size());
+                        if (p < 0) { model.vertices.clear(); model.indices.clear(); return false; }
+                        Vertex vertex{};
+                        vertex.position = model.positions[static_cast<size_t>(p)];
+                        const int n = resolve(source.n, model.normals.size());
+                        if (n >= 0) vertex.normal = model.normals[static_cast<size_t>(n)];
+                        const int t = resolve(source.t, model.texCoords.size());
+                        if (t >= 0) vertex.texCoord = model.texCoords[static_cast<size_t>(t)];
+                        vertex.color = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+                        model.vertices.push_back(vertex);
+                        model.indices.push_back(static_cast<uint32_t>(model.vertices.size() - 1));
+                    }
+                }
             }
         }
-        fclose(f);
-        return !model.positions.empty() && !model.indices.empty();
+        return !model.positions.empty() && !model.vertices.empty() && !model.indices.empty();
     }
-    
+
     bool loadTga(const std::string& path, AssetTexture& texture) {
         // Simple TGA loader
         FILE* f = fopen(path.c_str(), "rb");
@@ -236,7 +286,12 @@ private:
         texture.channels = bpp / 8;
         
         // Read image data
-        size_t imageSize = width * height * texture.channels;
+        const size_t pixelCount = static_cast<size_t>(width) * static_cast<size_t>(height);
+        if (texture.channels == 0 ||
+            pixelCount > std::numeric_limits<size_t>::max() / texture.channels) {
+            fclose(f); return false;
+        }
+        const size_t imageSize = pixelCount * texture.channels;
         texture.data.resize(imageSize);
         if (fread(texture.data.data(), 1, imageSize, f) != imageSize) {
             texture.data.clear(); fclose(f); return false;
@@ -248,7 +303,31 @@ private:
                 std::swap(texture.data[i], texture.data[i + 2]);
             }
         }
-        (void)descriptor;
+        // Normalize origin to top-left. Bit 5 selects top vs bottom origin;
+        // bit 4 selects left vs right origin.
+        const size_t rowBytes = static_cast<size_t>(width) * texture.channels;
+        if ((descriptor & 0x20u) == 0u) {
+            std::vector<uint8_t> row(rowBytes);
+            for (uint32_t y = 0; y < height / 2; ++y) {
+                uint8_t* top = texture.data.data() + static_cast<size_t>(y) * rowBytes;
+                uint8_t* bottom = texture.data.data() +
+                    static_cast<size_t>(height - 1 - y) * rowBytes;
+                std::memcpy(row.data(), top, rowBytes);
+                std::memcpy(top, bottom, rowBytes);
+                std::memcpy(bottom, row.data(), rowBytes);
+            }
+        }
+        if ((descriptor & 0x10u) != 0u) {
+            for (uint32_t y = 0; y < height; ++y) {
+                uint8_t* row = texture.data.data() + static_cast<size_t>(y) * rowBytes;
+                for (uint32_t x = 0; x < width / 2; ++x) {
+                    uint8_t* left = row + static_cast<size_t>(x) * texture.channels;
+                    uint8_t* right = row + static_cast<size_t>(width - 1 - x) * texture.channels;
+                    for (uint32_t channel = 0; channel < texture.channels; ++channel)
+                        std::swap(left[channel], right[channel]);
+                }
+            }
+        }
         fclose(f);
         return true;
     }

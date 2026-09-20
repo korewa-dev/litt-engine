@@ -32,10 +32,14 @@ std::string fnv1a_file(const std::string& path) {
 
 uint64_t modified_time(const fs::path& path) {
     std::error_code ec;
-    const auto value = fs::last_write_time(path, ec);
+    const auto fileTime = fs::last_write_time(path, ec);
     if (ec) return 0;
-    return static_cast<uint64_t>(
-        std::chrono::duration_cast<std::chrono::seconds>(value.time_since_epoch()).count());
+    // file_time_type is not required to use the Unix epoch. Translate it to
+    // system_clock before exposing seconds as portable metadata.
+    const auto systemTime = std::chrono::time_point_cast<std::chrono::seconds>(
+        fileTime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
+    const auto seconds = systemTime.time_since_epoch().count();
+    return seconds > 0 ? static_cast<uint64_t>(seconds) : 0;
 }
 } // namespace
 
@@ -74,7 +78,9 @@ Asset* AssetFactory::load_asset(const std::string& path, AssetType type) {
     auto asset = create(type);
     if (!asset || !asset->load(path)) return nullptr;
 
+    if (next_id_ == 0) return nullptr;
     const uint32_t id = next_id_++;
+    if (assets_.find(id) != assets_.end()) return nullptr;
     asset->handle_.id = id;
     asset->handle_.type = type;
     asset->handle_.loaded = true;
@@ -92,7 +98,7 @@ Asset* AssetFactory::get_asset(const AssetHandle& handle) {
 
 void AssetFactory::unload_asset(const AssetHandle& handle) {
     const auto it = assets_.find(handle.id);
-    if (it == assets_.end()) return;
+    if (it == assets_.end() || it->second->get_type() != handle.type) return;
     it->second->unload();
     assets_.erase(it);
 }
@@ -120,6 +126,11 @@ bool AssetPipeline::reimport(const AssetHandle& handle) {
     Asset* current = AssetFactory::get_instance().get_asset(handle);
     if (!current) return false;
     const std::string path = current->get_path();
+    if (path.empty()) return false;
+    // Validate the source before changing the current asset. A failed
+    // reimport must not destroy a previously usable asset identity/state.
+    std::error_code ec;
+    if (!fs::is_regular_file(path, ec) || ec) return false;
     current->unload();
     return current->load(path);
 }
