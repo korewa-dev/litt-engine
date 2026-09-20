@@ -48,6 +48,7 @@ int main() {
     test_scripting_vm();
     test_event_dispatcher();
     test_audio_wav_loading();
+    test_asset_facade_truthfulness();
 #ifdef _WIN32
     test_software_renderer_hardening();
 #endif
