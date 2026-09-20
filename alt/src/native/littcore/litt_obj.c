@@ -210,7 +210,7 @@ int lv_obj_load(const char *path, LvModel *out) {
                 snprintf(me->name, sizeof(me->name), "%s", cur_name);    \
                 me->verts = cv.v; me->vn = cv.n / 3;                     \
                 me->idx = ci.v; me->in = ci.n;                           \
-                me->uvs = ct.n == cv.n ? ct.v : NULL;                    \
+                me->uvs = ct.n == me->vn * 2 ? ct.v : NULL;                    \
                 if (me->uvs) { ct.v = NULL; ct.n = ct.cap = 0; }         \
                 mesh_bounds(me);                                         \
                 {   LvMtl *mt = mtl_find(&lib, cur_mtl);                 \
