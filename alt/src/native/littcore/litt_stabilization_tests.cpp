@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <stdexcept>
+#include <fstream>
 
 #include "litt_math.h"
 #include "litt_memory.h"
@@ -11,6 +12,7 @@
 #include "litt_scene.h"
 #include "litt_scripting_vm.h"
 #include "litt_event.h"
+#include "litt_audio.h"
 #ifdef _WIN32
 #include "litt_gpu_software.h"
 #endif
@@ -274,6 +276,50 @@ static void test_software_renderer_hardening() {
 #endif
 
 
+
+static void test_audio_wav_loading() {
+    const char* path = "litt_audio_contract_test.wav";
+    {
+        std::ofstream f(path, std::ios::binary);
+        const uint32_t data_size = 4;
+        const uint32_t riff_size = 36 + data_size;
+        const uint32_t sample_rate = 8000;
+        const uint32_t byte_rate = 8000;
+        const uint16_t format = 1;
+        const uint16_t channels = 1;
+        const uint16_t block_align = 1;
+        const uint16_t bits = 8;
+        const unsigned char samples[4] = {0, 128, 255, 128};
+        f.write("RIFF", 4);
+        f.write(reinterpret_cast<const char*>(&riff_size), 4);
+        f.write("WAVEfmt ", 8);
+        const uint32_t fmt_size = 16;
+        f.write(reinterpret_cast<const char*>(&fmt_size), 4);
+        f.write(reinterpret_cast<const char*>(&format), 2);
+        f.write(reinterpret_cast<const char*>(&channels), 2);
+        f.write(reinterpret_cast<const char*>(&sample_rate), 4);
+        f.write(reinterpret_cast<const char*>(&byte_rate), 4);
+        f.write(reinterpret_cast<const char*>(&block_align), 2);
+        f.write(reinterpret_cast<const char*>(&bits), 2);
+        f.write("data", 4);
+        f.write(reinterpret_cast<const char*>(&data_size), 4);
+        f.write(reinterpret_cast<const char*>(samples), data_size);
+    }
+
+    AudioManager audio;
+    audio.init();
+    auto clip = audio.loadClip(path);
+    check(clip != nullptr, "audio_pcm_wav_loads");
+    check(clip && clip->channels == 1 && clip->sampleRate == 8000 &&
+          clip->lengthSamples == 4 && clip->data.size() == 4,
+          "audio_pcm_wav_metadata");
+    check(clip && near_float(clip->data[1], 0.0f), "audio_pcm_wav_decode");
+
+    auto missing = audio.loadClip("litt_missing_audio_file.wav");
+    check(missing == nullptr, "audio_missing_file_fails_honestly");
+    std::remove(path);
+}
+
 static void test_event_dispatcher() {
     EventDispatcher dispatcher;
     int calls = 0;
@@ -409,6 +455,7 @@ int main() {
     test_affine_inverse();
     test_scripting_vm();
     test_event_dispatcher();
+    test_audio_wav_loading();
 #ifdef _WIN32
     test_software_renderer_hardening();
 #endif
