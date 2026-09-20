@@ -156,7 +156,19 @@ struct CallFrame {
 // Script VM
 class ScriptVM {
 public:
+    static constexpr size_t DEFAULT_MAX_SOURCE_BYTES = 64 * 1024;
+    static constexpr size_t DEFAULT_MAX_INSTRUCTIONS = 100000;
+    static constexpr size_t DEFAULT_MAX_STACK_VALUES = 4096;
+
     ScriptVM() = default;
+
+    void set_limits(size_t max_source_bytes, size_t max_instructions, size_t max_stack_values) {
+        max_source_bytes_ = max_source_bytes ? max_source_bytes : 1;
+        max_instructions_ = max_instructions ? max_instructions : 1;
+        max_stack_values_ = max_stack_values ? max_stack_values : 1;
+    }
+
+    const std::string& last_error() const { return last_error_; }
     
     // Initialize VM
     bool initialize() {
@@ -178,25 +190,49 @@ public:
     
     // Compile script text to bytecode
     bool compile(const std::string& script_name, const std::string& source) {
-        VMFunction func(script_name);
-        
-        // Simple line-based compiler
-        std::istringstream stream(source);
-        std::string line;
-        while (std::getline(stream, line)) {
-            if (line.empty() || line[0] == '#') continue;
-            compileLine(line, func);
+        last_error_.clear();
+        if (script_name.empty()) {
+            last_error_ = "script name is empty";
+            return false;
         }
-        
+        if (source.size() > max_source_bytes_) {
+            last_error_ = "script source exceeds configured byte limit";
+            return false;
+        }
+
+        VMFunction func(script_name);
+        try {
+            std::istringstream stream(source);
+            std::string line;
+            while (std::getline(stream, line)) {
+                if (line.empty() || line[0] == '#') continue;
+                compileLine(line, func);
+                if (func.bytecode.size() > 65535 || func.constants.size() > 255 ||
+                    func.local_names.size() > 255) {
+                    last_error_ = "script exceeds VM bytecode/index limits";
+                    return false;
+                }
+            }
+        } catch (const std::exception& e) {
+            last_error_ = std::string("compile error: ") + e.what();
+            return false;
+        }
+
         func.bytecode.push_back((uint8_t)OpCode::HALT);
-        functions_[script_name] = func;
+        functions_[script_name] = std::move(func);
         return true;
     }
     
     // Execute script
     bool execute(const std::string& script_name) {
+        last_error_.clear();
         auto it = functions_.find(script_name);
-        if (it == functions_.end()) return false;
+        if (it == functions_.end()) {
+            last_error_ = "script not found";
+            return false;
+        }
+        stack_.clear();
+        frames_.clear();
         return executeFunction(&it->second);
     }
     
@@ -405,7 +441,14 @@ private:
     }
     
     bool run() {
+        size_t instructions = 0;
         while (!frames_.empty()) {
+            if (++instructions > max_instructions_) {
+                last_error_ = "instruction limit exceeded";
+                frames_.clear();
+                stack_.clear();
+                return false;
+            }
             CallFrame& frame = frames_.back();
             VMFunction* func = frame.function;
             
@@ -570,11 +613,25 @@ private:
                     frames_.pop_back();
                     break;
                 default:
-                    break;
+                    last_error_ = "invalid opcode";
+                    frames_.clear();
+                    stack_.clear();
+                    return false;
+            }
+            if (stack_.size() > max_stack_values_) {
+                last_error_ = "stack value limit exceeded";
+                frames_.clear();
+                stack_.clear();
+                return false;
             }
         }
         return true;
     }
+
+    size_t max_source_bytes_ = DEFAULT_MAX_SOURCE_BYTES;
+    size_t max_instructions_ = DEFAULT_MAX_INSTRUCTIONS;
+    size_t max_stack_values_ = DEFAULT_MAX_STACK_VALUES;
+    std::string last_error_;
     
     std::unordered_map<std::string, Value> globals_;
     std::unordered_map<std::string, VMFunction> functions_;
