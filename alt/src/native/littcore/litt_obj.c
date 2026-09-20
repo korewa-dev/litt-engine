@@ -3,6 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+
+#define LV_OBJ_MAX_FILE_BYTES (256u * 1024u * 1024u)
+#define LV_OBJ_MAX_FLOATS (16 * 1024 * 1024)
+#define LV_OBJ_MAX_INDICES (12 * 1024 * 1024)
+#define LV_OBJ_MAX_REMAP (4 * 1024 * 1024)
 
 typedef struct {
     float *v; int n, cap;
@@ -10,7 +16,9 @@ typedef struct {
 
 static int fv_push(FVec *a, float x) {
     if (a->n == a->cap) {
+        if (a->cap >= LV_OBJ_MAX_FLOATS) return 1;
         int nc = a->cap ? a->cap * 2 : 64;
+        if (nc < a->cap || nc > LV_OBJ_MAX_FLOATS) nc = LV_OBJ_MAX_FLOATS;
         float *nv = realloc(a->v, sizeof(float) * (size_t)nc);
         if (!nv) return 1;               /* m4: old buffer intact, caller errs */
         a->v = nv;
@@ -26,7 +34,9 @@ typedef struct {
 
 static int iv_push(IVec *a, unsigned x) {
     if (a->n == a->cap) {
+        if (a->cap >= LV_OBJ_MAX_INDICES) return 1;
         int nc = a->cap ? a->cap * 2 : 64;
+        if (nc < a->cap || nc > LV_OBJ_MAX_INDICES) nc = LV_OBJ_MAX_INDICES;
         unsigned *nv = realloc(a->v, sizeof(unsigned) * (size_t)nc);
         if (!nv) return 1;               /* m4 */
         a->v = nv;
@@ -49,7 +59,9 @@ static int rmap_get(RMap *m, int gpos, int guv, int gnorm, unsigned *out) {
 
 static int rmap_put(RMap *m, int gpos, int guv, int gnorm, unsigned local) {
     if (m->n == m->cap) {
+        if (m->cap >= LV_OBJ_MAX_REMAP) return 1;
         int nc = m->cap ? m->cap * 2 : 64;
+        if (nc < m->cap || nc > LV_OBJ_MAX_REMAP) nc = LV_OBJ_MAX_REMAP;
         Remap *nv = realloc(m->v, sizeof(Remap) * (size_t)nc);
         if (!nv) return 1;               /* m4 */
         m->v = nv;
@@ -175,7 +187,7 @@ int lv_obj_load(const char *path, LvModel *out) {
     fseek(f, 0, SEEK_END);
     long sz = ftell(f);
     fseek(f, 0, SEEK_SET);
-    if (sz <= 0) { fclose(f); return 1; }
+    if (sz <= 0 || (unsigned long)sz > LV_OBJ_MAX_FILE_BYTES) { fclose(f); return 1; }
     char *buf = malloc((size_t)sz + 1);
     if (!buf) { fclose(f); return 1; }
     size_t rd = fread(buf, 1, (size_t)sz, f);
@@ -289,14 +301,16 @@ int lv_obj_load(const char *path, LvModel *out) {
             int uvtex[64];                       /* 0-based vt idx, -1 none */
             int nc = 0;
             char *tok = line + 2;
-            while (*tok && nc < 64) {
+            int face_overflow = 0;
+            while (*tok) {
+                if (nc >= 64) { face_overflow = 1; break; }
                 while (*tok == ' ' || *tok == '\t') tok++;  /* n4: tabs split too */
                 if (!*tok) break;
                 int vi = 0;
                 int got = sscanf(tok, "%d", &vi);
                 if (!got) break;
                 if (vi < 0) vi += (int)(gp.n / 3) + 1;      /* n4: OBJ relative wrap */
-                if (vi < 1) break;     /* 0 or out-of-range negative: drop face */
+                if (vi < 1 || vi > (int)(gp.n / 3)) { nc = 0; break; }
                 /* optional /vt[/vn] slots after the position index */
                 uvtex[nc] = -1;
                 const char *slash = strchr(tok, '/');
@@ -305,14 +319,16 @@ int lv_obj_load(const char *path, LvModel *out) {
                     int tv;
                     if (sscanf(slash + 1, "%d", &tv) == 1) {
                         if (tv < 0) tv += (int)(gt.n / 2) + 1;  /* relative wrap */
-                        if (tv >= 1) uvtex[nc] = tv - 1;
+                        if (tv >= 1 && tv <= (int)(gt.n / 2)) uvtex[nc] = tv - 1;
+                        else { nc = 0; break; }
                     }
                 }
                 /* skip to next whitespace-delimited token */
                 while (*tok && *tok != ' ' && *tok != '\t') tok++;
                 corners[nc++] = (unsigned)(vi - 1);
             }
-            if (nc >= 3) {
+            if (face_overflow) { oom = 1; }
+            if (nc >= 3 && !oom) {
                 for (int i = 2; i < nc && !oom; i++) {
                     unsigned tri[3] = { corners[0], corners[i - 1], corners[i] };
                     int tri_t[3] = { uvtex[0], uvtex[i - 1], uvtex[i] };
