@@ -2,6 +2,8 @@
 // Uses Windows multimedia API - no external dependencies
 
 #pragma once
+#include <memory>
+#include <cstdint>
 #include "litt_audio.h"
 #include <windows.h>
 #include <mmsystem.h>
