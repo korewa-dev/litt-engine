@@ -362,13 +362,9 @@ public:
         }
         if (ok && candidate.root->parent) ok=false;
         if (ok) {
-            // A valid scene is one tree rooted at the declared root. Reject
-            // disconnected top-level nodes instead of silently accepting a forest.
-            for (const auto& e : candidate.nodes) {
-                if (e.second.get() != candidate.root && !e.second->parent) {
-                    ok=false; break;
-                }
-            }
+            size_t topLevel=0;
+            for (const auto& e : candidate.nodes) if (!e.second->parent) ++topLevel;
+            if (topLevel == 0) ok=false;
         }
         if (ok) {
             if (maxId == UINT32_MAX) { ok=false; }
