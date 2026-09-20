@@ -39,7 +39,7 @@ struct AudioClip {
     uint32_t lengthSamples = 0;
     
     float duration() const {
-        return (float)lengthSamples / sampleRate;
+        return sampleRate == 0 ? 0.0f : (float)lengthSamples / sampleRate;
     }
 };
 
@@ -79,13 +79,21 @@ struct AudioSource {
     }
     
     void update(float dt) {
-        if (state != AudioState::Playing || !clip) return;  // null-clip guard
+        if (state != AudioState::Playing || !clip || !std::isfinite(dt) || dt <= 0.0f ||
+            !std::isfinite(pitch) || pitch <= 0.0f) return;
+        const float duration = clip->duration();
+        if (!(duration > 0.0f) || !std::isfinite(duration)) {
+            stop();
+            return;
+        }
         currentTime += dt * pitch;
-        if (currentTime >= clip->duration()) {
+        if (currentTime >= duration) {
             if (loop) {
-                currentTime = 0.0f;
+                currentTime = std::fmod(currentTime, duration);
             } else {
                 state = AudioState::Stopped;
+                currentTime = 0.0f;
+                velocity = 0.0f;
             }
         }
     }
@@ -171,7 +179,8 @@ public:
     }
     
     void setMasterVolume(float volume) {
-        masterVolume_ = volume;
+        if (!std::isfinite(volume)) return;
+        masterVolume_ = std::clamp(volume, 0.0f, 1.0f);
     }
     
     float getMasterVolume() const {
@@ -216,6 +225,7 @@ private:
 
             if (std::memcmp(id, "fmt ", 4) == 0) {
                 if (size < 16) return false;
+                if (have_fmt) return false;
                 uint32_t byte_rate = 0;
                 uint16_t block_align = 0;
                 if (!file.read(reinterpret_cast<char*>(&format), 2) ||
@@ -226,15 +236,24 @@ private:
                     !file.read(reinterpret_cast<char*>(&bits_per_sample), 2)) {
                     return false;
                 }
+                if (format != 1 || channels == 0 || channels > 2 || sample_rate == 0 ||
+                    (bits_per_sample != 8 && bits_per_sample != 16) ||
+                    block_align != channels * (bits_per_sample / 8u) ||
+                    byte_rate != sample_rate * block_align) return false;
                 if (size > 16) file.seekg(static_cast<std::streamoff>(size - 16), std::ios::cur);
+                if (!file) return false;
                 have_fmt = true;
             } else if (std::memcmp(id, "data", 4) == 0) {
                 if (!have_fmt || format != 1 || channels == 0 ||
                     sample_rate == 0 || (bits_per_sample != 8 && bits_per_sample != 16)) {
                     return false;
                 }
+                constexpr uint32_t kMaxPcmBytes = 256u * 1024u * 1024u;
+                if (size == 0 || size > kMaxPcmBytes) return false;
+                const uint32_t bytes_per_frame = channels * (bits_per_sample / 8u);
+                if (bytes_per_frame == 0 || size % bytes_per_frame != 0) return false;
                 pcm.resize(size);
-                if (size && !file.read(reinterpret_cast<char*>(pcm.data()), size)) return false;
+                if (!file.read(reinterpret_cast<char*>(pcm.data()), size)) return false;
             } else {
                 file.seekg(static_cast<std::streamoff>(size), std::ios::cur);
             }

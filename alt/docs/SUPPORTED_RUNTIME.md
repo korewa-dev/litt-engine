@@ -49,7 +49,7 @@ The repository Stabilization workflow is the cross-platform release gate.
 - scene hierarchy and runtime components
 - software/native preview rendering
 - physics
-- audio
+- audio playback/backend integration (PCM WAV decoding and source state semantics are regression-tested, but no cross-platform playback backend is release-supported)
 - scripting VM
 - asset/material pipeline
 

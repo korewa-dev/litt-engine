@@ -317,6 +317,33 @@ static void test_audio_wav_loading() {
 
     auto missing = audio.loadClip("litt_missing_audio_file.wav");
     check(missing == nullptr, "audio_missing_file_fails_honestly");
+
+    AudioClip empty;
+    empty.sampleRate = 0;
+    check(near_float(empty.duration(), 0.0f), "audio_zero_rate_duration_safe");
+
+    AudioSource source;
+    source.clip = clip;
+    source.play();
+    source.update(-1.0f);
+    check(near_float(source.currentTime, 0.0f), "audio_negative_dt_ignored");
+    source.pitch = std::nanf("");
+    source.update(1.0f);
+    check(near_float(source.currentTime, 0.0f), "audio_nan_pitch_ignored");
+    source.pitch = 1.0f;
+    source.loop = true;
+    source.currentTime = clip ? clip->duration() * 3.0f : 0.0f;
+    source.update(0.001f);
+    check(clip && source.currentTime >= 0.0f && source.currentTime < clip->duration(),
+          "audio_loop_wraps_large_time");
+
+    audio.setMasterVolume(2.0f);
+    check(near_float(audio.getMasterVolume(), 1.0f), "audio_master_volume_clamped_high");
+    audio.setMasterVolume(-1.0f);
+    check(near_float(audio.getMasterVolume(), 0.0f), "audio_master_volume_clamped_low");
+    audio.setMasterVolume(std::nanf(""));
+    check(near_float(audio.getMasterVolume(), 0.0f), "audio_master_volume_nan_ignored");
+
     std::remove(path);
 }
 
