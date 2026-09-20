@@ -19,9 +19,13 @@ def main():
         if ca is None or cb is None:
             failures.append("%s missing from one report" % name)
             continue
-        if ca.get("digest") != cb.get("digest"):
-            failures.append("%s digest differs: %s != %s" %
-                            (name, ca.get("digest"), cb.get("digest")))
+        da = ca.get("structure_digest")
+        db = cb.get("structure_digest")
+        if not da or not db:
+            failures.append("%s missing structure digest" % name)
+        elif da != db:
+            failures.append("%s generated structure differs: %s != %s" %
+                            (name, da, db))
     if failures:
         print("Cross-OS WorldGen determinism FAILED:")
         for failure in failures:
