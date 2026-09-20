@@ -1,31 +1,62 @@
-# Litt Engine — Game Build Makefile
-# Use these targets to build games the correct way.
+# Litt Engine developer entry points.
+# The supported runtime is headless-first; native release contracts live under
+# alt/src/native and are shared with CI.
 
-.PHONY: game validate clean test stabilization-test cpp-game
-
-# Default game name (override with: make game GAME=mygame)
+PYTHON ?= python3
+CXX ?= c++
 GAME ?= mygame
+DESC ?=
 
-# One-command full game
+NATIVE_DIR := alt/src/native
+CORE_DIR := $(NATIVE_DIR)/littcore
+CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra
+CPPFLAGS ?= -I $(CORE_DIR)
+
+ifeq ($(OS),Windows_NT)
+PLATFORM_LIBS := -lgdi32 -luser32 -lwinmm
+else
+PLATFORM_LIBS :=
+endif
+
+.PHONY: game validate clean clean-game clean-native test stabilization-test \
+        native-release engine-system-test cpp-game release-gate
+
 game:
-	python alt/tools/template/tools/worldgen/make_game.py --about "$(DESC)" --out-dir alt/Project/$(GAME)
+	$(PYTHON) alt/tools/template/tools/worldgen/make_game.py --about "$(DESC)" --out-dir alt/Project/$(GAME)
 
-# Validate existing game
 validate:
-	python alt/tools/template/tools/assets/verify_project.py $(GAME)
+	$(PYTHON) alt/tools/template/tools/assets/verify_project.py alt/Project/$(GAME)
 
-# Clean game build
-clean:
+clean: clean-native
+
+clean-game:
 	rm -rf alt/Project/$(GAME)
 
-# Build C++ engine test
-test:
-	g++ -std=c++17 -I alt/src/native/littcore -o tests.exe alt/src/native/littcore/litt_engine_tests.cpp alt/src/native/littcore/litt_math.cpp -lgdi32 -luser32 -lwinmm
+clean-native:
+	$(MAKE) -C $(NATIVE_DIR) clean
+	rm -f stabilization_tests.exe engine_system_tests.exe
 
-# Build focused stabilization regression tests (platform-independent core)
 stabilization-test:
-	g++ -std=c++17 -I alt/src/native/littcore -o stabilization_tests.exe alt/src/native/littcore/litt_stabilization_tests.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o stabilization_tests.exe $(CORE_DIR)/litt_stabilization_tests.cpp $(PLATFORM_LIBS)
+	./stabilization_tests.exe
 
-# Build game with C++ engine
+engine-system-test:
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o engine_system_tests.exe \
+		$(CORE_DIR)/litt_engine_tests.cpp $(CORE_DIR)/litt_math.cpp $(PLATFORM_LIBS)
+	./engine_system_tests.exe
+
+native-release:
+	$(MAKE) -C $(NATIVE_DIR) release-test
+
+test: stabilization-test native-release
+
+release-gate: test engine-system-test
+	$(PYTHON) alt/tools/template/tools/worldgen/test_worldkit.py
+	$(PYTHON) alt/tools/template/tools/worldgen/test_gen_props.py
+	$(NATIVE_DIR)/bin/littcli validate alt/Project/example-village --frames 60
+
 cpp-game:
-	g++ -std=c++17 -I alt/src/native/littcore -o $(GAME).exe alt/Project/$(GAME)/engine/game.cpp alt/src/native/littcore/litt_obj.c alt/src/native/littcore/litt_json.c alt/src/native/littcore/litt_world.c -lgdi32 -luser32 -lwinmm
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $(GAME).exe \
+		alt/Project/$(GAME)/engine/game.cpp \
+		$(CORE_DIR)/litt_obj.c $(CORE_DIR)/litt_json.c $(CORE_DIR)/litt_world.c \
+		$(PLATFORM_LIBS)
