@@ -57,6 +57,21 @@ jobs:
       - name: Run C bridge contract tests
         run: /tmp/litt_c_tests
 
+
+  cpp-engine-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build C++ engine lifecycle contract
+        run: >-
+          g++ -std=c++17 -O2 -Wall -Wextra
+          -I alt/src/native/littcore
+          alt/src/native/littcore/litt_engine_lifecycle_tests.cpp
+          alt/src/native/littcore/litt_math.cpp
+          -o /tmp/litt_engine_lifecycle_tests
+      - name: Run C++ engine lifecycle contract
+        run: /tmp/litt_engine_lifecycle_tests
+
   generated-game-contract:
     runs-on: ubuntu-latest
     steps:
@@ -116,6 +131,16 @@ jobs:
       - name: Run Windows stabilization regressions
         shell: cmd
         run: stabilization_windows.exe
+      - name: Build Engine lifecycle contract
+        shell: cmd
+        run: >-
+          cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore
+          alt\\src\\native\\littcore\\litt_engine_lifecycle_tests.cpp
+          alt\\src\\native\\littcore\\litt_math.cpp
+          /Fe:engine_lifecycle_windows.exe gdi32.lib user32.lib winmm.lib
+      - name: Run Engine lifecycle contract
+        shell: cmd
+        run: engine_lifecycle_windows.exe
       - name: Build native engine tests
         shell: cmd
         run: >-
