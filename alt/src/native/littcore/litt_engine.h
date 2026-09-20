@@ -167,12 +167,16 @@ public:
     // Scene Management
     // =====================================================================
     
-    void load_scene(const std::string& path) {
-        log_info("Loading scene: " + path);
+    bool load_scene(const std::string& path) {
+        (void)path;
+        log_error("Scene loading is unavailable: Scene deserialization is not implemented");
+        return false;
     }
     
-    void save_scene(const std::string& path) {
-        log_info("Saving scene: " + path);
+    bool save_scene(const std::string& path) {
+        (void)path;
+        log_error("Scene saving is unavailable: Scene serialization is not implemented");
+        return false;
     }
     
     // =====================================================================
