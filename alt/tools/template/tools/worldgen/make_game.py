@@ -163,6 +163,7 @@ def scene_layout(game_dir):
         (gdir / "assets/scenes/world.lscn.json").read_text(encoding="utf-8"))
     lo = [None] * 3
     hi = [None] * 3
+    supports = []
     for node in scene["nodes"]:
         tags = set(node.get("tags", []))
         if not (tags & {"floor", "level", "track", "board", "hub", "terrain"}):
@@ -191,6 +192,8 @@ def scene_layout(game_dir):
         pos = node.get("position", [0, 0, 0])
         scale = node.get("scale", [1, 1, 1])
         rotation = node.get("rotation", [0, 0, 0, 1])
+        node_lo = [None] * 3
+        node_hi = [None] * 3
         # Match native runtime model_aabb(): transform all eight local AABB
         # corners by authored scale, quaternion rotation, then translation.
         for mask in range(8):
@@ -201,22 +204,32 @@ def scene_layout(game_dir):
             for i in range(3):
                 lo[i] = world[i] if lo[i] is None else min(lo[i], world[i])
                 hi[i] = world[i] if hi[i] is None else max(hi[i], world[i])
+                node_lo[i] = world[i] if node_lo[i] is None else min(node_lo[i], world[i])
+                node_hi[i] = world[i] if node_hi[i] is None else max(node_hi[i], world[i])
+        supports.append({"min": node_lo, "max": node_hi, "top": node_hi[1]})
     if lo[0] is None or hi[0] is None:
         return None
     span_x = hi[0] - lo[0]
     span_z = hi[2] - lo[2]
     return {"min": lo, "max": hi,
             "axis": 0 if span_x >= span_z else 2,
-            "top": hi[1]}
+            "top": hi[1], "supports": supports}
 
 
 def place_on(layout, frac, lift=1.2):
-    """Point standing ON the solid span at fraction along its long axis."""
+    """Point on an actual walkable support, never merely inside the union bbox."""
     a = layout["axis"]
-    p = [layout["min"][0] + (layout["max"][0] - layout["min"][0]) * 0.5,
-         layout["top"] + lift,
-         layout["min"][2] + (layout["max"][2] - layout["min"][2]) * 0.5]
-    p[a] = layout["min"][a] + (layout["max"][a] - layout["min"][a]) * frac
+    target = layout["min"][a] + (layout["max"][a] - layout["min"][a]) * frac
+    supports = layout.get("supports") or [{"min": layout["min"], "max": layout["max"],
+                                           "top": layout["top"]}]
+    covering = [s for s in supports if s["min"][a] <= target <= s["max"][a]]
+    candidates = covering or supports
+    support = min(candidates, key=lambda s: abs(
+        (s["min"][a] + s["max"][a]) * 0.5 - target))
+    cross = 0 if a == 2 else 2
+    p = [0.0, support["top"] + lift, 0.0]
+    p[a] = min(max(target, support["min"][a]), support["max"][a])
+    p[cross] = (support["min"][cross] + support["max"][cross]) * 0.5
     return [round(p[0], 2), round(p[1], 2), round(p[2], 2)]
 
 
