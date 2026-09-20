@@ -1,8 +1,10 @@
-# Litt Engine Implementation Status
+# Litt Engine Implementation Inventory
 
-## Current State Assessment
+> This file inventories implemented surfaces. It is not a release-support matrix. `SUPPORTED_RUNTIME.md` is authoritative for release support and promotion status.
 
-### ✅ Fully Implemented & Tested (58/58 tests passing)
+## Current surface inventory
+
+### Implemented surfaces with varying support levels
 
 **Core Math & Types** (`litt_math.h`):
 - Vec2, Vec3, Vec4 with full arithmetic operators
@@ -54,8 +56,10 @@
 - WorldManager, SceneManager
 - Entity management
 
-**Audio** (`litt_audio.h`):
-- AudioEngine, AudioSource, AudioListener, AudioFormat
+**Audio** (`litt_audio.h`, `litt_audio_wav.h`):
+- PCM WAV decoding and source-state semantics are regression-tested
+- Windows waveOut playback is a bounded backend integration, not a cross-platform release-supported backend
+- Per-source backend pause/stop/volume/pitch/looping/spatial/reverb remain unsupported until a real mixer/voice layer exists
 
 **UI** (`litt_ui.h`):
 - UIElementKind enum, UIPanel, UIButton, UILabel, UISlider
