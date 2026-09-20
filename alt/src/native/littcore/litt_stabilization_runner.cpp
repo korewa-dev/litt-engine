@@ -4,6 +4,9 @@
 #define main litt_legacy_stabilization_main
 #include "litt_stabilization_tests.cpp"
 #undef main
+#ifdef _WIN32
+#include "litt_audio_wav.h"
+#endif
 
 static void test_scene_lifecycle_current_contract() {
     SceneManager manager;
@@ -35,6 +38,23 @@ static void test_scene_lifecycle_current_contract() {
     check(!first.deserializeFromJson("{}"), "scene_deserialize_rejects_invalid_contract");
 }
 
+#ifdef _WIN32
+static void test_windows_audio_failure_contracts() {
+    WindowsWaveOutAudio audio;
+    check(!audio.load_clip("missing", "litt_definitely_missing_audio.wav"),
+          "windows_audio_missing_file_fails_honestly");
+    check(!audio.pause("missing"), "windows_audio_pause_reports_unsupported");
+    check(!audio.stop("missing"), "windows_audio_stop_missing_rejected");
+    check(!audio.set_pitch("missing", 2.0f), "windows_audio_pitch_reports_unsupported");
+    check(!audio.set_volume("missing", 0.5f), "windows_audio_source_volume_reports_unsupported");
+    check(!audio.set_looping("missing", true), "windows_audio_loop_reports_unsupported");
+    check(!audio.set_position("missing", 1.0f, 2.0f, 3.0f),
+          "windows_audio_spatial_reports_unsupported");
+    check(!audio.apply_reverb("missing", 1.0f, 1.0f, 1.0f, 1.0f),
+          "windows_audio_reverb_reports_unsupported");
+}
+#endif
+
 int main() {
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     std::printf("[Stabilization]\n");
@@ -50,6 +70,7 @@ int main() {
     test_audio_wav_loading();
 #ifdef _WIN32
     test_software_renderer_hardening();
+    test_windows_audio_failure_contracts();
 #endif
     test_quaternion_transform_contract();
     test_scene_component_ownership();
