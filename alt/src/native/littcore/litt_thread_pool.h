@@ -2,6 +2,9 @@
 // Multi-threading support with work-stealing, parallel-for, and job dependencies
 
 #pragma once
+#include <utility>
+#include <algorithm>
+#include <cstdint>
 #include <chrono>
 #include <thread>
 #include <mutex>
