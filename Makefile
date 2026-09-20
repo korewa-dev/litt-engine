@@ -20,11 +20,12 @@ clean:
 
 # Build C++ engine test
 test:
-	g++ -std=c++17 -I alt/src/native/littcore -o tests.exe alt/src/native/littcore/litt_engine_tests.cpp alt/src/native/littcore/litt_math.cpp -lgdi32 -luser32 -lwinmm
+	g++ -std=c++17 -I alt/src/native/littcore -o tests.exe alt/src/native/littcore/litt_engine_tests.cpp alt/src/native/littcore/litt_math.cpp alt/src/native/littcore/litt_json.c -lgdi32 -luser32 -lwinmm
 
 # Build focused stabilization regression tests (platform-independent core)
 stabilization-test:
-	g++ -std=c++17 -I alt/src/native/littcore -o stabilization_tests.exe alt/src/native/littcore/litt_stabilization_tests.cpp
+	gcc -std=c11 -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json_stabilization.o
+	g++ -std=c++17 -I alt/src/native/littcore -o stabilization_tests.exe alt/src/native/littcore/litt_stabilization_tests.cpp /tmp/litt_json_stabilization.o
 
 # Build game with C++ engine
 cpp-game:
