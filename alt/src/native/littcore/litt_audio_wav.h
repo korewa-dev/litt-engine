@@ -52,28 +52,27 @@ public:
     }
     
     void shutdown() {
+        std::lock_guard<std::mutex> lock(mutex_);
         if (!initialized_) return;
-        
-        // Stop all sounds
-        for (auto& [name, source] : sources_) {
-            stop(name);
-        }
-        sources_.clear();
-        clips_.clear();
-        
-        // Close wave device
+
         if (hwave_out_) {
             waveOutReset(hwave_out_);
+            releaseBuffersLocked(true);
             waveOutClose(hwave_out_);
             hwave_out_ = nullptr;
         }
-        
+
+        sources_.clear();
+        clips_.clear();
         initialized_ = false;
     }
-    
+
     void update(float dt) {
+
+        if (!std::isfinite(dt) || dt < 0.0f) return;
         std::lock_guard<std::mutex> lock(mutex_);
-        
+        releaseBuffersLocked(false);
+
         // Update all active sources
         for (auto& [name, source] : sources_) {
             if (source.state == AudioState::Playing && source.clip) {
@@ -104,78 +103,70 @@ public:
         return true;
     }
     
-    void play(const std::string& name) {
-        auto clip_it = clips_.find(name);
-        if (clip_it == clips_.end()) return;
-        
+    bool play(const std::string& name) {
         std::lock_guard<std::mutex> lock(mutex_);
-        
+        if (!initialized_ || !hwave_out_) return false;
+        releaseBuffersLocked(false);
+        auto clip_it = clips_.find(name);
+        if (clip_it == clips_.end() || !clip_it->second) return false;
+        auto existing = sources_.find(name);
+        if (existing != sources_.end() && existing->second.state == AudioState::Playing) return false;
+
+        // waveOut is opened as 44.1 kHz stereo PCM16. Until a resampler/mixer is
+        // implemented, reject mismatched clips instead of playing them at the
+        // wrong speed or with the wrong channel layout.
+        if (clip_it->second->sampleRate != 44100 || clip_it->second->channels != 2) {
+            return false;
+        }
+
         AudioSource source;
         source.name = name;
         source.clip = clip_it->second;
         source.state = AudioState::Playing;
-        source.volume = 1.0f;
-        source.pitch = 1.0f;
-        source.loop = false;
-        source.spatial = false;
-        source.currentTime = 0.0f;
-        
         sources_[name] = source;
-        
-        // Write audio buffer to wave device
-        playBuffer(clip_it->second);
+        if (!playBufferLocked(name, clip_it->second)) {
+            sources_.erase(name);
+            return false;
+        }
+        return true;
     }
-    
-    void stop(const std::string& name) {
+
+    bool stop(const std::string& name) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = sources_.find(name);
-        if (it != sources_.end()) {
-            it->second.state = AudioState::Stopped;
-            it->second.currentTime = 0.0f;
-        }
+        if (it == sources_.end()) return false;
+
+        // waveOutReset is device-wide. Pretending it can stop one source would
+        // also kill unrelated playback, so per-source stop is unsupported until
+        // this backend has a real mixer/voice layer.
+        return false;
     }
-    
-    void pause(const std::string& name) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        auto it = sources_.find(name);
-        if (it != sources_.end()) {
-            it->second.state = AudioState::Paused;
-        }
+
+    bool pause(const std::string& name) {
+        (void)name;
+        return false;
     }
-    
-    void set_volume(const std::string& name, float volume) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        auto it = sources_.find(name);
-        if (it != sources_.end()) {
-            it->second.volume = volume;
-        }
+
+    bool set_volume(const std::string& name, float volume) {
+        (void)name; (void)volume;
+        return false;
     }
-    
-    void set_pitch(const std::string& name, float pitch) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        auto it = sources_.find(name);
-        if (it != sources_.end()) {
-            it->second.pitch = pitch;
-        }
+
+    bool set_pitch(const std::string& name, float pitch) {
+        (void)name; (void)pitch;
+        return false;
     }
-    
-    void set_looping(const std::string& name, bool loop) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        auto it = sources_.find(name);
-        if (it != sources_.end()) {
-            it->second.loop = loop;
-        }
+
+    bool set_looping(const std::string& name, bool loop) {
+        (void)name; (void)loop;
+        return false;
     }
-    
-    void set_position(const std::string& name, float x, float y, float z) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        auto it = sources_.find(name);
-        if (it != sources_.end()) {
-            it->second.position = Vec3(x, y, z);
-            it->second.spatial = true;
-        }
+
+    bool set_position(const std::string& name, float x, float y, float z) {
+        (void)name; (void)x; (void)y; (void)z;
+        return false;
     }
-    
+
     void set_listener_position(float x, float y, float z) {
         std::lock_guard<std::mutex> lock(mutex_);
         listener_position_ = Vec3(x, y, z);
@@ -197,42 +188,26 @@ public:
         return master_volume_;
     }
     
-    void set_master_volume(float volume) {
-        master_volume_ = volume;
-        if (hwave_out_) {
-            DWORD vol = (DWORD)(volume * 0xFFFF);
-            vol |= (vol << 16);
-            waveOutSetVolume(hwave_out_, vol);
-        }
+    bool set_master_volume(float volume) {
+        if (!std::isfinite(volume)) return false;
+        const float clamped = std::clamp(volume, 0.0f, 1.0f);
+        if (!hwave_out_) return false;
+        const DWORD channel = static_cast<DWORD>(clamped * 65535.0f);
+        const DWORD packed = channel | (channel << 16);
+        if (waveOutSetVolume(hwave_out_, packed) != MMSYSERR_NOERROR) return false;
+        master_volume_ = clamped;
+        return true;
     }
-    
-    void apply_reverb(const std::string& name, float room_size, float damping, float decay, float diffusion) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        reverb_params_[name] = {room_size, damping, decay, diffusion};
+
+    bool apply_reverb(const std::string& name, float room_size, float damping, float decay, float diffusion) {
+        (void)name; (void)room_size; (void)damping; (void)decay; (void)diffusion;
+        return false;
     }
-    
+
 private:
     bool loadWavFile(const std::string& path, AudioClip& clip) {
         std::ifstream file(path, std::ios::binary);
-        if (!file.is_open()) {
-            // Generate a simple sine wave test tone if file doesn't exist
-            clip.sampleRate = 44100;
-            clip.channels = 2;
-            clip.lengthSamples = 44100; // 1 second
-            clip.data.resize(clip.lengthSamples * clip.channels);
-            
-            for (uint32_t i = 0; i < clip.lengthSamples; i++) {
-                float t = i / (float)clip.sampleRate;
-                float sample = 0.0f;
-                // Major chord: C4 + E4 + G4
-                sample += 0.3f * std::sin(2.0f * 3.14159f * 261.63f * t); // C4
-                sample += 0.3f * std::sin(2.0f * 3.14159f * 329.63f * t); // E4
-                sample += 0.3f * std::sin(2.0f * 3.14159f * 392.00f * t); // G4
-                clip.data[i * 2 + 0] = sample;
-                clip.data[i * 2 + 1] = sample;
-            }
-            return true;
-        }
+        if (!file.is_open()) return false;
         
         // Read WAV header
         char riff[4];
@@ -255,6 +230,7 @@ private:
             file.read((char*)&chunkSize, 4);
             
             if (strncmp(chunkId, "fmt ", 4) == 0) {
+                if (haveFormat || chunkSize < 16) return false;
                 uint16_t format, channels;
                 uint32_t sampleRate, byteRate;
                 uint16_t blockAlign;
@@ -266,6 +242,10 @@ private:
                 file.read((char*)&blockAlign, 2);
                 file.read((char*)&bitsPerSample, 2);
                 
+                if (!file || format != 1 || channels == 0 || channels > 2 ||
+                    sampleRate == 0 || (bitsPerSample != 8 && bitsPerSample != 16) ||
+                    blockAlign != channels * (bitsPerSample / 8u) ||
+                    byteRate != sampleRate * blockAlign) return false;
                 clip.sampleRate = sampleRate;
                 clip.channels = channels;
                 haveFormat = true;
@@ -275,8 +255,12 @@ private:
                 }
             } else if (strncmp(chunkId, "data", 4) == 0) {
                 if (!haveFormat || clip.channels == 0 || (bitsPerSample != 8 && bitsPerSample != 16)) return false;
+                constexpr uint32_t kMaxPcmBytes = 256u * 1024u * 1024u;
+                const uint32_t bytesPerFrame = clip.channels * (bitsPerSample / 8u);
+                if (chunkSize == 0 || chunkSize > kMaxPcmBytes ||
+                    bytesPerFrame == 0 || chunkSize % bytesPerFrame != 0) return false;
                 std::vector<uint8_t> raw(chunkSize);
-                file.read((char*)raw.data(), chunkSize);
+                if (!file.read((char*)raw.data(), chunkSize)) return false;
                 
                 clip.lengthSamples = chunkSize / (clip.channels * (bitsPerSample / 8));
                 clip.data.resize(clip.lengthSamples * clip.channels);
@@ -295,41 +279,80 @@ private:
             } else {
                 file.seekg(chunkSize, std::ios::cur);
             }
+            if (chunkSize & 1u) file.seekg(1, std::ios::cur);
+            if (!file) return false;
         }
         
         return clip.data.size() > 0;
     }
     
-    void playBuffer(const std::shared_ptr<AudioClip>& clip) {
-        if (!hwave_out_ || !clip) return;
-        
-        // Convert float to 16-bit PCM
-        std::vector<short> pcm(clip->data.size());
-        for (size_t i = 0; i < clip->data.size(); i++) {
-            float sample = clip->data[i] * master_volume_;
-            pcm[i] = (short)(sample * 32767.0f);
+    struct PlaybackBuffer {
+        std::string source;
+        std::vector<short> pcm;
+        WAVEHDR header{};
+        bool prepared = false;
+    };
+
+    bool playBufferLocked(const std::string& source, const std::shared_ptr<AudioClip>& clip) {
+        if (!hwave_out_ || !clip || clip->data.empty()) return false;
+
+        auto buffer = std::make_unique<PlaybackBuffer>();
+        buffer->source = source;
+        buffer->pcm.resize(clip->data.size());
+        for (size_t i = 0; i < clip->data.size(); ++i) {
+            const float sample = std::clamp(clip->data[i], -1.0f, 1.0f);
+            buffer->pcm[i] = static_cast<short>(sample * 32767.0f);
         }
-        
-        // Setup wave header
-        WAVEHDR wh = {};
-        wh.lpData = (LPSTR)pcm.data();
-        wh.dwBufferLength = pcm.size() * sizeof(short);
-        wh.dwFlags = 0;
-        
-        waveOutPrepareHeader(hwave_out_, &wh, sizeof(WAVEHDR));
-        waveOutWrite(hwave_out_, &wh, sizeof(WAVEHDR));
+
+        buffer->header.lpData = reinterpret_cast<LPSTR>(buffer->pcm.data());
+        buffer->header.dwBufferLength = static_cast<DWORD>(buffer->pcm.size() * sizeof(short));
+        if (waveOutPrepareHeader(hwave_out_, &buffer->header, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
+            return false;
+        }
+        buffer->prepared = true;
+        if (waveOutWrite(hwave_out_, &buffer->header, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
+            waveOutUnprepareHeader(hwave_out_, &buffer->header, sizeof(WAVEHDR));
+            return false;
+        }
+
+        buffers_.push_back(std::move(buffer));
+        return true;
     }
-    
+
+    void releaseBuffersLocked(bool force) {
+        for (auto it = buffers_.begin(); it != buffers_.end();) {
+            PlaybackBuffer& buffer = **it;
+            if (!force && (buffer.header.dwFlags & WHDR_DONE) == 0) {
+                ++it;
+                continue;
+            }
+            if (buffer.prepared && hwave_out_) {
+                const MMRESULT result = waveOutUnprepareHeader(hwave_out_, &buffer.header, sizeof(WAVEHDR));
+                if (!force && result == WAVERR_STILLPLAYING) {
+                    ++it;
+                    continue;
+                }
+                buffer.prepared = false;
+            }
+            auto source = sources_.find(buffer.source);
+            if (source != sources_.end()) {
+                source->second.state = AudioState::Stopped;
+                source->second.currentTime = 0.0f;
+            }
+            it = buffers_.erase(it);
+        }
+    }
+
     HWAVEOUT hwave_out_ = nullptr;
     WAVEFORMATEX wfx_ = {};
     std::unordered_map<std::string, std::shared_ptr<AudioClip>> clips_;
     std::unordered_map<std::string, AudioSource> sources_;
-    std::unordered_map<std::string, std::tuple<float, float, float, float>> reverb_params_;
     Vec3 listener_position_ = Vec3::zero();
     Vec3 listener_forward_ = Vec3::forward();
     Vec3 listener_up_ = Vec3::up();
     float master_volume_ = 1.0f;
     bool initialized_ = false;
+    std::vector<std::unique_ptr<PlaybackBuffer>> buffers_;
     mutable std::mutex mutex_;
 };
 
