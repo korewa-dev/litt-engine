@@ -483,12 +483,12 @@ private:
                 lvj_get(physics, "run_speed"), move_speed_);
         }
         if (gameplay) {
-            world_.state.cfg.enemy_aggro = (float)lvj_num(
-                lvj_get(gameplay, "enemy_aggro_m"), world_.state.cfg.enemy_aggro);
-            world_.state.cfg.kill_m = (float)lvj_num(
-                lvj_get(gameplay, "kill_radius_m"), world_.state.cfg.kill_m);
-            world_.state.cfg.interact_m = (float)lvj_num(
-                lvj_get(gameplay, "interact_radius_m"), world_.state.cfg.interact_m);
+            world_.state.cfg.aggro = (float)lvj_num(
+                lvj_get(gameplay, "enemy_aggro_m"), world_.state.cfg.aggro);
+            world_.state.cfg.kill_dist = (float)lvj_num(
+                lvj_get(gameplay, "kill_radius_m"), world_.state.cfg.kill_dist);
+            // The legacy C++ WorldManager has no interaction-radius field;
+            // the canonical C LvConfig remains authoritative for this setting.
             const int lives = (int)lvj_num(lvj_get(gameplay, "lives"), world_.state.cfg.lives);
             if (lives > 0) world_.state.cfg.lives = lives;
             world_.state.cfg.score_goal = (unsigned)std::max(
