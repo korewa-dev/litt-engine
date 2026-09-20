@@ -221,6 +221,16 @@ static void test_memory() {
     check(pointer_aligned(a64), "object_pool_align64");
     check(pointer_aligned(a128), "object_pool_align128");
     p16.release(a16); p64.release(a64); p128.release(a128);
+    bool pool_double_release_rejected = false;
+    try { p16.release(a16); }
+    catch (const std::invalid_argument&) { pool_double_release_rejected = true; }
+    check(pool_double_release_rejected, "object_pool_double_release_rejected");
+
+    Aligned16 foreign_pool_object{};
+    bool pool_foreign_rejected = false;
+    try { p16.release(&foreign_pool_object); }
+    catch (const std::invalid_argument&) { pool_foreign_rejected = true; }
+    check(pool_foreign_rejected, "object_pool_foreign_handle_rejected");
 
     BumpAllocator bump(256);
     void* b128 = bump.allocate(1, 128);
