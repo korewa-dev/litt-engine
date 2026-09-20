@@ -4,6 +4,7 @@
 #include "litt_c.h"
 #include "littcore/litt.h"
 #include "littcore/litt_engine.h"
+#include "littcore/litt_scripting_vm.h"
 #include <cstdio>
 #include <cstring>
 #include <cstdarg>
@@ -29,6 +30,11 @@ struct LittEngine {
     bool frame_valid;
     LittLogCb log_cb;
     void* log_user;
+};
+
+struct LittScriptVM {
+    litt::ScriptVM vm;
+    std::string error;
 };
 
 struct LittWorld {
@@ -403,9 +409,69 @@ void litt_engine_log(LittEngine* eng, const char* fmt, ...) {
 }
 
 // =============================================================================
-// Version
+// Scripting VM
+// =============================================================================
+
+LittScriptVM* litt_script_vm_create(void) {
+    LittScriptVM* handle = new (std::nothrow) LittScriptVM();
+    if (!handle) return nullptr;
+    if (!handle->vm.initialize()) {
+        delete handle;
+        return nullptr;
+    }
+    return handle;
+}
+
+void litt_script_vm_destroy(LittScriptVM* vm) {
+    if (!vm) return;
+    vm->vm.shutdown();
+    delete vm;
+}
+
+LittResult litt_script_vm_set_limits(LittScriptVM* vm, size_t max_source_bytes,
+                                     size_t max_instructions, size_t max_stack_values) {
+    if (!vm || max_source_bytes == 0 || max_instructions == 0 || max_stack_values == 0)
+        return LITT_ERROR_INVALID_ARGUMENT;
+    vm->error.clear();
+    vm->vm.set_limits(max_source_bytes, max_instructions, max_stack_values);
+    return LITT_OK;
+}
+
+LittResult litt_script_vm_compile(LittScriptVM* vm, const char* script_name,
+                                  const char* source) {
+    if (!vm || !script_name || !source || script_name[0] == '\0')
+        return LITT_ERROR_INVALID_ARGUMENT;
+    vm->error.clear();
+    if (vm->vm.compile(script_name, source)) return LITT_OK;
+    vm->error = vm->vm.last_error();
+    return vm->error.find("limit") != std::string::npos ||
+           vm->error.find("exceeds") != std::string::npos
+        ? LITT_ERROR_LIMIT : LITT_ERROR_COMPILE;
+}
+
+LittResult litt_script_vm_execute(LittScriptVM* vm, const char* script_name) {
+    if (!vm || !script_name || script_name[0] == '\0')
+        return LITT_ERROR_INVALID_ARGUMENT;
+    vm->error.clear();
+    if (vm->vm.execute(script_name)) return LITT_OK;
+    vm->error = vm->vm.last_error();
+    if (vm->error == "script not found") return LITT_ERROR_NOT_FOUND;
+    return vm->error.find("limit") != std::string::npos
+        ? LITT_ERROR_LIMIT : LITT_ERROR_RUNTIME;
+}
+
+const char* litt_script_vm_last_error(const LittScriptVM* vm) {
+    return vm ? vm->error.c_str() : "invalid VM handle";
+}
+
+// =============================================================================
+// Version / ABI
 // =============================================================================
 
 const char* litt_version(void) {
-    return "1.0.0";
+    return "1.1.0";
+}
+
+uint32_t litt_abi_version(void) {
+    return LITT_ABI_VERSION;
 }
