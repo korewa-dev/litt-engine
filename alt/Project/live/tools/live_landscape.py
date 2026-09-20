@@ -11,7 +11,7 @@ Usage (from anywhere):
       --agent ox-alpha --prompt "Create a perpetual landscape with endless grass."
 
 Idempotent expansion: existing chunk files are kept, only missing ones are
-generated. world_state.json and scenes/world.lscn.json are rewritten to
+generated. world_state.json and assets/scenes/world.lscn.json are rewritten to
 cover the full radius. LIVE_LOG.md gets one appended entry per run.
 """
 import argparse, datetime, hashlib, json, math, sys
@@ -21,7 +21,7 @@ NL = chr(10)
 LIVE_DIR = Path(__file__).resolve().parent.parent
 MODELS = LIVE_DIR / "assets" / "models"
 STATE = LIVE_DIR / "world_state.json"
-SCENE_DIR = LIVE_DIR / "scenes"
+SCENE_DIR = LIVE_DIR / "assets" / "scenes"
 LOG = LIVE_DIR / "LIVE_LOG.md"
 INDEX = LIVE_DIR / "assets" / "asset_index.json"
 
@@ -170,7 +170,7 @@ def append_log(agent, prompt, made, radius, seed):
         "- prompt: %s" % (prompt or "(autonomous expansion)"),
         "- action: perpetual grass landscape -> radius %d (seed %d)" % (radius, seed),
         "- generated this run: %d chunk(s) %s" % (len(made), ", ".join(made[:6]) + (" ..." if len(made)>6 else "")),
-        "- state: world_state.json + scenes/world.lscn.json rewritten; viewers may reload",
+        "- state: world_state.json + assets/scenes/world.lscn.json rewritten; viewers may reload",
         ""])
     LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(LOG, "a", encoding="utf-8") as f:
