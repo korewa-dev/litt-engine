@@ -27,6 +27,7 @@ public:
     ~WindowsWaveOutAudio() { shutdown(); }
     
     bool init() {
+        std::lock_guard<std::mutex> lock(mutex_);
         if (initialized_) return true;
         
         // Setup wave format
@@ -90,6 +91,7 @@ public:
     }
     
     bool load_clip(const std::string& name, const std::string& path) {
+        std::lock_guard<std::mutex> lock(mutex_);
         if (clips_.count(name)) return true;
         
         AudioClip clip;
@@ -185,11 +187,13 @@ public:
     }
     
     float get_volume() const {
+        std::lock_guard<std::mutex> lock(mutex_);
         return master_volume_;
     }
     
     bool set_master_volume(float volume) {
         if (!std::isfinite(volume)) return false;
+        std::lock_guard<std::mutex> lock(mutex_);
         const float clamped = std::clamp(volume, 0.0f, 1.0f);
         if (!hwave_out_) return false;
         const DWORD channel = static_cast<DWORD>(clamped * 65535.0f);
