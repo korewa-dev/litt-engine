@@ -29,7 +29,7 @@ centered (save_prop enforce_origin; auto_recenter only for random-branch
 dead trees), and scene nodes carry placement via position/yaw alone.
 
 Genre math used (details: template/docs/genre_algorithms.md):
-  - fBm terrain, world-space sampling for seamless chunk tiling
+  - fBm terrain, world-space sampling for seamless chunk tiling\n  - 12x12 terrain cells/chunk: quarter the old 24x24 geometry while preserving\n    the same world footprint, collision surface and deterministic height field
   - deliberate encounter placement along a guide path (road = +Z axis)
   - stamina economy + corpse-run encoded as data in world_state gameplay block
 """
@@ -46,7 +46,7 @@ from worldkit import (Rng, fbm, value_noise, MeshBuilder, write_mtl_for,
                       append_log, save_prop, Placement, reserve_spot)
 from gen_props import PALETTES, build_prop, parse_mtl
 
-CHUNK, RES, AMP, FREQ = 16.0, 24, 2.5, 0.12
+CHUNK, RES, AMP, FREQ = 16.0, 12, 2.5, 0.12  # 12x12/chunk keeps pocket terrain lightweight
 LEGACY_T, LEGACY_S = 666, 2077  # pre---seed default streams (back-compat)
 
 _M64 = (1 << 64) - 1
