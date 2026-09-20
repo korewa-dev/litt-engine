@@ -98,8 +98,9 @@ public:
                            }),
             callbacks.end());
 
+        const bool removed = callbacks.size() != old_size;
         if (callbacks.empty()) listeners_.erase(it);
-        return callbacks.size() != old_size;
+        return removed;
     }
 
     template<typename EventType>
