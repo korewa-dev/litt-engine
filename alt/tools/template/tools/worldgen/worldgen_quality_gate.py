@@ -46,11 +46,15 @@ TEXT_SUFFIXES = {".json", ".md", ".txt", ".csv", ".obj", ".mtl", ".py", ".sh", "
 
 def _canonical_json(obj):
     if isinstance(obj, dict):
-        return {str(k): _canonical_json(v) for k, v in obj.items()}
+        volatile = {"updated", "generated_at", "created_at", "timestamp"}
+        return {str(k): _canonical_json(v) for k, v in obj.items()
+                if str(k).lower() not in volatile}
     if isinstance(obj, list):
         return [_canonical_json(v) for v in obj]
     if isinstance(obj, str):
         return obj.replace("\\", "/")
+    if isinstance(obj, float):
+        return round(obj, 6)
     return obj
 
 def canonical_bytes(path):
