@@ -21,6 +21,8 @@ MAX_FILES = 160
 MAX_MODELS = 56
 MAX_UNIQUE_MODELS = 48
 MAX_SECONDS = 8.0
+MAX_TOTAL_NODES = 512
+MAX_MODEL_INSTANCES = 512
 
 VOLATILE_NAMES = {"LIVE_LOG.md"}
 VOLATILE_STATE_KEYS = {"updated"}
@@ -99,6 +101,8 @@ def main():
                 (m["models"]<=MAX_MODELS,"models %d > %d"%(m["models"],MAX_MODELS)),
                 (m["unique_model_refs"]<=MAX_UNIQUE_MODELS,"unique models %d > %d"%(m["unique_model_refs"],MAX_UNIQUE_MODELS)),
                 (m["nodes"]>0,"empty scene"),
+                (m["nodes"]<=MAX_TOTAL_NODES,"nodes %d > %d"%(m["nodes"],MAX_TOTAL_NODES)),
+                (m["model_instances"]<=MAX_MODEL_INSTANCES,"instances %d > %d"%(m["model_instances"],MAX_MODEL_INSTANCES)),
             ]
             for ok,msg in checks:
                 if not ok: report["failures"].append(name+": "+msg)
