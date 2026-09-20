@@ -10,6 +10,7 @@
 #include "litt_physics.h"
 #include "litt_scene.h"
 #include "litt_scripting_vm.h"
+#include "litt_event.h"
 #ifdef _WIN32
 #include "litt_gpu_software.h"
 #endif
@@ -272,6 +273,32 @@ static void test_software_renderer_hardening() {
 }
 #endif
 
+
+static void test_event_dispatcher() {
+    EventDispatcher dispatcher;
+    int calls = 0;
+
+    const auto id = dispatcher.subscribe<StringEvent>(
+        [&](const StringEvent& event) {
+            if (event.message == "ping") ++calls;
+        });
+
+    check(id != 0, "event_subscription_returns_id");
+    check(dispatcher.subscriber_count() == 1, "event_subscription_count");
+    dispatcher.dispatch_string("ping");
+    check(calls == 1, "event_dispatch_invokes_listener");
+    check(dispatcher.unsubscribe<StringEvent>(id), "event_unsubscribe_by_id");
+    check(dispatcher.subscriber_count() == 0, "event_unsubscribe_removes_listener");
+    dispatcher.dispatch_string("ping");
+    check(calls == 1, "event_unsubscribed_listener_not_called");
+    check(!dispatcher.unsubscribe<StringEvent>(id), "event_duplicate_unsubscribe_rejected");
+
+    const auto a = dispatcher.subscribe<StringEvent>([](const StringEvent&) {});
+    const auto b = dispatcher.subscribe<StringEvent>([](const StringEvent&) {});
+    check(a != b && dispatcher.unsubscribe_all<StringEvent>() == 2,
+          "event_unsubscribe_all");
+}
+
 static void test_scripting_vm() {
     ScriptComponent component;
     component.set_enabled(false);
@@ -381,6 +408,7 @@ int main() {
     test_ecs_generations();
     test_affine_inverse();
     test_scripting_vm();
+    test_event_dispatcher();
 #ifdef _WIN32
     test_software_renderer_hardening();
 #endif
