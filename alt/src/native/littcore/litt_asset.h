@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
+#include <limits>
 
 namespace litt {
 
@@ -129,10 +130,9 @@ public:
         auto model = std::make_shared<Model>();
         model->path = path;
         
-        if (path.substr(path.size() - 4) == ".obj") {
-            loadObj(path, *model);
+        if (path.size() < 4 || path.substr(path.size() - 4) != ".obj" || !loadObj(path, *model)) {
+            return nullptr;
         }
-        
         model->computeBounds();
         models[path] = model;
         return model;
@@ -147,8 +147,7 @@ public:
         texture->path = path;
         
         // TGA loader (simple)
-        loadTga(path, *texture);
-        
+        if (!loadTga(path, *texture)) return nullptr;
         textures[path] = texture;
         return texture;
     }
@@ -162,9 +161,9 @@ public:
         shader->vertexPath = vertexPath;
         shader->fragmentPath = fragmentPath;
         
-        // Compile shaders
-        compileShader(*shader);
-        
+        // Generic GPU shader compilation is not release-supported yet.
+        // Never cache or return a fake-success shader object.
+        if (!compileShader(*shader)) return nullptr;
         shaders[key] = shader;
         return shader;
     }
@@ -172,48 +171,54 @@ public:
 private:
     std::unordered_map<std::string, std::function<std::shared_ptr<void>(const std::string&)>> loaders_;
     
-    void loadObj(const std::string& path, Model& model) {
+    bool loadObj(const std::string& path, Model& model) {
         // Simple OBJ loader
         FILE* f = fopen(path.c_str(), "r");
-        if (!f) return;
+        if (!f) return false;
+        bool valid = true;
         
         char line[1024];
         while (fgets(line, sizeof(line), f)) {
             if (strncmp(line, "v ", 2) == 0) {
                 float x, y, z;
-                sscanf(line + 2, "%f %f %f", &x, &y, &z);
+                if (sscanf(line + 2, "%f %f %f", &x, &y, &z) != 3) { valid = false; break; }
                 model.positions.push_back({x, y, z});
             } else if (strncmp(line, "vn ", 3) == 0) {
                 float x, y, z;
-                sscanf(line + 3, "%f %f %f", &x, &y, &z);
+                if (sscanf(line + 3, "%f %f %f", &x, &y, &z) != 3) { valid = false; break; }
                 model.normals.push_back({x, y, z});
             } else if (strncmp(line, "vt ", 3) == 0) {
                 float u, v;
-                sscanf(line + 3, "%f %f", &u, &v);
+                if (sscanf(line + 3, "%f %f", &u, &v) != 2) { valid = false; break; }
                 model.texCoords.push_back({u, v});
             } else if (strncmp(line, "f ", 2) == 0) {
                 // Parse face
-                int v1, v2, v3;
-                sscanf(line + 2, "%d/%d/%d %d/%d/%d %d/%d/%d",
-                       &v1, &v1, &v1, &v2, &v2, &v2, &v3, &v3, &v3);
-                model.indices.push_back(v1 - 1);
-                model.indices.push_back(v2 - 1);
-                model.indices.push_back(v3 - 1);
+                int v1 = 0, v2 = 0, v3 = 0;
+                if (sscanf(line + 2, "%d %d %d", &v1, &v2, &v3) != 3 ||
+                    v1 <= 0 || v2 <= 0 || v3 <= 0 ||
+                    static_cast<size_t>(v1) > model.positions.size() ||
+                    static_cast<size_t>(v2) > model.positions.size() ||
+                    static_cast<size_t>(v3) > model.positions.size()) { valid = false; break; }
+                model.indices.push_back(static_cast<uint32_t>(v1 - 1));
+                model.indices.push_back(static_cast<uint32_t>(v2 - 1));
+                model.indices.push_back(static_cast<uint32_t>(v3 - 1));
             }
         }
         fclose(f);
+        return valid && !model.positions.empty() && !model.indices.empty();
     }
     
-    void loadTga(const std::string& path, AssetTexture& texture) {
+    bool loadTga(const std::string& path, AssetTexture& texture) {
         // Simple TGA loader
         FILE* f = fopen(path.c_str(), "rb");
-        if (!f) return;
+        if (!f) return false;
         
         // Read header
         char idLength, colormapType, imageType;
         fread(&idLength, 1, 1, f);
         fread(&colormapType, 1, 1, f);
-        fread(&imageType, 1, 1, f);
+        if (fread(&idLength, 1, 1, f) != 1 || fread(&colormapType, 1, 1, f) != 1 ||
+            fread(&imageType, 1, 1, f) != 1) { fclose(f); return false; }
         
         // Skip to width/height
         fseek(f, 12, SEEK_CUR);
@@ -231,11 +236,16 @@ private:
         texture.data.resize(imageSize);
         fread(texture.data.data(), 1, imageSize, f);
         
+        const bool ok = imageType == 2 && colormapType == 0 && width > 0 && height > 0 &&
+                        (bpp == 24 || bpp == 32) && imageSize <= 256u * 1024u * 1024u &&
+                        fread(texture.data.data(), 1, imageSize, f) == imageSize;
         fclose(f);
+        if (!ok) { texture.data.clear(); texture.width = texture.height = 0; return false; }
+        return true;
     }
     
-    void compileShader(Shader& shader) {
-        // Simplified - actual implementation would use OpenGL/Vulkan
+    bool compileShader(Shader&) {
+        return false;
     }
 };
 
