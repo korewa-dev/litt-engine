@@ -39,11 +39,11 @@ Initial CI run #173 exposed an integration error: header-inline scene deserializ
 
 The historical stabilization test still asserted that scene serialization must be unavailable. Run #176 compiled successfully after the link fix and reached 61 passing checks with one obsolete assertion failure. A transitional stabilization runner now preserves the historical suite while replacing only that obsolete scene-persistence expectation with the current contract. A dedicated `litt_scene_persistence_tests.cpp` contract suite was added for round-trip hierarchy/transform/flag/name behavior and malformed/missing-parent/cycle/non-finite rejection.
 
-CI now explicitly gates the dedicated scene persistence contract on normal Linux, ASan/UBSan and Windows builds. Current candidate head after gate wiring: `7ed7ef5fe56ea344425514ae310fc774433996be`. This head is not promoted until its workflow completes green.
+Final candidate head `1e3cb30eb3b53cc7b7c5b6fe0a1ef3cc6e52a30f` passed Stabilization run #180. PR #54 was squash-merged to main as `252ff2dd5a06b3c1da57e27f37d68212f48c0297`.
 
 ### Audit
 
-Correctness: materially improved, but promotion is pending CI. Failure behavior is explicit and transactional.
+Correctness: promoted after full CI. Failure behavior is explicit and transactional.
 
 Architecture: remains headless and dependency-light. Reusing `litt_json.c` is preferable to introducing a C++ JSON package, though inline implementation means consumers of `litt_scene.h` that call persistence must link the JSON object. A later cleanup should move scene persistence implementation into a `.cpp` translation unit to keep header dependencies cleaner.
 
@@ -53,6 +53,31 @@ Resource impact: serialization allocates an ID vector and output string proporti
 
 Security/robustness: strict parsing and finite-number checks improve malformed-input handling. Remaining hardening includes explicit scene/node count and input-size limits for hostile/untrusted files.
 
+## Update 003 - Engine scene persistence facade, implementation audit
+
+Branch: `engine-scene-facade-20260920`  
+Implementation commit: `ce16e996c47a5fc749604d2d27145800a0bda9fc`
+
+### Contract and change
+
+`Engine::load_scene()` and `Engine::save_scene()` now use the active Scene's validated persistence-v1 contract instead of reporting unavailable. Load requires an active scene and non-empty path, rejects missing/read-failed/invalid files, and relies on transactional scene deserialization so malformed input does not mutate live state. Save serializes the active scene, writes a sibling temporary file first, validates the stream, then replaces the destination. Ordinary serialization/write failure therefore does not truncate an existing scene file.
+
+The same update fixes an adjacent lifecycle defect: `initialize()` resets `running_` and clears stale SceneManager state before creating the default scene, making stop then reinitialize coherent rather than leaving the engine stopped with retained scenes.
+
+### Fresh audit
+
+Correctness: implementation is present but not promoted yet. Dedicated Engine-facade regression tests still need to be added and CI must pass before merge.
+
+Failure behavior: missing/empty paths and malformed scene data fail explicitly. The underlying scene transaction protects in-memory state on parse/validation failure.
+
+Portability: Linux/POSIX rename can replace an existing destination. Windows C rename cannot reliably do so, therefore the implementation removes the old destination after the complete temporary file exists. This avoids partial files from normal write failures, but Windows replacement is not crash-atomic between remove and rename. A future platform-specific atomic-replace helper could improve this without changing the public contract.
+
+Architecture/resource impact: remains dependency-free and headless-compatible. File IO uses standard C++ streams. Save temporarily holds serialized JSON in memory and on disk; load holds the file buffer plus the parser/candidate scene. No graphics SDK or new runtime dependency is introduced.
+
+Security/robustness: inherits strict scene parsing. Input-size/node-count limits remain an identified hardening task. Temporary filename collision is possible if concurrent writers save the same path; concurrent same-file saves are not part of the v1 contract and should be documented/tested before claiming thread-safe persistence.
+
+Compatibility: attachment persistence remains intentionally outside scene JSON v1. Engine save/load must not be described as complete runtime-state persistence until mesh/material/light/camera/physics attachment contracts are implemented.
+
 ### Next work
 
-First require the current CI head to pass and fix any platform/sanitizer failures. Then wire `Engine::load_scene()` and `Engine::save_scene()` to the validated scene persistence contract with atomic file replacement/failure tests. After that, audit C bridge component/config truthfulness before promoting additional subsystems.
+Add Engine-facade tests for headless initialize, save/load round trip, malformed-load non-mutation, missing-file failure, replacement of an existing save, and stop/reinitialize lifecycle. Gate them on Linux, sanitizer and Windows. Only then update supported-runtime documentation and merge. After promotion, audit C bridge component/config truthfulness.
