@@ -50,10 +50,10 @@ jobs:
           make -C alt/src/native bin/littview V=1
       - name: Validate checked-in generated-game fixture
         run: alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
-      - name: Run worldgen regression tests
-        run: |
-          python alt/tools/template/tools/worldgen/test_worldkit.py
-          python alt/tools/template/tools/worldgen/test_gen_props.py
+      - name: Run worldkit regression tests
+        run: python alt/tools/template/tools/worldgen/test_worldkit.py
+      - name: Run generated-prop regression tests
+        run: python alt/tools/template/tools/worldgen/test_gen_props.py
 
   windows-native:
     runs-on: windows-latest
