@@ -287,6 +287,27 @@ static void test_scripting_vm() {
     vm.shutdown();
 }
 
+static void test_quaternion_transform_contract() {
+    const Quat q = Quat::from_axis_angle(Vec3::unit_y(), 3.14159265358979323846f * 0.5f);
+
+    Transform ecs;
+    ecs.position = Vec3(2, 3, 4);
+    ecs.rotation = q;
+    ecs.scale = Vec3(2, 1, 0.5f);
+    ecs.update();
+
+    Scene scene;
+    SceneNode& node = scene.createNode("QuaternionTransform");
+    node.position = ecs.position;
+    node.rotation = q;
+    node.scale = ecs.scale;
+    node.updateTransform();
+
+    const Vec3 probe(1, 0, 0);
+    check(near_vec(ecs.matrix * probe, node.transform * probe),
+          "scene_ecs_quaternion_trs_matches");
+}
+
 static void test_scene_component_ownership() {
     Scene scene;
     SceneNode& node = scene.createNode("OwnedComponents");
@@ -363,6 +384,7 @@ int main() {
 #ifdef _WIN32
     test_software_renderer_hardening();
 #endif
+    test_quaternion_transform_contract();
     test_scene_component_ownership();
     test_scene_lifecycle();
 

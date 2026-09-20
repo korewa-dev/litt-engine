@@ -194,12 +194,12 @@ private:
 // Common components
 struct Transform {
     Vec3 position = Vec3::zero();
-    Vec3 rotation = Vec3::zero();
+    Quat rotation = Quat::identity();
     Vec3 scale = Vec3{1,1,1};
     Mat4 matrix = Mat4::identity();
     void update() {
-        matrix = Mat4::translation(position) * 
-                 Mat4::rot_y(rotation.y) * Mat4::rot_x(rotation.x) * Mat4::rot_z(rotation.z) *
+        matrix = Mat4::translation(position) *
+                 rotation.to_mat4() *
                  Mat4::scale(scale);
     }
 };
