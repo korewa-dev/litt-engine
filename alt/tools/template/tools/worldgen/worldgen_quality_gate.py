@@ -44,6 +44,15 @@ VOLATILE_NAMES = {"LIVE_LOG.md"}
 VOLATILE_STATE_KEYS = {"updated"}
 TEXT_SUFFIXES = {".json", ".md", ".txt", ".csv", ".obj", ".mtl", ".py", ".sh", ".bat"}
 
+def _canonical_json(obj):
+    if isinstance(obj, dict):
+        return {str(k): _canonical_json(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_canonical_json(v) for v in obj]
+    if isinstance(obj, str):
+        return obj.replace("\\\\", "/")
+    return obj
+
 def canonical_bytes(path):
     """OS-independent bytes for deterministic comparison and CI digests."""
     if path.name in VOLATILE_NAMES:
