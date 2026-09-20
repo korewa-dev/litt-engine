@@ -1,4 +1,6 @@
-# Moore Threads GPU Support
+# Moore Threads GPU Research Notes
+
+> **Not physically certified:** This document records vendor/driver research and intended integration guidance. The current release-supported Litt Engine path does not certify Moore Threads hardware, MUSA, Vulkan ray tracing, or the listed extensions. See `../SUPPORTED_RUNTIME.md`.
 
 ## Overview
 Moore Threads () is a Chinese GPU manufacturer with Vulkan 1.2/1.3 support via their MUSA driver.
