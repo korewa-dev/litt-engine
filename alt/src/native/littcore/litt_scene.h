@@ -16,6 +16,8 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
+#include <limits>
+#include <stdexcept>
 
 namespace litt {
 
@@ -154,6 +156,9 @@ public:
     }
     
     SceneNode& createNode(const std::string& name) {
+        if (nextId == UINT32_MAX || nodes.count(nextId)) {
+            throw std::overflow_error("scene node id space exhausted");
+        }
         auto node = std::make_unique<SceneNode>();
         node->id = nextId++;
         node->name = name;
@@ -288,6 +293,8 @@ public:
         const LvJson* array = lvj_get(doc, "nodes");
         if (!version || version->kind != LJ_NUM || version->num != 1 ||
             !rootValue || rootValue->kind != LJ_NUM ||
+            !std::isfinite(rootValue->num) || rootValue->num < 0 ||
+            rootValue->num > UINT32_MAX || std::floor(rootValue->num) != rootValue->num ||
             !array || array->kind != LJ_ARR || array->count <= 0) {
             lvj_free(doc); return false;
         }
@@ -355,12 +362,18 @@ public:
         }
         if (ok && candidate.root->parent) ok=false;
         if (ok) {
-            size_t topLevel=0;
-            for (const auto& e : candidate.nodes) if (!e.second->parent) ++topLevel;
-            if (topLevel == 0) ok=false;
+            // A valid scene is one tree rooted at the declared root. Reject
+            // disconnected top-level nodes instead of silently accepting a forest.
+            for (const auto& e : candidate.nodes) {
+                if (e.second.get() != candidate.root && !e.second->parent) {
+                    ok=false; break;
+                }
+            }
         }
         if (ok) {
-            candidate.nextId = maxId == UINT32_MAX ? UINT32_MAX : maxId + 1;
+            if (maxId == UINT32_MAX) { ok=false; }
+            else candidate.nextId = maxId + 1;
+            if (!ok) { lvj_free(doc); return false; }
             candidate.update();
             clear();
             nodes = std::move(candidate.nodes);
