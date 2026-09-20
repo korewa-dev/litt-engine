@@ -1,6 +1,7 @@
 // LittScene - Scene management for Litt Engine
 
 #pragma once
+#include <cstdint>
 #include "litt_math.h"
 #include "litt_ecs.h"
 #include "litt_renderer.h"
