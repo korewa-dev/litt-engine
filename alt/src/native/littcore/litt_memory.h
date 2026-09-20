@@ -112,6 +112,7 @@ public:
                 return;
             }
         }
+        throw std::invalid_argument("object pool handle is not live");
     }
 
     bool is_valid(Handle obj) const {
@@ -454,8 +455,10 @@ private:
         for (Slab* slab = slabs_; slab; slab = slab->next) {
             const auto begin = reinterpret_cast<uintptr_t>(slab->blocks);
             const size_t bytes = memory_detail::checked_mul(block_size_, slab->block_count);
-            if (address >= begin && address < begin + bytes &&
-                ((address - begin) % block_size_) == 0) return true;
+            if (address >= begin) {
+                const uintptr_t offset = address - begin;
+                if (offset < bytes && (offset % block_size_) == 0) return true;
+            }
         }
         return false;
     }
