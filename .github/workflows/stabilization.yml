@@ -45,7 +45,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build native generated-game tools
-        run: make -C alt/src/native
+        run: |
+          make -C alt/src/native bin/littcli
+          make -C alt/src/native bin/littview V=1
       - name: Validate checked-in generated-game fixture
         run: alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
       - name: Run worldgen regression tests
