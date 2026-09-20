@@ -13,6 +13,10 @@ namespace litt {
 // =============================================================================
 
 std::unique_ptr<IGPUDevice> create_gpu_device(const std::string& backend_name) {
+    if (backend_name == "null") {
+        return std::make_unique<NullGPUDevice>();
+    }
+
 #ifdef LITT_VULKAN_BACKEND
     if (backend_name == "vulkan") {
         return std::make_unique<VulkanDevice>();
@@ -35,7 +39,12 @@ std::unique_ptr<IGPUDevice> create_gpu_device(const std::string& backend_name) {
         return std::make_unique<SoftwareRenderer>();
     }
 
-    throw std::runtime_error("No GPU backend available.");
+    const GPUBackendCapability capability = gpu_backend_capability(backend_name);
+    if (capability.name) {
+        throw std::runtime_error(std::string("GPU backend '") + capability.name +
+                                 "' unavailable: " + capability.reason);
+    }
+    throw std::invalid_argument("Unknown GPU backend: " + backend_name);
 }
 
 // =============================================================================
