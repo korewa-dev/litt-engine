@@ -3,6 +3,10 @@
 #pragma once
 
 #include "litt_math.h"
+#include <cstdint>
+#include <memory>
+#include <unordered_map>
+#include <vector>
 using namespace litt;
 
 // Collision Query Types
