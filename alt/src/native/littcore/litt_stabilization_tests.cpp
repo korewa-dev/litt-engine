@@ -245,6 +245,21 @@ static void test_memory() {
     check(reinterpret_cast<uintptr_t>(free_block) % alignof(std::max_align_t) == 0,
           "freelist_stride_alignment");
     free_list.deallocate(free_block);
+    bool double_free_rejected = false;
+    try { free_list.deallocate(free_block); }
+    catch (const std::invalid_argument&) { double_free_rejected = true; }
+    check(double_free_rejected, "freelist_double_free_rejected");
+
+    int foreign = 0;
+    bool foreign_rejected = false;
+    try { free_list.deallocate(&foreign); }
+    catch (const std::invalid_argument&) { foreign_rejected = true; }
+    check(foreign_rejected, "freelist_foreign_pointer_rejected");
+
+    bool zero_chunk_rejected = false;
+    try { BumpAllocator invalid_bump(0); }
+    catch (const std::invalid_argument&) { zero_chunk_rejected = true; }
+    check(zero_chunk_rejected, "bump_zero_chunk_rejected");
 }
 
 static void test_ecs_generations() {
@@ -266,6 +281,28 @@ static void test_ecs_generations() {
     check(reused.id == first.id && reused.gen != first.gen,
           "ecs_reuse_increments_generation");
     check(world.is_alive(reused) && !world.is_alive(first), "ecs_generation_liveness");
+
+    Entity a = world.create();
+    Entity b = world.create();
+    world.add<int>(a, 1);
+    world.add<int>(b, 2);
+    int query_calls = 0;
+    world.query<int>([&](Entity e, int*) {
+        ++query_calls;
+        world.destroy(e);
+    });
+    check(query_calls == 2 && !world.is_alive(a) && !world.is_alive(b),
+          "ecs_query_allows_destroy_during_iteration");
+
+    Entity c = world.create();
+    Entity d = world.create();
+    int each_calls = 0;
+    world.each([&](Entity e) {
+        ++each_calls;
+        world.destroy(e);
+    });
+    check(each_calls >= 2 && !world.is_alive(c) && !world.is_alive(d),
+          "ecs_each_allows_destroy_during_iteration");
 }
 
 static void test_affine_inverse() {
@@ -497,8 +534,35 @@ static void test_scene_lifecycle() {
     check(first.root != nullptr && first.getNode(first.root->id) == first.root,
           "scene_root_survives_subtree_removal");
 
-    check(first.serializeToJson().empty(), "scene_serialize_reports_unavailable");
-    check(!first.deserializeFromJson("{}"), "scene_deserialize_reports_unavailable");
+    SceneNode& persisted_parent = first.createNode("PersistedParent");
+    SceneNode& persisted_child = first.createNode("PersistedChild");
+    persisted_parent.position = Vec3(1, 2, 3);
+    persisted_child.position = Vec3(4, 5, 6);
+    persisted_child.visible = false;
+    check(first.setParent(persisted_child.id, persisted_parent.id),
+          "scene_persistence_parent_setup");
+    const std::string json = first.serializeToJson();
+    Scene roundtrip;
+    check(!json.empty() && roundtrip.deserializeFromJson(json),
+          "scene_serialization_roundtrip_loads");
+    SceneNode* loaded_parent = roundtrip.getNode("PersistedParent");
+    SceneNode* loaded_child = roundtrip.getNode("PersistedChild");
+    check(loaded_parent && loaded_child && loaded_child->parent == loaded_parent &&
+          near_vec(loaded_parent->position, Vec3(1, 2, 3)) &&
+          near_vec(loaded_child->position, Vec3(4, 5, 6)) && !loaded_child->visible,
+          "scene_serialization_roundtrip_preserves_contract");
+
+    const std::string before_bad_load = roundtrip.serializeToJson();
+    check(!roundtrip.deserializeFromJson("{}") &&
+          roundtrip.serializeToJson() == before_bad_load,
+          "scene_malformed_load_is_transactional");
+    check(!roundtrip.deserializeFromJson(
+              "{\"version\":1,\"root\":0,\"nodes\":["
+              "{\"id\":0,\"name\":\"Root\",\"parent\":null,\"position\":[0,0,0],"
+              "\"rotation\":[0,0,0,1],\"scale\":[1,1,1],\"visible\":true,\"cullable\":true},"
+              "{\"id\":1,\"name\":\"Detached\",\"parent\":null,\"position\":[0,0,0],"
+              "\"rotation\":[0,0,0,1],\"scale\":[1,1,1],\"visible\":true,\"cullable\":true}]}"),
+          "scene_deserialize_rejects_disconnected_forest");
 }
 
 int main() {
