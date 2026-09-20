@@ -3,7 +3,7 @@
   "diagram_type": "architecture",
   "meta": {
     "title": "Litt Engine Architecture v2",
-    "subtitle": "A tiny feature-rich game engine with DX12/Vulkan support for AMD, Intel Arc, and Moore Threads GPUs",
+    "subtitle": "Architecture/design map; release support is defined by alt/docs/SUPPORTED_RUNTIME.md",
     "quality_profile": "showcase",
     "views": [
       {
