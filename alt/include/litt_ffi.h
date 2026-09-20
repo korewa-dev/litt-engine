@@ -1,5 +1,6 @@
 // C contract for the Litt engine FFI bridge.
-// Any C++ engine can link litt_ffi.dll and deploy generated worlds natively.
+// Dither3D helper ABI. World-deployment declarations below are legacy/experimental.
+// They are not part of the release-supported runtime contract.
 #ifndef LITT_FFI_H
 #define LITT_FFI_H
 
@@ -24,8 +25,11 @@ struct LittWorld;
 LITT_API const char* litt_version();
 
 // =============================================================================
-// World Deployment
+// World Deployment (LEGACY / UNAVAILABLE)
 // =============================================================================
+// These functions are retained for source compatibility only. litt_deploy_world
+// currently returns nullptr with an explanatory error. New integrations must use
+// the supported native generated-game runtime documented in alt/docs/SUPPORTED_RUNTIME.md.
 
 LITT_API LittWorld* litt_deploy_world(const char* scene_path,
                                       const char* assets_base,
