@@ -174,6 +174,9 @@ static void test_physics_resolution() {
 struct alignas(16) Aligned16 { unsigned char data[16]; };
 struct alignas(64) Aligned64 { unsigned char data[64]; };
 struct alignas(128) Aligned128 { unsigned char data[128]; };
+struct ThrowingPoolObject {
+    ThrowingPoolObject() { throw std::runtime_error("expected"); }
+};
 
 template <typename T>
 static bool pointer_aligned(T* ptr) {
@@ -231,6 +234,13 @@ static void test_memory() {
     try { p16.release(&foreign_pool_object); }
     catch (const std::invalid_argument&) { pool_foreign_rejected = true; }
     check(pool_foreign_rejected, "object_pool_foreign_handle_rejected");
+
+    ObjectPool<ThrowingPoolObject, 1> throwing_pool;
+    bool pool_ctor_failure = false;
+    try { (void)throwing_pool.acquire(); }
+    catch (const std::runtime_error&) { pool_ctor_failure = true; }
+    check(pool_ctor_failure && throwing_pool.live_count() == 0 && throwing_pool.capacity() == 1,
+          "object_pool_constructor_failure_preserves_slot");
 
     BumpAllocator bump(256);
     void* b128 = bump.allocate(1, 128);
