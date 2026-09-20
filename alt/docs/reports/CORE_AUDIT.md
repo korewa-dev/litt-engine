@@ -143,3 +143,34 @@ Non-uniform `[sx,sy,sz]` silently degrades to sx for solids and render. Generato
 ## Verdict
 
 **VERDICT: NEEDS FIXES** (C1 must be fixed before any real-world asset pass; M1–M3 should land with it so the native port matches the documented runtime contract.)
+
+
+---
+
+## 2026-09-20 consolidation status
+
+The implementation has moved substantially beyond the original audit snapshot.
+Reinspection of current `main` confirms the critical and major findings and
+the actionable minor/nit findings have been addressed or deliberately folded
+into the current runtime contract:
+
+- C1, M1-M3: fixed with regression coverage.
+- m1-m5, m6-m8: fixed. JSON is strict for engine/config entry points, number
+  parsing rejects non-finite/illegal JSON numbers, allocations are checked,
+  transformed AABBs handle signed/non-uniform scale, model-cache ownership is
+  RAII-cleaned, Win32 close posts WM_QUIT, and raster bounds clamp pre-cast.
+- n3-n12: resolved by the current OBJ/world/test/validator implementation:
+  OBJ supports relative indices/tabs and safe offsets, respawn clears jump
+  state, portability and validator-solid gates are present, transformed
+  non-uniform solids have regression tests, and non-finite config values are
+  rejected.
+- n1: fixed in the 2026-09-20 consolidation branch with deterministic
+  half-open shared-edge ownership.
+- n2: retained as a documented preview-renderer limitation. Generated scenes
+  are kept outside the near gate by worldkit/camera conventions; replacing the
+  software preview rasterizer with a full polygon clipper is not required for
+  engine correctness and is therefore not an outstanding repair item.
+
+**Consolidated verdict: no known correctness blocker remains from this audit.**
+Future audits should treat the original findings above as historical evidence,
+not an open punch list.
