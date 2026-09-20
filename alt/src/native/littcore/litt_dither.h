@@ -5,6 +5,7 @@
 // The GLSL shader logic is in shaders/dither3d/include.glsl.
 
 #pragma once
+#include <cstdint>
 #include "litt_math.h"
 #include <string>
 #include <vector>
