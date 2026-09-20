@@ -1,11 +1,15 @@
 // Phase 2: Engine Architecture - Material System (PBR Implementation)
 
 #pragma once
+#include <memory>
+#include <algorithm>
 
 #include "litt_math.h"
 #include <string>
 #include <vector>
 #include <cmath>
+#include <cstdint>
+#include <unordered_map>
 
 namespace litt {
 

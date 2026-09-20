@@ -1,0 +1,96 @@
+// Litt C bridge contract tests
+#include "litt_c.h"
+
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <limits>
+
+static int passed = 0;
+static int failed = 0;
+
+static void check(bool cond, const char* name) {
+    if (cond) { ++passed; std::printf("  ok %s\n", name); }
+    else { ++failed; std::printf("  FAIL %s\n", name); }
+}
+
+static bool near(float a, float b, float eps = 1e-5f) {
+    return std::fabs(a - b) <= eps;
+}
+
+int main() {
+    std::printf("[C bridge contract]\n");
+
+    LittWorld* world = litt_world_create(nullptr, nullptr);
+    check(world != nullptr, "world_create_empty");
+
+    LittEntityDesc desc{};
+    std::snprintf(desc.name, sizeof(desc.name), "%s", "Box");
+    desc.position = {1.0f, 2.0f, 3.0f};
+    desc.rotation = {0.0f, 0.5f, 0.0f};
+    desc.scale = {1.0f, 2.0f, 1.0f};
+    desc.color = {1.0f, 0.5f, 0.25f, 1.0f};
+
+    const litt_entity_t id = litt_world_create_entity(world, &desc);
+    check(id != UINT32_MAX, "entity_create");
+
+    LittEntityDesc out{};
+    check(litt_world_get_entity(world, id, &out), "entity_get");
+    check(std::strcmp(out.name, "Box") == 0 &&
+          near(out.position.x, 1.0f) && near(out.position.y, 2.0f) &&
+          near(out.position.z, 3.0f), "entity_roundtrip");
+
+    litt_entity_t ids[4]{};
+    check(litt_world_list_entities(world, ids, 4) == 1 && ids[0] == id,
+          "entity_list");
+
+    check(litt_world_has_component(world, id, LITT_COMPONENT_TRANSFORM),
+          "transform_component_present");
+    check(litt_world_add_component(world, id, LITT_COMPONENT_MESH, "{}"),
+          "component_add");
+    check(litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_has");
+    check(litt_world_remove_component(world, id, LITT_COMPONENT_MESH),
+          "component_remove");
+    check(!litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_removed");
+    check(!litt_world_remove_component(world, id, LITT_COMPONENT_TRANSFORM),
+          "transform_component_cannot_remove");
+
+    litt_vec3_t pos{4.0f, 5.0f, 6.0f};
+    check(litt_world_set_position(world, id, &pos), "position_set");
+    litt_vec3_t got{};
+    check(litt_world_get_position(world, id, &got) &&
+          near(got.x, 4.0f) && near(got.y, 5.0f) && near(got.z, 6.0f),
+          "position_get");
+
+    litt_vec3_t bad{std::numeric_limits<float>::quiet_NaN(), 0.0f, 0.0f};
+    check(!litt_world_set_position(world, id, &bad), "position_rejects_nan");
+    check(!litt_world_get_position(world, id + 1000, &got), "missing_entity_rejected");
+
+    check(litt_world_start(world), "world_start");
+    check(litt_world_is_running(world), "world_running");
+    litt_world_step(world, 1.0f / 60.0f);
+    check(litt_world_stop(world), "world_stop");
+    check(!litt_world_is_running(world), "world_stopped");
+
+    check(litt_world_delete_entity(world, id), "entity_delete");
+    check(!litt_world_delete_entity(world, id), "entity_double_delete_rejected");
+    litt_world_destroy(world);
+
+    LittEngine* engine = litt_engine_create();
+    check(engine != nullptr, "engine_create");
+    int width = -1, height = -1;
+    unsigned char pixel[4]{};
+    check(!litt_engine_get_framebuffer(engine, pixel, &width, &height),
+          "framebuffer_unavailable_is_honest");
+    check(width == 1920 && height == 1080, "framebuffer_dimensions_reported");
+    LittGpuInfo info{};
+    litt_engine_get_gpu_info(engine, &info);
+    check(std::strcmp(info.name, "Unavailable") == 0 && info.memory_total == 0,
+          "gpu_info_unavailable_is_honest");
+    litt_engine_destroy(engine);
+
+    std::printf("\nResults: %d passed, %d failed\n", passed, failed);
+    return failed == 0 ? 0 : 1;
+}

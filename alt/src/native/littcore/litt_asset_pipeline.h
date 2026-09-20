@@ -1,6 +1,7 @@
 // Phase 5: Production Systems - Asset Pipeline
 
 #pragma once
+#include <cstdint>
 
 #include "litt_math.h"
 #include <string>

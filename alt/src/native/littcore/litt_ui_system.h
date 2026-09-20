@@ -1,6 +1,8 @@
 // Phase 6: Advanced Features - UI System
 
 #pragma once
+#include <utility>
+#include <cstdint>
 
 #include "litt_math.h"
 #include <string>

@@ -1,6 +1,9 @@
 // Phase 4: Optimization & Performance - Spatial Hash Grid
 
 #pragma once
+#include <functional>
+#include <utility>
+#include <cstdint>
 
 #include "litt_math.h"
 #include <vector>

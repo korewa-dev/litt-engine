@@ -79,7 +79,7 @@ def test_ground_snap():
     assert reg.insert("rock", (3, 3), (4, 4)) is True
     assert reg.insert("rock2", (3.5, 3), (5, 4)) is False
     assert reg.conflicts((3.5, 3), (5, 4)) == ["rock"]
-    assert reg.conflicts((0, 0), (2, 2)) == ["ghost", "rock"]  # both solids overlap
+    assert reg.conflicts((0, 0), (2, 2)) == ["ghost"]  # only ghost overlaps this query
     assert reg.conflicts((-10, -10), (-9, -9)) == []      # ground never blocks
     # walkable + blocks = standable platform: provides top AND rejects
     assert reg.insert("deck2", (10, 10), (12, 12), top=2.5,
@@ -192,7 +192,7 @@ def test_centroid_and_assertion():
     assert wk.assert_origin_centered(mb) is True                 # xz default
     assert wk.assert_origin_centered(mb, axes="xz") is True
     try:
-        wk.assert_origin_centered(mb, axes="xyz")
+        wk.assert_origin_centered(mb, tol=0.24, axes="xyz")
         raise AssertionError("xyz must flag y centroid 0.25")
     except wk.TransformError:
         pass

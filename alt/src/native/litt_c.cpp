@@ -3,9 +3,14 @@
 
 #include "litt_c.h"
 #include "littcore/litt.h"
+#include "littcore/litt_engine.h"
 #include <cstdio>
 #include <cstring>
 #include <cstdarg>
+#include <unordered_map>
+#include <algorithm>
+#include <cmath>
+#include <new>
 
 // =============================================================================
 // Engine Implementation
@@ -19,7 +24,6 @@ struct LittEngine {
     LittGpuInfo gpu_info;
     LittRenderStats render_stats;
     LittCamera camera;
-    uint8_t frame_buffer[1920 * 1080 * 4];
     int frame_width;
     int frame_height;
     bool frame_valid;
@@ -28,9 +32,17 @@ struct LittEngine {
 };
 
 struct LittWorld {
+    struct EntityRecord {
+        LittEntityDesc desc{};
+        uint32_t components = 0;
+    };
+
     litt::WorldManager world;
-    bool running;
-    char scene_path[1024];
+    bool running = false;
+    char scene_path[1024]{};
+    char assets_base[1024]{};
+    litt_entity_t next_entity_id = 1;
+    std::unordered_map<litt_entity_t, EntityRecord> entities;
 };
 
 // =============================================================================
@@ -122,45 +134,38 @@ bool litt_is_connected(LittEngine* eng) {
 // =============================================================================
 
 LittWorld* litt_world_create(const char* scene_path, const char* assets_base) {
-    LittWorld* world = new LittWorld();
-    
-    if (scene_path) {
-        strncpy(world->scene_path, scene_path, sizeof(world->scene_path) - 1);
-        world->scene_path[sizeof(world->scene_path) - 1] = '\0';
-    } else {
-        world->scene_path[0] = '\0';
+    LittWorld* world = new (std::nothrow) LittWorld();
+    if (!world) return nullptr;
+
+    if (assets_base) {
+        std::snprintf(world->assets_base, sizeof(world->assets_base), "%s", assets_base);
     }
-    
-    world->running = false;
-    
-    // Load scene if path provided
+
     if (scene_path && scene_path[0] != '\0') {
-        // World loading would happen here
+        if (!litt_world_load(world, scene_path)) {
+            delete world;
+            return nullptr;
+        }
     }
-    
+
     return world;
 }
 
 void litt_world_destroy(LittWorld* world) {
-    if (world) {
-        delete world;
-    }
+    delete world;
 }
 
 bool litt_world_load(LittWorld* world, const char* scene_path) {
-    if (!world || !scene_path) return false;
-    
-    strncpy(world->scene_path, scene_path, sizeof(world->scene_path) - 1);
-    world->scene_path[sizeof(world->scene_path) - 1] = '\0';
-    
-    // Scene loading would parse JSON and create entities
+    if (!world || !scene_path || scene_path[0] == '\0') return false;
+    if (!world->world.load(scene_path)) return false;
+    std::snprintf(world->scene_path, sizeof(world->scene_path), "%s", scene_path);
     return true;
 }
 
 bool litt_world_save(LittWorld* world, const char* scene_path) {
-    if (!world || !scene_path) return false;
-    
-    // Scene saving would serialize entities to JSON
+    if (!world || !scene_path || scene_path[0] == '\0') return false;
+    if (!world->world.save(scene_path)) return false;
+    std::snprintf(world->scene_path, sizeof(world->scene_path), "%s", scene_path);
     return true;
 }
 
@@ -168,110 +173,131 @@ bool litt_world_save(LittWorld* world, const char* scene_path) {
 // Entity Management
 // =============================================================================
 
-static litt::EntityId entity_to_id(litt_entity_t id) {
-    return static_cast<litt::EntityId>(id);
+static uint32_t component_bit(LittComponentType type) {
+    const uint32_t value = static_cast<uint32_t>(type);
+    return (value >= 1 && value <= 31) ? (1u << value) : 0u;
 }
 
-static litt_entity_t id_to_entity(litt::EntityId id) {
-    return static_cast<litt_entity_t>(id);
+static LittWorld::EntityRecord* find_entity(LittWorld* world, litt_entity_t id) {
+    if (!world) return nullptr;
+    const auto it = world->entities.find(id);
+    return it == world->entities.end() ? nullptr : &it->second;
+}
+
+static const LittWorld::EntityRecord* find_entity(const LittWorld* world, litt_entity_t id) {
+    if (!world) return nullptr;
+    const auto it = world->entities.find(id);
+    return it == world->entities.end() ? nullptr : &it->second;
 }
 
 litt_entity_t litt_world_create_entity(LittWorld* world, const LittEntityDesc* desc) {
-    if (!world || !desc) return 0xFFFFFFFF;
-    
-    // Create entity with basic transform
-    litt::Vec3 pos(desc->position.x, desc->position.y, desc->position.z);
-    litt::Vec3 rot(desc->rotation.x, desc->rotation.y, desc->rotation.z);
-    litt::Vec3 scale(desc->scale.x, desc->scale.y, desc->scale.z);
-    
-    // For now, return a fake ID (real implementation would use ECS)
-    static litt_entity_t next_id = 1;
-    litt_entity_t id = next_id++;
-    
-    litt_engine_log(nullptr, "Created entity %u: %s", id, desc->name);
+    if (!world || !desc) return UINT32_MAX;
+    if (!std::isfinite(desc->position.x) || !std::isfinite(desc->position.y) ||
+        !std::isfinite(desc->position.z) || !std::isfinite(desc->rotation.x) ||
+        !std::isfinite(desc->rotation.y) || !std::isfinite(desc->rotation.z) ||
+        !std::isfinite(desc->scale.x) || !std::isfinite(desc->scale.y) ||
+        !std::isfinite(desc->scale.z)) {
+        return UINT32_MAX;
+    }
+
+    litt_entity_t id = world->next_entity_id++;
+    if (id == UINT32_MAX) id = world->next_entity_id++;
+
+    LittWorld::EntityRecord record;
+    record.desc = *desc;
+    record.desc.name[sizeof(record.desc.name) - 1] = '\0';
+    record.components = component_bit(LITT_COMPONENT_TRANSFORM);
+    world->entities.emplace(id, record);
     return id;
 }
 
 bool litt_world_delete_entity(LittWorld* world, litt_entity_t entity_id) {
-    if (!world) return false;
-    
-    // Entity deletion would remove from ECS
-    return true;
+    return world && world->entities.erase(entity_id) == 1;
 }
 
 bool litt_world_get_entity(LittWorld* world, litt_entity_t entity_id, LittEntityDesc* out) {
-    if (!world || !out) return false;
-    
-    // Entity retrieval would query ECS
-    // For now, return empty
-    return false;
+    if (!out) return false;
+    const auto* record = find_entity(world, entity_id);
+    if (!record) return false;
+    *out = record->desc;
+    return true;
 }
 
 int litt_world_list_entities(LittWorld* world, litt_entity_t* ids, int max_count) {
-    if (!world || !ids) return 0;
-    
-    // List entities would query ECS
-    // For now, return 0
-    return 0;
+    if (!world || max_count < 0 || (max_count > 0 && !ids)) return 0;
+    std::vector<litt_entity_t> sorted;
+    sorted.reserve(world->entities.size());
+    for (const auto& pair : world->entities) sorted.push_back(pair.first);
+    std::sort(sorted.begin(), sorted.end());
+
+    const int count = std::min<int>(max_count, static_cast<int>(sorted.size()));
+    for (int i = 0; i < count; ++i) ids[i] = sorted[static_cast<size_t>(i)];
+    return count;
 }
 
-// =============================================================================
-// Component Management
-// =============================================================================
-
 bool litt_world_add_component(LittWorld* world, litt_entity_t entity_id, LittComponentType type, const char* config_json) {
-    if (!world) return false;
-    
-    // Component addition would add to ECS
+    (void)config_json;
+    auto* record = find_entity(world, entity_id);
+    const uint32_t bit = component_bit(type);
+    if (!record || bit == 0) return false;
+    record->components |= bit;
     return true;
 }
 
 bool litt_world_remove_component(LittWorld* world, litt_entity_t entity_id, LittComponentType type) {
-    if (!world) return false;
-    
-    // Component removal would remove from ECS
-    return true;
+    auto* record = find_entity(world, entity_id);
+    const uint32_t bit = component_bit(type);
+    if (!record || bit == 0 || type == LITT_COMPONENT_TRANSFORM) return false;
+    const bool had = (record->components & bit) != 0;
+    record->components &= ~bit;
+    return had;
 }
 
 bool litt_world_has_component(LittWorld* world, litt_entity_t entity_id, LittComponentType type) {
-    if (!world) return false;
-    
-    // Component query would check ECS
-    return false;
+    const auto* record = find_entity(world, entity_id);
+    const uint32_t bit = component_bit(type);
+    return record && bit != 0 && (record->components & bit) != 0;
 }
 
-// =============================================================================
-// Transform Operations
-// =============================================================================
-
 bool litt_world_set_position(LittWorld* world, litt_entity_t entity_id, const litt_vec3_t* pos) {
-    if (!world || !pos) return false;
-    // Transform update would go through ECS
+    auto* record = find_entity(world, entity_id);
+    if (!record || !pos || !std::isfinite(pos->x) || !std::isfinite(pos->y) || !std::isfinite(pos->z)) return false;
+    record->desc.position = *pos;
     return true;
 }
 
 bool litt_world_get_position(LittWorld* world, litt_entity_t entity_id, litt_vec3_t* out) {
-    if (!world || !out) return false;
+    const auto* record = find_entity(world, entity_id);
+    if (!record || !out) return false;
+    *out = record->desc.position;
     return true;
 }
 
 bool litt_world_set_rotation(LittWorld* world, litt_entity_t entity_id, const litt_vec3_t* rot) {
-    if (!world || !rot) return false;
+    auto* record = find_entity(world, entity_id);
+    if (!record || !rot || !std::isfinite(rot->x) || !std::isfinite(rot->y) || !std::isfinite(rot->z)) return false;
+    record->desc.rotation = *rot;
     return true;
 }
 
 bool litt_world_get_rotation(LittWorld* world, litt_entity_t entity_id, litt_vec3_t* out) {
-    if (!world || !out) return false;
+    const auto* record = find_entity(world, entity_id);
+    if (!record || !out) return false;
+    *out = record->desc.rotation;
     return true;
 }
 
 bool litt_world_set_scale(LittWorld* world, litt_entity_t entity_id, const litt_vec3_t* scale) {
-    if (!world || !scale) return false;
+    auto* record = find_entity(world, entity_id);
+    if (!record || !scale || !std::isfinite(scale->x) || !std::isfinite(scale->y) || !std::isfinite(scale->z)) return false;
+    record->desc.scale = *scale;
     return true;
 }
 
 bool litt_world_get_scale(LittWorld* world, litt_entity_t entity_id, litt_vec3_t* out) {
-    if (!world || !out) return false;
+    const auto* record = find_entity(world, entity_id);
+    if (!record || !out) return false;
+    *out = record->desc.scale;
     return true;
 }
 
@@ -296,8 +322,8 @@ bool litt_world_is_running(LittWorld* world) {
 }
 
 void litt_world_step(LittWorld* world, float dt) {
-    if (!world) return;
-    // World step would update physics, etc.
+    if (!world || !world->running || !std::isfinite(dt) || dt <= 0.0f) return;
+    world->world.update(dt);
 }
 
 // =============================================================================
@@ -314,28 +340,19 @@ LittQualityPreset litt_engine_get_quality(LittEngine* eng) {
 }
 
 void litt_engine_get_gpu_info(LittEngine* eng, LittGpuInfo* info) {
-    if (!eng || !info) return;
-    
-    // Real GPU info would query Vulkan
-    strncpy(info->name, "Mock GPU", sizeof(info->name) - 1);
-    strncpy(info->vendor, "Mock Vendor", sizeof(info->vendor) - 1);
-    info->memory_total = 8 * 1024 * 1024 * 1024; // 8GB
-    info->memory_free = 6 * 1024 * 1024 * 1024;  // 6GB
-    info->max_bounces = 16;
-    info->max_texture_size = 8192;
+    if (!info) return;
+    std::memset(info, 0, sizeof(*info));
+    if (!eng) return;
+    std::snprintf(info->name, sizeof(info->name), "%s", "Unavailable");
+    std::snprintf(info->vendor, sizeof(info->vendor), "%s", "Unavailable");
 }
 
 void litt_engine_get_render_stats(LittEngine* eng, LittRenderStats* stats) {
-    if (!eng || !stats) return;
-    
-    // Real stats would come from engine
-    stats->fps = 60.0f;
-    stats->frame_time_ms = 16.67f;
-    stats->path_time_ms = 0.0f;
-    stats->spp = 1;
-    stats->bounces = 4;
-    stats->width = eng->frame_width;
-    stats->height = eng->frame_height;
+    if (!stats) return;
+    std::memset(stats, 0, sizeof(*stats));
+    if (!eng) return;
+    stats->width = static_cast<uint32_t>(std::max(0, eng->frame_width));
+    stats->height = static_cast<uint32_t>(std::max(0, eng->frame_height));
 }
 
 void litt_engine_get_camera(LittEngine* eng, LittCamera* cam) {
@@ -345,20 +362,20 @@ void litt_engine_get_camera(LittEngine* eng, LittCamera* cam) {
 
 void litt_engine_set_camera(LittEngine* eng, const LittCamera* cam) {
     if (!eng || !cam) return;
+    if (!std::isfinite(cam->pos_x) || !std::isfinite(cam->pos_y) || !std::isfinite(cam->pos_z) ||
+        !std::isfinite(cam->yaw) || !std::isfinite(cam->pitch) || !std::isfinite(cam->fov) ||
+        !std::isfinite(cam->exposure) || !std::isfinite(cam->aspect_ratio) ||
+        cam->fov <= 0.0f || cam->fov >= 180.0f || cam->aspect_ratio <= 0.0f) {
+        return;
+    }
     eng->camera = *cam;
 }
 
 bool litt_engine_get_framebuffer(LittEngine* eng, uint8_t* buf, int* width, int* height) {
-    if (!eng || !buf) return false;
-    
-    if (width) *width = eng->frame_width;
-    if (height) *height = eng->frame_height;
-    
-    // Copy frame buffer (mock data)
-    memset(buf, 0, eng->frame_width * eng->frame_height * 4);
-    eng->frame_valid = true;
-    
-    return eng->frame_valid;
+    if (width) *width = eng ? eng->frame_width : 0;
+    if (height) *height = eng ? eng->frame_height : 0;
+    if (!eng || !buf || !eng->frame_valid) return false;
+    return false;
 }
 
 // =============================================================================

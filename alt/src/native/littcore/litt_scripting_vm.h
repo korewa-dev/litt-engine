@@ -2,6 +2,7 @@
 // Embedded scripting without external dependencies
 
 #pragma once
+#include <cstdint>
 #include "litt_scripting.h"
 #include <stack>
 #include <vector>

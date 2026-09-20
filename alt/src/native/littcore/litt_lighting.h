@@ -1,6 +1,7 @@
 // Phase 3: Rendering Pipeline - Lighting System
 
 #pragma once
+#include <cstdint>
 
 #include "litt_math.h"
 #include <vector>

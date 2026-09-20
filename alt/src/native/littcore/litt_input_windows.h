@@ -2,6 +2,7 @@
 // Uses Windows Raw Input API for low-latency input
 
 #pragma once
+#include <vector>
 #include "litt_input.h"
 #include <windows.h>
 #include <XInput.h>

@@ -2,6 +2,9 @@
 // The rasterizer is platform-neutral. Window creation/presentation is compiled only on Windows.
 
 #pragma once
+#include <memory>
+#include <string>
+#include <cstdint>
 #include "litt_gpu.h"
 #ifdef _WIN32
 #ifndef NOMINMAX
