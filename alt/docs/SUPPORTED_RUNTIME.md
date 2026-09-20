@@ -51,7 +51,7 @@ The repository Stabilization workflow is the cross-platform release gate.
 - physics
 - audio playback/backend integration (PCM WAV decoding and source state semantics are regression-tested, but no cross-platform playback backend is release-supported)
 - scripting VM
-- asset/material pipeline
+- asset/material pipeline (generic facade now fails explicitly for missing/invalid OBJ/TGA inputs and unavailable shader compilation; broader formats/material/render integration remain partial)
 
 A partial API may be useful, but callers must not assume features beyond the behavior covered by tests.
 
