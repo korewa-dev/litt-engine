@@ -121,6 +121,24 @@ def semantic_digest(root):
         h.update(record.encode("utf-8") + b"\0")
     return h.hexdigest()
 
+def structure_digest(root):
+    """Cross-OS exact digest of discrete gameplay/topology structure."""
+    scene = json.loads((root / "assets/scenes/world.lscn.json").read_text(encoding="utf-8"))
+    nodes = []
+    for node in scene.get("nodes", []):
+        nodes.append([node.get("name"), sorted(node.get("tags", []))])
+    models = []
+    for p in sorted((root / "assets/models").glob("*.obj"), key=lambda x: x.name):
+        vertices = faces = 0
+        for line in p.read_text(encoding="utf-8").splitlines():
+            token = line.lstrip().split(None, 1)[0] if line.strip() else ""
+            vertices += token == "v"
+            faces += token == "f"
+        models.append([p.name, vertices, faces])
+    payload = json.dumps({"nodes": nodes, "models": models},
+                         sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
 def reference_problems(root):
     """Catch references that pass generation but fail on another machine."""
     problems = []
