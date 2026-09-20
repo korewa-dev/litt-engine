@@ -1,6 +1,8 @@
 // Phase 3: Rendering Pipeline - Shader System
 
 #pragma once
+#include <memory>
+#include <cstdint>
 
 #include "litt_math.h"
 #include <string>
