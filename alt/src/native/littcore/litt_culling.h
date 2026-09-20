@@ -1,6 +1,7 @@
 // Phase 4: Optimization & Performance - Culling System
 
 #pragma once
+#include <cstdint>
 
 #include "litt_math.h"
 #include <vector>
