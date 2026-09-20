@@ -49,6 +49,6 @@ make -C "$SCRIPT_DIR" clean
 make -C "$SCRIPT_DIR" \
     CC="$CC_BIN" CXX="$CXX_BIN" \
     CFLAGS="$CFLAGS_VALUE" CXXFLAGS="$CXXFLAGS_VALUE" \
-    all test selftest
+    all release-test
 
 echo "[done] supported native tools and tests passed"
