@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <memory>
 #include <algorithm>
+#include <utility>
 
 namespace litt {
 
@@ -33,14 +34,41 @@ struct SceneNode {
     // scene graph and ECS disagree about world position. Systems that bridge
     // Scene and ECS must copy/synchronize through an Entity handle instead.
     //
-    // Remaining component pointers are legacy non-owning attachments and
-    // should only reference storage with a lifetime that exceeds this node.
-    Collider* colliderComponent = nullptr;
-    RigidBody* rigidBodyComponent = nullptr;
-    MeshData* meshComponent = nullptr;
-    RenderMaterial* materialComponent = nullptr;
-    Light* lightComponent = nullptr;
-    RenderCamera* cameraComponent = nullptr;
+    // Scene-owned optional attachments. These values move with the node and
+    // cannot dangle when caller-local component objects go out of scope.
+    // ECS simulation components remain in World and should be synchronized
+    // explicitly rather than cached as raw pointers here.
+    std::unique_ptr<Collider> colliderComponent;
+    std::unique_ptr<RigidBody> rigidBodyComponent;
+    std::unique_ptr<MeshData> meshComponent;
+    std::unique_ptr<RenderMaterial> materialComponent;
+    std::unique_ptr<Light> lightComponent;
+    std::unique_ptr<RenderCamera> cameraComponent;
+
+    template<typename T, typename... Args>
+    static T& emplaceAttachment(std::unique_ptr<T>& slot, Args&&... args) {
+        slot = std::make_unique<T>(std::forward<Args>(args)...);
+        return *slot;
+    }
+
+    Collider& setCollider(const Collider& value) {
+        return emplaceAttachment(colliderComponent, value);
+    }
+    RigidBody& setRigidBody(const RigidBody& value) {
+        return emplaceAttachment(rigidBodyComponent, value);
+    }
+    MeshData& setMesh(const MeshData& value) {
+        return emplaceAttachment(meshComponent, value);
+    }
+    RenderMaterial& setMaterial(const RenderMaterial& value) {
+        return emplaceAttachment(materialComponent, value);
+    }
+    Light& setLight(const Light& value) {
+        return emplaceAttachment(lightComponent, value);
+    }
+    RenderCamera& setCamera(const RenderCamera& value) {
+        return emplaceAttachment(cameraComponent, value);
+    }
     
     // Visibility
     bool visible = true;
