@@ -4,6 +4,7 @@
 #include "litt_math.h"
 #include "litt_ecs.h"
 #include "litt_renderer.h"
+#include "litt_lighting.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
