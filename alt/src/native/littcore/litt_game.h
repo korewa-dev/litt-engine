@@ -28,7 +28,7 @@ namespace litt {
 // =============================================================================
 // Scene Node - represents an object in the game world
 // =============================================================================
-struct SceneNode {
+struct GameSceneNode {
     std::string name;
     std::string model_path;
     Vec3 position = Vec3::zero();
@@ -50,7 +50,7 @@ struct SceneNode {
 // =============================================================================
 class GameScene {
 public:
-    std::vector<SceneNode> nodes;
+    std::vector<GameSceneNode> nodes;
     Vec3 spawn_point = Vec3(0, 1.2f, 5);
     bool has_spawn_point = false;
     Vec3 light_dir = Vec3(0.45f, 0.78f, 0.32f);
@@ -457,7 +457,7 @@ private:
         return best;
     }
     
-    static Mat4 node_transform(const SceneNode& node) {
+    static Mat4 node_transform(const GameSceneNode& node) {
         return Mat4::translation(node.position) *
                node.rotation.to_mat4() *
                Mat4::scale(node.scale);
