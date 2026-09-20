@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <cstdint>
+#include <unordered_map>
 
 namespace litt {
 
