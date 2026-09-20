@@ -72,6 +72,20 @@ jobs:
       - name: Run C++ engine lifecycle contract
         run: /tmp/litt_engine_lifecycle_tests
 
+
+  legacy-json-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build legacy JSON compatibility test
+        run: >-
+          g++ -std=c++17 -O2 -Wall -Wextra
+          -I alt/src/native/littcore
+          alt/src/native/littcore/test_engine2.cpp
+          -o /tmp/litt_engine2_tests
+      - name: Run legacy JSON compatibility test
+        run: /tmp/litt_engine2_tests
+
   generated-game-contract:
     runs-on: ubuntu-latest
     steps:
