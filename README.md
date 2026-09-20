@@ -42,32 +42,29 @@ A headless-first, AI-driven game engine designed for building custom editors and
 └─────────────────────────────────────┘
 ```
 
-### Features (Complete List)
+### Capability Status
 
-| Category | Subsystems |
+Litt Engine is under active stabilization. Treat APIs that compile as interfaces,
+not proof that every advertised backend or advanced subsystem is production-ready.
+
+| Area | Current status |
 |---|---|
-| **Mathematics** | Vector3, Matrix4x4, Quaternion, Complex numbers, Radiometry, BRDF, Fresnel, Snell, Microfacet, SSS, Volumetric |
-| **ECS** | Entity/Component system, Sparse set pools, Python/C# bindings |
-| **Memory** | Linear, Stack, Pool allocators |
-| **Rendering** | Forward & Deferred paths, Rasterization, Path Tracing, BVH, GPU Ray Tracing (DXR/RTX) |
-| **Post-Processing** | SSAO, HDR, Tone Mapping, Bloom, DOF, Motion Blur, TAA, SSR, Volumetric Lighting |
-| **Advanced Graphics** | SSAO, Reflections (SSR), Refractions (Snell), SSS, Volumetric clouds, Water, Decals, Skybox |
-| **Physics** | Rigidbody dynamics, Constraint solving, Broad/narrow phase, Collision response |
-| **Audio** | 3D audio engine, Reverb (FDN), Miniaudio/OpenAL backend |
-| **Input** | Keyboard, Mouse, Gamepad (XInput/SDL), deadzone handling |
-| **Animation** | Skeletal animation, State machines, Blend trees, GPU skinning |
-| **Scripting** | Lua (C API), C# (Mono), Python (pybind11 embedding) |
-| **World Generation** | Terrain, LOD, Noise (FastNoiseLite/libnoise), Chunk streaming, Biomes |
-| **Asset Pipeline** | `.litt` format, asset_cook.py converter, mesh/texture/audio/shader/world data |
-| **Editor Tools** | ImGui executable, viewport, hierarchy, inspector, gizmos (ImGuizmo), asset browser, play mode, console, AI chat |
-| **Dependency Management** | vcpkg.json, Conanfile.py, submodules, GCC/Clang/MSVC, C++17/C11, Python 3.8+ |
-| **Testing** | Unit tests (math/ECS/memory/BVH), Integration tests (asset/scene), Python/AI editor tests, C# serialization tests, benchmarks |
-| **Performance** | Profiling (Tracy), Frame timing, Draw call/memory tracking, SIMD optimizations |
-| **Portability** | Windows (MSVC/MinGW), Linux (GCC/Clang), macOS (Clang optional), Console abstraction, Android/iOS optional |
-| **Release/Packaging** | CPack (NSIS/.deb/.pkg), Asset bundles, VERSION file, CHANGELOG.md |
-| **AI Agent Integration** | `litt_agent` C API, Python module, JSON-RPC, spawn/perception/actions |
-| **Headless Mode** | `LITT_HEADLESS` flag, no window/rendering, physics/audio/scripting still run |
-| **Misc Features** | Character controller, Vehicle physics, Networking (UDP/TCP, replication), User-defined components, Plugin system (dlopen/LoadLibrary), Real-time undo/redo |
+| Math / core containers | Implemented and covered by native regression tests |
+| ECS | Implemented core entity/component storage with generation validation |
+| Generated-game C runtime | Primary tested gameplay contract |
+| C++ Game facade | Partial compatibility layer; being aligned with the C runtime |
+| Scene graph | Implemented hierarchy/TRS core; persistence is not yet implemented |
+| Software renderer | Partial, primarily exercised on Windows/headless fallback paths |
+| Vulkan / DX12 / GPU ray tracing | Experimental or incomplete; do not assume production backend availability |
+| Physics | Experimental AABB rigid-body solver; no full CCD/angular/manifold solver |
+| Audio | Partial; platform/backend coverage varies |
+| Python / C# / Lua | Mixed/experimental integration; verify the specific binding before relying on it |
+| Networking / save-load / advanced post FX | Experimental/partial APIs, not production-complete |
+| World generation | Active and tested, with ongoing placement/runtime-parity hardening |
+| Editor | Example/demo tooling, not a shipped production editor |
+
+For the most reliable game-building path, use `GAME_BUILD_PROTOCOL.md` and run
+the repository validation/tests before declaring a generated game complete.
 
 ### Build Instructions
 
