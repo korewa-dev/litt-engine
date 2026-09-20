@@ -53,10 +53,12 @@ Resource impact: serialization allocates an ID vector and output string proporti
 
 Security/robustness: strict parsing and finite-number checks improve malformed-input handling. Remaining hardening includes explicit scene/node count and input-size limits for hostile/untrusted files.
 
-## Update 003 - Engine scene persistence facade, implementation audit
+## Update 003 - Engine scene persistence facade
 
 Branch: `engine-scene-facade-20260920`  
-Implementation commit: `ce16e996c47a5fc749604d2d27145800a0bda9fc`
+Implementation commit: `ce16e996c47a5fc749604d2d27145800a0bda9fc`  
+Contract-test commit: `03b867ea61ec6fc84f0d8d9bf97b087966e978e2`  
+CI-gate commit: `9adc6c4d916b90b11c713182010d9ad164bf55bf`
 
 ### Contract and change
 
@@ -64,9 +66,15 @@ Implementation commit: `ce16e996c47a5fc749604d2d27145800a0bda9fc`
 
 The same update fixes an adjacent lifecycle defect: `initialize()` resets `running_` and clears stale SceneManager state before creating the default scene, making stop then reinitialize coherent rather than leaving the engine stopped with retained scenes.
 
+### Regression coverage
+
+`litt_engine_scene_tests.cpp` now covers headless initialization, active default scene creation, hierarchy setup, save to a non-empty file, save/load state round trip, replacement of an existing save, malformed-load failure with in-memory non-mutation, missing-file failure, empty-save-path failure, stop state, reinitialization, running-state reset and stale-scene cleanup.
+
+The Stabilization workflow gates this contract on normal Linux, ASan/UBSan, and Windows/MSVC. The workflow change is committed but CI evidence is pending; this capability is not promoted until the PR head passes all jobs.
+
 ### Fresh audit
 
-Correctness: implementation is present but not promoted yet. Dedicated Engine-facade regression tests still need to be added and CI must pass before merge.
+Correctness: implementation and targeted regression coverage are now present. CI remains the promotion gate.
 
 Failure behavior: missing/empty paths and malformed scene data fail explicitly. The underlying scene transaction protects in-memory state on parse/validation failure.
 
@@ -74,10 +82,10 @@ Portability: Linux/POSIX rename can replace an existing destination. Windows C r
 
 Architecture/resource impact: remains dependency-free and headless-compatible. File IO uses standard C++ streams. Save temporarily holds serialized JSON in memory and on disk; load holds the file buffer plus the parser/candidate scene. No graphics SDK or new runtime dependency is introduced.
 
-Security/robustness: inherits strict scene parsing. Input-size/node-count limits remain an identified hardening task. Temporary filename collision is possible if concurrent writers save the same path; concurrent same-file saves are not part of the v1 contract and should be documented/tested before claiming thread-safe persistence.
+Security/robustness: inherits strict scene parsing. Input-size/node-count limits remain an identified hardening task. Temporary filename collision is possible if concurrent writers save the same path; concurrent same-file saves are not part of the v1 contract and should not be claimed thread-safe.
 
 Compatibility: attachment persistence remains intentionally outside scene JSON v1. Engine save/load must not be described as complete runtime-state persistence until mesh/material/light/camera/physics attachment contracts are implemented.
 
 ### Next work
 
-Add Engine-facade tests for headless initialize, save/load round trip, malformed-load non-mutation, missing-file failure, replacement of an existing save, and stop/reinitialize lifecycle. Gate them on Linux, sanitizer and Windows. Only then update supported-runtime documentation and merge. After promotion, audit C bridge component/config truthfulness.
+Open a focused PR and require the new Linux, sanitizer and Windows gates to pass. Fix any compiler/runtime failures before promotion. After a green merge, audit C bridge component/config truthfulness, especially component types that currently toggle metadata bits while ignoring `config_json`, plus renderer quality/camera controls that may imply effects not wired to a renderer.
