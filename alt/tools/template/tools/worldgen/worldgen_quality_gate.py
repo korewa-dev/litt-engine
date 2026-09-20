@@ -50,7 +50,7 @@ def _canonical_json(obj):
     if isinstance(obj, list):
         return [_canonical_json(v) for v in obj]
     if isinstance(obj, str):
-        return obj.replace("\\\\", "/")
+        return obj.replace("\\", "/")
     return obj
 
 def canonical_bytes(path):
