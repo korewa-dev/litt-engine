@@ -9,6 +9,7 @@
 #include "litt_ecs.h"
 #include "litt_lighting.h"
 #include "litt_texture.h"
+#include "litt_material.h"
 #include "litt_render_pass.h"
 #include "litt_dither.h"
 #include <cstdint>
@@ -77,6 +78,26 @@ struct RenderMaterial {
 
     // Dither3D settings
     DitherMaterial dither;
+
+    // Canonical bridge from authored/runtime PBR data into the render-facing
+    // material. Keeping this conversion here prevents scene/import code from
+    // silently dropping PBR fields before a backend sees them.
+    static RenderMaterial from_pbr(const PBRMaterial& source,
+                                   const std::string& material_name = {}) {
+        RenderMaterial out;
+        out.name = material_name;
+        out.albedo = source.albedo;
+        out.roughness = std::clamp(source.roughness, 0.0f, 1.0f);
+        out.metalness = std::clamp(source.metallic, 0.0f, 1.0f);
+        out.occlusion = std::clamp(source.ao, 0.0f, 1.0f);
+        out.emission_color = source.emission;
+        out.emission = source.emission.length();
+        out.texture_path = source.albedo_map;
+        out.transparent = source.opacity < 0.999f;
+        if (out.transparent) out.type = MaterialType::Transparent;
+        else if (out.emission > MATH_EPS) out.type = MaterialType::Emissive;
+        return out;
+    }
 };
 
 // =============================================================================
