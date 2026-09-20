@@ -1,39 +1,13 @@
 # Vulkan Backend
 
-> Full Vulkan 1.3 backend in `native/littcore/`.
+**Status: unavailable in the generic Litt Engine renderer.**
 
-## Modules
+The repository contains Vulkan-oriented experiments and placeholder code, but the current `VulkanDevice::initialize()` path deliberately returns failure. There is no release-supported Vulkan instance/device/swapchain/render pipeline in the generic backend.
 
-| Module | File | Purpose |
-|--------|------|---------|
-| instance | `instance.rs` | Vulkan instance, layer/query validation |
-| device | `device.rs` | Physical device selection, logical device creation |
-| swapchain | `swapchain.rs` | Swapchain creation, image acquisition, presentation |
-| allocator | `allocator.rs` | VMA memory allocator integration |
-| pipeline | `pipeline.rs` | Graphics and compute pipeline creation |
-| ray_tracing | `ray_tracing.rs` | BLAS/TLAS build, ray tracing pipeline |
+Do not infer support from filenames, build flags, backend enums, vendor IDs, or historical roadmap documents.
 
-## BLAS/TLAS Pipeline
+## Promotion gate
 
-```
-Scene Data (CPU)
-  -> upload_scene() -> GPU Buffers
-  -> build_blas_from_triangles() -> BLAS
-  -> build_scene_acceleration() -> TLAS
-  -> Shader Binding Table (SBT)
-  -> Ray Tracing Pipeline Execution
-```
+Vulkan remains unavailable until the complete promotion sequence in [graphics-api-status.md](graphics-api-status.md) is implemented, validation layers and failure paths are exercised, sustained rendering and shutdown are tested, and physical hardware evidence exists for any vendor-specific claim.
 
-## Memory Management (VMA)
-
-```
-VMA Allocator
-   allocate_buffer()
-   allocate_image()
-   map_memory()
-   flush_allocation()
-   free_*()
-```
-
-See [../platforms/amd-rdna.md](../platforms/amd-rdna.md) for RDNA-specific Vulkan tuning.
-
+Until then, callers must handle Vulkan selection as unavailable.
