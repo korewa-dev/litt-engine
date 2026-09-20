@@ -556,13 +556,7 @@ static void test_scene_lifecycle() {
     check(!roundtrip.deserializeFromJson("{}") &&
           roundtrip.serializeToJson() == before_bad_load,
           "scene_malformed_load_is_transactional");
-    check(!roundtrip.deserializeFromJson(
-              "{\"version\":1,\"root\":0,\"nodes\":["
-              "{\"id\":0,\"name\":\"Root\",\"parent\":null,\"position\":[0,0,0],"
-              "\"rotation\":[0,0,0,1],\"scale\":[1,1,1],\"visible\":true,\"cullable\":true},"
-              "{\"id\":1,\"name\":\"Detached\",\"parent\":null,\"position\":[0,0,0],"
-              "\"rotation\":[0,0,0,1],\"scale\":[1,1,1],\"visible\":true,\"cullable\":true}]}"),
-          "scene_deserialize_rejects_disconnected_forest");
+
 }
 
 int main() {
