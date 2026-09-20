@@ -129,6 +129,15 @@ int main(void) {
                   "obj: MTL map_Kd reaches mesh");
             CHECK(m.meshes[0].uvs != NULL,
                   "obj: texture coordinates survive material import");
+            if (m.meshes[0].uvs) {
+                CHECK(fabsf(m.meshes[0].uvs[0] - 0.0f) < 1e-6f &&
+                      fabsf(m.meshes[0].uvs[1] - 0.0f) < 1e-6f &&
+                      fabsf(m.meshes[0].uvs[2] - 1.0f) < 1e-6f &&
+                      fabsf(m.meshes[0].uvs[3] - 0.0f) < 1e-6f &&
+                      fabsf(m.meshes[0].uvs[4] - 0.0f) < 1e-6f &&
+                      fabsf(m.meshes[0].uvs[5] - 1.0f) < 1e-6f,
+                      "obj: texture coordinate values preserve vertex alignment");
+            }
         }
         lv_model_free(&m);
         remove("t_mat.obj");
