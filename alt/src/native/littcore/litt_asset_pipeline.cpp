@@ -120,9 +120,8 @@ bool AssetPipeline::reimport(const AssetHandle& handle) {
     Asset* current = AssetFactory::get_instance().get_asset(handle);
     if (!current) return false;
     const std::string path = current->get_path();
-    const AssetType type = current->get_type();
-    AssetFactory::get_instance().unload_asset(handle);
-    return AssetFactory::get_instance().load_asset(path, type) != nullptr;
+    current->unload();
+    return current->load(path);
 }
 
 AssetMetadata AssetPipeline::get_metadata(const AssetHandle& handle) const {
