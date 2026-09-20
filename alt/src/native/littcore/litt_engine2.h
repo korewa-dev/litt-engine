@@ -1,6 +1,7 @@
-// Litt Engine 2.0 — JSON-Driven Runtime
-// AI writes JSON. Engine renders. No compilation needed.
-// Single header, ~150 lines. No cubes-and-cylinders problem.
+// LEGACY Litt Engine 2.0 JSON demo runtime.
+// Not part of the release-supported Litt runtime contract. New code must use
+// litt_json/litt_world and the generated-game path documented in
+// alt/docs/SUPPORTED_RUNTIME.md. This header is retained only for old demos.
 
 #pragma once
 #include <string>
@@ -45,9 +46,18 @@ Json Json::parse(const std::string& s) {
     Json r; size_t i=0;
     auto skip=[&]{ while(i<s.size()&&(s[i]==' '||s[i]=='\t'||s[i]=='\n'||s[i]=='\r'))i++; };
     auto parseStr=[&](){
-        std::string r; i++;
-        while(i<s.size()&&s[i]!='\"'){ if(s[i]=='\\'){r+=s[i+1];i++;} else r+=s[i]; i++; }
-        i++; return r;
+        std::string r;
+        if(i>=s.size() || s[i]!='\"') return r;
+        i++;
+        while(i<s.size()&&s[i]!='\"'){
+            if(s[i]=='\\'){
+                if(i+1>=s.size()) { i=s.size(); return std::string(); }
+                r+=s[i+1]; i+=2; continue;
+            }
+            r+=s[i]; i++;
+        }
+        if(i<s.size() && s[i]=='\"') i++;
+        return r;
     };
     std::function<Json()> parseVal;
     parseVal=[&](){
@@ -55,11 +65,12 @@ Json Json::parse(const std::string& s) {
         if(s[i]=='\"'){ auto j=Json(); j.type=STR; j.str=parseStr(); return j; }
         if(s[i]=='{'){ auto j=Json(); j.type=OBJ; i++; skip();
             while(i<s.size()&&s[i]!='}'){ auto k=parseStr(); skip(); i++; skip();
-                j.obj[k]=parseVal(); skip(); if(s[i]==',')i++; skip(); } i++; return j; }
+                j.obj[k]=parseVal(); skip(); if(i<s.size()&&s[i]==',')i++; skip(); } if(i<s.size()) i++; return j; }
         if(s[i]=='['){ auto j=Json(); j.type=ARR; i++; skip();
-            while(i<s.size()&&s[i]!=']'){ j.arr.push_back(parseVal()); skip(); if(s[i]==',')i++; skip(); } i++; return j; }
-        if(s[i]=='t'||s[i]=='f'){ auto j=Json(); j.type=BOOL; j.bval=(s[i]=='t'); i+=j.bval?4:5; return j; }
-        if(s[i]=='n'){ i+=4; return Json(); }
+            while(i<s.size()&&s[i]!=']'){ j.arr.push_back(parseVal()); skip(); if(i<s.size()&&s[i]==',')i++; skip(); } if(i<s.size()) i++; return j; }
+        if(s.compare(i,4,"true")==0){ auto j=Json(); j.type=BOOL; j.bval=true; i+=4; return j; }
+        if(s.compare(i,5,"false")==0){ auto j=Json(); j.type=BOOL; j.bval=false; i+=5; return j; }
+        if(s.compare(i,4,"null")==0){ i+=4; return Json(); }
         auto j=Json(); j.type=NUM; size_t pos; j.num=std::stod(s.substr(i),&pos); i+=pos;
         return j;
     };
