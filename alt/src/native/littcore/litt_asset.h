@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
+#include <cstdlib>
 
 namespace litt {
 
@@ -231,18 +232,27 @@ private:
                 model.texCoords.push_back({u, v});
             } else if (std::strncmp(p, "f ", 2) == 0) {
                 std::vector<uint32_t> face;
-                char* save = nullptr;
-                for (char* tok = strtok_r(p + 2, " \t\r\n", &save);
-                     tok; tok = strtok_r(nullptr, " \t\r\n", &save)) {
+                char* tok = p + 2;
+                while (*tok) {
+                    while (*tok == ' ' || *tok == '\t' || *tok == '\r' || *tok == '\n') ++tok;
+                    if (!*tok) break;
+                    char* end = tok;
+                    while (*end && *end != ' ' && *end != '\t' && *end != '\r' && *end != '\n') ++end;
+                    const char saved = *end;
+                    *end = '\0';
                     char* slash = std::strchr(tok, '/');
                     if (slash) *slash = '\0';
                     int vi = 0;
-                    if (!parseObjIndex(tok, static_cast<int>(model.positions.size()), vi)) {
+                    const bool valid = parseObjIndex(tok, static_cast<int>(model.positions.size()), vi);
+                    if (slash) *slash = '/';
+                    *end = saved;
+                    if (!valid) {
                         std::fclose(f);
                         return false;
                     }
                     face.push_back(static_cast<uint32_t>(vi));
                     if (face.size() > 256u) { std::fclose(f); return false; }
+                    tok = end;
                 }
                 if (face.size() < 3u) { std::fclose(f); return false; }
                 const size_t added = (face.size() - 2u) * 3u;
