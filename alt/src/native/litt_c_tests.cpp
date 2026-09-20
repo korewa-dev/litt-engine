@@ -21,6 +21,31 @@ static bool near(float a, float b, float eps = 1e-5f) {
 int main() {
     std::printf("[C bridge contract]\n");
 
+    check(litt_abi_version() == LITT_ABI_VERSION, "abi_version_matches_header");
+    check((litt_abi_version() >> 16) == LITT_ABI_VERSION_MAJOR, "abi_major_version");
+
+    LittScriptVM* vm = litt_script_vm_create();
+    check(vm != nullptr, "script_vm_create");
+    check(litt_script_vm_compile(vm, "basic", "var x = 10\nprint x\n") == LITT_OK,
+          "script_vm_compile");
+    check(litt_script_vm_execute(vm, "basic") == LITT_OK, "script_vm_execute");
+    check(litt_script_vm_execute(vm, "missing") == LITT_ERROR_NOT_FOUND,
+          "script_vm_missing_is_explicit");
+    check(std::strlen(litt_script_vm_last_error(vm)) > 0, "script_vm_error_message");
+
+    check(litt_script_vm_set_limits(vm, 8, 100, 64) == LITT_OK, "script_vm_set_source_limit");
+    check(litt_script_vm_compile(vm, "large", "var value = 12345") == LITT_ERROR_LIMIT,
+          "script_vm_source_limit_enforced");
+
+    check(litt_script_vm_set_limits(vm, 1024, 16, 64) == LITT_OK, "script_vm_set_instruction_limit");
+    check(litt_script_vm_compile(vm, "loop", "if false\n") == LITT_OK,
+          "script_vm_compile_loop_fixture");
+    check(litt_script_vm_execute(vm, "loop") == LITT_ERROR_LIMIT,
+          "script_vm_instruction_limit_enforced");
+    check(litt_script_vm_set_limits(vm, 0, 1, 1) == LITT_ERROR_INVALID_ARGUMENT,
+          "script_vm_rejects_zero_limits");
+    litt_script_vm_destroy(vm);
+
     LittWorld* world = litt_world_create(nullptr, nullptr);
     check(world != nullptr, "world_create_empty");
 
