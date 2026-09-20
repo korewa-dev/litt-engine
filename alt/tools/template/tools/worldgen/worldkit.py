@@ -44,6 +44,10 @@ from pathlib import Path
 
 NL = chr(10)
 MODEL_BUDGET_KB = 500
+PROJECT_MODEL_FILE_BUDGET = 128
+PROJECT_MODEL_BUDGET_MB = 8
+DEFAULT_GRID_RADIUS_MAX = 4
+LARGE_GRID_RADIUS_MAX = 16
 ORIGIN_TOL = 0.3  # meters; default centroid tolerance for origin assertions
 
 # ------------------------------------------------------------------ random
@@ -739,9 +743,49 @@ def write_scene(path, placed, title, placement=None):
                                  blocks=trial.blocks(nm))
     path.write_text(json.dumps(scene, indent=2) + NL, encoding="utf-8")
 
+class ResourceBudgetError(RuntimeError):
+    pass
+
+
+def validate_grid_radius(radius, allow_large=False):
+    """Reject accidental terrain explosions before writing hundreds of meshes."""
+    if not isinstance(radius, int) or isinstance(radius, bool) or radius < 1:
+        raise ResourceBudgetError("terrain radius must be an integer >= 1")
+    limit = LARGE_GRID_RADIUS_MAX if allow_large else DEFAULT_GRID_RADIUS_MAX
+    if radius > limit:
+        hint = (" (pass --allow-large-grid for an intentional stress world)"
+                if not allow_large else "")
+        raise ResourceBudgetError(
+            "terrain radius %d exceeds %d%s" % (radius, limit, hint))
+    return radius
+
+
+def enforce_project_budget(project_dir, max_models=PROJECT_MODEL_FILE_BUDGET,
+                           max_model_bytes=PROJECT_MODEL_BUDGET_MB * 1024 * 1024):
+    """Bound generated model count and footprint for Litt's low-resource contract."""
+    root = Path(project_dir)
+    models = root / "assets" / "models"
+    if not models.exists():
+        return {"models": 0, "bytes": 0}
+
+    files = sorted(p for p in models.rglob("*.obj") if p.is_file())
+    total = sum(p.stat().st_size for p in files)
+    if len(files) > max_models:
+        raise ResourceBudgetError(
+            "project model count %d exceeds budget %d" % (len(files), max_models))
+    if total > max_model_bytes:
+        raise ResourceBudgetError(
+            "project OBJ footprint %.2f MB exceeds budget %.2f MB"
+            % (total / (1024.0 * 1024.0),
+               max_model_bytes / (1024.0 * 1024.0)))
+    return {"models": len(files), "bytes": total}
+
+
 def write_state(path, payload):
-    """Call LAST - viewers poll this file."""
-    Path(path).write_text(json.dumps(payload, indent=2) + NL, encoding="utf-8")
+    """Call LAST - viewers poll this file. Enforces generated-world budgets first."""
+    path = Path(path)
+    enforce_project_budget(path.parent)
+    path.write_text(json.dumps(payload, indent=2) + NL, encoding="utf-8")
 
 def append_log(path, agent, prompt, headline, bullets):
     stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
