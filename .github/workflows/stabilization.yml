@@ -63,7 +63,18 @@ jobs:
         run: |
           cat > /tmp/litt_sdk_smoke.c <<'EOF'
           #include <litt/litt_c.h>
-          int main(void) { LittEngine* e = litt_engine_create(); if (!e) return 1; litt_engine_destroy(e); return 0; }
+          int main(void) {
+            if (litt_abi_version() != LITT_ABI_VERSION) return 1;
+            LittEngine* e = litt_engine_create();
+            if (!e) return 2;
+            litt_engine_destroy(e);
+            LittScriptVM* vm = litt_script_vm_create();
+            if (!vm) return 3;
+            if (litt_script_vm_compile(vm, "smoke", "var x = 1\n") != LITT_OK) return 4;
+            if (litt_script_vm_execute(vm, "smoke") != LITT_OK) return 5;
+            litt_script_vm_destroy(vm);
+            return 0;
+          }
           EOF
           cc -std=c11 -I alt/src/native/dist/include -c /tmp/litt_sdk_smoke.c -o /tmp/litt_sdk_smoke.o
           g++ /tmp/litt_sdk_smoke.o -L alt/src/native/dist/lib -Wl,-rpath,$PWD/alt/src/native/dist/lib -llitt -o /tmp/litt_sdk_smoke
