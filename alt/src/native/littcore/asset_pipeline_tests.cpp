@@ -34,6 +34,10 @@ int main() {
     const AssetHandle handle = pipeline.import(path, AssetType::MESH);
     check(handle.is_valid(), "import creates a valid handle");
     check(factory.get_asset(handle) != nullptr, "handle resolves to owned asset");
+    AssetHandle pendingIdentity = handle;
+    pendingIdentity.loaded = false;
+    check(pendingIdentity.is_valid() && !pendingIdentity.is_loaded(),
+          "handle identity is independent from load state");
 
     const AssetMetadata metadata = pipeline.get_metadata(handle);
     check(metadata.name == path, "metadata reports filename");
@@ -44,6 +48,8 @@ int main() {
     check(meshes.size() == 1 && meshes[0].id == handle.id, "typed asset enumeration");
 
     check(pipeline.reimport(handle), "reimport succeeds");
+    check(factory.get_asset(handle)->get_handle().id == handle.id,
+          "reimport keeps asset identity");
     check(factory.get_asset(handle) != nullptr, "reimport preserves stable handle");
 
     const AssetHandle missing = pipeline.import("does-not-exist.asset", AssetType::MESH);
