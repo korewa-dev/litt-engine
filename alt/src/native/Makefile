@@ -42,6 +42,30 @@ test: bin/litt_json.o bin/litt_obj.o bin/litt_world.o tests.c
 selftest: bin/littview
 	cd bin && ./littview selftest
 
+
+bin/litt_c_tests: litt_c.cpp litt_c_tests.cpp bin/litt_json.o
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -I. $^ -o $@ $(LDFLAGS) $(LDLIBS)
+
+bridge-test: bin/litt_c_tests
+	cd bin && ./litt_c_tests
+
+bin/litt_engine_lifecycle_tests: littcore/litt_engine_lifecycle_tests.cpp littcore/litt_math.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+
+engine-contract: bin/litt_engine_lifecycle_tests
+	cd bin && ./litt_engine_lifecycle_tests
+
+bin/litt_engine2_tests: littcore/test_engine2.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+
+legacy-json-test: bin/litt_engine2_tests
+	cd bin && ./litt_engine2_tests
+
+release-test: test selftest bridge-test engine-contract legacy-json-test
+
 # Dither3D demo
 bin/dither3d_demo: bin/litt_json.o bin/litt_obj.o bin/litt_world.o litt_dither.o litt_dither_renderer.o dither3d_demo.cpp
 	@mkdir -p bin
@@ -53,4 +77,4 @@ dither3d_demo: bin/dither3d_demo
 clean:
 	rm -rf bin
 
-.PHONY: all test selftest clean dither3d_demo
+.PHONY: all test selftest bridge-test engine-contract legacy-json-test release-test clean dither3d_demo
