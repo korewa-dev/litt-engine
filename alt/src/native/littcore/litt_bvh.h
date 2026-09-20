@@ -3,6 +3,11 @@
 #pragma once
 
 #include "litt_math.h"
+#include <cstdint>
+#include <memory>
+#include <utility>
+#include <vector>
+#include <limits>
 using namespace litt;
 
 // BVH Primitive (Triangle for now, extensible)
