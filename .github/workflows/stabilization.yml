@@ -91,12 +91,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build asset and material contract tests
-        run: g++ -std=c++17 -O2 -Wall -Wextra -Werror -I alt/src/native/littcore alt/src/native/littcore/litt_asset_tests.cpp -o /tmp/litt_asset_tests
+        run: |
+          gcc -std=c11 -O2 -Wall -Wextra -Werror -I alt/src/native/littcore -c alt/src/native/littcore/litt_obj.c -o /tmp/litt_obj_asset.o
+          g++ -std=c++17 -O2 -Wall -Wextra -Werror -I alt/src/native/littcore alt/src/native/littcore/litt_asset_tests.cpp /tmp/litt_obj_asset.o -o /tmp/litt_asset_tests
       - name: Run asset and material contract tests
         run: /tmp/litt_asset_tests
       - name: Run asset tests with ASan/UBSan
         run: |
-          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_asset_tests.cpp -o /tmp/litt_asset_tests_sanitized
+          gcc -std=c11 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore -c alt/src/native/littcore/litt_obj.c -o /tmp/litt_obj_asset_sanitized.o
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_asset_tests.cpp /tmp/litt_obj_asset_sanitized.o -o /tmp/litt_asset_tests_sanitized
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/litt_asset_tests_sanitized
 
   windows-native:
