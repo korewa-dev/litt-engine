@@ -224,8 +224,8 @@ private: detail::Socket socket_ = detail::kInvalidSocket;
 
 class TcpClient {
 public:
-    Result connect(const char* host, uint16_t port, int timeout_ms = kDefaultTimeoutMs) {
-        peer_.close(); if (!host || !*host || port == 0 || timeout_ms < 0) return Result::InvalidArgument;
+    Result connect(const char* host, uint16_t port) {
+        peer_.close(); if (!host || !*host || port == 0) return Result::InvalidArgument;
         if (detail::ensure_platform() != Result::Ok) return Result::SystemError;
         addrinfo hints{}; hints.ai_family = AF_UNSPEC; hints.ai_socktype = SOCK_STREAM; hints.ai_protocol = IPPROTO_TCP; hints.ai_flags = AI_NUMERICSERV;
         char service[6]; std::snprintf(service, sizeof(service), "%u", static_cast<unsigned>(port));
