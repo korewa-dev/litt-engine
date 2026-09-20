@@ -90,11 +90,11 @@ struct AssetMaterial {
     std::unordered_map<std::string, std::shared_ptr<AssetTexture>> textures;
     
     // PBR values
-    Vec3 albedo;
-    float roughness;
-    float metalness;
-    float occlusion;
-    float emissive;
+    Vec3 albedo = Vec3(0.8f, 0.8f, 0.8f);
+    float roughness = 0.5f;
+    float metalness = 0.0f;
+    float occlusion = 1.0f;
+    float emissive = 0.0f;
 };
 
 // =============================================================================
@@ -129,10 +129,10 @@ public:
         auto model = std::make_shared<Model>();
         model->path = path;
         
-        if (path.substr(path.size() - 4) == ".obj") {
-            loadObj(path, *model);
+        if (path.size() < 4 || path.compare(path.size() - 4, 4, ".obj") != 0 || !loadObj(path, *model)) {
+            return nullptr;
         }
-        
+
         model->computeBounds();
         models[path] = model;
         return model;
@@ -146,9 +146,8 @@ public:
         auto texture = std::make_shared<AssetTexture>();
         texture->path = path;
         
-        // TGA loader (simple)
-        loadTga(path, *texture);
-        
+        if (!loadTga(path, *texture)) return nullptr;
+
         textures[path] = texture;
         return texture;
     }
@@ -172,10 +171,10 @@ public:
 private:
     std::unordered_map<std::string, std::function<std::shared_ptr<void>(const std::string&)>> loaders_;
     
-    void loadObj(const std::string& path, Model& model) {
+    bool loadObj(const std::string& path, Model& model) {
         // Simple OBJ loader
         FILE* f = fopen(path.c_str(), "r");
-        if (!f) return;
+        if (!f) return false;
         
         char line[1024];
         while (fgets(line, sizeof(line), f)) {
@@ -202,12 +201,13 @@ private:
             }
         }
         fclose(f);
+        return !model.positions.empty() && !model.indices.empty();
     }
     
-    void loadTga(const std::string& path, AssetTexture& texture) {
+    bool loadTga(const std::string& path, AssetTexture& texture) {
         // Simple TGA loader
         FILE* f = fopen(path.c_str(), "rb");
-        if (!f) return;
+        if (!f) return false;
         
         // Read header
         char idLength, colormapType, imageType;
@@ -215,12 +215,21 @@ private:
         fread(&colormapType, 1, 1, f);
         fread(&imageType, 1, 1, f);
         
-        // Skip to width/height
-        fseek(f, 12, SEEK_CUR);
-        uint16_t width, height, bpp;
-        fread(&width, 2, 1, f);
-        fread(&height, 2, 1, f);
-        fread(&bpp, 1, 1, f);
+        // TGA width starts at byte 12. We already consumed 3 bytes.
+        if (fseek(f, 9, SEEK_CUR) != 0) { fclose(f); return false; }
+        uint16_t width = 0, height = 0;
+        uint8_t bpp = 0, descriptor = 0;
+        if (fread(&width, 2, 1, f) != 1 || fread(&height, 2, 1, f) != 1 ||
+            fread(&bpp, 1, 1, f) != 1 || fread(&descriptor, 1, 1, f) != 1) {
+            fclose(f); return false;
+        }
+        if (colormapType != 0 || (imageType != 2 && imageType != 3) ||
+            width == 0 || height == 0 || (bpp != 8 && bpp != 24 && bpp != 32)) {
+            fclose(f); return false;
+        }
+        if (idLength && fseek(f, static_cast<long>(idLength), SEEK_CUR) != 0) {
+            fclose(f); return false;
+        }
         
         texture.width = width;
         texture.height = height;
@@ -229,9 +238,19 @@ private:
         // Read image data
         size_t imageSize = width * height * texture.channels;
         texture.data.resize(imageSize);
-        fread(texture.data.data(), 1, imageSize, f);
-        
+        if (fread(texture.data.data(), 1, imageSize, f) != imageSize) {
+            texture.data.clear(); fclose(f); return false;
+        }
+
+        // TGA true-color data is BGR(A); normalize to RGB(A).
+        if (texture.channels >= 3) {
+            for (size_t i = 0; i < imageSize; i += texture.channels) {
+                std::swap(texture.data[i], texture.data[i + 2]);
+            }
+        }
+        (void)descriptor;
         fclose(f);
+        return true;
     }
     
     void compileShader(Shader& shader) {

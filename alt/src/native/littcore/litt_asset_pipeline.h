@@ -67,6 +67,7 @@ public:
     const std::string& get_path() const { return path_; }
 
 protected:
+    friend class AssetFactory;
     AssetHandle handle_;
     std::string path_;
     bool loaded_ = false;
@@ -98,6 +99,17 @@ public:
     // Unload all assets
     void unload_all();
     
+    // Snapshot handles without exposing ownership.
+    std::vector<AssetHandle> get_handles(AssetType type) const {
+        std::vector<AssetHandle> result;
+        result.reserve(assets_.size());
+        for (const auto& entry : assets_) {
+            const Asset* asset = entry.second.get();
+            if (asset && asset->get_type() == type) result.push_back(asset->get_handle());
+        }
+        return result;
+    }
+
     // Get asset count
     size_t get_asset_count() const { return assets_.size(); }
 
