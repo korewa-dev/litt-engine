@@ -271,6 +271,8 @@ def main():
                 elapsed = run_generator(script, case_args, out)
                 m = metrics(out, elapsed)
                 m["digest"] = digest_tree(out)
+                m["semantic_digest"] = semantic_digest(out)
+                m["structure_digest"] = structure_digest(out)
                 m["reference_problems"] = reference_problems(out)
 
                 repeat = root / (name + "_repeat")
