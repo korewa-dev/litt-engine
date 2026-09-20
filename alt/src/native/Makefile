@@ -10,6 +10,12 @@ DITHER = littcore/litt_dither.cpp littcore/litt_dither_renderer.cpp
 
 all: bin/littcli bin/littview
 
+# GUI/integration SDK: stable C bridge as a shared library plus public header.
+# DESTDIR may be set by packagers; PREFIX defaults to /usr/local.
+PREFIX ?= /usr/local
+LIBDIR ?= $(PREFIX)/lib
+INCLUDEDIR ?= $(PREFIX)/include/litt
+
 bin/litt_json.o: littcore/litt_json.c littcore/litt_json.h
 	@mkdir -p bin
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -34,6 +40,37 @@ bin/littview: bin/litt_json.o bin/litt_obj.o bin/litt_world.o bin/littview_main.
 	$(CXX) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 	@echo "[build] bin/littview OK"
 
+bin/litt_json_pic.o: littcore/litt_json.c littcore/litt_json.h
+	@mkdir -p bin
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+
+bin/litt_obj_pic.o: littcore/litt_obj.c littcore/litt_obj.h
+	@mkdir -p bin
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+
+bin/litt_world_pic.o: littcore/litt_world.c littcore/litt_world.h
+	@mkdir -p bin
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+
+bin/litt_c_pic.o: litt_c.cpp litt_c.h
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -fPIC -c $< -o $@
+
+bin/liblitt.so: bin/litt_json_pic.o bin/litt_obj_pic.o bin/litt_world_pic.o bin/litt_c_pic.o
+	$(CXX) -shared $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	@echo "[build] bin/liblitt.so OK"
+
+sdk: bin/liblitt.so
+	@mkdir -p dist/include/litt dist/lib
+	cp litt_c.h dist/include/litt/litt_c.h
+	cp bin/liblitt.so dist/lib/liblitt.so
+	@echo "[build] dist Litt C SDK OK"
+
+install-sdk: sdk
+	install -d "$(DESTDIR)$(INCLUDEDIR)" "$(DESTDIR)$(LIBDIR)"
+	install -m 0644 litt_c.h "$(DESTDIR)$(INCLUDEDIR)/litt_c.h"
+	install -m 0755 bin/liblitt.so "$(DESTDIR)$(LIBDIR)/liblitt.so"
+
 test: bin/litt_json.o bin/litt_obj.o bin/litt_world.o tests.c
 	@mkdir -p bin
 	$(CC) $(CFLAGS) $^ -o bin/littcore_tests $(LDFLAGS) $(LDLIBS)
@@ -51,6 +88,6 @@ bin/dither3d_demo: bin/litt_json.o bin/litt_obj.o bin/litt_world.o litt_dither.o
 dither3d_demo: bin/dither3d_demo
 
 clean:
-	rm -rf bin
+	rm -rf bin dist
 
-.PHONY: all test selftest clean dither3d_demo
+.PHONY: all sdk install-sdk test selftest clean dither3d_demo
