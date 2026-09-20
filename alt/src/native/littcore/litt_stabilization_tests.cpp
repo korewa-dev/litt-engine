@@ -13,6 +13,7 @@
 #include "litt_event.h"
 #include "litt_serialization.h"
 #include "litt_scripting.h"
+#include "litt_networking.h"
 #ifdef _WIN32
 #include "litt_gpu_software.h"
 #endif
@@ -277,6 +278,26 @@ static void test_software_renderer_hardening() {
 
 
 
+
+static void test_networking_facade() {
+    auto& server = NetworkServer::get_instance();
+    check(!server.start(7777), "network_server_reports_unavailable");
+    NetworkMessage message{};
+    check(!server.broadcast(message), "network_broadcast_reports_unavailable");
+    server.stop();
+
+    auto& client = NetworkClient::get_instance();
+    check(!client.connect("127.0.0.1", 7777), "network_client_reports_unavailable");
+    check(!client.is_connected(), "network_client_not_fake_connected");
+    check(!client.send(message), "network_send_reports_unavailable");
+
+    auto& manager = NetworkManager::get_instance();
+    check(!manager.initialize(), "network_manager_reports_unavailable");
+    check(manager.create_server() == nullptr && manager.create_client() == nullptr,
+          "network_manager_does_not_create_fake_transport");
+    manager.shutdown();
+}
+
 static void test_serialization_api() {
     JSONSerializer json;
     json.set_data("{\"ok\":true}");
@@ -476,6 +497,7 @@ int main() {
     test_affine_inverse();
     test_scripting_vm();
     test_event_dispatcher();
+    test_networking_facade();
     test_serialization_api();
     test_scripting_facade();
 #ifdef _WIN32
