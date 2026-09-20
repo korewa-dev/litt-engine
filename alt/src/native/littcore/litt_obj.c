@@ -170,6 +170,7 @@ static void mesh_bounds(LvMesh *me) {
 }
 
 int lv_obj_load(const char *path, LvModel *out) {
+    if (!path || !out) return 1;
     FILE *f = fopen(path, "rb");
     if (!f) return 1;
     fseek(f, 0, SEEK_END);
@@ -210,7 +211,7 @@ int lv_obj_load(const char *path, LvModel *out) {
                 snprintf(me->name, sizeof(me->name), "%s", cur_name);    \
                 me->verts = cv.v; me->vn = cv.n / 3;                     \
                 me->idx = ci.v; me->in = ci.n;                           \
-                me->uvs = ct.n == cv.n ? ct.v : NULL;                    \
+                me->uvs = ct.n == me->vn * 2 ? ct.v : NULL;                    \
                 if (me->uvs) { ct.v = NULL; ct.n = ct.cap = 0; }         \
                 mesh_bounds(me);                                         \
                 {   LvMtl *mt = mtl_find(&lib, cur_mtl);                 \
@@ -299,7 +300,7 @@ int lv_obj_load(const char *path, LvModel *out) {
                 int got = sscanf(tok, "%d", &vi);
                 if (!got) break;
                 if (vi < 0) vi += (int)(gp.n / 3) + 1;      /* n4: OBJ relative wrap */
-                if (vi < 1) break;     /* 0 or out-of-range negative: drop face */
+                if (vi < 1 || vi > gp.n / 3) { nc = 0; break; } /* invalid position: drop face */
                 /* optional /vt[/vn] slots after the position index */
                 uvtex[nc] = -1;
                 const char *slash = strchr(tok, '/');
