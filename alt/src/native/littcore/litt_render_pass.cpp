@@ -71,7 +71,7 @@ void RenderPipeline::add_pass(std::unique_ptr<RenderPass> pass){if(!pass)return;
 void RenderPipeline::remove_pass(const std::string& name){passes_.erase(std::remove_if(passes_.begin(),passes_.end(),[&](const std::unique_ptr<RenderPass>& p){return p&&p->get_name()==name;}),passes_.end());}
 RenderPass* RenderPipeline::get_pass(const std::string& name){for(auto& p:passes_)if(p&&p->get_name()==name)return p.get();return nullptr;}
 void RenderPipeline::execute(){for(auto& p:passes_)if(p&&p->is_enabled())p->execute();}
-void RenderPipeline::resize(uint32_t width,uint32_t height){if(!valid_dimensions(width,height))return;width_=width;height_=height;for(auto& item:render_targets_)item.second->resize(width,height);}
+void RenderPipeline::resize(uint32_t width,uint32_t height){if(!render_target_detail::valid_dimensions(width,height))return;width_=width;height_=height;for(auto& item:render_targets_)item.second->resize(width,height);}
 RenderTarget* RenderPipeline::get_render_target(const std::string& name){auto it=render_targets_.find(name);return it==render_targets_.end()?nullptr:it->second.get();}
 RenderTarget* RenderPipeline::create_render_target(const std::string& name,uint32_t width,uint32_t height){if(name.empty()||render_targets_.count(name)||!render_target_detail::valid_dimensions(width,height))return nullptr;auto target=std::make_unique<RenderTarget>(width,height);RenderTarget* raw=target.get();render_targets_.emplace(name,std::move(target));return raw;}
 } // namespace litt
