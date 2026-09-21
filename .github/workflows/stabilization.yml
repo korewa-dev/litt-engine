@@ -49,6 +49,8 @@ jobs:
           "$CC" -std=c11 -O2 -Wall -Wextra -Werror=implicit-function-declaration -I alt/src/native/littcore -c alt/src/native/littcore/litt_world.c -o /tmp/litt_world.o
       - name: Native runtime contract
         run: make -C alt/src/native clean test CC="$CC" CXX="$CXX"
+      - name: Canonical engine module contract
+        run: make engine-contract-test CC="$CC" CXX="$CXX"
       - name: Asset pipeline contract
         run: make -C alt/src/native asset-test CC="$CC" CXX="$CXX"
       - name: GPU/software contract
@@ -80,6 +82,7 @@ jobs:
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_stabilization_runner.cpp /tmp/litt_json_sanitized.o -o stabilization_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_scene_persistence_tests.cpp /tmp/litt_json_sanitized.o -o scene_persistence_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_engine_scene_tests.cpp /tmp/litt_json_sanitized.o -o engine_scene_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_engine_tests.cpp alt/src/native/littcore/litt_profiler.cpp /tmp/litt_json_sanitized.o -o engine_contract_sanitized
       - name: Build asset/material contract with ASan/UBSan
         run: >-
           g++ -std=c++17 -O1 -g -Wall -Wextra -fno-omit-frame-pointer -fsanitize=address,undefined
@@ -91,7 +94,7 @@ jobs:
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && /tmp/asset_pipeline_sanitized
+        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && ./engine_contract_sanitized && /tmp/asset_pipeline_sanitized
 
   gpu-rendering-contract:
     runs-on: ubuntu-latest
@@ -241,7 +244,7 @@ jobs:
         run: cl /nologo /std:c++17 /EHsc /W4 /I alt\src\native\littcore alt\src\native\littcore\networking_tests.cpp /Fe:networking_windows.exe ws2_32.lib && networking_windows.exe
       - name: Build native engine tests
         shell: cmd
-        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_engine_tests.cpp alt\src\native\littcore\litt_math.cpp litt_json.obj /Fe:tests.exe gdi32.lib user32.lib winmm.lib
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_engine_tests.cpp alt\src\native\littcore\litt_profiler.cpp alt\src\native\littcore\litt_math.cpp litt_json.obj /Fe:tests.exe gdi32.lib user32.lib winmm.lib
       - name: Run native engine tests
         shell: cmd
         run: tests.exe
