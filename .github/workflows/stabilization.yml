@@ -57,6 +57,10 @@ jobs:
         run: make ffi-contract-test CC="$CC" CXX="$CXX"
       - name: Dither3D CPU contract
         run: make dither-contract-test CC="$CC" CXX="$CXX"
+      - name: All-features gameplay contract
+        run: make gameplay-feature-test CC="$CC" CXX="$CXX"
+      - name: Shader artifact contract
+        run: make -C alt/src/native shader-artifact-test CC="$CC" CXX="$CXX"
       - name: Asset pipeline contract
         run: make -C alt/src/native asset-test CC="$CC" CXX="$CXX"
       - name: GPU/software contract
@@ -92,6 +96,8 @@ jobs:
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native -I alt/src/native/littcore alt/src/native/litteditor_contract_tests.cpp /tmp/litt_json_sanitized.o -o editor_contract_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/include alt/src/native/litt_ffi.cpp alt/src/litt_ffi_contract_tests.cpp -o ffi_contract_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_dither.cpp alt/src/native/littcore/litt_dither_renderer.cpp alt/src/native/littcore/litt_dither_contract_tests.cpp -o dither_contract_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gameplay_feature_tests.cpp alt/src/native/littcore/litt_particle_system.cpp alt/src/native/littcore/litt_culling.cpp alt/src/native/littcore/litt_terrain_system.cpp alt/src/native/littcore/litt_texture.cpp alt/src/native/littcore/litt_render_pass.cpp alt/src/native/littcore/litt_shader_system.cpp -o gameplay_feature_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_shader_compilation.cpp alt/src/native/littcore/litt_shader_artifact_tests.cpp -o shader_artifact_sanitized
       - name: Build asset/material contract with ASan/UBSan
         run: >-
           g++ -std=c++17 -O1 -g -Wall -Wextra -fno-omit-frame-pointer -fsanitize=address,undefined
@@ -103,7 +109,7 @@ jobs:
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && ./engine_contract_sanitized && ./editor_contract_sanitized && ./ffi_contract_sanitized && ./dither_contract_sanitized && /tmp/asset_pipeline_sanitized
+        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && ./engine_contract_sanitized && ./editor_contract_sanitized && ./ffi_contract_sanitized && ./dither_contract_sanitized && ./gameplay_feature_sanitized && ./shader_artifact_sanitized && /tmp/asset_pipeline_sanitized
 
   gpu-rendering-contract:
     runs-on: ubuntu-latest
@@ -266,6 +272,12 @@ jobs:
       - name: Build and run Windows Dither3D CPU contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_dither.cpp alt\src\native\littcore\litt_dither_renderer.cpp alt\src\native\littcore\litt_dither_contract_tests.cpp /Fe:dither_contract_windows.exe && dither_contract_windows.exe
+      - name: Build and run Windows all-features gameplay contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_gameplay_feature_tests.cpp alt\src\native\littcore\litt_particle_system.cpp alt\src\native\littcore\litt_culling.cpp alt\src\native\littcore\litt_terrain_system.cpp alt\src\native\littcore\litt_texture.cpp alt\src\native\littcore\litt_render_pass.cpp alt\src\native\littcore\litt_shader_system.cpp /Fe:gameplay_feature_windows.exe ws2_32.lib gdi32.lib user32.lib winmm.lib && gameplay_feature_windows.exe
+      - name: Build and run Windows shader artifact contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_shader_compilation.cpp alt\src\native\littcore\litt_shader_artifact_tests.cpp /Fe:shader_artifact_windows.exe && shader_artifact_windows.exe
       - name: WorldGen Windows determinism/resource gate
         shell: pwsh
         run: python alt/tools/template/tools/worldgen/worldgen_quality_gate.py --json-out worldgen-windows.json
