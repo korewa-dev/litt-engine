@@ -9,14 +9,15 @@ namespace litt {
 namespace {
 std::atomic<uint32_t> g_render_id{1u};
 thread_local const RenderTarget* g_bound_target=nullptr;
+std::unordered_map<uint32_t,RenderTarget*> g_targets;
 uint8_t channel(float v){if(!std::isfinite(v))return 0;return static_cast<uint8_t>(std::clamp(v,0.0f,1.0f)*255.0f+0.5f);}
 bool valid_dimensions(uint32_t w,uint32_t h){return w>0&&h>0&&static_cast<uint64_t>(w)*h<=16ull*1024ull*1024ull;}
 }
 RenderTarget::RenderTarget(uint32_t width,uint32_t height):width_(width),height_(height),color_texture_(0),depth_texture_(0),framebuffer_(0){
-    if(valid_dimensions(width_,height_)){color_texture_=g_render_id.fetch_add(1u);depth_texture_=g_render_id.fetch_add(1u);framebuffer_=g_render_id.fetch_add(1u);color_pixels_.resize(static_cast<size_t>(width_)*height_*4u);depth_pixels_.resize(static_cast<size_t>(width_)*height_,1.0f);}
+    if(valid_dimensions(width_,height_)){color_texture_=g_render_id.fetch_add(1u);depth_texture_=g_render_id.fetch_add(1u);framebuffer_=g_render_id.fetch_add(1u);color_pixels_.resize(static_cast<size_t>(width_)*height_*4u);depth_pixels_.resize(static_cast<size_t>(width_)*height_,1.0f);g_targets[color_texture_]=this;}
     else width_=height_=0;
 }
-RenderTarget::~RenderTarget(){if(g_bound_target==this)g_bound_target=nullptr;}
+RenderTarget::~RenderTarget(){if(g_bound_target==this)g_bound_target=nullptr;g_targets.erase(color_texture_);}
 void RenderTarget::bind() const {if(framebuffer_)g_bound_target=this;}
 void RenderTarget::unbind() const {if(g_bound_target==this)g_bound_target=nullptr;}
 void RenderTarget::resize(uint32_t width,uint32_t height){if(!valid_dimensions(width,height))return;width_=width;height_=height;color_pixels_.assign(static_cast<size_t>(width_)*height_*4u,0);depth_pixels_.assign(static_cast<size_t>(width_)*height_,1.0f);}
@@ -27,9 +28,59 @@ void ShadowPass::execute(){if(!enabled_)return;if(shadow_map_)shadow_map_->bind(
 GeometryPass::GeometryPass():RenderPass(RenderPassType::GEOMETRY){name_="geometry";}
 void GeometryPass::execute(){if(!enabled_)return;if(render_target_)render_target_->bind();run_callback();if(render_target_)render_target_->unbind();}
 LightingPass::LightingPass():RenderPass(RenderPassType::LIGHTING){name_="lighting";}
-void LightingPass::execute(){if(!enabled_)return;if(output_target_)output_target_->bind();run_callback();if(output_target_)output_target_->unbind();}
+void LightingPass::execute(){
+    if(!enabled_)return;
+    if(output_target_)output_target_->bind();
+    if(gbuffer_&&output_target_&&gbuffer_->get_width()==output_target_->get_width()&&gbuffer_->get_height()==output_target_->get_height())
+        output_target_->mutable_color_pixels()=gbuffer_->color_pixels();
+    run_callback();
+    if(output_target_)output_target_->unbind();
+}
 PostProcessPass::PostProcessPass():RenderPass(RenderPassType::POST_PROCESS){name_="post_process";}
-void PostProcessPass::execute(){if(!enabled_)return;if(output_target_)output_target_->bind();run_callback();if(output_target_)output_target_->unbind();}
+void PostProcessPass::execute(){
+    if(!enabled_)return;
+    if(output_target_)output_target_->bind();
+    auto source_it=g_targets.find(input_texture_);
+    if(output_target_&&source_it!=g_targets.end()){
+        RenderTarget* source=source_it->second;
+        if(source&&source->get_width()==output_target_->get_width()&&source->get_height()==output_target_->get_height()){
+            std::vector<uint8_t> pixels=source->color_pixels();
+            const uint32_t width=output_target_->get_width(),height=output_target_->get_height();
+            if(tone_mapping_enabled_){
+                const float exposure=std::isfinite(exposure_)?std::clamp(exposure_,0.0f,32.0f):1.0f;
+                for(size_t i=0;i+3<pixels.size();i+=4)for(int ch=0;ch<3;++ch){
+                    const float linear=static_cast<float>(pixels[i+ch])/255.0f;
+                    const float mapped=1.0f-std::exp(-linear*exposure);
+                    pixels[i+ch]=static_cast<uint8_t>(std::clamp(mapped,0.0f,1.0f)*255.0f+0.5f);
+                }
+            }
+            if(bloom_enabled_&&width>2&&height>2){
+                const std::vector<uint8_t> original=pixels;
+                for(uint32_t y=1;y+1<height;++y)for(uint32_t x=1;x+1<width;++x){
+                    const size_t center=(static_cast<size_t>(y)*width+x)*4u;
+                    const float lum=(original[center]+original[center+1]+original[center+2])/(3.0f*255.0f);
+                    if(lum<0.75f)continue;
+                    for(int oy=-1;oy<=1;++oy)for(int ox=-1;ox<=1;++ox){
+                        const size_t idx=(static_cast<size_t>(static_cast<int>(y)+oy)*width+static_cast<size_t>(static_cast<int>(x)+ox))*4u;
+                        for(int ch=0;ch<3;++ch)pixels[idx+ch]=static_cast<uint8_t>(std::min(255u,static_cast<unsigned>(pixels[idx+ch])+static_cast<unsigned>(original[center+ch]/18u)));
+                    }
+                }
+            }
+            if(fxaa_enabled_&&width>2&&height>2){
+                const std::vector<uint8_t> original=pixels;
+                for(uint32_t y=1;y+1<height;++y)for(uint32_t x=1;x+1<width;++x){
+                    const size_t idx=(static_cast<size_t>(y)*width+x)*4u;
+                    int min_l=765,max_l=0;int lum[5];const int offsets[5][2]={{0,0},{-1,0},{1,0},{0,-1},{0,1}};
+                    for(int k=0;k<5;++k){const size_t q=(static_cast<size_t>(static_cast<int>(y)+offsets[k][1])*width+static_cast<size_t>(static_cast<int>(x)+offsets[k][0]))*4u;lum[k]=original[q]+original[q+1]+original[q+2];min_l=std::min(min_l,lum[k]);max_l=std::max(max_l,lum[k]);}
+                    if(max_l-min_l>96)for(int ch=0;ch<3;++ch){unsigned sum=0;for(int k=0;k<5;++k){const size_t q=(static_cast<size_t>(static_cast<int>(y)+offsets[k][1])*width+static_cast<size_t>(static_cast<int>(x)+offsets[k][0]))*4u;sum+=original[q+ch];}pixels[idx+ch]=static_cast<uint8_t>(sum/5u);}
+                }
+            }
+            output_target_->mutable_color_pixels()=std::move(pixels);
+        }
+    }
+    run_callback();
+    if(output_target_)output_target_->unbind();
+}
 UIPass::UIPass():RenderPass(RenderPassType::UI){name_="ui";}
 void UIPass::execute(){if(enabled_)run_callback();}
 
