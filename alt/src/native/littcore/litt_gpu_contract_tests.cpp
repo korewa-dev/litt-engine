@@ -32,6 +32,8 @@ static void assert_unavailable_backend_contract(const char* backend_name) {
 int main() {
     assert_unavailable_backend_contract("vulkan");
     assert_unavailable_backend_contract("dx12");
+    assert_unavailable_backend_contract("opengl");
+    assert_unavailable_backend_contract("metal");
 
     const auto sw_cap = gpu_backend_capability("software");
     assert(sw_cap.support == GPUBackendSupport::Supported);
