@@ -95,15 +95,20 @@ gpu-contract-test: littcore/litt_gpu.cpp littcore/litt_gpu_contract_tests.cpp li
 	$(CXX) $(CXXFLAGS) littcore/litt_gpu_lisuan.cpp littcore/litt_gpu_vendor_contract_tests.cpp -o bin/litt_gpu_vendor_contract_tests $(LDFLAGS) $(LDLIBS)
 	cd bin && ./litt_gpu_contract_tests && ./litt_gpu_vendor_contract_tests
 
-# Dither3D demo
-bin/dither3d_demo: bin/litt_json.o bin/litt_obj.o bin/litt_world.o litt_dither.o litt_dither_renderer.o dither3d_demo.cpp
+# Dither3D software demo
+bin/dither3d_demo: dither3d_demo.cpp littcore/litt_dither.cpp littcore/litt_dither_renderer.cpp
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 	@echo "[build] bin/dither3d_demo OK"
+
+shader-artifact-test: littcore/litt_shader_compilation.cpp littcore/litt_shader_artifact_tests.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $^ -o bin/shader_artifact_tests $(LDFLAGS) $(LDLIBS)
+	cd bin && ./shader_artifact_tests
 
 dither3d_demo: bin/dither3d_demo
 
 clean:
 	rm -rf bin dist
 
-.PHONY: all sdk install-sdk test selftest network-test asset-test gpu-contract-test clean dither3d_demo
+.PHONY: all sdk install-sdk test selftest network-test asset-test gpu-contract-test shader-artifact-test clean dither3d_demo
