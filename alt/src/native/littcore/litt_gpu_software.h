@@ -19,6 +19,8 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
+#include <fstream>
+#include <sstream>
 
 namespace litt {
 
@@ -178,16 +180,41 @@ public:
     
     void destroy_texture(GPUTexture* /*texture*/) override {}
     
-    std::unique_ptr<GPUShader> create_shader(const std::string& /*vs*/, const std::string& /*fs*/) override {
-        return nullptr;
+    std::unique_ptr<GPUShader> create_shader(const std::string& vs, const std::string& fs) override {
+        if ((vs.empty() && fs.empty()) || vs.size() + fs.size() > 8u * 1024u * 1024u) return nullptr;
+        struct SoftwareShader final : GPUShader {
+            std::string vertex_source;
+            std::string fragment_source;
+            std::unordered_map<std::string, std::vector<uint8_t>> uniforms;
+            explicit SoftwareShader(std::string vertex, std::string fragment)
+                : vertex_source(std::move(vertex)), fragment_source(std::move(fragment)) {}
+            void bind() override {}
+            void set_uniform(const std::string& name, const void* data, size_t size) override {
+                if (name.empty() || (!data && size) || size > 64u * 1024u) return;
+                const auto* bytes = static_cast<const uint8_t*>(data);
+                uniforms[name] = size ? std::vector<uint8_t>(bytes, bytes + size) : std::vector<uint8_t>{};
+            }
+        };
+        return std::make_unique<SoftwareShader>(vs, fs);
     }
     
-    std::unique_ptr<GPUShader> create_shader_from_file(const std::string& /*path*/) override {
-        return nullptr;
+    std::unique_ptr<GPUShader> create_shader_from_file(const std::string& path) override {
+        if (path.empty()) return nullptr;
+        std::ifstream file(path, std::ios::binary);
+        if (!file) return nullptr;
+        file.seekg(0, std::ios::end);
+        const std::streamoff size = file.tellg();
+        if (size <= 0 || size > static_cast<std::streamoff>(8u * 1024u * 1024u)) return nullptr;
+        file.seekg(0, std::ios::beg);
+        std::string source(static_cast<size_t>(size), '\0');
+        if (!file.read(source.data(), size)) return nullptr;
+        return create_shader(source, {});
     }
     
     std::shared_ptr<RenderTarget> create_render_target(uint32_t width, uint32_t height) override {
-        return nullptr;
+        size_t pixels = 0, bytes = 0;
+        if (!software_detail::image_sizes(width, height, pixels, bytes)) return nullptr;
+        return std::make_shared<RenderTarget>(width, height);
     }
     
     size_t get_vram_usage() const override { return 0; }
