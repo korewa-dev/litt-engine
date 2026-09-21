@@ -55,7 +55,7 @@ bin/liblittcore.a: bin/litt_json.o bin/litt_obj.o bin/litt_world.o $(CPP_CORE_OB
 
 cpp-sdk: bin/liblittcore.a
 	@mkdir -p dist/include/litt dist/lib
-	@for header in $(CPP_PUBLIC_HEADERS); do cp "littcore/$header" dist/include/litt/; done
+	cp $(addprefix littcore/,$(CPP_PUBLIC_HEADERS)) dist/include/litt/
 	cp bin/liblittcore.a dist/lib/liblittcore.a
 	@echo "[build] dist Litt C++ SDK OK"
 
