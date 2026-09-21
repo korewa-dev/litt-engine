@@ -1,7 +1,7 @@
 # Litt Engine — Game Build Makefile
 # Use these targets to build games the correct way.
 
-.PHONY: game validate clean test stabilization-test scene-persistence-test engine-contract-test editor-contract-test ffi-contract-test cpp-game
+.PHONY: game validate clean test stabilization-test scene-persistence-test engine-contract-test editor-contract-test ffi-contract-test dither-contract-test cpp-game
 
 GAME ?= mygame
 
@@ -38,6 +38,10 @@ editor-contract-test:
 ffi-contract-test:
 	$(CXX) -std=c++17 -O2 -Wall -Wextra -I alt/include alt/src/native/litt_ffi.cpp alt/src/litt_ffi_contract_tests.cpp -o ffi_contract_tests.exe
 	./ffi_contract_tests.exe
+
+dither-contract-test:
+	$(CXX) -std=c++17 -O2 -Wall -Wextra -I alt/src/native/littcore alt/src/native/littcore/litt_dither.cpp alt/src/native/littcore/litt_dither_renderer.cpp alt/src/native/littcore/litt_dither_contract_tests.cpp -o dither_contract_tests.exe
+	./dither_contract_tests.exe
 
 cpp-game:
 	g++ -std=c++17 -I alt/src/native/littcore -o $(GAME).exe alt/Project/$(GAME)/engine/game.cpp alt/src/native/littcore/litt_obj.c alt/src/native/littcore/litt_json.c alt/src/native/littcore/litt_world.c -lgdi32 -luser32 -lwinmm
