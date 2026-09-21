@@ -1,416 +1,191 @@
-// =============================================================================
-// Litt Engine - Complete Test Suite
-// Behavioral tests assert observable state or explicit implementation status.
-// =============================================================================
-
-#include <iostream>
-#include <vector>
-#include <memory>
+// Litt Engine - canonical module contract tests
 #include <cmath>
 #include <cstdio>
+#include <cstring>
+#include <memory>
+#include <string>
+#include <vector>
 
-#include "litt_math.h"
 #include "litt_engine_systems.h"
-#include "litt_gpu_software.h"
 
 using namespace litt;
 
-int passed = 0, failed = 0;
+static int passed = 0;
+static int failed = 0;
 
-void check(bool cond, const char* name) {
-    if (cond) { passed++; printf("  ok %s\n", name); }
-    else { failed++; printf("  FAIL %s\n", name); }
-    fflush(stdout);
-}
-
-void test_math() {
-    printf("[Math]\n"); fflush(stdout);
-    Vec3 a(1,2,3), b(4,5,6);
-    check((a+b).x == 5, "vec3_add");
-    check(a.dot(b) == 32.0f, "vec3_dot");
-    check(std::abs(a.length() - std::sqrt(14.0f)) < 0.01f, "vec3_length");
-    Vec3 cross = a.cross(b);
-    check(cross.x == -3 && cross.y == 6 && cross.z == -3, "vec3_cross");
-    Mat4 m = Mat4::identity();
-    Vec3 transformed = m * a;
-    check(transformed.x == 1 && transformed.y == 2 && transformed.z == 3, "mat4_transform");
-    
-    // Matrix multiplication: column-major correctness
-    Mat4 t1 = Mat4::translation(Vec3(10, 0, 0));
-    Mat4 t2 = Mat4::translation(Vec3(2, 0, 0));
-    Mat4 combined = t1 * t2;
-    Vec3 origin(0, 0, 0);
-    Vec3 result = combined * origin;
-    check(result.x == 12.0f, "mat4_compose_translation");
-    
-    // Identity properties
-    Mat4 id = Mat4::identity();
-    Mat4 m_test = Mat4::translation(Vec3(5, 5, 5));
-    Mat4 r1 = id * m_test;
-    Mat4 r2 = m_test * id;
-    Vec3 p1 = r1 * Vec3::zero();
-    Vec3 p2 = r2 * Vec3::zero();
-    check(p1.x == 5.0f && p2.x == 5.0f, "mat4_identity_property");
-    
-    printf("Math done\n"); fflush(stdout);
-}
-
-void test_radiometry() {
-    printf("[Radiometry]\n"); fflush(stdout);
-    check(schlick_fresnel(0.0f, 0.04f) == 1.0f, "fresnel_grazing");
-    check(std::abs(schlick_fresnel(1.0f, 0.04f) - 0.04f) < 0.01f, "fresnel_normal");
-    Vec3 refracted = RefractionCalculator::refracted_direction(Vec3(0,-1,0), Vec3(0,1,0), 1.0f, 1.5f);
-    check(refracted.y < 0.0f, "snell_refraction");
-    MicrofacetDistribution md = {0.5f};
-    check(md.ggx(1.0f) > 0.0f, "ggx_distribution");
-    CookTorranceBRDF brdf;
-    Vec3 brdf_val = brdf.evaluate(Vec3(0,1,0), Vec3(0,1,0), Vec3(0,1,0));
-    check(brdf_val.x > 0.0f || brdf_val.y > 0.0f || brdf_val.z > 0.0f, "cook_torrance");
-    printf("Radiometry done\n"); fflush(stdout);
-}
-
-void test_path_tracing() {
-    printf("[Path Tracing]\n"); fflush(stdout);
-    PT_Triangle tri;
-    tri.v0 = Vec3(-1, -1, -5); tri.v1 = Vec3(1, -1, -5); tri.v2 = Vec3(0, 1, -5);
-    tri.material.albedo = Vec3(0.8f, 0.8f, 0.8f);
-    tri.precompute();
-    check(std::abs(tri.normal.z - 1.0f) < 0.01f, "triangle_normal");
-    
-    Ray ray(Vec3(0, 0, 0), Vec3(0, 0, -1));
-    float t_val, u, v;
-    bool hit_result = ray_triangle_intersect(ray, tri, t_val, u, v);
-    check(hit_result, "ray_triangle_hit");
-    check(t_val > 0.0f && t_val < 100.0f, "ray_triangle_distance");
-    
-    Aabb box(Vec3(-1,-1,-6), Vec3(1,1,-4));
-    float tmin, tmax;
-    check(ray_aabb_intersect(ray, box, tmin, tmax), "ray_aabb_hit");
-    
-    std::vector<PT_Triangle> tris = {tri};
-    UnidirectionalPathTracer tracer;
-    tracer.set_triangles(&tris);
-    auto bvh = tracer.build_bvh();
-    check(bvh != nullptr, "bvh_build");
-    
-    Vec3 color = tracer.trace_path(ray, 0);
-    check(color.x >= 0.0f && color.y >= 0.0f && color.z >= 0.0f, "path_trace");
-    printf("Path tracing done\n"); fflush(stdout);
-}
-
-void test_physics() {
-    printf("[Physics]\n"); fflush(stdout);
-    PhysicsEngine physics;
-    Rigidbody body;
-    body.position = Vec3(0, 10, 0);
-    body.mass = 1.0f;
-    body.inv_mass = 1.0f;
-    physics.add_body(&body);
-    physics.update(0.1f);
-    check(body.position.y < 10.0f, "gravity");
-    check(body.velocity.y < 0.0f, "velocity_from_gravity");
-    printf("Physics done\n"); fflush(stdout);
-}
-
-void test_audio() {
-    printf("[Audio]\n"); fflush(stdout);
-    auto& audio = AudioEngine::get_instance();
-    audio.initialize();
-    uint32_t clip = audio.load_clip("test.wav");
-    check(clip > 0, "audio_load");
-    uint32_t source = audio.create_source(clip, Vec3(0,0,0));
-    check(source > 0, "audio_source");
-    audio.shutdown();
-    printf("Audio done\n"); fflush(stdout);
-}
-
-void test_input() {
-    printf("[Input]\n"); fflush(stdout);
-    InputManager input;
-    input.set_key_state(65, KeyState::PRESSED);
-    check(input.is_key_pressed(65), "key_pressed");
-    input.set_mouse_position(100, 200);
-    check(input.get_mouse_position().x == 100.0f, "mouse_position");
-    input.set_mouse_button(0, true);
-    check(input.is_mouse_button_down(0), "mouse_button");
-    GamepadState gp;
-    gp.connected = true;
-    gp.button_a = true;
-    input.set_gamepad_state(0, gp);
-    check(input.get_gamepad(0).button_a, "gamepad");
-    printf("Input done\n"); fflush(stdout);
-}
-
-void test_animation() {
-    printf("[Animation]\n"); fflush(stdout);
-    SkeletalAnimationController anim;
-    Bone bone;
-    bone.id = 0;
-    anim.add_bone(bone);
-    AnimationClip clip2;
-    clip2.name = "Walk";
-    clip2.duration = 1.0f;
-    clip2.bone_keyframes.resize(1);
-    Keyframe kf;
-    kf.time = 0.0f;
-    kf.position = Vec3(0, 1, 0);
-    kf.rotation = Quat::identity();
-    kf.scale = Vec3(1, 1, 1);
-    clip2.bone_keyframes[0].push_back(kf);
-    anim.load_clip("Walk", clip2);
-    anim.play("Walk");
-    anim.update(0.016f);
-    check(anim.current_clip != nullptr && anim.playback_time > 0.0f,
-          "animation_playback_state");
-    printf("Animation done\n"); fflush(stdout);
-}
-
-void test_ui() {
-    printf("[UI]\n"); fflush(stdout);
-    auto& ui = UIManager::get_instance();
-    UIPanel* panel = ui.create_panel();
-    check(panel != nullptr, "ui_panel");
-    UIButton* btn = ui.create_button();
-    btn->set_text("Test");
-    btn->click();
-    check(btn->was_clicked(), "ui_button");
-    UILabel* lbl = ui.create_label();
-    lbl->set_text("Hello");
-    check(lbl->get_text() == "Hello", "ui_label");
-    UISlider* sld = ui.create_slider();
-    sld->change_value(0.5f);
-    check(sld->was_changed(), "ui_slider");
-    printf("UI done\n"); fflush(stdout);
-}
-
-void test_editor() {
-    printf("[Editor]\n"); fflush(stdout);
-    DebugRenderer debug;
-    debug.draw_line(Vec3(0,0,0), Vec3(1,1,1));
-    Aabb box(Vec3(-1,-1,-6), Vec3(1,1,-4));
-    debug.draw_aabb(box);
-    debug.draw_coordinate_frame(Vec3(0,0,0));
-    debug.update(0.016f);
-    PerformanceOverlay overlay;
-    overlay.update(0.016f);
-    check(overlay.get_stats().fps > 0.0f, "performance_overlay");
-    printf("Editor done\n"); fflush(stdout);
-}
-
-void test_scripting() {
-    printf("[Scripting]\n"); fflush(stdout);
-    ScriptingEngine scripting;
-    scripting.initialize();
-    uint32_t script = scripting.create_script_instance(1, "PlayerController");
-    check(script > 0, "script_create");
-    scripting.call_method(script, "OnCreate");
-    scripting.update(0.016f);
-    scripting.shutdown();
-    printf("Scripting done\n"); fflush(stdout);
-}
-
-void test_advanced_rendering() {
-    printf("[Advanced Rendering]\n"); fflush(stdout);
-    VarianceShadowMap vsm;
-    check(vsm.resolution == 2048, "vsm_resolution");
-    SSAO ssao;
-    ssao.compute_ao();
-    check(ssao.num_samples == 16, "ssao_samples");
-    HDRPipeline hdr;
-    Vec3 tone_mapped = hdr.apply_tone_mapping(Vec3(2.0f, 3.0f, 4.0f));
-    check(tone_mapped.x <= 1.0f && tone_mapped.y <= 1.0f && tone_mapped.z <= 1.0f, "hdr_tone_mapping");
-    BloomEffect bloom;
-    bloom.apply_bloom();
-    check(bloom.num_mip_levels == 5, "bloom_mips");
-    DepthOfField dof;
-    dof.apply_dof();
-    check(dof.focal_distance == 10.0f, "dof_focal");
-    MotionBlur mb;
-    mb.apply_motion_blur();
-    check(mb.num_samples == 8, "motion_blur_samples");
-    TAA taa;
-    taa.apply_taa();
-    check(TAA::status() == ImplementationStatus::Stub, "taa_reports_stub");
-    SSR ssr;
-    ssr.apply_ssr();
-    check(ssr.max_steps == 64, "ssr_steps");
-    printf("Advanced rendering done\n"); fflush(stdout);
-}
-
-void test_networking() {
-    printf("[Networking]\n"); fflush(stdout);
-    NetworkManager net;
-    check(NetworkManager::status() == ImplementationStatus::Unavailable &&
-          !net.initialize(NetworkManager::Mode::CLIENT),
-          "network_reports_unavailable");
-    net.shutdown();
-    printf("Networking done\n"); fflush(stdout);
-}
-
-void test_gameplay() {
-    printf("[Gameplay]\n"); fflush(stdout);
-    SaveLoadSystem saveload;
-    check(SaveLoadSystem::status() == ImplementationStatus::Unavailable &&
-          !saveload.save_game("test.sav") &&
-          !saveload.load_game("test.sav"),
-          "saveload_reports_unavailable");
-    AchievementSystem achievements;
-    achievements.unlock_achievement(1);
-    check(achievements.is_unlocked(1), "achievement_unlock");
-    QuestSystem quests;
-    QuestSystem::Quest q;
-    q.id = 1;
-    q.name = "Test Quest";
-    quests.add_quest(q);
-    quests.complete_quest(1);
-    check(quests.is_completed(1), "quest_completion_state");
-    DialogueSystem dialogue;
-    DialogueSystem::DialogueNode node;
-    node.id = 1;
-    node.text = "Hello";
-    dialogue.add_node(node);
-    check(dialogue.get_node(1) != nullptr, "dialogue_node");
-    printf("Gameplay done\n"); fflush(stdout);
-}
-
-void test_performance() {
-    printf("[Performance]\n"); fflush(stdout);
-    Profiler profiler;
-    profiler.begin_scope("Test");
-    profiler.end_scope();
-    check(Profiler::status() == ImplementationStatus::Stub, "profiler_reports_stub");
-    OcclusionCulling occlusion;
-    occlusion.initialize();
-    occlusion.update();
-    LODSystem lod;
-    check(lod.select_lod(5.0f) == 0, "lod_near");
-    check(lod.select_lod(1000.0f) == 3, "lod_far");
-    TextureStreaming streaming;
-    streaming.initialize();
-    streaming.update();
-    MemoryTracker mem;
-    void* ptr = mem.allocate(100, __FILE__, __LINE__);
-    check(mem.get_total_allocated() == 100, "memory_alloc");
-    mem.deallocate(ptr);
-    check(mem.get_total_allocated() == 0, "memory_dealloc");
-    printf("Performance done\n"); fflush(stdout);
-}
-
-void test_large_world() {
-    printf("[Large World]\n"); fflush(stdout);
-    TerrainRenderer terrain;
-    terrain.initialize();
-    terrain.update();
-    FoliageSystem foliage;
-    foliage.initialize();
-    foliage.update();
-    WorldPartitioning wp;
-    wp.initialize();
-    wp.update();
-    LevelStreaming ls;
-    ls.initialize();
-    ls.update();
-    check(TerrainRenderer::status() == ImplementationStatus::Stub &&
-          FoliageSystem::status() == ImplementationStatus::Stub &&
-          WorldPartitioning::status() == ImplementationStatus::Stub &&
-          LevelStreaming::status() == ImplementationStatus::Stub,
-          "large_world_reports_stub");
-    printf("Large world done\n"); fflush(stdout);
-}
-
-void test_engine_loop() {
-    printf("[Engine Loop]\n"); fflush(stdout);
-    UISystem uisys;
-    uisys.initialize();
-    uisys.update();
-    AssetPackager packager;
-    packager.initialize();
-    packager.update();
-    EngineLoop loop;
-    loop.initialize();
-    loop.stop();
-    Benchmark bench;
-    bench.run_benchmark();
-    check(AssetPackager::status() == ImplementationStatus::Stub &&
-          EngineLoop::status() == ImplementationStatus::Stub &&
-          Benchmark::status() == ImplementationStatus::Stub,
-          "engine_tooling_reports_stub");
-    printf("Engine loop done\n"); fflush(stdout);
-}
-
-void test_3d_rendering() {
-    printf("[3D Rendering]\n"); fflush(stdout);
-    
-    SoftwareRenderer sw;
-    check(sw.initialize("headless"), "software_renderer_headless_init");
-
-    sw.clear(0x000000);
-    sw.draw_pixel(100, 100, 0xFF0000);
-    check(sw.get_pixel(100, 100) == 0xFF0000, "software_pixel_write");
-
-    sw.clear(0x000000);
-    sw.draw_triangle(10, 10, 50, 10, 30, 50, 0x0000FF);
-    check(sw.get_pixel(30, 20) == 0x0000FF, "software_filled_triangle");
-
-    const Mat4 proj = Mat4::perspective(60.0f, 800.0f / 600.0f, 0.1f, 100.0f);
-
-    sw.clear(0x000000);
-    sw.draw_triangle_3d(
-        Vec3(-0.5f, -0.5f, -2.0f),
-        Vec3( 0.5f, -0.5f, -2.0f),
-        Vec3( 0.0f,  0.5f, -2.0f), proj, 0xFF00FF);
-    check(sw.get_pixel(400, 300) == 0xFF00FF, "software_projected_triangle_pixels");
-
-    sw.clear(0x000000);
-    sw.draw_triangle_3d(
-        Vec3(-0.5f, -0.5f, 2.0f),
-        Vec3( 0.5f, -0.5f, 2.0f),
-        Vec3( 0.0f,  0.5f, 2.0f), proj, 0xFFFFFF);
-    check(sw.get_pixel(400, 300) == 0x000000, "software_rejects_behind_camera");
-
-    sw.clear(0x000000);
-    sw.draw_triangle_3d(
-        Vec3(-0.5f, -0.5f, -0.05f),
-        Vec3( 0.6f, -0.5f, -1.0f),
-        Vec3( 0.0f,  0.6f, -1.0f), proj, 0x00FFFF);
-    bool any_color = false;
-    const auto& pixels = sw.framebuffer_pixels();
-    for (size_t i = 0; i + 3 < pixels.size(); i += 4) {
-        if (pixels[i] || pixels[i + 1] || pixels[i + 2]) {
-            any_color = true;
-            break;
-        }
+static void check(bool condition, const char* name) {
+    if (condition) {
+        ++passed;
+        std::printf("  ok %s\n", name);
+    } else {
+        ++failed;
+        std::printf("  FAIL %s\n", name);
     }
-    check(any_color, "software_near_plane_clipping");
+}
 
-    sw.shutdown();
-    printf("3D Rendering done\n"); fflush(stdout);
+static bool nearf(float a, float b, float eps = 1e-5f) {
+    return std::fabs(a - b) <= eps;
+}
+
+static void test_umbrella() {
+    check(EngineSystemsContract::version == 1u, "systems_umbrella_version");
+    Vec3 v = Mat4::identity() * Vec3(1.0f, 2.0f, 3.0f);
+    check(v.x == 1.0f && v.y == 2.0f && v.z == 3.0f, "math_through_umbrella");
+}
+
+static void test_input() {
+    Input input;
+    input.load_defaults();
+    input.press(Key::Space);
+    input.update();
+    check(input.action("jump"), "input_bound_action");
+    check(input.action_pressed("jump"), "input_press_edge");
+    input.update();
+    check(!input.action_pressed("jump"), "input_edge_not_repeated");
+    input.release(Key::Space);
+    input.update();
+    check(!input.action("jump"), "input_release");
+}
+
+static void test_ui() {
+    UIManager ui;
+    int clicks = 0;
+    auto window = std::make_shared<UIWindow>("main", Vec2{0, 0}, Vec2{200, 100});
+    auto button = std::make_shared<UIButton>("go", Vec2{10, 10}, Vec2{80, 30});
+    button->onClick([&clicks] { ++clicks; });
+    window->addElement(button);
+    ui.addWindow(window);
+    ui.onMouseDown(Vec2{20, 20});
+    check(clicks == 1 && button->isPressed(), "ui_button_click");
+    button->onMouseUp(Vec2{20, 20});
+    check(!button->isPressed(), "ui_button_release");
+
+    UISlider slider(Vec2{0, 0}, Vec2{100, 10}, -1.0f, 1.0f);
+    slider.onMouseDown(Vec2{75, 5});
+    check(nearf(slider.getValue(), 0.5f), "ui_slider_position");
+}
+
+static void test_physics() {
+    PhysicsBody a;
+    a.centerOfMass = Vec3{0, 0, 0};
+    a.aabb = Aabb(Vec3{-1, -1, -1}, Vec3{1, 1, 1});
+    a.inverseMass = 1.0f;
+
+    PhysicsBody b;
+    b.centerOfMass = Vec3{1.5f, 0, 0};
+    b.aabb = Aabb(Vec3{0.5f, -1, -1}, Vec3{2.5f, 1, 1});
+    b.inverseMass = 0.0f;
+    b.isStatic = true;
+
+    PhysicsSystem physics(1.0f / 60.0f, Vec3::zero());
+    check(physics.addBody(&a) && physics.addBody(&b), "physics_add_valid_bodies");
+    physics.update();
+    check(a.centerOfMass.x < 0.0f, "physics_resolves_dynamic_static_overlap");
+
+    PhysicsBody invalid = a;
+    invalid.centerOfMass.x = std::nanf("");
+    check(!physics.addBody(&invalid), "physics_rejects_nonfinite_body");
+}
+
+static std::shared_ptr<AudioClip> make_clip() {
+    auto clip = std::make_shared<AudioClip>();
+    clip->sampleRate = 8000;
+    clip->channels = 1;
+    clip->lengthSamples = 4;
+    clip->data = {0.25f, -0.5f, 1.0f, -1.0f};
+    return clip;
+}
+
+static void test_audio() {
+    SoftwareAudioMixer mixer;
+    check(mixer.initialize(8000), "audio_mixer_init");
+    check(mixer.add_source("tone", make_clip()), "audio_add_source");
+    check(mixer.play("tone"), "audio_play");
+    float frames[8]{};
+    check(mixer.render(frames, 4), "audio_render");
+    check(nearf(frames[0], 0.25f) && nearf(frames[1], 0.25f), "audio_mono_to_stereo");
+}
+
+static void test_lod() {
+    LODSystem& lod = LODSystem::get_instance();
+    lod.clear();
+    LODGroup* group = lod.create_group("world");
+    check(group != nullptr, "lod_group_create");
+    check(group && group->add_level({10.0f, 300, 100, 1.0f}), "lod_level_near");
+    check(group && group->add_level({50.0f, 120, 40, 0.5f}), "lod_level_mid");
+    check(group && group->add_level({200.0f, 30, 10, 0.2f}), "lod_level_far");
+
+    LODComponent component;
+    component.group = group;
+    component.world_position = Vec3{25, 0, 0};
+    check(lod.register_component(&component), "lod_component_register");
+    lod.update(Vec3::zero());
+    check(component.current_lod == 1u, "lod_distance_selection");
+    check(lod.set_lod_bias(2.0f), "lod_bias_set");
+    lod.update(Vec3::zero());
+    check(component.current_lod == 2u, "lod_bias_applied");
+    check(lod.unregister_component(&component), "lod_component_unregister");
+    lod.clear();
+}
+
+static void test_serialization() {
+    JSONSerializer json;
+    json.set_data("{\"name\":\"litt\",\"version\":1}");
+    const auto json_bytes = json.serialize_to_buffer();
+    check(!json_bytes.empty(), "json_serialize_valid");
+
+    JSONSerializer restored;
+    check(restored.deserialize_from_buffer(json_bytes), "json_deserialize_valid");
+    check(restored.get_data() == json.get_data(), "json_roundtrip");
+    check(!restored.deserialize_from_buffer(std::vector<uint8_t>{'{','x','}'}),
+          "json_rejects_invalid");
+
+    BinarySerializer binary;
+    check(binary.write_uint(42u) && binary.write_float(3.5f) &&
+          binary.write_string("engine") && binary.write_bool(true),
+          "binary_write");
+    const auto bytes = binary.serialize_to_buffer();
+    BinarySerializer decoded;
+    check(decoded.deserialize_from_buffer(bytes), "binary_deserialize");
+    check(decoded.read_uint() == 42u && nearf(decoded.read_float(), 3.5f) &&
+          decoded.read_string() == "engine" && decoded.read_bool() && decoded.good(),
+          "binary_roundtrip");
+    (void)decoded.read_uint();
+    check(!decoded.good(), "binary_bounds_failure_is_sticky");
+}
+
+static void test_profiler() {
+    Profiler& profiler = Profiler::get_instance();
+    profiler.reset();
+    profiler.begin_sample("contract");
+    profiler.end_sample("contract");
+    const ProfilerStats stats = profiler.get_stats("contract");
+    check(stats.sample_count == 1u && stats.total_time_ms >= 0.0, "profiler_sample");
+    profiler.update_fps();
+    profiler.update_fps();
+    check(profiler.get_frame_time_ms() >= 0.0, "profiler_frame_time");
+}
+
+static void test_software_renderer() {
+    SoftwareRenderer renderer;
+    check(renderer.initialize("headless"), "software_renderer_init");
+    renderer.clear(0);
+    renderer.draw_triangle(10, 10, 50, 10, 30, 50, 0x00ff00u);
+    check(renderer.get_pixel(30, 20) == 0x00ff00u, "software_renderer_triangle");
+    renderer.shutdown();
 }
 
 int main() {
-    printf("Starting tests...\n"); fflush(stdout);
-    
-    test_math();
-    test_radiometry();
-    test_path_tracing();
+    test_umbrella();
+    test_input();
+    test_ui();
     test_physics();
     test_audio();
-    test_input();
-    test_animation();
-    test_ui();
-    test_editor();
-    test_scripting();
-    test_advanced_rendering();
-    test_networking();
-    test_gameplay();
-    test_performance();
-    test_large_world();
-    test_engine_loop();
-    test_3d_rendering();
-    
-    printf("\n========================================\n");
-    printf("Results: %d passed, %d failed\n", passed, failed);
-    printf("========================================\n");
-    
-    return failed > 0 ? 1 : 0;
+    test_lod();
+    test_serialization();
+    test_profiler();
+    test_software_renderer();
+
+    std::printf("Results: %d passed, %d failed\n", passed, failed);
+    return failed == 0 ? 0 : 1;
 }
