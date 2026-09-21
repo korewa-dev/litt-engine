@@ -101,7 +101,7 @@ Allocations are bounded to 64 MiB per software buffer and 16,777,216 pixels per 
 
 ## Experimental or unavailable
 
-- generic Vulkan/DX12/OpenGL/Metal accelerated renderer backends
+- generic Vulkan/DX12/OpenGL/Metal renderer facade backends that return unavailable
 - GPU ray tracing
 - FFI world deployment stubs
 - Python/C#/Lua integrations not exercised by the Stabilization matrix
