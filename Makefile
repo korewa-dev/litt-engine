@@ -52,6 +52,8 @@ gameplay-feature-test:
 		alt/src/native/littcore/litt_texture.cpp \
 		alt/src/native/littcore/litt_render_pass.cpp \
 		alt/src/native/littcore/litt_shader_system.cpp \
+		alt/src/native/littcore/litt_lighting.cpp \
+		alt/src/native/littcore/litt_gpu.cpp \
 		-o gameplay_feature_tests.exe
 	./gameplay_feature_tests.exe
 
