@@ -65,6 +65,7 @@ public:
         // modes still fail honestly when the selected backend is unavailable.
         if (!config_.headless &&
             !renderer_.initialize(config_.width, config_.height, config_.backend)) {
+            running_ = false;
             log_error("Failed to initialize renderer");
             return false;
         }
@@ -85,6 +86,7 @@ public:
     
     void shutdown() {
         log_info("Shutting down engine...");
+        running_ = false;
         
         // Shutdown in reverse order
         renderer_.shutdown();
@@ -187,6 +189,13 @@ public:
             log_error("Scene loading failed: cannot open " + path);
             return false;
         }
+        in.seekg(0, std::ios::end);
+        const std::streamoff size = in.tellg();
+        if (size < 0 || static_cast<uint64_t>(size) > Scene::MAX_SERIALIZED_BYTES) {
+            log_error("Scene loading failed: file exceeds supported size limit");
+            return false;
+        }
+        in.seekg(0, std::ios::beg);
         std::ostringstream buffer;
         buffer << in.rdbuf();
         if (!in.good() && !in.eof()) {
