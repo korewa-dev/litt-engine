@@ -1,78 +1,51 @@
-// Litt Editor with integrated chat
-#include "litt.h"
+// Litt Editor CLI - portable front end for the tested editor core
+#include "litteditor.h"
 #include <cstdio>
-#include <vector>
-#include <string>
-#include <deque>
 #include <iostream>
+#include <string>
 
-using namespace litt;
+using namespace litt::editor;
 
-struct Msg {
-    enum Type { System, User, Agent, Error } type;
-    std::string from, content;
-};
+static const char* role_name(ChatRole role) {
+    switch (role) {
+        case ChatRole::System: return "SYS";
+        case ChatRole::User: return "YOU";
+        case ChatRole::Assistant: return "ASSIST";
+        case ChatRole::Error: return "ERR";
+        case ChatRole::Agent: return "AGENT";
+    }
+    return "?";
+}
 
-class Chat {
-public:
-    std::deque<Msg> history;
-    
-    void add(Msg::Type t, const std::string& from, const std::string& content) {
-        history.push_back({t, from, content});
-        if (history.size() > 200) history.pop_front();
+static void print_new(const ChatSystem& chat, size_t& cursor) {
+    const auto messages = chat.snapshot();
+    while (cursor < messages.size()) {
+        const auto& message = messages[cursor++];
+        std::printf("[%s] %s: %s\n", role_name(message.role),
+                    message.author.c_str(), message.content.c_str());
     }
-    
-    void add_system(const std::string& s) { add(Msg::System, "System", s); }
-    void add_user(const std::string& s) { add(Msg::User, "You", s); }
-    void add_agent(const std::string& s) { add(Msg::Agent, "AI", s); }
-    void add_error(const std::string& s) { add(Msg::Error, "Error", s); }
-    
-    void print() const {
-        for (const auto& m : history) {
-            printf("[%s] %s: %s\n", 
-                m.type == Msg::System ? "SYS" : m.type == Msg::User ? "YOU" : m.type == Msg::Agent ? "AI" : "ERR",
-                m.from.c_str(), m.content.c_str());
-        }
-    }
-    
-    void process(const std::string& cmd) {
-        add_user(cmd);
-        if (cmd == "/help") {
-            add_system("Commands: /help /status /load <f> /save /reset /clear");
-        } else if (cmd == "/status") {
-            add_system("FPS: 60 | Entities: 0 | Draw: 0");
-        } else if (cmd == "/clear") {
-            history.clear();
-            add_system("Chat cleared");
-        } else if (cmd.find("/load") == 0) {
-            // Guard the substring: bare "/load" made substr(6) throw
-            // std::out_of_range and kill the process.
-            std::string arg = cmd.length() > 6 ? cmd.substr(6) : "";
-            add_system(arg.empty() ? "Usage: /load <file>" : "Loading: " + arg);
-        } else if (cmd == "/reset") {
-            add_system("Scene reset");
-        } else {
-            add_agent("Processing: " + cmd);
-        }
-    }
-};
+}
 
 int main() {
-    printf("Litt Editor\n");
-    printf("Type commands (e.g., /help) or exit with Ctrl+C\n\n");
-    
-    Chat chat;
-    chat.add_system("Litt Editor initialized");
-    chat.add_agent("Welcome! Type /help for commands.");
-    chat.print();
-    
+    EditorSession session;
+    ChatSystem chat;
+    chat.add_system("Litt Editor core initialized");
+    chat.add_agent("Type /help for commands. Ctrl+D/Ctrl+Z exits.");
+
+    std::printf("Litt Editor CLI\n");
+    size_t cursor = 0;
+    print_new(chat, cursor);
+
     std::string line;
     while (std::getline(std::cin, line)) {
-        if (!line.empty() && line[0] == '/') {
-            chat.process(line.substr(1));
-            chat.print();
+        if (line.empty()) continue;
+        if (line[0] == '/') {
+            chat.process_command(line, &session);
+        } else {
+            chat.add_user(line);
+            chat.add_agent("Editor core received text input");
         }
+        print_new(chat, cursor);
     }
-    
     return 0;
 }
