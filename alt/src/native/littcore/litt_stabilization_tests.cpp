@@ -195,6 +195,15 @@ static void test_physics_invalid_inputs() {
     invalid.inverseMass = std::nanf("");
     check(!physics.addBody(&invalid), "physics_nan_inverse_mass_rejected");
 
+    PhysicsBody malformed = body_at(Vec3::zero());
+    malformed.aabb.min.x = 2.0f;
+    malformed.aabb.max.x = -2.0f;
+    check(!physics.addBody(&malformed), "physics_malformed_aabb_rejected");
+
+    PhysicsBody nonfinite_center = body_at(Vec3::zero());
+    nonfinite_center.centerOfMass.x = std::nanf("");
+    check(!physics.addBody(&nonfinite_center), "physics_nonfinite_center_rejected");
+
     PhysicsBody body;
     body.inverseMass = 1.0f;
     body.aabb.min = Vec3(-0.5f, -0.5f, -0.5f);
@@ -211,6 +220,37 @@ static void test_physics_invalid_inputs() {
     PhysicsIntegrator integrator(1.0f / 60.0f);
     integrator.applyImpulse(&zero_mass, Vec3(10.0f, 0.0f, 0.0f));
     check(near_vec(zero_mass.velocity, before), "physics_zero_inverse_mass_ignores_impulse");
+
+    PhysicsBody guarded = body_at(Vec3::zero());
+    const Vec3 guarded_velocity = guarded.velocity;
+    integrator.applyImpulse(&guarded, Vec3(std::nanf(""), 0.0f, 0.0f));
+    integrator.applyForce(&guarded, Vec3(0.0f, std::nanf(""), 0.0f));
+    check(near_vec(guarded.velocity, guarded_velocity) && near_vec(guarded.force, Vec3::zero()),
+          "physics_nonfinite_force_and_impulse_ignored");
+
+    PhysicsBody valid_a = body_at(Vec3::zero());
+    PhysicsBody valid_b = body_at(Vec3(0.5f, 0.0f, 0.0f));
+    PhysicsSystem corruption_guard(0.0f, Vec3::zero());
+    check(corruption_guard.addBody(&valid_a) && corruption_guard.addBody(&valid_b),
+          "physics_corruption_guard_setup");
+    valid_b.aabb.min.x = std::nanf("");
+    corruption_guard.update();
+    check(corruption_guard.narrowPhase.contacts.empty(),
+          "physics_external_nonfinite_aabb_not_broadphased");
+
+    PhysicsSystem bounded(0.0f, Vec3::zero());
+    std::vector<PhysicsBody> many;
+    many.reserve(PhysicsSystem::MAX_BODIES + 1u);
+    bool within_limit = true;
+    for (size_t i = 0; i < PhysicsSystem::MAX_BODIES + 1u; ++i) {
+        many.push_back(body_at(Vec3(static_cast<float>(i) * 3.0f, 0.0f, 0.0f)));
+    }
+    for (size_t i = 0; i < PhysicsSystem::MAX_BODIES; ++i) {
+        if (!bounded.addBody(&many[i])) { within_limit = false; break; }
+    }
+    check(within_limit && bounded.bodies.size() == PhysicsSystem::MAX_BODIES,
+          "physics_body_budget_accepts_supported_limit");
+    check(!bounded.addBody(&many.back()), "physics_body_budget_rejects_over_limit");
 }
 
 static void test_memory() {
