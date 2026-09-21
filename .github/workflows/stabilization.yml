@@ -189,6 +189,15 @@ jobs:
           make -C alt/src/native bin/littview V=1
       - name: Validate checked-in generated-game fixture
         run: alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
+      - name: Generate and prove a fresh game end-to-end
+        run: |
+          python alt/tools/template/tools/worldgen/make_game.py \
+            --about "small haunted forest action adventure" \
+            --name ci-fresh-game \
+            --seed 4242 \
+            --scale small \
+            --out-dir alt/Project/ci-fresh-game
+          alt/src/native/bin/littcli validate alt/Project/ci-fresh-game --frames 60
       - name: Run worldkit regression tests
         run: python alt/tools/template/tools/worldgen/test_worldkit.py
       - name: WorldGen representative quality/resource/native gate
