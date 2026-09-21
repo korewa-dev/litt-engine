@@ -121,11 +121,23 @@ std::unique_ptr<Texture2D> Texture2D::load_from_file(const std::string& path){
     if(!ok)return nullptr;return create(w,h,TextureFormat::RGBA8,rgba.data());
 }
 Cubemap::Cubemap(const TextureDesc& desc):Texture(desc){}
-std::unique_ptr<Cubemap> Cubemap::load_from_file(const std::string&){return nullptr;}
+std::unique_ptr<Cubemap> Cubemap::load_from_file(const std::string& path){
+    auto face=Texture2D::load_from_file(path);if(!face)return nullptr;
+    TextureDesc desc;desc.width=face->get_width();desc.height=face->get_height();desc.format=face->get_format();
+    auto cube=std::unique_ptr<Cubemap>(new Cubemap(desc));if(cube->get_id()==0)return nullptr;
+    std::lock_guard<std::mutex> lock(g_texture_mutex);
+    auto src=g_texture_records.find(face->get_id()),dst=g_texture_records.find(cube->get_id());
+    if(src==g_texture_records.end()||dst==g_texture_records.end())return nullptr;
+    const std::vector<uint8_t> one=src->second.data;dst->second.data.clear();dst->second.data.reserve(one.size()*6u);
+    for(int i=0;i<6;++i)dst->second.data.insert(dst->second.data.end(),one.begin(),one.end());
+    return cube;
+}
 std::unique_ptr<Cubemap> Cubemap::create(const std::vector<std::string>& faces){
-    if(faces.size()!=6u)return nullptr;std::unique_ptr<Texture2D> first=Texture2D::load_from_file(faces[0]);if(!first)return nullptr;
-    TextureDesc desc;desc.width=first->get_width();desc.height=first->get_height();desc.format=first->get_format();auto cube=std::unique_ptr<Cubemap>(new Cubemap(desc));if(cube->get_id()==0)return nullptr;
-    for(size_t i=1;i<faces.size();++i){auto face=Texture2D::load_from_file(faces[i]);if(!face||face->get_width()!=desc.width||face->get_height()!=desc.height||face->get_format()!=desc.format)return nullptr;}
+    if(faces.size()!=6u)return nullptr;std::vector<std::unique_ptr<Texture2D>> loaded;loaded.reserve(6);
+    for(const auto& path:faces){auto face=Texture2D::load_from_file(path);if(!face)return nullptr;if(!loaded.empty()&&(face->get_width()!=loaded[0]->get_width()||face->get_height()!=loaded[0]->get_height()||face->get_format()!=loaded[0]->get_format()))return nullptr;loaded.push_back(std::move(face));}
+    TextureDesc desc;desc.width=loaded[0]->get_width();desc.height=loaded[0]->get_height();desc.format=loaded[0]->get_format();auto cube=std::unique_ptr<Cubemap>(new Cubemap(desc));if(cube->get_id()==0)return nullptr;
+    std::lock_guard<std::mutex> lock(g_texture_mutex);auto dst=g_texture_records.find(cube->get_id());if(dst==g_texture_records.end())return nullptr;
+    dst->second.data.clear();for(const auto& face:loaded){auto src=g_texture_records.find(face->get_id());if(src==g_texture_records.end())return nullptr;dst->second.data.insert(dst->second.data.end(),src->second.data.begin(),src->second.data.end());}
     return cube;
 }
 TextureAtlas::TextureAtlas(uint32_t width,uint32_t height):texture_id_(g_next_texture_id.fetch_add(1u)),width_(width),height_(height){if(width_==0||height_==0){texture_id_=0;width_=height_=0;}}
