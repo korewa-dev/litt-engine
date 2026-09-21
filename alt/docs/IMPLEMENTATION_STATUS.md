@@ -35,6 +35,7 @@
 - MeshData, RenderMaterial, RenderCamera, Light (authoritative)
 - FrameBuffer, RenderPass, SSR class
 - Unified types (Vec3, Vec2, Mat4, Aabb)
+- Generic Vulkan and DX12 hardware backends are present as experimental/unavailable surfaces; their fail-fast contract is tested, not hardware rendering
 
 **Lighting & PBR** (`litt_lighting.h`, `litt_material.h`, `litt_pbr_material.h`):
 - LightType enum, Light struct, PBRLighting
@@ -128,9 +129,9 @@
 
 ### 🔗 Architecture
 - **Headless-first design** - no editor dependency
-- **AI-accessible** - Python API, JSON-RPC, C API, web editor (separate)
-- **Header-only core** - all implementations inline in .h files
-- **Hybrid rendering** - rasterization + path tracing pipeline
+- **AI-accessible inventory** - C API is release-tested; Python API, JSON-RPC, and web editor surfaces are experimental/inventory unless separately promoted
+- **Header-heavy core** - many implementations are inline in .h files
+- **Rendering design surface** - software/headless rendering is tested; generic Vulkan/DX12 and advanced path-tracing features remain experimental/unavailable unless explicitly promoted
 
 ### Next Steps (Blueprint Steps 40-44)
 - Step 40: Skeletal Rigging (Bone Hierarchy) ✅ in litt_engine_systems.h
