@@ -24,13 +24,17 @@ namespace litt {
 
 namespace software_detail {
 
+static constexpr size_t MAX_PIXELS = 16u * 1024u * 1024u;
+static constexpr size_t MAX_BUFFER_BYTES = 64u * 1024u * 1024u;
+
 inline bool image_sizes(uint32_t width, uint32_t height, size_t& pixels, size_t& bytes) {
     if (width != 0 && static_cast<size_t>(height) >
         std::numeric_limits<size_t>::max() / static_cast<size_t>(width)) {
         return false;
     }
     pixels = static_cast<size_t>(width) * static_cast<size_t>(height);
-    if (pixels > std::numeric_limits<size_t>::max() / 4u) return false;
+    if (pixels == 0 || pixels > MAX_PIXELS ||
+        pixels > std::numeric_limits<size_t>::max() / 4u) return false;
     bytes = pixels * 4u;
     return true;
 }
@@ -135,7 +139,7 @@ public:
     }
     
     std::unique_ptr<GPUBuffer> create_buffer(const BufferDesc& desc) override {
-        if (desc.size == 0) return nullptr;
+        if (desc.size == 0 || desc.size > software_detail::MAX_BUFFER_BYTES) return nullptr;
         return std::make_unique<SoftwareBuffer>(desc);
     }
     
@@ -148,6 +152,8 @@ public:
         if (desc.width == 0 || desc.height == 0 || desc.format != TextureFormat::RGBA8) {
             return nullptr;
         }
+        size_t pixels = 0, bytes = 0;
+        if (!software_detail::image_sizes(desc.width, desc.height, pixels, bytes)) return nullptr;
         return std::make_unique<SoftwareTexture>(desc);
     }
     
