@@ -6,6 +6,257 @@ on:
     branches: [main]
 
 jobs:
+  repository-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject tracked compiler intermediates
+        shell: bash
+        run: |
+          set -euo pipefail
+          bad=$(git ls-files | grep -E '(^|/)[^/]+\.o$|\.o\.tmp$|\.exe\.tmp[^/]*  compiler-matrix:
+    name: compiler-matrix (${{ matrix.compiler }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select compiler
+        shell: bash
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Strict C portability compile
+        run: |
+          "$CC" -std=c11 -O2 -Wall -Wextra -Werror=implicit-function-declaration -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json.o
+          "$CC" -std=c11 -O2 -Wall -Wextra -Werror=implicit-function-declaration -I alt/src/native/littcore -c alt/src/native/littcore/litt_obj.c -o /tmp/litt_obj.o
+          "$CC" -std=c11 -O2 -Wall -Wextra -Werror=implicit-function-declaration -I alt/src/native/littcore -c alt/src/native/littcore/litt_world.c -o /tmp/litt_world.o
+      - name: Native runtime contract
+        run: make -C alt/src/native clean test CC="$CC" CXX="$CXX"
+      - name: Asset pipeline contract
+        run: make -C alt/src/native asset-test CC="$CC" CXX="$CXX"
+      - name: GPU/software contract
+        run: make -C alt/src/native gpu-contract-test CC="$CC" CXX="$CXX"
+
+  core-stabilization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build stabilization regressions
+        run: make stabilization-test
+      - name: Run stabilization regressions
+        run: ./stabilization_tests.exe
+      - name: Build and run scene persistence contract
+        run: make scene-persistence-test && ./scene_persistence_tests.exe
+      - name: Build and run Engine scene facade contract
+        run: |
+          gcc -std=c11 -O2 -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json_engine.o
+          g++ -std=c++17 -O2 -Wall -Wextra -I alt/src/native/littcore alt/src/native/littcore/litt_engine_scene_tests.cpp /tmp/litt_json_engine.o -o /tmp/litt_engine_scene_tests
+          /tmp/litt_engine_scene_tests
+
+  sanitizer-stabilization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build stabilization regressions with ASan/UBSan
+        run: |
+          gcc -std=c11 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json_sanitized.o
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_stabilization_runner.cpp /tmp/litt_json_sanitized.o -o stabilization_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_scene_persistence_tests.cpp /tmp/litt_json_sanitized.o -o scene_persistence_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_engine_scene_tests.cpp /tmp/litt_json_sanitized.o -o engine_scene_sanitized
+      - name: Run ASan/UBSan stabilization regressions
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized
+
+  gpu-rendering-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run headless GPU/software contract
+        run: make -C alt/src/native gpu-contract-test
+      - name: Build and run GPU contract with ASan/UBSan
+        run: |
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gpu.cpp alt/src/native/littcore/litt_gpu_contract_tests.cpp -o /tmp/litt_gpu_sanitized
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/litt_gpu_sanitized
+
+  networking-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run TCP loopback contract
+        run: make -C alt/src/native network-test
+      - name: Build and run TCP loopback contract with ASan/UBSan
+        run: |
+          g++ -std=c++17 -O1 -g -Wall -Wextra -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/networking_tests.cpp -pthread -o /tmp/networking_sanitized
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/networking_sanitized
+
+  c-runtime-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run C runtime contract tests
+        run: make -C alt/src/native test
+
+  c-bridge-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build C bridge dependencies
+        run: cc -std=c11 -O2 -Wall -Wextra -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json.o
+      - name: Build C bridge contract tests
+        run: >-
+          g++ -std=c++17 -O2 -Wall -Wextra -I alt/src/native -I alt/src/native/littcore
+          alt/src/native/litt_c.cpp alt/src/native/litt_c_tests.cpp /tmp/litt_json.o -o /tmp/litt_c_tests
+      - name: Run C bridge contract tests
+        run: /tmp/litt_c_tests
+      - name: Build packaged GUI SDK
+        run: make -C alt/src/native sdk
+      - name: Compile external C consumer against packaged header
+        run: |
+          cat > /tmp/litt_sdk_smoke.c <<'EOF'
+          #include <litt/litt_c.h>
+          int main(void) {
+            if (litt_abi_version() != LITT_ABI_VERSION) return 1;
+            LittEngine* e = litt_engine_create();
+            if (!e) return 2;
+            litt_engine_destroy(e);
+            LittScriptVM* vm = litt_script_vm_create();
+            if (!vm) return 3;
+            if (litt_script_vm_compile(vm, "smoke", "var x = 1\n") != LITT_OK) return 4;
+            if (litt_script_vm_execute(vm, "smoke") != LITT_OK) return 5;
+            litt_script_vm_destroy(vm);
+            return 0;
+          }
+          EOF
+          cc -std=c11 -I alt/src/native/dist/include -c /tmp/litt_sdk_smoke.c -o /tmp/litt_sdk_smoke.o
+          g++ /tmp/litt_sdk_smoke.o -L alt/src/native/dist/lib -Wl,-rpath,$PWD/alt/src/native/dist/lib -llitt -o /tmp/litt_sdk_smoke
+          /tmp/litt_sdk_smoke
+
+  generated-game-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build native generated-game tools
+        run: |
+          make -C alt/src/native bin/littcli
+          make -C alt/src/native bin/littview V=1
+      - name: Validate checked-in generated-game fixture
+        run: alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
+      - name: Run worldkit regression tests
+        run: python alt/tools/template/tools/worldgen/test_worldkit.py
+      - name: WorldGen representative quality/resource/native gate
+        run: python alt/tools/template/tools/worldgen/worldgen_quality_gate.py --require-native --json-out worldgen-linux.json
+      - name: Upload Linux WorldGen regression report
+        uses: actions/upload-artifact@v4
+        with:
+          name: worldgen-linux
+          path: worldgen-linux.json
+          if-no-files-found: error
+      - name: Run generated-prop regression tests
+        run: python alt/tools/template/tools/worldgen/test_gen_props.py
+
+  windows-native:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Compile Engine and Game header paths
+        shell: pwsh
+        run: |
+          Set-Content engine_compile_smoke.cpp '#include "litt_engine.h"'
+          Add-Content engine_compile_smoke.cpp 'int main() { return 0; }'
+          cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c engine_compile_smoke.cpp
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Set-Content game_compile_smoke.cpp '#include "litt_game.h"'
+          Add-Content game_compile_smoke.cpp 'int main() { return 0; }'
+          cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c game_compile_smoke.cpp
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Compile every littcore header standalone
+        shell: pwsh
+        run: |
+          $headers = Get-ChildItem alt\src\native\littcore\*.h
+          foreach ($header in $headers) {
+            $name = $header.Name
+            Set-Content header_smoke.cpp "#include `"$name`""
+            Add-Content header_smoke.cpp 'int main() { return 0; }'
+            cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore /c header_smoke.cpp /Fo:header_smoke.obj
+            if ($LASTEXITCODE -ne 0) { Write-Error "Standalone header compile failed: $name"; exit $LASTEXITCODE }
+          }
+      - name: Build and run Windows GPU/software contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_gpu.cpp alt\\src\\native\\littcore\\litt_gpu_contract_tests.cpp /Fe:gpu_contract_windows.exe gdi32.lib user32.lib && gpu_contract_windows.exe
+      - name: Compile C bridge
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native /I alt\src\native\littcore /c alt\src\native\litt_c.cpp /Fo:litt_c.obj
+      - name: Build scene JSON dependency
+        shell: cmd
+        run: cl /nologo /TC /I alt\src\native\littcore /c alt\src\native\littcore\litt_json.c /Fo:litt_json.obj
+      - name: Build Windows stabilization regressions
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_stabilization_runner.cpp litt_json.obj /Fe:stabilization_windows.exe gdi32.lib user32.lib winmm.lib
+      - name: Run Windows stabilization regressions
+        shell: cmd
+        run: stabilization_windows.exe
+      - name: Build and run Windows scene persistence contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_scene_persistence_tests.cpp litt_json.obj /Fe:scene_persistence_windows.exe gdi32.lib user32.lib winmm.lib && scene_persistence_windows.exe
+      - name: Build and run Windows Engine scene facade contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_engine_scene_tests.cpp litt_json.obj /Fe:engine_scene_windows.exe gdi32.lib user32.lib winmm.lib && engine_scene_windows.exe
+      - name: Build and run Windows networking contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /W4 /I alt\src\native\littcore alt\src\native\littcore\networking_tests.cpp /Fe:networking_windows.exe ws2_32.lib && networking_windows.exe
+      - name: Build native engine tests
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_engine_tests.cpp alt\src\native\littcore\litt_math.cpp litt_json.obj /Fe:tests.exe gdi32.lib user32.lib winmm.lib
+      - name: Run native engine tests
+        shell: cmd
+        run: tests.exe
+      - name: WorldGen Windows determinism/resource gate
+        shell: pwsh
+        run: python alt/tools/template/tools/worldgen/worldgen_quality_gate.py --json-out worldgen-windows.json
+      - name: Upload Windows WorldGen regression report
+        uses: actions/upload-artifact@v4
+        with:
+          name: worldgen-windows
+          path: worldgen-windows.json
+          if-no-files-found: error
+
+  worldgen-cross-os:
+    runs-on: ubuntu-latest
+    needs: [generated-game-contract, windows-native]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Linux WorldGen report
+        uses: actions/download-artifact@v4
+        with:
+          name: worldgen-linux
+          path: reports/linux
+      - name: Download Windows WorldGen report
+        uses: actions/download-artifact@v4
+        with:
+          name: worldgen-windows
+          path: reports/windows
+      - name: Compare canonical generated outputs across OSes
+        run: >-
+          python alt/tools/template/tools/worldgen/compare_worldgen_reports.py
+          reports/linux/worldgen-linux.json reports/windows/worldgen-windows.json
+ || true)
+          if [ -n "$bad" ]; then
+            printf 'Tracked compiler intermediates are forbidden:\n%s\n' "$bad" >&2
+            exit 1
+          fi
+          # Wavefront OBJ files are source assets and intentionally remain tracked.
+
   compiler-matrix:
     name: compiler-matrix (${{ matrix.compiler }})
     runs-on: ubuntu-latest
