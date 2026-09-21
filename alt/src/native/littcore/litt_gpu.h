@@ -61,6 +61,36 @@ struct GPUBackendCapability {
     const char* reason;
 };
 
+struct GPURayTracingCapability {
+    const char* backend;
+    GPUBackendSupport support;
+    const char* reason;
+};
+
+inline GPURayTracingCapability gpu_ray_tracing_capability(const std::string& backend_name) {
+    if (backend_name == "software") {
+        return {"software", GPUBackendSupport::Unavailable,
+                "software rasterizer does not provide GPU ray tracing"};
+    }
+    if (backend_name == "vulkan") {
+        return {"vulkan", GPUBackendSupport::Unavailable,
+                "Vulkan ray tracing backend is not implemented or hardware-certified"};
+    }
+    if (backend_name == "dx12") {
+        return {"dx12", GPUBackendSupport::Unavailable,
+                "DXR backend is not implemented or hardware-certified"};
+    }
+    if (backend_name == "opengl") {
+        return {"opengl", GPUBackendSupport::Unavailable,
+                "OpenGL GPU ray tracing backend is not implemented"};
+    }
+    if (backend_name == "metal") {
+        return {"metal", GPUBackendSupport::Unavailable,
+                "Metal ray tracing backend is not implemented"};
+    }
+    return {nullptr, GPUBackendSupport::Unavailable, "unknown backend"};
+}
+
 inline GPUBackendCapability gpu_backend_capability(const std::string& backend_name) {
     if (backend_name == "null") {
         return {"null", GPUBackendSupport::TestOnly, false, false,
