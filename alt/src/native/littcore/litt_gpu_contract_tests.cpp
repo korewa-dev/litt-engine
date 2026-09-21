@@ -35,6 +35,17 @@ int main() {
     assert_unavailable_backend_contract("opengl");
     assert_unavailable_backend_contract("metal");
 
+    for (const char* backend : {"software", "vulkan", "dx12", "opengl", "metal"}) {
+        const auto rt = gpu_ray_tracing_capability(backend);
+        assert(rt.backend != nullptr);
+        assert(std::strcmp(rt.backend, backend) == 0);
+        assert(rt.support == GPUBackendSupport::Unavailable);
+        assert(rt.reason != nullptr && rt.reason[0] != '\0');
+    }
+    const auto unknown_rt = gpu_ray_tracing_capability("definitely-not-a-backend");
+    assert(unknown_rt.backend == nullptr);
+    assert(unknown_rt.support == GPUBackendSupport::Unavailable);
+
     const auto sw_cap = gpu_backend_capability("software");
     assert(sw_cap.support == GPUBackendSupport::Supported);
     assert(!sw_cap.hardware_accelerated);
