@@ -474,6 +474,84 @@ static void test_audio_wav_loading() {
     std::remove(path);
 }
 
+static void test_audio_software_mixer() {
+    SoftwareAudioMixer mixer;
+    check(!mixer.initialize(7999), "audio_mixer_rejects_low_sample_rate");
+    check(mixer.initialize(8000), "audio_mixer_initialize");
+
+    auto mono = std::make_shared<AudioClip>();
+    mono->sampleRate = 8000;
+    mono->channels = 1;
+    mono->lengthSamples = 4;
+    mono->data = {0.25f, -0.5f, 1.0f, -1.0f};
+
+    check(mixer.add_source("mono", mono), "audio_mixer_add_mono_source");
+    check(!mixer.add_source("mono", mono), "audio_mixer_duplicate_source_rejected");
+    check(mixer.set_volume("mono", 0.5f), "audio_mixer_set_source_volume");
+    check(mixer.set_master_volume(0.5f), "audio_mixer_set_master_volume");
+    check(mixer.play("mono"), "audio_mixer_play");
+
+    float frames[8]{};
+    check(mixer.render(frames, 4), "audio_mixer_render");
+    check(near_float(frames[0], 0.0625f) && near_float(frames[1], 0.0625f) &&
+          near_float(frames[2], -0.125f) && near_float(frames[3], -0.125f),
+          "audio_mixer_mono_to_stereo_and_gain");
+
+    float tail[2]{1.0f, 1.0f};
+    check(mixer.render(tail, 1), "audio_mixer_render_end");
+    check(mixer.state("mono") == AudioState::Stopped &&
+          near_float(tail[0], 0.0f) && near_float(tail[1], 0.0f),
+          "audio_mixer_nonlooping_source_stops");
+
+    check(mixer.set_looping("mono", true), "audio_mixer_enable_loop");
+    check(mixer.set_volume("mono", 1.0f) && mixer.set_master_volume(1.0f),
+          "audio_mixer_restore_gain");
+    check(mixer.play("mono"), "audio_mixer_replay");
+    float looped[12]{};
+    check(mixer.render(looped, 6) && mixer.state("mono") == AudioState::Playing,
+          "audio_mixer_loop_wraps");
+    check(near_float(looped[8], 0.25f) && near_float(looped[9], 0.25f),
+          "audio_mixer_loop_output_repeats");
+
+    check(mixer.pause("mono"), "audio_mixer_pause");
+    float paused[2]{1.0f, 1.0f};
+    check(mixer.render(paused, 1) && near_float(paused[0], 0.0f) &&
+          near_float(paused[1], 0.0f), "audio_mixer_pause_is_silent");
+    check(mixer.play("mono"), "audio_mixer_resume");
+    check(mixer.stop("mono") && mixer.state("mono") == AudioState::Stopped,
+          "audio_mixer_stop");
+
+    auto stereo = std::make_shared<AudioClip>();
+    stereo->sampleRate = 8000;
+    stereo->channels = 2;
+    stereo->lengthSamples = 1;
+    stereo->data = {2.0f, -2.0f};
+    check(mixer.add_source("stereo", stereo), "audio_mixer_add_stereo_source");
+    check(mixer.play("stereo"), "audio_mixer_play_stereo");
+    float clipped[2]{};
+    check(mixer.render(clipped, 1) && near_float(clipped[0], 1.0f) &&
+          near_float(clipped[1], -1.0f), "audio_mixer_output_clamped");
+
+    check(!mixer.set_pitch("stereo", 0.0f) &&
+          !mixer.set_pitch("stereo", std::nanf("")) &&
+          !mixer.set_pitch("stereo", 9.0f),
+          "audio_mixer_rejects_invalid_pitch");
+    check(!mixer.render(nullptr, 1), "audio_mixer_rejects_null_output");
+    float dummy[2]{};
+    check(!mixer.render(dummy, SoftwareAudioMixer::MAX_RENDER_FRAMES + 1u),
+          "audio_mixer_render_budget_enforced");
+
+    auto invalid = std::make_shared<AudioClip>();
+    invalid->sampleRate = 8000;
+    invalid->channels = 3;
+    invalid->lengthSamples = 1;
+    invalid->data = {0.0f, 0.0f, 0.0f};
+    check(!mixer.add_source("invalid", invalid), "audio_mixer_invalid_clip_rejected");
+
+    mixer.shutdown();
+    check(!mixer.render(dummy, 1), "audio_mixer_shutdown_disables_render");
+}
+
 static void test_event_dispatcher() {
     EventDispatcher dispatcher;
     int calls = 0;
@@ -665,6 +743,7 @@ int main() {
     test_scripting_vm();
     test_event_dispatcher();
     test_audio_wav_loading();
+    test_audio_software_mixer();
 #ifdef _WIN32
     test_software_renderer_hardening();
 #endif
