@@ -8,7 +8,7 @@ This page is the authoritative graphics capability ledger. Backend enums, placeh
 
 | Backend | CI contract | Release rendering | Evidence |
 |---|---|---|---|
-| Software, headless | **GREEN** | Partial, tested | CPU framebuffer, rasterization, RGBA8 texture, CPU buffer, 1000-frame smoke |
+| Software, headless | **GREEN** | **Supported bounded contract** | CPU buffers, RGBA8 textures, raster/depth/mesh paths, resource ceilings, 1000-frame smoke |
 | Software, Win32 presentation | **GREEN bounded contract** | Partial | Windows CI builds/runs the GPU contract; physical display output is not certified |
 | Vulkan | **GREEN fail-fast contract** | **Unavailable** | capability reports unavailable; selection must reject or initialization must fail explicitly |
 | DirectX 12 | **GREEN fail-fast contract** | **Unavailable** | capability reports unavailable; selection must reject or initialization must fail explicitly |
