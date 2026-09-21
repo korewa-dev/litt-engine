@@ -13,8 +13,9 @@ namespace litt {
 // Lisuan GPU Vendor IDs
 // =============================================================================
 
-// Lisuan PCI Vendor ID (example - would need real ID from hardware database)
-constexpr uint32_t LISUAN_VENDOR_ID = 0x1D95; // Placeholder - check real HW ID
+// No PCI vendor ID is asserted until runtime detection is implemented and
+// validated against authoritative hardware evidence.
+constexpr uint32_t LISUAN_VENDOR_ID = 0u;
 
 // Lisuan GPU product IDs
 enum class LisuanGPU : uint32_t {
@@ -27,29 +28,29 @@ enum class LisuanGPU : uint32_t {
 
 // Lisuan TrueGPU architecture features
 struct TrueGPUFeatures {
-    bool gddr6_memory;          // GDDR6 memory support
-    bool multi_display;         // Multi-display output
-    bool hardware_encoding;     // Hardware video encoding
-    bool hardware_decoding;     // Hardware video decoding
-    bool ray_tracing;           // Hardware ray tracing support
-    bool ai_accelerator;        // AI/ML acceleration (NPU-like)
-    uint32_t max_display_outputs;
-    uint32_t compute_units;
-    uint32_t tensor_cores;
-    uint32_t rt_cores;
-    uint64_t vram_bytes;
+    bool gddr6_memory = false;          // GDDR6 memory support
+    bool multi_display = false;         // Multi-display output
+    bool hardware_encoding = false;     // Hardware video encoding
+    bool hardware_decoding = false;     // Hardware video decoding
+    bool ray_tracing = false;           // Hardware ray tracing support
+    bool ai_accelerator = false;        // AI/ML acceleration (NPU-like)
+    uint32_t max_display_outputs = 0;
+    uint32_t compute_units = 0;
+    uint32_t tensor_cores = 0;
+    uint32_t rt_cores = 0;
+    uint64_t vram_bytes = 0;
 };
 
 // Lisuan GPU info
 struct LisuanGPUInfo {
-    LisuanGPU gpu_type;
+    LisuanGPU gpu_type = LisuanGPU::UNKNOWN;
     std::string gpu_name;
     std::string driver_version;
     TrueGPUFeatures features;
-    uint32_t pci_vendor_id;
-    uint32_t pci_device_id;
-    uint32_t revision_id;
-    uint32_t subsystem_id;
+    uint32_t pci_vendor_id = 0;
+    uint32_t pci_device_id = 0;
+    uint32_t revision_id = 0;
+    uint32_t subsystem_id = 0;
 };
 
 // =============================================================================
@@ -242,6 +243,7 @@ public:
     
     // Get the best available GPU backend for Lisuan
     enum class Backend {
+        UNAVAILABLE,
         VULKAN,
         DIRECTX12,
         OPENGL
