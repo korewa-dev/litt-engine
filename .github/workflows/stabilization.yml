@@ -55,6 +55,8 @@ jobs:
         run: make editor-contract-test CC="$CC" CXX="$CXX"
       - name: Dither FFI ABI contract
         run: make ffi-contract-test CC="$CC" CXX="$CXX"
+      - name: Dither3D CPU contract
+        run: make dither-contract-test CC="$CC" CXX="$CXX"
       - name: Asset pipeline contract
         run: make -C alt/src/native asset-test CC="$CC" CXX="$CXX"
       - name: GPU/software contract
@@ -89,6 +91,7 @@ jobs:
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_engine_tests.cpp alt/src/native/littcore/litt_profiler.cpp /tmp/litt_json_sanitized.o -o engine_contract_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native -I alt/src/native/littcore alt/src/native/litteditor_contract_tests.cpp /tmp/litt_json_sanitized.o -o editor_contract_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/include alt/src/native/litt_ffi.cpp alt/src/litt_ffi_contract_tests.cpp -o ffi_contract_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_dither.cpp alt/src/native/littcore/litt_dither_renderer.cpp alt/src/native/littcore/litt_dither_contract_tests.cpp -o dither_contract_sanitized
       - name: Build asset/material contract with ASan/UBSan
         run: >-
           g++ -std=c++17 -O1 -g -Wall -Wextra -fno-omit-frame-pointer -fsanitize=address,undefined
@@ -100,7 +103,7 @@ jobs:
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && ./engine_contract_sanitized && ./editor_contract_sanitized && ./ffi_contract_sanitized && /tmp/asset_pipeline_sanitized
+        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && ./engine_contract_sanitized && ./editor_contract_sanitized && ./ffi_contract_sanitized && ./dither_contract_sanitized && /tmp/asset_pipeline_sanitized
 
   gpu-rendering-contract:
     runs-on: ubuntu-latest
@@ -260,6 +263,9 @@ jobs:
       - name: Build and run Windows Dither FFI contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /D LITT_FFI_BUILD /I alt\include alt\src\native\litt_ffi.cpp alt\src\litt_ffi_contract_tests.cpp /Fe:ffi_contract_windows.exe && ffi_contract_windows.exe
+      - name: Build and run Windows Dither3D CPU contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_dither.cpp alt\src\native\littcore\litt_dither_renderer.cpp alt\src\native\littcore\litt_dither_contract_tests.cpp /Fe:dither_contract_windows.exe && dither_contract_windows.exe
       - name: WorldGen Windows determinism/resource gate
         shell: pwsh
         run: python alt/tools/template/tools/worldgen/worldgen_quality_gate.py --json-out worldgen-windows.json
