@@ -1,7 +1,7 @@
 # Litt Engine — Game Build Makefile
 # Use these targets to build games the correct way.
 
-.PHONY: game validate clean test stabilization-test scene-persistence-test engine-contract-test editor-contract-test ffi-contract-test dither-contract-test cpp-game
+.PHONY: game validate clean test stabilization-test scene-persistence-test engine-contract-test editor-contract-test ffi-contract-test dither-contract-test gameplay-feature-test cpp-game
 
 GAME ?= mygame
 
@@ -42,6 +42,18 @@ ffi-contract-test:
 dither-contract-test:
 	$(CXX) -std=c++17 -O2 -Wall -Wextra -I alt/src/native/littcore alt/src/native/littcore/litt_dither.cpp alt/src/native/littcore/litt_dither_renderer.cpp alt/src/native/littcore/litt_dither_contract_tests.cpp -o dither_contract_tests.exe
 	./dither_contract_tests.exe
+
+gameplay-feature-test:
+	$(CXX) -std=c++17 -O2 -Wall -Wextra -I alt/src/native/littcore \
+		alt/src/native/littcore/litt_gameplay_feature_tests.cpp \
+		alt/src/native/littcore/litt_particle_system.cpp \
+		alt/src/native/littcore/litt_culling.cpp \
+		alt/src/native/littcore/litt_terrain_system.cpp \
+		alt/src/native/littcore/litt_texture.cpp \
+		alt/src/native/littcore/litt_render_pass.cpp \
+		alt/src/native/littcore/litt_shader_system.cpp \
+		-o gameplay_feature_tests.exe
+	./gameplay_feature_tests.exe
 
 cpp-game:
 	g++ -std=c++17 -I alt/src/native/littcore -o $(GAME).exe alt/Project/$(GAME)/engine/game.cpp alt/src/native/littcore/litt_obj.c alt/src/native/littcore/litt_json.c alt/src/native/littcore/litt_world.c -lgdi32 -luser32 -lwinmm
