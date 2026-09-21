@@ -1,4 +1,8 @@
+#ifdef LITT_INSTALLED_SDK
+#include <litt/litt.h>
+#else
 #include "litt.h"
+#endif
 
 #include <cassert>
 #include <cmath>
@@ -56,6 +60,30 @@ int main(){
     std::vector<Aabb> boxes={Aabb(Vec3{-1,-1,-6},Vec3{1,1,-4}),Aabb(Vec3{99,-1,-6},Vec3{101,1,-4})};
     std::vector<uint32_t> visible;culling.frustum_cull(boxes,visible);
     assert(visible.size()==1u&&visible[0]==0u);
+
+    // Lighting: stable IDs, lookup/removal, direct and environment contribution.
+    LightManager& lights=LightManager::get_instance();
+    lights.clear();
+    Light sun;sun.type=LightType::DIRECTIONAL;sun.direction=Vec3{0,-1,-1};sun.intensity=2.0f;
+    const uint32_t sun_id=lights.add_light(sun);
+    assert(sun_id!=0u&&lights.get_light(sun_id)!=nullptr);
+    const Vec3 lit=PBRLighting::calculate_direct_light(*lights.get_light(sun_id),Vec3::zero(),Vec3::up(),Vec3{0,1,1}.normalized(),Vec3{0.8f,0.7f,0.6f},0.0f,0.5f);
+    assert(lit.x>=0.0f&&lit.y>=0.0f&&lit.z>=0.0f);
+    const Vec3 ibl=PBRLighting::ibl_diffuse(Vec3::up(),Vec3{0.5f,0.5f,0.5f});
+    assert(ibl.x>0.0f);
+    ShadowMap shadow(32);shadow.begin_pass(Vec3{0,10,0},Vec3{0,-1,0});assert(shadow.get_light_view_proj().m[15]!=0.0f||shadow.get_light_view_proj().m[11]!=0.0f);
+    lights.remove_light(sun_id);assert(lights.get_light(sun_id)==nullptr);
+
+    // Software GPU device: all release-supported resource constructors work.
+    auto gpu=create_gpu_device("software");assert(gpu&&gpu->initialize("headless"));
+    BufferDesc buffer_desc;buffer_desc.size=64;buffer_desc.usage=GPUBufferUsage::VERTEX;
+    assert(gpu->create_buffer(buffer_desc)!=nullptr);
+    TextureDesc gpu_tex_desc;gpu_tex_desc.width=8;gpu_tex_desc.height=8;gpu_tex_desc.format=TextureFormat::RGBA8;
+    assert(gpu->create_texture(gpu_tex_desc)!=nullptr);
+    assert(gpu->create_shader("void main(){}","void main(){}")!=nullptr);
+    assert(gpu->create_render_target(8,8)!=nullptr);
+    gpu->shutdown();
+    assert(gpu_backend_capability("vulkan").support==GPUBackendSupport::Unavailable);
 
     // CPU texture storage, mip generation and binding.
     std::vector<uint8_t> texels(4u*4u*4u,128u);
