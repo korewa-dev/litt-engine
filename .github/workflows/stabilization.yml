@@ -6,6 +6,21 @@ on:
     branches: [main]
 
 jobs:
+  repository-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject tracked compiler intermediates
+        shell: bash
+        run: |
+          set -euo pipefail
+          bad=$(git ls-files | grep -E '(^|/)[^/]+\.o$|\.o\.tmp$|\.exe\.tmp[^/]*$' || true)
+          if [ -n "$bad" ]; then
+            printf 'Tracked compiler intermediates are forbidden:\n%s\n' "$bad" >&2
+            exit 1
+          fi
+          # Wavefront OBJ files are source assets and intentionally remain tracked.
+
   compiler-matrix:
     name: compiler-matrix (${{ matrix.compiler }})
     runs-on: ubuntu-latest
