@@ -48,6 +48,7 @@ enum class TextureUsage {
 
 enum class GPUBackendSupport {
     TestOnly,
+    Supported,
     Partial,
     Unavailable
 };
@@ -66,13 +67,13 @@ inline GPUBackendCapability gpu_backend_capability(const std::string& backend_na
                 "headless contract device; does not render or fabricate GPU resources"};
     }
     if (backend_name == "software" || backend_name == "auto") {
-        return {"software", GPUBackendSupport::Partial, false,
+        return {"software", GPUBackendSupport::Supported, false,
 #ifdef _WIN32
                 true,
 #else
                 false,
 #endif
-                "CPU rasterizer; headless mode is portable, window presentation is Win32-only"};
+                "bounded CPU rasterizer; headless rendering is release-supported, window presentation is Win32-only"};
     }
     if (backend_name == "vulkan") {
         return {"vulkan", GPUBackendSupport::Unavailable, true, false,
