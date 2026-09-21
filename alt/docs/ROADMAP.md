@@ -1,8 +1,9 @@
 <!-- REMOVED STACK NOTICE (CDR-007): The Rust engine described here was removed from the repo; this document remains as design reference for the C/C++ port (native/littcore). -->
 # Litt Engine -- Roadmap
 
-A tiny feature-rich game engine with DX12/Vulkan support for AMD RDNA,
-Intel Arc, Moore Threads MUSA, and NPU-equipped devices.
+> **Status boundary:** This is a historical/design roadmap, not a release-support matrix. Hardware/backend entries describe intended architecture or experiments unless `SUPPORTED_RUNTIME.md` explicitly promotes them. Current generic Vulkan/DX12 backends and named GPU/NPU vendor paths are not physically certified.
+
+Litt Engine explores DX12/Vulkan, vendor-specific GPU, and NPU architecture. See `SUPPORTED_RUNTIME.md` for measured release support.
 
 ## Status Snapshot
 

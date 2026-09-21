@@ -1,6 +1,8 @@
 # Platform Documentation
 
-Platform-specific optimizations and support matrices.
+> **Evidence boundary:** These files are platform research, configuration notes, and optimization targets. Listing a device, API, driver, or extension does not mean Litt Engine has physically certified it. `../SUPPORTED_RUNTIME.md` is authoritative for release support.
+
+Platform-specific research and optimization notes.
 
 ## Files
 

@@ -1,6 +1,8 @@
-# Intel GPU & XeSS 3 Support
+# Intel GPU & XeSS 3 Research Notes
 
-## Supported Intel GPUs
+> **Not physically certified:** This document records hardware/driver capabilities and intended integration guidance. It is not evidence that Litt Engine currently provides or certifies XeSS, Vulkan ray tracing, frame generation, or these Intel GPU models. See `../SUPPORTED_RUNTIME.md`.
+
+## Referenced Intel GPUs
 - **Intel Arc A770 / A750** (Alchemist, Xe-HPG)
 - **Intel Arc B570 / B580 / B770** (Battlemage, Xe2)
 - **Intel Arc MAX** (Datacenter)

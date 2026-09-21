@@ -6,6 +6,37 @@ on:
     branches: [main]
 
 jobs:
+  compiler-matrix:
+    name: compiler-matrix (${{ matrix.compiler }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select compiler
+        shell: bash
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+      - name: Strict C portability compile
+        run: |
+          "$CC" -std=c11 -O2 -Wall -Wextra -Werror=implicit-function-declaration -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json.o
+          "$CC" -std=c11 -O2 -Wall -Wextra -Werror=implicit-function-declaration -I alt/src/native/littcore -c alt/src/native/littcore/litt_obj.c -o /tmp/litt_obj.o
+          "$CC" -std=c11 -O2 -Wall -Wextra -Werror=implicit-function-declaration -I alt/src/native/littcore -c alt/src/native/littcore/litt_world.c -o /tmp/litt_world.o
+      - name: Native runtime contract
+        run: make -C alt/src/native clean test CC="$CC" CXX="$CXX"
+      - name: Asset pipeline contract
+        run: make -C alt/src/native asset-test CC="$CC" CXX="$CXX"
+      - name: GPU/software contract
+        run: make -C alt/src/native gpu-contract-test CC="$CC" CXX="$CXX"
+
   core-stabilization:
     runs-on: ubuntu-latest
     steps:
