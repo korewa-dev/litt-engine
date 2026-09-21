@@ -6,6 +6,15 @@
 // canonical implementations. New functionality belongs in its owning module.
 #pragma once
 
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#endif
+
 #include "litt_math.h"
 #include "litt_ecs.h"
 #include "litt_event.h"
