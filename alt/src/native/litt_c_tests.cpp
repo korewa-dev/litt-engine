@@ -37,6 +37,8 @@ int main() {
     check(litt_script_vm_compile(vm, "large", "var value = 12345") == LITT_ERROR_LIMIT,
           "script_vm_source_limit_enforced");
 
+    check(litt_script_vm_set_limits(vm, 1024, 100, 64) == LITT_OK,
+          "script_vm_reset_limits_for_syntax");
     check(litt_script_vm_compile(vm, "flow", "if false\n") == LITT_ERROR_COMPILE,
           "script_vm_unsupported_flow_is_compile_error");
 
