@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstdio>
 #include <string>
+#include <stdexcept>
 #include "litt_scene.h"
 
 using namespace litt;
@@ -51,6 +52,34 @@ int main() {
 
     const char* nan_value = "{\"version\":1,\"root\":0,\"nodes\":[{\"id\":0,\"name\":\"Root\",\"parent\":null,\"position\":[1e999,0,0],\"rotation\":[0,0,0,1],\"scale\":[1,1,1],\"visible\":true,\"cullable\":true}]}";
     check(!restored.deserializeFromJson(nan_value), "scene_persistence_rejects_nonfinite_transform");
+
+    const std::string oversized(Scene::MAX_SERIALIZED_BYTES + 1u, ' ');
+    check(!restored.deserializeFromJson(oversized), "scene_persistence_rejects_oversized_input");
+    check(restored.nodes.size() == before && restored.root && restored.root->name == before_name,
+          "scene_persistence_oversized_input_is_transactional");
+
+    Scene name_bounded;
+    bool long_name_rejected = false;
+    try {
+        name_bounded.createNode(std::string(Scene::MAX_NODE_NAME_BYTES + 1u, 'n'));
+    } catch (const std::length_error&) {
+        long_name_rejected = true;
+    }
+    check(long_name_rejected && name_bounded.nodes.size() == 1,
+          "scene_node_name_limit_enforced");
+
+    Scene count_bounded;
+    bool node_limit_rejected = false;
+    try {
+        while (count_bounded.nodes.size() < Scene::MAX_NODES) {
+            count_bounded.createNode("");
+        }
+        count_bounded.createNode("");
+    } catch (const std::length_error&) {
+        node_limit_rejected = true;
+    }
+    check(node_limit_rejected && count_bounded.nodes.size() == Scene::MAX_NODES,
+          "scene_node_count_limit_enforced");
 
     std::printf("Results: %d passed, %d failed\n", passed, failed);
     return failed ? 1 : 0;

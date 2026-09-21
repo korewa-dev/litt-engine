@@ -306,140 +306,172 @@ private:
         });
     }
     
+    static bool isIdentifier(const std::string& name) {
+        if (name.empty() || !(std::isalpha(static_cast<unsigned char>(name[0])) || name[0] == '_')) {
+            return false;
+        }
+        for (char ch : name) {
+            const unsigned char uch = static_cast<unsigned char>(ch);
+            if (!(std::isalnum(uch) || ch == '_')) return false;
+        }
+        return true;
+    }
+
+    uint8_t addConstant(VMFunction& func, const Value& value) {
+        if (func.constants.size() >= 255u) {
+            throw std::runtime_error("constant limit exceeded");
+        }
+        func.constants.push_back(value);
+        return static_cast<uint8_t>(func.constants.size() - 1u);
+    }
+
+    int findLocalIndex(const std::string& name, const VMFunction& func) const {
+        for (size_t i = 0; i < func.local_names.size(); ++i) {
+            if (func.local_names[i] == name) return static_cast<int>(i);
+        }
+        return -1;
+    }
+
+    void emitAtom(const std::string& token, VMFunction& func) {
+        if (token.empty()) throw std::runtime_error("missing expression value");
+
+        if (token == "true" || token == "false") {
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::PUSH_BOOL));
+            func.bytecode.push_back(addConstant(func, Value(token == "true")));
+            return;
+        }
+        if (token == "nil") {
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::PUSH_FLOAT));
+            func.bytecode.push_back(addConstant(func, Value()));
+            return;
+        }
+        if (token.front() == '"') {
+            if (token.size() < 2 || token.back() != '"') {
+                throw std::runtime_error("string literals with whitespace are not supported");
+            }
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::PUSH_STRING));
+            func.bytecode.push_back(addConstant(func, Value(token.substr(1, token.size() - 2))));
+            return;
+        }
+
+        char* end = nullptr;
+        const float number = std::strtof(token.c_str(), &end);
+        if (end && end != token.c_str() && *end == '\0') {
+            if (!std::isfinite(number)) throw std::runtime_error("non-finite numeric literal");
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::PUSH_FLOAT));
+            func.bytecode.push_back(addConstant(func, Value(number)));
+            return;
+        }
+
+        if (!isIdentifier(token)) throw std::runtime_error("invalid expression token: " + token);
+        const int local = findLocalIndex(token, func);
+        if (local < 0) throw std::runtime_error("unknown variable: " + token);
+        func.bytecode.push_back(static_cast<uint8_t>(OpCode::LOAD_VAR));
+        func.bytecode.push_back(static_cast<uint8_t>(local));
+    }
+
+    static bool isBinaryOperator(const std::string& op) {
+        return op == "+" || op == "-" || op == "*" || op == "/" || op == "%" ||
+               op == "==" || op == "!=" || op == "<" || op == ">" ||
+               op == "<=" || op == ">=" || op == "and" || op == "or";
+    }
+
+    static void emitBinaryOperator(const std::string& op, VMFunction& func) {
+        OpCode code = OpCode::NOP;
+        if (op == "+") code = OpCode::ADD;
+        else if (op == "-") code = OpCode::SUB;
+        else if (op == "*") code = OpCode::MUL;
+        else if (op == "/") code = OpCode::DIV;
+        else if (op == "%") code = OpCode::MOD;
+        else if (op == "==") code = OpCode::EQ;
+        else if (op == "!=") code = OpCode::NEQ;
+        else if (op == "<") code = OpCode::LT;
+        else if (op == ">") code = OpCode::GT;
+        else if (op == "<=") code = OpCode::LTE;
+        else if (op == ">=") code = OpCode::GTE;
+        else if (op == "and") code = OpCode::AND;
+        else if (op == "or") code = OpCode::OR;
+        else throw std::runtime_error("unsupported binary operator: " + op);
+        func.bytecode.push_back(static_cast<uint8_t>(code));
+    }
+
+    void compileExpression(std::istringstream& ss, VMFunction& func) {
+        std::vector<std::string> tokens;
+        std::string token;
+        while (ss >> token) tokens.push_back(token);
+        if (tokens.empty()) throw std::runtime_error("missing expression");
+
+        size_t i = 0;
+        bool negate_truth = false;
+        if (tokens[i] == "not") {
+            negate_truth = true;
+            if (++i >= tokens.size()) throw std::runtime_error("missing value after not");
+        }
+        emitAtom(tokens[i++], func);
+        if (negate_truth) func.bytecode.push_back(static_cast<uint8_t>(OpCode::NOT));
+
+        while (i < tokens.size()) {
+            const std::string op = tokens[i++];
+            if (!isBinaryOperator(op)) throw std::runtime_error("unsupported operator: " + op);
+            if (i >= tokens.size()) throw std::runtime_error("missing right-hand operand");
+            emitAtom(tokens[i++], func);
+            emitBinaryOperator(op, func);
+        }
+    }
+
     void compileLine(const std::string& line, VMFunction& func) {
         std::istringstream ss(line);
         std::string token;
-        ss >> token;
-        
+        if (!(ss >> token) || token[0] == '#') return;
+
         if (token == "var") {
             std::string name;
-            ss >> name;
+            if (!(ss >> name) || !isIdentifier(name)) {
+                throw std::runtime_error("invalid variable declaration");
+            }
+            if (findLocalIndex(name, func) >= 0) {
+                throw std::runtime_error("duplicate variable: " + name);
+            }
+            if (func.local_names.size() >= 255u) {
+                throw std::runtime_error("local variable limit exceeded");
+            }
+            const uint8_t index = static_cast<uint8_t>(func.local_names.size());
             func.local_names.push_back(name);
-            
-            // Check for initializer
+
             std::string eq;
-            ss >> eq;
-            if (eq == "=") {
-                compileExpression(ss, func);
-            }
-            
-            func.bytecode.push_back((uint8_t)OpCode::STORE_VAR);
-            func.bytecode.push_back((uint8_t)func.local_names.size() - 1);
-        } else if (token == "function") {
-            std::string name;
-            ss >> name;
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_STRING);
-            func.constants.push_back(Value(name));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "print") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::PRINT);
-        } else if (token == "if") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::JUMP_IF_FALSE);
-            func.bytecode.push_back(0); // placeholder
-            func.bytecode.push_back(0); // placeholder
-        } else if (token == "while") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::JUMP_IF_FALSE);
-            func.bytecode.push_back(0); // placeholder
-            func.bytecode.push_back(0); // placeholder
-        } else if (token == "return") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::RETURN);
-        } else if (token == "end") {
-            // End of block
-        } else {
-            // Treat as expression statement
-            std::string rest = line;
-            std::istringstream rest_ss(rest);
-            compileExpression(rest_ss, func);
-        }
-    }
-    
-    void compileExpression(std::istringstream& ss, VMFunction& func) {
-        std::string token;
-        ss >> token;
-        
-        if (token.empty()) return;
-        
-        // Number literal
-        if (isdigit(token[0]) || (token[0] == '-' && token.size() > 1 && isdigit(token[1]))) {
-            float val = std::stof(token);
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_FLOAT);
-            func.constants.push_back(Value(val));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "true") {
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_BOOL);
-            func.constants.push_back(Value(true));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "false") {
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_BOOL);
-            func.constants.push_back(Value(false));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "nil") {
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_FLOAT);
-            func.constants.push_back(Value(0.0f));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token[0] == '"') {
-            // String literal
-            std::string str = token.substr(1);
-            if (str.back() == '"') str.pop_back();
-            func.bytecode.push_back((uint8_t)OpCode::PUSH_STRING);
-            func.constants.push_back(Value(str));
-            func.bytecode.push_back((uint8_t)func.constants.size() - 1);
-        } else if (token == "not") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::NOT);
-        } else if (token == "and") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::AND);
-        } else if (token == "or") {
-            compileExpression(ss, func);
-            func.bytecode.push_back((uint8_t)OpCode::OR);
-        } else {
-            // Variable or function call
-            std::string name = token;
-            
-            // Check for binary operators
-            std::string op;
-            ss >> op;
-            
-            if (op == "+" || op == "-" || op == "*" || op == "/" || op == "%" || 
-                op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=") {
-                // Binary operators are emitted left-to-right so non-commutative
-                // operations (sub/div/mod/comparisons) preserve source order.
-                func.bytecode.push_back((uint8_t)OpCode::LOAD_VAR);
-                func.bytecode.push_back((uint8_t)getLocalIndex(name, func));
-                compileExpression(ss, func);
-                
-                if (op == "+") func.bytecode.push_back((uint8_t)OpCode::ADD);
-                else if (op == "-") func.bytecode.push_back((uint8_t)OpCode::SUB);
-                else if (op == "*") func.bytecode.push_back((uint8_t)OpCode::MUL);
-                else if (op == "/") func.bytecode.push_back((uint8_t)OpCode::DIV);
-                else if (op == "%") func.bytecode.push_back((uint8_t)OpCode::MOD);
-                else if (op == "==") func.bytecode.push_back((uint8_t)OpCode::EQ);
-                else if (op == "!=") func.bytecode.push_back((uint8_t)OpCode::NEQ);
-                else if (op == "<") func.bytecode.push_back((uint8_t)OpCode::LT);
-                else if (op == ">") func.bytecode.push_back((uint8_t)OpCode::GT);
-                else if (op == "<=") func.bytecode.push_back((uint8_t)OpCode::LTE);
-                else if (op == ">=") func.bytecode.push_back((uint8_t)OpCode::GTE);
+            if (!(ss >> eq)) {
+                func.bytecode.push_back(static_cast<uint8_t>(OpCode::PUSH_FLOAT));
+                func.bytecode.push_back(addConstant(func, Value()));
             } else {
-                // Simple variable load
-                func.bytecode.push_back((uint8_t)OpCode::LOAD_VAR);
-                func.bytecode.push_back((uint8_t)getLocalIndex(name, func));
+                if (eq != "=") throw std::runtime_error("expected '=' after variable name");
+                compileExpression(ss, func);
             }
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::STORE_VAR));
+            func.bytecode.push_back(index);
+            return;
         }
-    }
-    
-    uint32_t getLocalIndex(const std::string& name, VMFunction& func) {
-        for (uint32_t i = 0; i < func.local_names.size(); i++) {
-            if (func.local_names[i] == name) return i;
+
+        if (token == "print") {
+            compileExpression(ss, func);
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::PRINT));
+            return;
         }
-        func.local_names.push_back(name);
-        return func.local_names.size() - 1;
+
+        if (token == "return") {
+            compileExpression(ss, func);
+            func.bytecode.push_back(static_cast<uint8_t>(OpCode::RETURN));
+            return;
+        }
+
+        if (token == "if" || token == "while" || token == "function" || token == "end") {
+            throw std::runtime_error("control-flow syntax is not supported by the bounded VM contract");
+        }
+
+        std::istringstream expression(line);
+        compileExpression(expression, func);
+        func.bytecode.push_back(static_cast<uint8_t>(OpCode::POP));
     }
-    
+
     bool run() {
         size_t instructions = 0;
         while (!frames_.empty()) {

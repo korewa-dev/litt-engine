@@ -32,6 +32,22 @@ struct PhysicsBody {
     }
 };
 
+inline bool physics_finite_vec3(const Vec3& v) {
+    return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
+}
+
+inline bool physics_body_contract_valid(const PhysicsBody& body) {
+    return std::isfinite(body.inverseMass) && body.inverseMass >= 0.0f &&
+           physics_finite_vec3(body.centerOfMass) &&
+           physics_finite_vec3(body.velocity) &&
+           physics_finite_vec3(body.force) &&
+           physics_finite_vec3(body.aabb.min) &&
+           physics_finite_vec3(body.aabb.max) &&
+           body.aabb.min.x <= body.aabb.max.x &&
+           body.aabb.min.y <= body.aabb.max.y &&
+           body.aabb.min.z <= body.aabb.max.z;
+}
+
 // =============================================================================
 // Broad Phase - Broadphase collision detection
 // =============================================================================
@@ -51,7 +67,7 @@ public:
     int root = -1;
     
     bool addBody(PhysicsBody* body) {
-        if (!body || !std::isfinite(body->inverseMass) || body->inverseMass < 0.0f) return false;
+        if (!body || !physics_body_contract_valid(*body)) return false;
         if (std::find(bodies.begin(), bodies.end(), body) != bodies.end()) {
             return false;
         }
@@ -76,8 +92,13 @@ public:
     std::vector<std::pair<PhysicsBody*, PhysicsBody*>> collidePairs() {
         std::vector<std::pair<PhysicsBody*, PhysicsBody*>> pairs;
         
-        // Sort by x
-        std::vector<PhysicsBody*> sorted = bodies;
+        // Sort only contract-valid bodies. External mutation must not allow a
+        // NaN AABB to violate the comparator's strict ordering requirements.
+        std::vector<PhysicsBody*> sorted;
+        sorted.reserve(bodies.size());
+        for (PhysicsBody* body : bodies) {
+            if (body && physics_body_contract_valid(*body)) sorted.push_back(body);
+        }
         std::sort(sorted.begin(), sorted.end(), [](const PhysicsBody* a, const PhysicsBody* b) {
             return a->aabb.min.x < b->aabb.min.x;
         });
@@ -159,8 +180,12 @@ public:
     
     void integrate(PhysicsBody* body) {
         if (!body || body->isStatic) return;
-        if (!std::isfinite(dt) || dt <= 0.0f) { body->force = Vec3::zero(); return; }
-        if (!std::isfinite(body->inverseMass) || body->inverseMass <= 0.0f) { body->force = Vec3::zero(); return; }
+        if (!std::isfinite(dt) || dt <= 0.0f || !physics_finite_vec3(gravity) ||
+            !physics_body_contract_valid(*body)) {
+            body->force = Vec3::zero();
+            return;
+        }
+        if (body->inverseMass <= 0.0f) { body->force = Vec3::zero(); return; }
         
         float invMass = body->inverseMass;
         
@@ -182,12 +207,14 @@ public:
     }
     
     void applyForce(PhysicsBody* body, const Vec3& force) {
-        if (!body || body->isStatic || !std::isfinite(body->inverseMass) || body->inverseMass <= 0.0f) return;
+        if (!body || body->isStatic || !physics_body_contract_valid(*body) ||
+            body->inverseMass <= 0.0f || !physics_finite_vec3(force)) return;
         body->force += force;
     }
     
     void applyImpulse(PhysicsBody* body, const Vec3& impulse) {
-        if (!body || body->isStatic || !std::isfinite(body->inverseMass) || body->inverseMass <= 0.0f) return;
+        if (!body || body->isStatic || !physics_body_contract_valid(*body) ||
+            body->inverseMass <= 0.0f || !physics_finite_vec3(impulse)) return;
         body->velocity += impulse * body->inverseMass;
     }
 };
@@ -197,6 +224,8 @@ public:
 // =============================================================================
 class PhysicsSystem {
 public:
+    static constexpr size_t MAX_BODIES = 4096u;
+
     BroadPhase broadPhase;
     NarrowPhase narrowPhase;
     PhysicsIntegrator integrator;
@@ -207,7 +236,7 @@ public:
         : integrator(dt, gravity) {}
     
     bool addBody(PhysicsBody* body) {
-        if (!body) return false;
+        if (!body || !physics_body_contract_valid(*body) || bodies.size() >= MAX_BODIES) return false;
         if (std::find(bodies.begin(), bodies.end(), body) != bodies.end()) {
             return false;
         }

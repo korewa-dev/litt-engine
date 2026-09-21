@@ -16,6 +16,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
+#include <cstring>
 #include <limits>
 #include <stdexcept>
 
@@ -150,6 +151,10 @@ struct SceneNode {
 // Scene graph
 class Scene {
 public:
+    static constexpr size_t MAX_SERIALIZED_BYTES = 8u * 1024u * 1024u;
+    static constexpr size_t MAX_NODES = 65536u;
+    static constexpr size_t MAX_NODE_NAME_BYTES = 4096u;
+
     SceneNode* root = nullptr;
     uint32_t nextId = 0;
     std::unordered_map<uint32_t, std::unique_ptr<SceneNode>> nodes;
@@ -163,6 +168,12 @@ public:
     }
     
     SceneNode& createNode(const std::string& name) {
+        if (name.size() > MAX_NODE_NAME_BYTES) {
+            throw std::length_error("scene node name exceeds supported limit");
+        }
+        if (nodes.size() >= MAX_NODES) {
+            throw std::length_error("scene node count exceeds supported limit");
+        }
         if (nextId == UINT32_MAX || nodes.count(nextId)) {
             throw std::overflow_error("scene node id space exhausted");
         }
@@ -289,10 +300,12 @@ public:
                 << ",\"cullable\":" << (n.cullable ? "true" : "false") << '}';
         }
         out << "]}";
-        return out.str();
+        std::string serialized = out.str();
+        return serialized.size() <= MAX_SERIALIZED_BYTES ? serialized : std::string();
     }
     
     bool deserializeFromJson(const std::string& json) {
+        if (json.empty() || json.size() > MAX_SERIALIZED_BYTES) return false;
         LvJson* doc = lvj_parse_strict(json.c_str());
         if (!doc || doc->kind != LJ_OBJ) { lvj_free(doc); return false; }
         const LvJson* version = lvj_get(doc, "version");
@@ -302,7 +315,8 @@ public:
             !rootValue || rootValue->kind != LJ_NUM ||
             !std::isfinite(rootValue->num) || rootValue->num < 0 ||
             rootValue->num > UINT32_MAX || std::floor(rootValue->num) != rootValue->num ||
-            !array || array->kind != LJ_ARR || array->count <= 0) {
+            !array || array->kind != LJ_ARR || array->count <= 0 ||
+            static_cast<size_t>(array->count) > MAX_NODES) {
             lvj_free(doc); return false;
         }
 
@@ -330,6 +344,7 @@ public:
             const LvJson* cullv = lvj_get(item, "cullable");
             if (!idv || idv->kind != LJ_NUM || idv->num < 0 || idv->num > UINT32_MAX ||
                 std::floor(idv->num) != idv->num || !namev || namev->kind != LJ_STR ||
+                !namev->str || std::strlen(namev->str) > MAX_NODE_NAME_BYTES ||
                 !rotv || rotv->kind != LJ_ARR || rotv->count != 4 ||
                 !visv || visv->kind != LJ_BOOL || !cullv || cullv->kind != LJ_BOOL) { ok = false; break; }
             const uint32_t id = static_cast<uint32_t>(idv->num);

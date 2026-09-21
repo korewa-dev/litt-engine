@@ -67,6 +67,17 @@ int main() {
     check(!engine.load_scene(missing), "engine_scene_missing_file_fails");
     check(!engine.save_scene(""), "engine_scene_empty_save_path_fails");
 
+    const char* oversized_path = "litt_engine_scene_oversized.json";
+    {
+        std::ofstream oversized_file(oversized_path, std::ios::binary | std::ios::trunc);
+        oversized_file.seekp(static_cast<std::streamoff>(Scene::MAX_SERIALIZED_BYTES));
+        oversized_file.put('x');
+    }
+    const std::string before_oversized = restored ? restored->serializeToJson() : std::string();
+    check(!engine.load_scene(oversized_path), "engine_scene_oversized_file_fails");
+    check(restored && restored->serializeToJson() == before_oversized,
+          "engine_scene_oversized_file_nonmutating");
+
     engine.stop();
     check(!engine.is_running(), "engine_stop_state");
     check(engine.initialize(config), "engine_reinitialize");
@@ -77,7 +88,9 @@ int main() {
           "engine_reinitialize_resets_scene_manager");
 
     engine.shutdown();
+    check(!engine.is_running(), "engine_shutdown_clears_running");
     std::remove(path);
+    std::remove(oversized_path);
     std::remove((std::string(path) + ".litt-tmp").c_str());
 
     std::printf("Engine scene facade: %d passed, %d failed\n", passed, failed);

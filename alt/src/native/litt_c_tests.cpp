@@ -37,10 +37,15 @@ int main() {
     check(litt_script_vm_compile(vm, "large", "var value = 12345") == LITT_ERROR_LIMIT,
           "script_vm_source_limit_enforced");
 
-    check(litt_script_vm_set_limits(vm, 1024, 16, 64) == LITT_OK, "script_vm_set_instruction_limit");
-    check(litt_script_vm_compile(vm, "loop", "if false\n") == LITT_OK,
-          "script_vm_compile_loop_fixture");
-    check(litt_script_vm_execute(vm, "loop") == LITT_ERROR_LIMIT,
+    check(litt_script_vm_set_limits(vm, 1024, 100, 64) == LITT_OK,
+          "script_vm_reset_limits_for_syntax");
+    check(litt_script_vm_compile(vm, "flow", "if false\n") == LITT_ERROR_COMPILE,
+          "script_vm_unsupported_flow_is_compile_error");
+
+    check(litt_script_vm_set_limits(vm, 1024, 4, 64) == LITT_OK, "script_vm_set_instruction_limit");
+    check(litt_script_vm_compile(vm, "budget", "1\n2\n3\n4\n") == LITT_OK,
+          "script_vm_compile_budget_fixture");
+    check(litt_script_vm_execute(vm, "budget") == LITT_ERROR_LIMIT,
           "script_vm_instruction_limit_enforced");
     check(litt_script_vm_set_limits(vm, 0, 1, 1) == LITT_ERROR_INVALID_ARGUMENT,
           "script_vm_rejects_zero_limits");

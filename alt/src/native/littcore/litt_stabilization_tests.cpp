@@ -195,6 +195,15 @@ static void test_physics_invalid_inputs() {
     invalid.inverseMass = std::nanf("");
     check(!physics.addBody(&invalid), "physics_nan_inverse_mass_rejected");
 
+    PhysicsBody malformed = body_at(Vec3::zero());
+    malformed.aabb.min.x = 2.0f;
+    malformed.aabb.max.x = -2.0f;
+    check(!physics.addBody(&malformed), "physics_malformed_aabb_rejected");
+
+    PhysicsBody nonfinite_center = body_at(Vec3::zero());
+    nonfinite_center.centerOfMass.x = std::nanf("");
+    check(!physics.addBody(&nonfinite_center), "physics_nonfinite_center_rejected");
+
     PhysicsBody body;
     body.inverseMass = 1.0f;
     body.aabb.min = Vec3(-0.5f, -0.5f, -0.5f);
@@ -211,6 +220,37 @@ static void test_physics_invalid_inputs() {
     PhysicsIntegrator integrator(1.0f / 60.0f);
     integrator.applyImpulse(&zero_mass, Vec3(10.0f, 0.0f, 0.0f));
     check(near_vec(zero_mass.velocity, before), "physics_zero_inverse_mass_ignores_impulse");
+
+    PhysicsBody guarded = body_at(Vec3::zero());
+    const Vec3 guarded_velocity = guarded.velocity;
+    integrator.applyImpulse(&guarded, Vec3(std::nanf(""), 0.0f, 0.0f));
+    integrator.applyForce(&guarded, Vec3(0.0f, std::nanf(""), 0.0f));
+    check(near_vec(guarded.velocity, guarded_velocity) && near_vec(guarded.force, Vec3::zero()),
+          "physics_nonfinite_force_and_impulse_ignored");
+
+    PhysicsBody valid_a = body_at(Vec3::zero());
+    PhysicsBody valid_b = body_at(Vec3(0.5f, 0.0f, 0.0f));
+    PhysicsSystem corruption_guard(0.0f, Vec3::zero());
+    check(corruption_guard.addBody(&valid_a) && corruption_guard.addBody(&valid_b),
+          "physics_corruption_guard_setup");
+    valid_b.aabb.min.x = std::nanf("");
+    corruption_guard.update();
+    check(corruption_guard.narrowPhase.contacts.empty(),
+          "physics_external_nonfinite_aabb_not_broadphased");
+
+    PhysicsSystem bounded(0.0f, Vec3::zero());
+    std::vector<PhysicsBody> many;
+    many.reserve(PhysicsSystem::MAX_BODIES + 1u);
+    bool within_limit = true;
+    for (size_t i = 0; i < PhysicsSystem::MAX_BODIES + 1u; ++i) {
+        many.push_back(body_at(Vec3(static_cast<float>(i) * 3.0f, 0.0f, 0.0f)));
+    }
+    for (size_t i = 0; i < PhysicsSystem::MAX_BODIES; ++i) {
+        if (!bounded.addBody(&many[i])) { within_limit = false; break; }
+    }
+    check(within_limit && bounded.bodies.size() == PhysicsSystem::MAX_BODIES,
+          "physics_body_budget_accepts_supported_limit");
+    check(!bounded.addBody(&many.back()), "physics_body_budget_rejects_over_limit");
 }
 
 static void test_memory() {
@@ -434,6 +474,84 @@ static void test_audio_wav_loading() {
     std::remove(path);
 }
 
+static void test_audio_software_mixer() {
+    SoftwareAudioMixer mixer;
+    check(!mixer.initialize(7999), "audio_mixer_rejects_low_sample_rate");
+    check(mixer.initialize(8000), "audio_mixer_initialize");
+
+    auto mono = std::make_shared<AudioClip>();
+    mono->sampleRate = 8000;
+    mono->channels = 1;
+    mono->lengthSamples = 4;
+    mono->data = {0.25f, -0.5f, 1.0f, -1.0f};
+
+    check(mixer.add_source("mono", mono), "audio_mixer_add_mono_source");
+    check(!mixer.add_source("mono", mono), "audio_mixer_duplicate_source_rejected");
+    check(mixer.set_volume("mono", 0.5f), "audio_mixer_set_source_volume");
+    check(mixer.set_master_volume(0.5f), "audio_mixer_set_master_volume");
+    check(mixer.play("mono"), "audio_mixer_play");
+
+    float frames[8]{};
+    check(mixer.render(frames, 4), "audio_mixer_render");
+    check(near_float(frames[0], 0.0625f) && near_float(frames[1], 0.0625f) &&
+          near_float(frames[2], -0.125f) && near_float(frames[3], -0.125f),
+          "audio_mixer_mono_to_stereo_and_gain");
+
+    float tail[2]{1.0f, 1.0f};
+    check(mixer.render(tail, 1), "audio_mixer_render_end");
+    check(mixer.state("mono") == AudioState::Stopped &&
+          near_float(tail[0], 0.0f) && near_float(tail[1], 0.0f),
+          "audio_mixer_nonlooping_source_stops");
+
+    check(mixer.set_looping("mono", true), "audio_mixer_enable_loop");
+    check(mixer.set_volume("mono", 1.0f) && mixer.set_master_volume(1.0f),
+          "audio_mixer_restore_gain");
+    check(mixer.play("mono"), "audio_mixer_replay");
+    float looped[12]{};
+    check(mixer.render(looped, 6) && mixer.state("mono") == AudioState::Playing,
+          "audio_mixer_loop_wraps");
+    check(near_float(looped[8], 0.25f) && near_float(looped[9], 0.25f),
+          "audio_mixer_loop_output_repeats");
+
+    check(mixer.pause("mono"), "audio_mixer_pause");
+    float paused[2]{1.0f, 1.0f};
+    check(mixer.render(paused, 1) && near_float(paused[0], 0.0f) &&
+          near_float(paused[1], 0.0f), "audio_mixer_pause_is_silent");
+    check(mixer.play("mono"), "audio_mixer_resume");
+    check(mixer.stop("mono") && mixer.state("mono") == AudioState::Stopped,
+          "audio_mixer_stop");
+
+    auto stereo = std::make_shared<AudioClip>();
+    stereo->sampleRate = 8000;
+    stereo->channels = 2;
+    stereo->lengthSamples = 1;
+    stereo->data = {2.0f, -2.0f};
+    check(mixer.add_source("stereo", stereo), "audio_mixer_add_stereo_source");
+    check(mixer.play("stereo"), "audio_mixer_play_stereo");
+    float clipped[2]{};
+    check(mixer.render(clipped, 1) && near_float(clipped[0], 1.0f) &&
+          near_float(clipped[1], -1.0f), "audio_mixer_output_clamped");
+
+    check(!mixer.set_pitch("stereo", 0.0f) &&
+          !mixer.set_pitch("stereo", std::nanf("")) &&
+          !mixer.set_pitch("stereo", 9.0f),
+          "audio_mixer_rejects_invalid_pitch");
+    check(!mixer.render(nullptr, 1), "audio_mixer_rejects_null_output");
+    float dummy[2]{};
+    check(!mixer.render(dummy, SoftwareAudioMixer::MAX_RENDER_FRAMES + 1u),
+          "audio_mixer_render_budget_enforced");
+
+    auto invalid = std::make_shared<AudioClip>();
+    invalid->sampleRate = 8000;
+    invalid->channels = 3;
+    invalid->lengthSamples = 1;
+    invalid->data = {0.0f, 0.0f, 0.0f};
+    check(!mixer.add_source("invalid", invalid), "audio_mixer_invalid_clip_rejected");
+
+    mixer.shutdown();
+    check(!mixer.render(dummy, 1), "audio_mixer_shutdown_disables_render");
+}
+
 static void test_event_dispatcher() {
     EventDispatcher dispatcher;
     int calls = 0;
@@ -470,6 +588,34 @@ static void test_scripting_vm() {
     check(vm.initialize(), "script_vm_initialize");
     check(vm.compile("basic", "var x = 10\nprint x\n"), "script_vm_compile_basic");
     check(vm.execute("basic"), "script_vm_execute_basic");
+
+    check(vm.compile("arithmetic", "var x = 10\nreturn x - 3\n"),
+          "script_vm_compile_arithmetic");
+    check(vm.execute("arithmetic"), "script_vm_execute_arithmetic");
+    const Value arithmetic = vm.pop();
+    check(arithmetic.type == ValueType::FLOAT && near_float(arithmetic.float_val, 7.0f),
+          "script_vm_arithmetic_result");
+
+    check(!vm.compile("unsupported_flow", "if true\n"),
+          "script_vm_rejects_unsupported_control_flow");
+    check(!vm.last_error().empty(), "script_vm_compile_error_is_reported");
+    check(!vm.compile("unknown_var", "print missing\n"),
+          "script_vm_rejects_unknown_variable");
+
+    vm.set_limits(1024, 4, 64);
+    check(vm.compile("instruction_budget", "1\n2\n3\n4\n"),
+          "script_vm_compile_instruction_budget_fixture");
+    check(!vm.execute("instruction_budget") &&
+          vm.last_error().find("instruction limit") != std::string::npos,
+          "script_vm_instruction_budget_enforced");
+
+    vm.set_limits(1024, 100, 2);
+    check(vm.compile("stack_budget", "var a = 1\nvar b = 2\nvar c = 3\n"),
+          "script_vm_compile_stack_budget_fixture");
+    check(!vm.execute("stack_budget") &&
+          vm.last_error().find("stack value limit") != std::string::npos,
+          "script_vm_stack_budget_enforced");
+
     check(!vm.execute("missing"), "script_vm_missing_rejected");
     vm.shutdown();
 }
@@ -597,6 +743,7 @@ int main() {
     test_scripting_vm();
     test_event_dispatcher();
     test_audio_wav_loading();
+    test_audio_software_mixer();
 #ifdef _WIN32
     test_software_renderer_hardening();
 #endif

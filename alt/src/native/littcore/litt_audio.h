@@ -290,4 +290,176 @@ private:
     }
 };
 
+class SoftwareAudioMixer {
+public:
+    static constexpr size_t MAX_SOURCES = 256u;
+    static constexpr size_t MAX_RENDER_FRAMES = 1024u * 1024u;
+
+    bool initialize(uint32_t sample_rate = 44100) {
+        if (sample_rate < 8000u || sample_rate > 192000u) return false;
+        sample_rate_ = sample_rate;
+        initialized_ = true;
+        sources_.clear();
+        return true;
+    }
+
+    void shutdown() {
+        sources_.clear();
+        initialized_ = false;
+    }
+
+    bool add_source(const std::string& name, const std::shared_ptr<AudioClip>& clip) {
+        if (!initialized_ || name.empty() || !valid_clip(clip) ||
+            sources_.size() >= MAX_SOURCES || sources_.count(name)) {
+            return false;
+        }
+        MixerSource source;
+        source.clip = clip;
+        sources_.emplace(name, std::move(source));
+        return true;
+    }
+
+    bool remove_source(const std::string& name) {
+        return sources_.erase(name) != 0;
+    }
+
+    bool play(const std::string& name) {
+        MixerSource* source = get_source(name);
+        if (!source) return false;
+        if (source->cursor >= source->clip->lengthSamples) source->cursor = 0.0;
+        source->state = AudioState::Playing;
+        return true;
+    }
+
+    bool pause(const std::string& name) {
+        MixerSource* source = get_source(name);
+        if (!source || source->state != AudioState::Playing) return false;
+        source->state = AudioState::Paused;
+        return true;
+    }
+
+    bool stop(const std::string& name) {
+        MixerSource* source = get_source(name);
+        if (!source) return false;
+        source->state = AudioState::Stopped;
+        source->cursor = 0.0;
+        return true;
+    }
+
+    bool set_volume(const std::string& name, float volume) {
+        MixerSource* source = get_source(name);
+        if (!source || !std::isfinite(volume)) return false;
+        source->volume = std::clamp(volume, 0.0f, 1.0f);
+        return true;
+    }
+
+    bool set_pitch(const std::string& name, float pitch) {
+        MixerSource* source = get_source(name);
+        if (!source || !std::isfinite(pitch) || pitch <= 0.0f || pitch > 8.0f) return false;
+        source->pitch = pitch;
+        return true;
+    }
+
+    bool set_looping(const std::string& name, bool loop) {
+        MixerSource* source = get_source(name);
+        if (!source) return false;
+        source->loop = loop;
+        return true;
+    }
+
+    bool set_master_volume(float volume) {
+        if (!std::isfinite(volume)) return false;
+        master_volume_ = std::clamp(volume, 0.0f, 1.0f);
+        return true;
+    }
+
+    float master_volume() const { return master_volume_; }
+
+    AudioState state(const std::string& name) const {
+        const MixerSource* source = get_source_const(name);
+        return source ? source->state : AudioState::Stopped;
+    }
+
+    bool render(float* stereo_interleaved, size_t frame_count) {
+        if (!initialized_ || (!stereo_interleaved && frame_count != 0) ||
+            frame_count > MAX_RENDER_FRAMES) {
+            return false;
+        }
+        if (frame_count == 0) return true;
+
+        const size_t sample_count = frame_count * 2u;
+        std::fill(stereo_interleaved, stereo_interleaved + sample_count, 0.0f);
+
+        for (auto& entry : sources_) {
+            MixerSource& source = entry.second;
+            if (source.state != AudioState::Playing || !valid_clip(source.clip)) continue;
+
+            const double step = static_cast<double>(source.clip->sampleRate) /
+                                static_cast<double>(sample_rate_) *
+                                static_cast<double>(source.pitch);
+            for (size_t frame = 0; frame < frame_count; ++frame) {
+                if (source.cursor >= static_cast<double>(source.clip->lengthSamples)) {
+                    if (!source.loop) {
+                        source.state = AudioState::Stopped;
+                        source.cursor = 0.0;
+                        break;
+                    }
+                    source.cursor = std::fmod(
+                        source.cursor, static_cast<double>(source.clip->lengthSamples));
+                }
+
+                const size_t source_frame = static_cast<size_t>(source.cursor);
+                const size_t base = source_frame * source.clip->channels;
+                const float left = source.clip->data[base];
+                const float right = source.clip->channels == 2
+                    ? source.clip->data[base + 1u] : left;
+                const float gain = source.volume * master_volume_;
+                stereo_interleaved[frame * 2u] += left * gain;
+                stereo_interleaved[frame * 2u + 1u] += right * gain;
+                source.cursor += step;
+            }
+        }
+
+        for (size_t i = 0; i < sample_count; ++i) {
+            stereo_interleaved[i] = std::clamp(stereo_interleaved[i], -1.0f, 1.0f);
+        }
+        return true;
+    }
+
+private:
+    struct MixerSource {
+        std::shared_ptr<AudioClip> clip;
+        AudioState state = AudioState::Stopped;
+        float volume = 1.0f;
+        float pitch = 1.0f;
+        bool loop = false;
+        double cursor = 0.0;
+    };
+
+    static bool valid_clip(const std::shared_ptr<AudioClip>& clip) {
+        if (!clip || clip->sampleRate == 0 || (clip->channels != 1 && clip->channels != 2) ||
+            clip->lengthSamples == 0) {
+            return false;
+        }
+        const size_t frames = static_cast<size_t>(clip->lengthSamples);
+        if (frames > static_cast<size_t>(-1) / clip->channels) return false;
+        return clip->data.size() >= frames * clip->channels;
+    }
+
+    MixerSource* get_source(const std::string& name) {
+        auto it = sources_.find(name);
+        return it == sources_.end() ? nullptr : &it->second;
+    }
+
+    const MixerSource* get_source_const(const std::string& name) const {
+        auto it = sources_.find(name);
+        return it == sources_.end() ? nullptr : &it->second;
+    }
+
+    std::unordered_map<std::string, MixerSource> sources_;
+    uint32_t sample_rate_ = 44100;
+    float master_volume_ = 1.0f;
+    bool initialized_ = false;
+};
+
 } // namespace litt

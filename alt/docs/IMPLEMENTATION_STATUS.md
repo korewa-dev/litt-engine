@@ -28,26 +28,35 @@
 - StaticPool template
 
 **Scene** (`litt_scene.h`):
-- SceneNode hierarchy with transform, children
-- Component pointers to renderer types (MeshData, RenderMaterial, Light, RenderCamera)
+- Release-supported bounded hierarchy and scene-persistence v1 contract
+- 8 MiB serialized input, 65,536 nodes, 4 KiB node-name limits
+- Transactional deserialize failure semantics
+- Component pointers to renderer types remain outside persistence v1
 
-**Renderer** (`litt_renderer.h`):
+**Renderer** (`litt_renderer.h`, `litt_gpu_software.h`):
 - MeshData, RenderMaterial, RenderCamera, Light (authoritative)
-- FrameBuffer, RenderPass, SSR class
-- Unified types (Vec3, Vec2, Mat4, Aabb)
-- Generic Vulkan and DX12 hardware backends are present as experimental/unavailable surfaces; their fail-fast contract is tested, not hardware rendering
+- Release-supported bounded headless software renderer for CPU buffer/texture/raster/depth/mesh operations
+- 64 MiB software-buffer and 16,777,216-pixel image ceilings
+- Generic Vulkan/DX12/OpenGL/Metal hardware backends remain experimental/unavailable; fail-fast is tested, not accelerated rendering
 
 **Lighting & PBR** (`litt_lighting.h`, `litt_material.h`, `litt_pbr_material.h`):
 - LightType enum, Light struct, PBRLighting
 - PBRMaterial with metallic/roughness, CookTorranceBRDF
 - MaterialSerializer with JSON/binary
 
+**Assets / Materials** (`litt_asset.h`, `litt_asset_pipeline.*`, `litt_pbr_material.h`):
+- Release-supported bounded OBJ/TGA loading and synchronous asset metadata/reimport contract
+- PBR factories and PBR-to-render-material conversion
+- Placeholder shader compilation now fails explicitly; GPU upload and async asset loading are outside the supported core
+
 **Textures** (`litt_texture.h`):
 - Texture class with formats, mip levels, sampling
 
 **Physics** (`litt_physics.h`):
-- Rigidbody, Collider, PhysicsEngine
-- Broad/narrow phase collision
+- Release-supported bounded AABB rigid-body core
+- 4,096-body budget, finite-state validation, sweep-and-prune broadphase
+- AABB contacts, triggers/static bodies, linear force/impulse integration
+- Rotation, friction, joints, CCD, and complex collider shapes are not part of the supported core
 
 **BVH** (`litt_bvh.h`):
 - SAH-based BVH construction
@@ -58,9 +67,10 @@
 - Entity management
 
 **Audio** (`litt_audio.h`, `litt_audio_wav.h`):
-- PCM WAV decoding and source-state semantics are regression-tested
-- Windows waveOut playback is a bounded backend integration, not a cross-platform release-supported backend
-- Per-source backend pause/stop/volume/pitch/looping/spatial/reverb remain unsupported until a real mixer/voice layer exists
+- Release-supported bounded PCM WAV decode and source-state contract
+- Cross-platform SoftwareAudioMixer produces interleaved stereo float PCM
+- Mono/stereo mix, volume, pitch, loop, play/pause/stop, master gain and output clamp are tested
+- Windows waveOut is an optional platform sink; cross-platform physical-device output is not claimed
 
 **UI** (`litt_ui.h`):
 - UIElementKind enum, UIPanel, UIButton, UILabel, UISlider
@@ -82,8 +92,11 @@
 - Skeleton (bone hierarchy)
 - AnimationBlender
 
-**Scripting** (`litt_scripting.h` + `litt_engine_systems.h`):
-- ScriptingEngine with script instances
+**Scripting** (`litt_scripting_vm.h`, C bridge):
+- Release-supported bounded embedded VM subset for variables, literals, print/return, arithmetic/comparison/logical expressions
+- Source/instruction/stack budgets are enforced
+- Unsupported control flow fails at compile time
+- Python/C#/Lua remain separate experimental integrations
 
 **Networking** (in `litt_engine_systems.h`):
 - NetworkManager with CLIENT/SERVER modes
