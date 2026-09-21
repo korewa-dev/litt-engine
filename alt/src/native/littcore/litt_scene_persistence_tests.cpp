@@ -7,7 +7,7 @@
 using namespace litt;
 static int passed = 0, failed = 0;
 static void check(bool ok, const char* name) { if (ok) { ++passed; std::printf("  ok %s\n", name); } else { ++failed; std::printf("  FAIL %s\n", name); } }
-static bool near(float a, float b) { return std::fabs(a-b) < 1e-4f; }
+static bool near_float(float a, float b) { return std::fabs(a-b) < 1e-4f; }
 
 int main() {
     Scene source;
@@ -33,7 +33,7 @@ int main() {
     check(restored.root && restored.root->name == "Root \"quoted\"",
           "scene_persistence_escapes_names");
     check(rp && rc && rc->parent == rp, "scene_persistence_restores_hierarchy");
-    check(rp && near(rp->position.x, 1.25f) && near(rp->position.y, -2.0f) && near(rp->scale.z, 4.0f),
+    check(rp && near_float(rp->position.x, 1.25f) && near_float(rp->position.y, -2.0f) && near_float(rp->scale.z, 4.0f),
           "scene_persistence_restores_transform");
     check(rp && !rp->visible && rc && !rc->cullable,
           "scene_persistence_restores_flags");
