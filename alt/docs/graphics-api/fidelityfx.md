@@ -1,96 +1,34 @@
-# FidelityFX Integration
+# FidelityFX Research Notes
 
-Litt Engine integrates the [AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) for upscaling and frame generation.
+**Release status: experimental / not promoted.**
 
-> **Note:** The official FSR SDK is **DX12 only**. [OptiScaler](https://github.com/OptiScaler/OptiScaler) provides DX12<->Vulkan interop for FSR 4 runtime injection.
+This document tracks FidelityFX, FSR, denoising, frame-generation, and related rendering research. Litt Engine does not currently have a release-supported FidelityFX path because its generic DX12 and Vulkan hardware backends are unavailable.
 
-## FSR Versions
+Upstream SDK or GPU compatibility must not be interpreted as Litt Engine certification.
 
-| Version | Type | GPUs | Description |
-|---------|------|------|-------------|
-| **FSR 1** | Spatial | All | Basic upscaling, no temporal |
-| **FSR 2/3.1.5** | Temporal + Frame Gen | AMD, Intel, Samsung | AI-quality upscaling + FG |
-| **FSR 3** | AI + Temporal + FG | RDNA 4/5 + all | Next-gen with ML reconstruction |
+## Current Litt contract
 
-## GPU Support Matrix
+- no release-supported FidelityFX SDK integration is claimed;
+- no FSR version is certified on a physical GPU by Litt;
+- no vendor GPU matrix in this repository is a support matrix;
+- generic DX12/Vulkan requests follow the fail-fast contract in [graphics-api-status.md](./graphics-api-status.md);
+- physical support can only be promoted after the backend and hardware certification gates are complete.
 
-| GPU | FSR 1 | FSR 3.1.5 | FSR 3 |
-|-----|-------|-----------|-------|
-| AMD RDNA 2 | Yes | Yes | No |
-| AMD RDNA 3 | Yes | Yes | Yes |
-| AMD RDNA 4 | Yes | Yes | Yes (Native) |
-| Intel Arc | Yes | Yes | Yes |
-| Samsung Exynos | Yes | Yes | Yes |
-| Moore Threads | Yes | Yes | Partial |
-| Qualcomm Adreno | Yes | Yes | Yes |
-| MediaTek | Yes | Yes | Yes |
-| Huawei Kirin | Yes | Yes | Yes |
-| NVIDIA | Yes | Yes | Yes |
+## Design targets
 
-## Usage
+The repository may contain shader experiments or design notes for:
 
-```cpp
-use litt_fidelityfx::fsr3::*;
+- spatial and temporal upscaling;
+- frame generation;
+- contrast-adaptive sharpening;
+- diffuse/specular denoising;
+- ray reconstruction;
+- vendor-neutral fallback strategies.
 
-let mut fsr3 = Fsr4::new(960, 540, 1920, 1080);
-fsr3.support_level = Fsr4::detect_support(&device, physical_device);
+These are implementation or research surfaces, not release guarantees.
 
-match fsr3.support_level {
-    Fsr4Support::Full => {
-        fsr3.update(Fsr4Quality::Quality, Fsr4Mode::Full, true, true);
-    }
-    Fsr4Support::Temporal => {
-        fsr3.update(Fsr4Quality::Quality, Fsr4Mode::FrameGen, false, true);
-    }
-    Fsr4Support::Spatial => {
-        fsr3.update(Fsr4Quality::Quality, Fsr4Mode::Upscale, false, false);
-    }
-    _ => {}
-}
-```
+## Hardware evidence
 
-## Quality Presets
+When this subsystem is promoted, record at minimum the GPU/model, driver, OS, API backend, SDK version, input/output resolution, pipeline creation, resource lifecycle, sustained-frame run, shutdown behavior, validation/debug messages, and visual correctness checks.
 
-| Preset | Resolution Scale | Use Case |
-|--------|-----------------|----------|
-| UltraQuality | 0.56x | Cinematic, AAA |
-| Quality | 0.67x | Balanced |
-| Balanced | 0.83x | Performance |
-| Performance | 1.0x | Max FPS |
-| UltraPerformance | 1.5x | Lowest res |
-
-## Other FidelityFX Effects
-
-| Effect | Description | Shader |
-|--------|-------------|--------|
-| **CAS** | Contrast Adaptive Sharpening | `cas.comp.glsl` |
-| **Ray Reconstruction** | CNN-style denoiser | `ray_reconstruction.comp.glsl` |
-| **Diffuse Denoiser** | Temporal-spatial diffuse | `denoiser_diffuse.comp.glsl` |
-| **Specular Denoiser** | Temporal-spatial specular | `denoiser_specular.comp.glsl` |
-| **XESS 3** | Intel frame generation | `xess3_framegen.comp.glsl` |
-
-## Environment Variables
-
-```bash
-export LIT_FSR_MODE=4          # Use FSR 3 if available
-export LIT_FSR_QUALITY=1       # Quality preset
-export LIT_FSR_FRAMEGEN=1      # Enable frame generation
-```
-
-## Frame Graph Integration
-
-```
-Path Trace (Compute Shader)
-  -> FidelityFX Ray Reconstruction (Denoiser)
-  -> FidelityFX FSR 3.1.5
-       Create Pass (temporal accumulation)
-       Compensate Pass (motion vectors)
-       Upscaler Pass (upscaling)
-       Frame Gen Pass (frame generation)
-  -> FidelityFX CAS (sharpening)
-  -> Tonemap
-  -> Present
-```
-
-See [../rendering/frame-graph.md](../rendering/frame-graph.md) for the full frame graph.
-
+For current release support, use [../SUPPORTED_RUNTIME.md](../SUPPORTED_RUNTIME.md).
