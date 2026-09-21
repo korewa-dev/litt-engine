@@ -80,7 +80,7 @@ public:
         if (undo_.empty()) return false;
         Snapshot edit = std::move(undo_.back());
         undo_.pop_back();
-        if (!restore(edit.before)) return false;
+        if (!restore(edit.before, edit.before_selected)) return false;
         redo_.push_back(std::move(edit));
         trim(redo_);
         return true;
@@ -90,7 +90,7 @@ public:
         if (redo_.empty()) return false;
         Snapshot edit = std::move(redo_.back());
         redo_.pop_back();
-        if (!restore(edit.after)) return false;
+        if (!restore(edit.after, edit.after_selected)) return false;
         undo_.push_back(std::move(edit));
         trim(undo_);
         return true;
@@ -130,15 +130,10 @@ private:
         return true;
     }
 
-    bool restore(const std::string& json) {
+    bool restore(const std::string& json, uint32_t selected) {
         if (!scene_.deserializeFromJson(json)) return false;
-        uint32_t desired = scene_.root ? scene_.root->id : UINT32_MAX;
-        // Selection snapshots are restored by callers after deserialize.
-        selected_id_ = desired;
-        if (!undo_.empty()) {
-            const Snapshot& previous = undo_.back();
-            if (scene_.getNode(previous.after_selected)) selected_id_ = previous.after_selected;
-        }
+        if (scene_.getNode(selected)) selected_id_ = selected;
+        else selected_id_ = scene_.root ? scene_.root->id : UINT32_MAX;
         return true;
     }
 
