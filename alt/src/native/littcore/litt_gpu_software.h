@@ -115,6 +115,25 @@ public:
         return true;
     }
     
+    bool set_framebuffer_size(uint32_t width, uint32_t height) {
+        size_t pixels = 0, bytes = 0;
+        if (!software_detail::image_sizes(width, height, pixels, bytes)) return false;
+        width_ = width;
+        height_ = height;
+        if (initialized_ && !resize_buffers()) return false;
+#ifdef _WIN32
+        if (initialized_) {
+            bmp_info_.bmiHeader.biWidth = static_cast<LONG>(width_);
+            bmp_info_.bmiHeader.biHeight = -static_cast<LONG>(height_);
+        }
+#endif
+        return true;
+    }
+
+    uint32_t get_width() const { return width_; }
+    uint32_t get_height() const { return height_; }
+    bool initialized() const { return initialized_; }
+
     void shutdown() override {
 #ifdef _WIN32
         if (hwnd_) {
