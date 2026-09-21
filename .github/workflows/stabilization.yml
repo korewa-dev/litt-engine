@@ -102,7 +102,9 @@ jobs:
       - name: Build and run GPU contract with ASan/UBSan
         run: |
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gpu.cpp alt/src/native/littcore/litt_gpu_contract_tests.cpp -o /tmp/litt_gpu_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gpu_lisuan.cpp alt/src/native/littcore/litt_gpu_vendor_contract_tests.cpp -o /tmp/litt_gpu_vendor_sanitized
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/litt_gpu_sanitized
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/litt_gpu_vendor_sanitized
 
   networking-contract:
     runs-on: ubuntu-latest
@@ -210,6 +212,9 @@ jobs:
       - name: Build and run Windows GPU/software contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_gpu.cpp alt\\src\\native\\littcore\\litt_gpu_contract_tests.cpp /Fe:gpu_contract_windows.exe gdi32.lib user32.lib && gpu_contract_windows.exe
+      - name: Build and run Windows vendor GPU truthfulness contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_gpu_lisuan.cpp alt\\src\\native\\littcore\\litt_gpu_vendor_contract_tests.cpp /Fe:gpu_vendor_contract_windows.exe && gpu_vendor_contract_windows.exe
       - name: Build and run Windows asset/material contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_asset_pipeline.cpp alt\\src\\native\\littcore\\asset_pipeline_tests.cpp /Fe:asset_contract_windows.exe && asset_contract_windows.exe
