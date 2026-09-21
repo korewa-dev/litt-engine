@@ -204,33 +204,33 @@ private:
 // =============================================================================
 class Logger {
 public:
-    enum class Level { DEBUG, INFO, WARNING, ERROR };
+    enum class Level { Debug, Info, Warning, Error };
 
     static void log(Level level, const std::string& message) {
         const char* prefix = "";
         switch (level) {
-            case Level::DEBUG: prefix = "[DEBUG]"; break;
-            case Level::INFO: prefix = "[INFO]"; break;
-            case Level::WARNING: prefix = "[WARN]"; break;
-            case Level::ERROR: prefix = "[ERROR]"; break;
+            case Level::Debug: prefix = "[DEBUG]"; break;
+            case Level::Info: prefix = "[INFO]"; break;
+            case Level::Warning: prefix = "[WARN]"; break;
+            case Level::Error: prefix = "[ERROR]"; break;
         }
         fprintf(stdout, "%s %s\n", prefix, message.c_str());
     }
 
     static void debug(const std::string& message) {
-        log(Level::DEBUG, message);
+        log(Level::Debug, message);
     }
 
     static void info(const std::string& message) {
-        log(Level::INFO, message);
+        log(Level::Info, message);
     }
 
     static void warning(const std::string& message) {
-        log(Level::WARNING, message);
+        log(Level::Warning, message);
     }
 
     static void error(const std::string& message) {
-        log(Level::ERROR, message);
+        log(Level::Error, message);
     }
 };
 
