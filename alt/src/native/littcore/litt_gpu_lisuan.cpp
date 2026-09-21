@@ -39,34 +39,10 @@ uint32_t LisuanGPUDetector::get_gpu_count() {
 }
 
 bool LisuanGPUDetector::get_gpu_info(uint32_t index, LisuanGPUInfo& info) {
-    if (index >= get_gpu_count()) {
-        s_last_error = "GPU index out of range";
-        return false;
-    }
-    
-    // Stub - would read from real hardware
-    info.gpu_type = LisuanGPU::LX_7G100;
-    info.gpu_name = "Lisuan LX 7G100";
-    info.driver_version = "1.0.0";
-    info.pci_vendor_id = LISUAN_VENDOR_ID;
-    info.pci_device_id = 0x0710;
-    info.revision_id = 0x00;
-    info.subsystem_id = 0x0000;
-    
-    // TrueGPU features for LX 7G100
-    info.features.gddr6_memory = true;
-    info.features.multi_display = true;
-    info.features.hardware_encoding = true;
-    info.features.hardware_decoding = true;
-    info.features.ray_tracing = false; // LX 7G100 doesn't have HW RT
-    info.features.ai_accelerator = false;
-    info.features.max_display_outputs = 4;
-    info.features.compute_units = 32;
-    info.features.tensor_cores = 0;
-    info.features.rt_cores = 0;
-    info.features.vram_bytes = 12ULL * 1024 * 1024 * 1024; // 12GB GDDR6
-    
-    return true;
+    (void)index;
+    info = LisuanGPUInfo{};
+    s_last_error = "Lisuan hardware probing is not implemented";
+    return false;
 }
 
 bool LisuanGPUDetector::get_primary_gpu(LisuanGPUInfo& info) {
@@ -107,24 +83,18 @@ bool LisuanGPUDetector::get_best_gpu(LisuanGPUInfo& info) {
 }
 
 TrueGPUFeatures LisuanGPUDetector::get_truegpu_features(const LisuanGPUInfo& info) {
-    return info.features;
+    (void)info;
+    return TrueGPUFeatures{};
 }
 
 bool LisuanGPUDetector::supports_truegpu_feature(const LisuanGPUInfo& info, const std::string& feature) {
-    if (feature == "gddr6") return info.features.gddr6_memory;
-    if (feature == "multi_display") return info.features.multi_display;
-    if (feature == "hw_encode") return info.features.hardware_encoding;
-    if (feature == "hw_decode") return info.features.hardware_decoding;
-    if (feature == "ray_tracing") return info.features.ray_tracing;
-    if (feature == "ai_accelerator") return info.features.ai_accelerator;
-    if (feature == "truegpu_upscale") return supports_truegpu_upscale(info);
-    if (feature == "truegpu_framegen") return supports_truegpu_framegen(info);
-    if (feature == "truegpu_denoiser") return supports_truegpu_denoiser(info);
+    (void)info;
+    (void)feature;
     return false;
 }
 
 std::string LisuanGPUDetector::get_driver_version() {
-    return "1.0.0"; // Stub
+    return "UNKNOWN";
 }
 
 float LisuanGPUDetector::get_gpu_utilization(const LisuanGPUInfo& info) {
@@ -154,27 +124,27 @@ uint32_t LisuanGPUDetector::get_memory_clock(const LisuanGPUInfo& info) {
 
 bool LisuanGPUDetector::supports_vulkan(const LisuanGPUInfo& info) {
     (void)info;
-    return true; // Lisuan GPUs support Vulkan
+    return false;
 }
 
 bool LisuanGPUDetector::supports_dx12(const LisuanGPUInfo& info) {
     (void)info;
-    return true; // Lisuan GPUs support DirectX 12
+    return false;
 }
 
 bool LisuanGPUDetector::supports_opengl(const LisuanGPUInfo& info) {
     (void)info;
-    return true; // Lisuan GPUs support OpenGL
+    return false;
 }
 
 std::string LisuanGPUDetector::get_vulkan_version(const LisuanGPUInfo& info) {
     (void)info;
-    return "1.3"; // Stub
+    return "UNKNOWN";
 }
 
 std::string LisuanGPUDetector::get_dx_feature_level(const LisuanGPUInfo& info) {
     (void)info;
-    return "12_2"; // Stub
+    return "UNKNOWN";
 }
 
 float LisuanGPUDetector::get_memory_bandwidth(const LisuanGPUInfo& info) {
@@ -189,16 +159,16 @@ uint32_t LisuanGPUDetector::get_tdp(const LisuanGPUInfo& info) {
 
 bool LisuanGPUDetector::is_discrete(const LisuanGPUInfo& info) {
     (void)info;
-    return true; // Lisuan GPUs are discrete
+    return false;
 }
 
 uint32_t LisuanGPUDetector::get_bus_width(const LisuanGPUInfo& info) {
     (void)info;
-    return 192; // Stub - LX 7G100 has 192-bit bus
+    return 0;
 }
 
 std::string LisuanGPUDetector::get_memory_type(const LisuanGPUInfo& info) {
-    if (info.features.gddr6_memory) return "GDDR6";
+    (void)info;
     return "Unknown";
 }
 
@@ -273,12 +243,12 @@ std::string LisuanGPUDetector::get_bios_version(const LisuanGPUInfo& info) {
 
 bool LisuanGPUDetector::supports_hdmi(const LisuanGPUInfo& info) {
     (void)info;
-    return true;
+    return false;
 }
 
 bool LisuanGPUDetector::supports_displayport(const LisuanGPUInfo& info) {
     (void)info;
-    return true;
+    return false;
 }
 
 bool LisuanGPUDetector::supports_usbc_display(const LisuanGPUInfo& info) {
@@ -288,23 +258,24 @@ bool LisuanGPUDetector::supports_usbc_display(const LisuanGPUInfo& info) {
 
 uint32_t LisuanGPUDetector::get_hdmi_version(const LisuanGPUInfo& info) {
     (void)info;
-    return 2; // HDMI 2.1
+    return 0;
 }
 
 uint32_t LisuanGPUDetector::get_displayport_version(const LisuanGPUInfo& info) {
     (void)info;
-    return 2; // DP 2.0
+    return 0;
 }
 
 void LisuanGPUDetector::get_max_resolution(const LisuanGPUInfo& info, uint32_t& width, uint32_t& height, uint32_t& refresh_rate) {
     (void)info;
-    width = 7680;
-    height = 4320;
-    refresh_rate = 60;
+    width = 0;
+    height = 0;
+    refresh_rate = 0;
 }
 
 bool LisuanGPUDetector::has_ai_accelerator(const LisuanGPUInfo& info) {
-    return info.features.ai_accelerator;
+    (void)info;
+    return false;
 }
 
 uint32_t LisuanGPUDetector::get_ai_tops(const LisuanGPUInfo& info) {
@@ -313,7 +284,8 @@ uint32_t LisuanGPUDetector::get_ai_tops(const LisuanGPUInfo& info) {
 }
 
 bool LisuanGPUDetector::supports_on_device_llm(const LisuanGPUInfo& info) {
-    return info.features.ai_accelerator && info.features.vram_bytes >= 8ULL * 1024 * 1024 * 1024;
+    (void)info;
+    return false;
 }
 
 bool LisuanGPUDetector::supports_truegpu_upscale(const LisuanGPUInfo& info) {
@@ -325,17 +297,13 @@ bool LisuanGPUDetector::supports_truegpu_framegen(const LisuanGPUInfo& info) {
 }
 
 bool LisuanGPUDetector::supports_truegpu_denoiser(const LisuanGPUInfo& info) {
-    return info.features.ray_tracing && get_truegpu_version(info) >= 2;
+    (void)info;
+    return false;
 }
 
 uint32_t LisuanGPUDetector::get_truegpu_version(const LisuanGPUInfo& info) {
-    switch (info.gpu_type) {
-        case LisuanGPU::LX_7G100: return 1;
-        case LisuanGPU::LX_7G200: return 2;
-        case LisuanGPU::LX_PRO_100: return 1;
-        case LisuanGPU::LX_PRO_200: return 2;
-        default: return 0;
-    }
+    (void)info;
+    return 0;
 }
 
 bool LisuanGPUDetector::supports_multi_gpu() {
@@ -343,7 +311,7 @@ bool LisuanGPUDetector::supports_multi_gpu() {
 }
 
 uint32_t LisuanGPUDetector::get_multi_gpu_count() {
-    return 1;
+    return 0;
 }
 
 bool LisuanGPUDetector::enable_multi_gpu(bool enabled) {
@@ -381,11 +349,13 @@ void LisuanGPUDetector::free_vram(const LisuanGPUInfo& info, void* ptr) {
 }
 
 uint64_t LisuanGPUDetector::get_total_vram(const LisuanGPUInfo& info) {
-    return info.features.vram_bytes;
+    (void)info;
+    return 0;
 }
 
 uint64_t LisuanGPUDetector::get_free_vram(const LisuanGPUInfo& info) {
-    return info.features.vram_bytes; // Stub - all free
+    (void)info;
+    return 0;
 }
 
 void LisuanGPUDetector::gpu_wait_idle(const LisuanGPUInfo& info) {
@@ -460,13 +430,10 @@ std::string LisuanGPUInitializer::get_init_error() {
 }
 
 LisuanGPUInitializer::Backend LisuanGPUInitializer::get_best_backend(const LisuanGPUInfo& info) {
-    if (LisuanGPUDetector::supports_vulkan(info)) {
-        return Backend::VULKAN;
-    }
-    if (LisuanGPUDetector::supports_dx12(info)) {
-        return Backend::DIRECTX12;
-    }
-    return Backend::OPENGL;
+    if (LisuanGPUDetector::supports_vulkan(info)) return Backend::VULKAN;
+    if (LisuanGPUDetector::supports_dx12(info)) return Backend::DIRECTX12;
+    if (LisuanGPUDetector::supports_opengl(info)) return Backend::OPENGL;
+    return Backend::UNAVAILABLE;
 }
 
 class IGPUDevice* LisuanGPUInitializer::create_device(const LisuanGPUInfo& info, Backend backend) {
