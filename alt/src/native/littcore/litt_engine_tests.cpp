@@ -168,11 +168,27 @@ static void test_profiler() {
 
 static void test_software_renderer() {
     SoftwareRenderer renderer;
+    check(renderer.set_framebuffer_size(160, 120), "software_renderer_size");
     check(renderer.initialize("headless"), "software_renderer_init");
     renderer.clear(0);
     renderer.draw_triangle(10, 10, 50, 10, 30, 50, 0x00ff00u);
     check(renderer.get_pixel(30, 20) == 0x00ff00u, "software_renderer_triangle");
     renderer.shutdown();
+
+    Renderer facade;
+    check(facade.initialize(160, 120, RenderBackend::Software),
+          "renderer_facade_software_init");
+    facade.clear(Vec3{1.0f, 0.0f, 0.0f});
+    check(facade.get_width() == 160u && facade.get_height() == 120u &&
+          facade.get_pixel(0, 0) == 0xff0000u,
+          "renderer_facade_clear_and_dimensions");
+    facade.shutdown();
+    check(!facade.initialize(160, 120, RenderBackend::Vulkan) &&
+          !facade.initialized(),
+          "renderer_facade_rejects_unavailable_backend");
+
+    EngineConfig config;
+    check(config.backend == RenderBackend::Software, "engine_default_renderer_supported");
 }
 
 int main() {
