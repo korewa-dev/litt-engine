@@ -4,6 +4,7 @@
 
 #include "litt_math.h"
 #include <vector>
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <cstdint>
@@ -34,6 +35,7 @@ public:
     // Get depth ID
     uint32_t get_depth_id() const { return depth_texture_; }
     const std::vector<uint8_t>& color_pixels() const { return color_pixels_; }
+    std::vector<uint8_t>& mutable_color_pixels() { return color_pixels_; }
     const std::vector<float>& depth_pixels() const { return depth_pixels_; }
     
     // Get dimensions
