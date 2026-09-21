@@ -34,7 +34,7 @@ int main() {
     assert_unavailable_backend_contract("dx12");
 
     const auto sw_cap = gpu_backend_capability("software");
-    assert(sw_cap.support == GPUBackendSupport::Partial);
+    assert(sw_cap.support == GPUBackendSupport::Supported);
     assert(!sw_cap.hardware_accelerated);
 
     bool unknown_failed = false;
