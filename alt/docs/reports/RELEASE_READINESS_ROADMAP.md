@@ -18,7 +18,7 @@ Completed release gates:
 
 ## Current graphics gate
 
-Software/headless rendering is green within its tested scope.
+Software/headless rendering is release-supported within its bounded tested scope. Scene/C++ facade, asset/material core, bounded AABB physics, software audio mixing, and the bounded scripting VM are also promoted through the same Windows/Linux/sanitizer release matrix.
 
 Generic Vulkan and DX12 are **GREEN only for their fail-fast contract**: the engine reports them unavailable rather than fabricating success. No named GPU vendor or model is physically certified for Litt Vulkan/DX12 rendering yet.
 
@@ -28,7 +28,7 @@ Graphics promotion requires real backend implementation plus physical evidence. 
 
 | Area | State |
 |---|---|
-| Public capability truthfulness | ACTIVE |
+| Public capability truthfulness | GREEN for repository-controlled docs |
 | Reproducible release package/checksums | TODO |
 | Required-check repository protection | TODO |
 | Parser/network fuzz smoke | TODO |
