@@ -1,32 +1,40 @@
-// FFI Implementation for Dither3D
-#include "littcore/litt_dither.h"
-#include <cstring>
+// Litt Dither FFI implementation
+#define LITT_FFI_BUILD
+#include "../../include/litt_ffi.h"
+
 #include <cstdio>
+#include <cstring>
 
-namespace litt {
+extern "C" {
 
-const char* litt_dither_texture_path(LittDitherPattern pattern, char* buf, size_t cap) {
+unsigned litt_dither_ffi_abi_version(void) {
+    return LITT_DITHER_FFI_ABI_VERSION;
+}
+
+const char* litt_dither_texture_path(
+    LittDitherPattern pattern, char* buf, size_t cap) {
     static const char* paths[] = {
         "assets/dither3d/Dither3D_1x1.png",
         "assets/dither3d/Dither3D_2x2.png",
         "assets/dither3d/Dither3D_4x4.png",
         "assets/dither3d/Dither3D_8x8.png"
     };
-    if (!buf || cap == 0) return nullptr;
-    int idx = static_cast<int>(pattern);
-    if (idx < 0 || idx > 3) idx = 3;
-    std::snprintf(buf, cap, "%s", paths[idx]);
-    return buf;
+    const int index = static_cast<int>(pattern);
+    if (!buf || cap == 0 || index < 0 || index >= 4) return nullptr;
+    const int written = std::snprintf(buf, cap, "%s", paths[index]);
+    return written >= 0 && static_cast<size_t>(written) < cap ? buf : nullptr;
 }
 
 const char* litt_dither_ramp_path(char* buf, size_t cap) {
     if (!buf || cap == 0) return nullptr;
-    std::snprintf(buf, cap, "%s", "assets/dither3d/Dither3D_8x8_Ramp.png");
-    return buf;
+    static const char* path = "assets/dither3d/Dither3D_8x8_Ramp.png";
+    const int written = std::snprintf(buf, cap, "%s", path);
+    return written >= 0 && static_cast<size_t>(written) < cap ? buf : nullptr;
 }
 
-void litt_dither_default_material(LittDitherColorMode mode, LittDitherMaterial* out) {
-    if (!out) return;
+int litt_dither_default_material(
+    LittDitherColorMode mode, LittDitherMaterial* out) {
+    if (!out || mode < LITT_DITHER_GRAYSCALE || mode > LITT_DITHER_CMYK) return 0;
     std::memset(out, 0, sizeof(*out));
     out->enabled = 1;
     out->color_mode = static_cast<int>(mode);
@@ -35,31 +43,7 @@ void litt_dither_default_material(LittDitherColorMode mode, LittDitherMaterial* 
     out->contrast = 1.0f;
     out->stretch_smoothness = 1.0f;
     out->input_exposure = 1.0f;
+    return 1;
 }
-
-} // namespace litt
-
-extern "C" {
-
-const char* litt_version() {
-    return "1.0.0-dither3d";
-}
-
-// World deployment stubs (to be implemented)
-LittWorld* litt_deploy_world(const char*, const char*, char* out_error) {
-    if (out_error) {
-        strncpy(out_error, "World deployment not yet implemented", 255);
-        out_error[255] = '\0';
-    }
-    return nullptr;
-}
-
-size_t litt_world_triangles(const LittWorld*) { return 0; }
-size_t litt_world_spheres(const LittWorld*) { return 0; }
-size_t litt_world_meshes(const LittWorld*) { return 0; }
-
-int litt_world_missing_count(const LittWorld*) { return 0; }
-int litt_world_missing_at(const LittWorld*, int, char*, size_t) { return 0; }
-void litt_world_free(LittWorld*) {}
 
 } // extern "C"
