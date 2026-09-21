@@ -16,6 +16,7 @@
 #include <limits>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 
 namespace litt {
 
@@ -105,6 +106,11 @@ struct AssetMaterial {
 // =============================================================================
 class AssetManager {
 public:
+    static constexpr size_t MAX_MODEL_FILE_BYTES = 32u * 1024u * 1024u;
+    static constexpr size_t MAX_MODEL_SOURCE_ELEMENTS = 1000000u;
+    static constexpr size_t MAX_MODEL_VERTICES = 3000000u;
+    static constexpr size_t MAX_TEXTURE_PIXELS = 16u * 1024u * 1024u;
+
     std::unordered_map<std::string, std::shared_ptr<Model>> models;
     std::unordered_map<std::string, std::shared_ptr<AssetTexture>> textures;
     std::unordered_map<std::string, std::shared_ptr<Shader>> shaders;
@@ -156,27 +162,23 @@ public:
     }
     
     std::shared_ptr<Shader> loadShader(const std::string& vertexPath, const std::string& fragmentPath) {
-        auto key = vertexPath + ":" + fragmentPath;
-        auto it = shaders.find(key);
-        if (it != shaders.end()) return it->second;
-        
-        auto shader = std::make_shared<Shader>();
-        shader->vertexPath = vertexPath;
-        shader->fragmentPath = fragmentPath;
-        
-        // Compile shaders
-        compileShader(*shader);
-        
-        shaders[key] = shader;
-        return shader;
+        (void)vertexPath;
+        (void)fragmentPath;
+        // Shader compilation belongs to the accelerated renderer contract,
+        // which is not promoted. Never return a successful-looking placeholder.
+        return nullptr;
     }
     
 private:
     std::unordered_map<std::string, std::function<std::shared_ptr<void>(const std::string&)>> loaders_;
     
     bool loadObj(const std::string& path, Model& model) {
-        std::ifstream file(path);
+        std::ifstream file(path, std::ios::binary);
         if (!file) return false;
+        file.seekg(0, std::ios::end);
+        const std::streamoff byte_size = file.tellg();
+        if (byte_size < 0 || static_cast<uint64_t>(byte_size) > MAX_MODEL_FILE_BYTES) return false;
+        file.seekg(0, std::ios::beg);
 
         struct FaceIndex { int p = 0, t = 0, n = 0; };
         auto resolve = [](int index, size_t count) -> int {
@@ -218,13 +220,25 @@ private:
             if (!(stream >> kind) || kind[0] == '#') continue;
             if (kind == "v") {
                 float x, y, z;
-                if (stream >> x >> y >> z) model.positions.push_back({x, y, z});
+                if (!(stream >> x >> y >> z) || !std::isfinite(x) || !std::isfinite(y) ||
+                    !std::isfinite(z) || model.positions.size() >= MAX_MODEL_SOURCE_ELEMENTS) {
+                    return false;
+                }
+                model.positions.push_back({x, y, z});
             } else if (kind == "vn") {
                 float x, y, z;
-                if (stream >> x >> y >> z) model.normals.push_back({x, y, z});
+                if (!(stream >> x >> y >> z) || !std::isfinite(x) || !std::isfinite(y) ||
+                    !std::isfinite(z) || model.normals.size() >= MAX_MODEL_SOURCE_ELEMENTS) {
+                    return false;
+                }
+                model.normals.push_back({x, y, z});
             } else if (kind == "vt") {
                 float u, v;
-                if (stream >> u >> v) model.texCoords.push_back({u, v});
+                if (!(stream >> u >> v) || !std::isfinite(u) || !std::isfinite(v) ||
+                    model.texCoords.size() >= MAX_MODEL_SOURCE_ELEMENTS) {
+                    return false;
+                }
+                model.texCoords.push_back({u, v});
             } else if (kind == "f") {
                 std::vector<FaceIndex> face;
                 std::string token;
@@ -246,6 +260,7 @@ private:
                         const int t = resolve(source.t, model.texCoords.size());
                         if (t >= 0) vertex.texCoord = model.texCoords[static_cast<size_t>(t)];
                         vertex.color = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+                        if (model.vertices.size() >= MAX_MODEL_VERTICES) return false;
                         model.vertices.push_back(vertex);
                         model.indices.push_back(static_cast<uint32_t>(model.vertices.size() - 1));
                     }
@@ -261,10 +276,12 @@ private:
         if (!f) return false;
         
         // Read header
-        char idLength, colormapType, imageType;
-        fread(&idLength, 1, 1, f);
-        fread(&colormapType, 1, 1, f);
-        fread(&imageType, 1, 1, f);
+        uint8_t idLength = 0, colormapType = 0, imageType = 0;
+        if (fread(&idLength, 1, 1, f) != 1 ||
+            fread(&colormapType, 1, 1, f) != 1 ||
+            fread(&imageType, 1, 1, f) != 1) {
+            fclose(f); return false;
+        }
         
         // TGA width starts at byte 12. We already consumed 3 bytes.
         if (fseek(f, 9, SEEK_CUR) != 0) { fclose(f); return false; }
@@ -288,7 +305,7 @@ private:
         
         // Read image data
         const size_t pixelCount = static_cast<size_t>(width) * static_cast<size_t>(height);
-        if (texture.channels == 0 ||
+        if (pixelCount > MAX_TEXTURE_PIXELS || texture.channels == 0 ||
             pixelCount > std::numeric_limits<size_t>::max() / texture.channels) {
             fclose(f); return false;
         }
@@ -331,10 +348,6 @@ private:
         }
         fclose(f);
         return true;
-    }
-    
-    void compileShader(Shader& shader) {
-        // Simplified - actual implementation would use OpenGL/Vulkan
     }
 };
 
