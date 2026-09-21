@@ -8,6 +8,7 @@
 #include <string>
 #include <cstdint>
 #include <unordered_map>
+#include <functional>
 
 namespace litt {
 
@@ -32,13 +33,15 @@ public:
     
     // Get depth ID
     uint32_t get_depth_id() const { return depth_texture_; }
+    const std::vector<uint8_t>& color_pixels() const { return color_pixels_; }
+    const std::vector<float>& depth_pixels() const { return depth_pixels_; }
     
     // Get dimensions
     uint32_t get_width() const { return width_; }
     uint32_t get_height() const { return height_; }
     
     // Set MSAA samples
-    void set_msaa_samples(uint32_t samples) { msaa_samples_ = samples; }
+    void set_msaa_samples(uint32_t samples) { msaa_samples_ = std::min(samples, 16u); }
 
 private:
     uint32_t width_;
@@ -47,6 +50,8 @@ private:
     uint32_t depth_texture_;
     uint32_t framebuffer_;
     uint32_t msaa_samples_ = 0;
+    std::vector<uint8_t> color_pixels_;
+    std::vector<float> depth_pixels_;
 };
 
 // Render pass types
@@ -77,11 +82,16 @@ public:
     // Enable/disable
     bool is_enabled() const { return enabled_; }
     void set_enabled(bool enabled) { enabled_ = enabled; }
+    void set_callback(std::function<void()> callback) { callback_ = std::move(callback); }
+    uint64_t execution_count() const { return execution_count_; }
 
 protected:
     RenderPassType type_;
     std::string name_;
     bool enabled_ = true;
+    std::function<void()> callback_;
+    uint64_t execution_count_ = 0;
+    void run_callback() { ++execution_count_; if (callback_) callback_(); }
 };
 
 // Shadow pass
