@@ -263,7 +263,7 @@ uint32_t LisuanGPUDetector::get_hdmi_version(const LisuanGPUInfo& info) {
 
 uint32_t LisuanGPUDetector::get_displayport_version(const LisuanGPUInfo& info) {
     (void)info;
-    return 0
+    return 0;
 }
 
 void LisuanGPUDetector::get_max_resolution(const LisuanGPUInfo& info, uint32_t& width, uint32_t& height, uint32_t& refresh_rate) {
