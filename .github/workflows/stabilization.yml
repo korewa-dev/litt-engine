@@ -59,6 +59,8 @@ jobs:
         run: make dither-contract-test CC="$CC" CXX="$CXX"
       - name: All-features gameplay contract
         run: make gameplay-feature-test CC="$CC" CXX="$CXX"
+      - name: Packaged C++ SDK contract
+        run: make -C alt/src/native cpp-sdk-test CC="$CC" CXX="$CXX"
       - name: Shader artifact contract
         run: make -C alt/src/native shader-artifact-test CC="$CC" CXX="$CXX"
       - name: Asset pipeline contract
@@ -96,7 +98,7 @@ jobs:
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native -I alt/src/native/littcore alt/src/native/litteditor_contract_tests.cpp /tmp/litt_json_sanitized.o -o editor_contract_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/include alt/src/native/litt_ffi.cpp alt/src/litt_ffi_contract_tests.cpp -o ffi_contract_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_dither.cpp alt/src/native/littcore/litt_dither_renderer.cpp alt/src/native/littcore/litt_dither_contract_tests.cpp -o dither_contract_sanitized
-          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gameplay_feature_tests.cpp alt/src/native/littcore/litt_particle_system.cpp alt/src/native/littcore/litt_culling.cpp alt/src/native/littcore/litt_terrain_system.cpp alt/src/native/littcore/litt_texture.cpp alt/src/native/littcore/litt_render_pass.cpp alt/src/native/littcore/litt_shader_system.cpp -o gameplay_feature_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gameplay_feature_tests.cpp alt/src/native/littcore/litt_particle_system.cpp alt/src/native/littcore/litt_culling.cpp alt/src/native/littcore/litt_terrain_system.cpp alt/src/native/littcore/litt_texture.cpp alt/src/native/littcore/litt_render_pass.cpp alt/src/native/littcore/litt_shader_system.cpp alt/src/native/littcore/litt_lighting.cpp alt/src/native/littcore/litt_gpu.cpp -o gameplay_feature_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_shader_compilation.cpp alt/src/native/littcore/litt_shader_artifact_tests.cpp -o shader_artifact_sanitized
       - name: Build asset/material contract with ASan/UBSan
         run: >-
@@ -274,7 +276,7 @@ jobs:
         run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_dither.cpp alt\src\native\littcore\litt_dither_renderer.cpp alt\src\native\littcore\litt_dither_contract_tests.cpp /Fe:dither_contract_windows.exe && dither_contract_windows.exe
       - name: Build and run Windows all-features gameplay contract
         shell: cmd
-        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_gameplay_feature_tests.cpp alt\src\native\littcore\litt_particle_system.cpp alt\src\native\littcore\litt_culling.cpp alt\src\native\littcore\litt_terrain_system.cpp alt\src\native\littcore\litt_texture.cpp alt\src\native\littcore\litt_render_pass.cpp alt\src\native\littcore\litt_shader_system.cpp /Fe:gameplay_feature_windows.exe ws2_32.lib gdi32.lib user32.lib winmm.lib && gameplay_feature_windows.exe
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_gameplay_feature_tests.cpp alt\src\native\littcore\litt_particle_system.cpp alt\src\native\littcore\litt_culling.cpp alt\src\native\littcore\litt_terrain_system.cpp alt\src\native\littcore\litt_texture.cpp alt\src\native\littcore\litt_render_pass.cpp alt\src\native\littcore\litt_shader_system.cpp alt\src\native\littcore\litt_lighting.cpp alt\src\native\littcore\litt_gpu.cpp /Fe:gameplay_feature_windows.exe ws2_32.lib gdi32.lib user32.lib winmm.lib && gameplay_feature_windows.exe
       - name: Build and run Windows shader artifact contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_shader_compilation.cpp alt\src\native\littcore\litt_shader_artifact_tests.cpp /Fe:shader_artifact_windows.exe && shader_artifact_windows.exe
