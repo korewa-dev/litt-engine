@@ -23,8 +23,13 @@ build/
 out/
 
 __pycache__/
-native/bin/*.o
-native/bin/windows/
+# Compiler products. Keep Wavefront *.obj assets tracked.
+*.o
+*.o.tmp
+*.exe.tmp*
+alt/src/native/bin/*.o
+alt/src/native/bin/*.o.tmp
+alt/src/native/bin/windows/
 
 # External/unrelated projects
 godogen/
