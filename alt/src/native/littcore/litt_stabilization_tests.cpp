@@ -510,6 +510,34 @@ static void test_scripting_vm() {
     check(vm.initialize(), "script_vm_initialize");
     check(vm.compile("basic", "var x = 10\nprint x\n"), "script_vm_compile_basic");
     check(vm.execute("basic"), "script_vm_execute_basic");
+
+    check(vm.compile("arithmetic", "var x = 10\nreturn x - 3\n"),
+          "script_vm_compile_arithmetic");
+    check(vm.execute("arithmetic"), "script_vm_execute_arithmetic");
+    const Value arithmetic = vm.pop();
+    check(arithmetic.type == ValueType::FLOAT && near_float(arithmetic.float_val, 7.0f),
+          "script_vm_arithmetic_result");
+
+    check(!vm.compile("unsupported_flow", "if true\n"),
+          "script_vm_rejects_unsupported_control_flow");
+    check(!vm.last_error().empty(), "script_vm_compile_error_is_reported");
+    check(!vm.compile("unknown_var", "print missing\n"),
+          "script_vm_rejects_unknown_variable");
+
+    vm.set_limits(1024, 4, 64);
+    check(vm.compile("instruction_budget", "1\n2\n3\n4\n"),
+          "script_vm_compile_instruction_budget_fixture");
+    check(!vm.execute("instruction_budget") &&
+          vm.last_error().find("instruction limit") != std::string::npos,
+          "script_vm_instruction_budget_enforced");
+
+    vm.set_limits(1024, 100, 2);
+    check(vm.compile("stack_budget", "var a = 1\nvar b = 2\nvar c = 3\n"),
+          "script_vm_compile_stack_budget_fixture");
+    check(!vm.execute("stack_budget") &&
+          vm.last_error().find("stack value limit") != std::string::npos,
+          "script_vm_stack_budget_enforced");
+
     check(!vm.execute("missing"), "script_vm_missing_rejected");
     vm.shutdown();
 }
