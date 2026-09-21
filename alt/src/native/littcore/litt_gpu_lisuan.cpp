@@ -144,7 +144,7 @@ std::string LisuanGPUDetector::get_vulkan_version(const LisuanGPUInfo& info) {
 
 std::string LisuanGPUDetector::get_dx_feature_level(const LisuanGPUInfo& info) {
     (void)info;
-    return "UNKNOWN"
+    return "UNKNOWN";
 }
 
 float LisuanGPUDetector::get_memory_bandwidth(const LisuanGPUInfo& info) {
@@ -258,7 +258,7 @@ bool LisuanGPUDetector::supports_usbc_display(const LisuanGPUInfo& info) {
 
 uint32_t LisuanGPUDetector::get_hdmi_version(const LisuanGPUInfo& info) {
     (void)info;
-    return 0
+    return 0;
 }
 
 uint32_t LisuanGPUDetector::get_displayport_version(const LisuanGPUInfo& info) {
