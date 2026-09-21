@@ -8,23 +8,33 @@
 
 using namespace litt;
 
+static void assert_unavailable_backend_contract(const char* backend_name) {
+    const auto capability = gpu_backend_capability(backend_name);
+    assert(capability.name != nullptr);
+    assert(std::strcmp(capability.name, backend_name) == 0);
+    assert(capability.support == GPUBackendSupport::Unavailable);
+    assert(capability.hardware_accelerated);
+    assert(!capability.presentation);
+
+    bool refused = false;
+    try {
+        auto device = create_gpu_device(backend_name);
+        assert(device);
+        refused = !device->initialize("contract-probe");
+        device->shutdown();
+    } catch (const std::runtime_error&) {
+        refused = true;
+    }
+    assert(refused);
+}
+
 int main() {
-    const auto vk = gpu_backend_capability("vulkan");
-    assert(vk.support == GPUBackendSupport::Unavailable);
-    assert(vk.hardware_accelerated);
-    assert(!vk.presentation);
+    assert_unavailable_backend_contract("vulkan");
+    assert_unavailable_backend_contract("dx12");
 
     const auto sw_cap = gpu_backend_capability("software");
     assert(sw_cap.support == GPUBackendSupport::Partial);
     assert(!sw_cap.hardware_accelerated);
-
-    bool unavailable_failed = false;
-    try {
-        (void)create_gpu_device("vulkan");
-    } catch (const std::runtime_error&) {
-        unavailable_failed = true;
-    }
-    assert(unavailable_failed);
 
     bool unknown_failed = false;
     try {

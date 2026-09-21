@@ -20,6 +20,8 @@ jobs:
             exit 1
           fi
           # Wavefront OBJ files are source assets and intentionally remain tracked.
+      - name: Validate GPU capability claims
+        run: python alt/tools/check_gpu_claims.py
 
   compiler-matrix:
     name: compiler-matrix (${{ matrix.compiler }})
