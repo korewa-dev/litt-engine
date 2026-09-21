@@ -80,11 +80,18 @@ jobs:
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_stabilization_runner.cpp /tmp/litt_json_sanitized.o -o stabilization_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_scene_persistence_tests.cpp /tmp/litt_json_sanitized.o -o scene_persistence_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_engine_scene_tests.cpp /tmp/litt_json_sanitized.o -o engine_scene_sanitized
+      - name: Build asset/material contract with ASan/UBSan
+        run: >-
+          g++ -std=c++17 -O1 -g -Wall -Wextra -fno-omit-frame-pointer -fsanitize=address,undefined
+          -I alt/src/native/littcore
+          alt/src/native/littcore/litt_asset_pipeline.cpp
+          alt/src/native/littcore/asset_pipeline_tests.cpp
+          -o /tmp/asset_pipeline_sanitized
       - name: Run ASan/UBSan stabilization regressions
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized
+        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && /tmp/asset_pipeline_sanitized
 
   gpu-rendering-contract:
     runs-on: ubuntu-latest
@@ -203,6 +210,9 @@ jobs:
       - name: Build and run Windows GPU/software contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_gpu.cpp alt\\src\\native\\littcore\\litt_gpu_contract_tests.cpp /Fe:gpu_contract_windows.exe gdi32.lib user32.lib && gpu_contract_windows.exe
+      - name: Build and run Windows asset/material contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_asset_pipeline.cpp alt\\src\\native\\littcore\\asset_pipeline_tests.cpp /Fe:asset_contract_windows.exe && asset_contract_windows.exe
       - name: Compile C bridge
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\src\native /I alt\src\native\littcore /c alt\src\native\litt_c.cpp /Fo:litt_c.obj
