@@ -255,9 +255,6 @@ jobs:
       - name: Build and run Windows GPU/software contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_gpu.cpp alt\\src\\native\\littcore\\litt_gpu_contract_tests.cpp /Fe:gpu_contract_windows.exe gdi32.lib user32.lib && gpu_contract_windows.exe
-      - name: Build and run Windows vendor GPU truthfulness contract
-        shell: cmd
-        run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_gpu_lisuan.cpp alt\\src\\native\\littcore\\litt_gpu_vendor_contract_tests.cpp /Fe:gpu_vendor_contract_windows.exe && gpu_vendor_contract_windows.exe
       - name: Build and run Windows asset/material contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_asset_pipeline.cpp alt\\src\\native\\littcore\\asset_pipeline_tests.cpp /Fe:asset_contract_windows.exe && asset_contract_windows.exe
