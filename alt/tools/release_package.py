@@ -75,6 +75,7 @@ def main() -> int:
 
         manifest = {
             "format_version": FORMAT_VERSION,
+            "package_version": FORMAT_VERSION,
             "source_sha": git_sha(root),
             "language": "C++17",
             "library": "lib/liblittcore.a",
