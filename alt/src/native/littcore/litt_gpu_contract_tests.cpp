@@ -1,6 +1,7 @@
 #include "litt_gpu.h"
 #include "litt_gpu_software.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <cstring>
@@ -126,6 +127,35 @@ int main() {
     software->draw_pixel_depth(25, 25, 0.25f, 0x00ff0000u);
     software->draw_pixel_depth(25, 25, 0.5f, 0x0000ff00u);
     assert(software->get_pixel(25, 25) == 0x00ff0000u);
+
+    software->clear(0);
+    const std::vector<Vec3> indexed_triangle = {
+        Vec3(-0.5f, -0.5f, 0.0f),
+        Vec3( 0.5f, -0.5f, 0.0f),
+        Vec3( 0.0f,  0.5f, 0.0f)
+    };
+    software->draw_mesh(indexed_triangle, {0, 1, 2}, Mat4::identity(), 0x00abcdefu);
+    assert(software->get_pixel(400, 300) == 0x00abcdefu);
+
+    software->clear(0);
+    software->draw_triangle_3d(
+        Vec3(-0.5f, -0.5f, -2.0f),
+        Vec3( 0.5f, -0.5f,  0.0f),
+        Vec3( 0.0f,  0.5f,  0.0f),
+        Mat4::identity(), 0x0000ff00u);
+    assert(std::any_of(software->framebuffer_pixels().begin(),
+                       software->framebuffer_pixels().end(),
+                       [](uint8_t value) { return value != 0; }));
+
+    software->clear(0);
+    software->draw_triangle_3d(
+        Vec3(-0.5f, -0.5f, -2.0f),
+        Vec3( 0.5f, -0.5f, -2.0f),
+        Vec3( 0.0f,  0.5f, -2.0f),
+        Mat4::identity(), 0x00ffffffu);
+    assert(std::none_of(software->framebuffer_pixels().begin(),
+                        software->framebuffer_pixels().end(),
+                        [](uint8_t value) { return value != 0; }));
 
     const uint32_t before_bad_mesh = software->get_pixel(300, 300);
     software->draw_mesh({Vec3(0, 0, 0)}, {0, 1, 2}, Mat4::identity(), 0x00ffffffu);
