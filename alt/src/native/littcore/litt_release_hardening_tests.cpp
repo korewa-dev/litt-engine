@@ -68,19 +68,19 @@ static void allocation_and_overflow_contract() {
     SoftwareRenderer renderer;
     assert(!renderer.set_framebuffer_size(65535u, 65535u));
 
-    auto device = create_gpu_device("software");
-    assert(device && device->initialize("hardening"));
+    SoftwareRenderer device;
+    assert(device.initialize("hardening"));
 
     BufferDesc huge_buffer{};
     huge_buffer.size = software_detail::MAX_BUFFER_BYTES + 1u;
-    assert(!device->create_buffer(huge_buffer));
+    assert(!device.create_buffer(huge_buffer));
 
     TextureDesc huge_texture{};
     huge_texture.width = 65535u;
     huge_texture.height = 65535u;
     huge_texture.format = TextureFormat::RGBA8;
-    assert(!device->create_texture(huge_texture));
-    device->shutdown();
+    assert(!device.create_texture(huge_texture));
+    device.shutdown();
 
     bool name_limit = false;
     try {
