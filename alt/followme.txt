@@ -415,9 +415,8 @@ Key functions:
 === litt_pbr_material.h (29L) ===
 Classes: MaterialFactory
 
-=== litt_gpu_lisuan.h (262L) ===
-Classes: LisuanGPU, TrueGPUFeatures, LisuanGPUInfo, LisuanGPUDetector
-(Lisuan Tech GPU support — Chinese GPU vendor, LX 7G100)
+=== GPU vendor support ===
+No vendor-specific release detector is shipped. Vendor and API support is reported only through the generic capability contract in litt_gpu.h.
 
 === litt_asset_pipeline.h (146L) ===
 Classes: AssetType, AssetHandle, AssetMetadata, AssetFactory, AssetPipeline
@@ -426,47 +425,8 @@ Classes: AssetType, AssetHandle, AssetMetadata, AssetFactory, AssetPipeline
 Classes: Platform, CouncilTier, Feature, Vote, Voter, Council
 (Feature flags for engine capabilities)
 
-=== litt_engine_systems.h (1055L) ===
-DEPRECATED. Contains all 81 blueprint steps in one file.
-Contains: Radiance, FresnelDielectric, RefractionCalculator, MicrofacetDistribution
-Contains: GeometricShadowing, CookTorranceBRDF, SubsurfaceScatteringMaterial
-Contains: VolumetricFog, PT_Material, PT_Triangle, PT_HitInfo, UnidirectionalPathTracer
-Contains: Rigidbody, PhysicsEngine, AudioEngine, KeyState, GamepadState, InputManager
-WARNING: Has 20+ duplicate class definitions. Use individual headers instead.
-
-#########################################################################
-# SECTION 6: GAME PROJECT STRUCTURE (REQUIRED FILES)
-#########################################################################
-
-Every game MUST have this structure:
-
-alt/Project/<GameName>/
-├── brief.json              — Game description, archetype, theme, seed
-├── world_state.json        — Gameplay config (waves, roster, scoring, physics)
-├── NOTES.md                — Seed/parameter logging
-├── ATTRIBUTION.md          — Asset provenance
-├── LIVE_LOG.md             — Action log
-├── ENGINE.bat              — Windows launcher (copy from existing project)
-├── ENGINE.sh               — Linux launcher (copy from existing project)
-├── VALIDATE.bat            — Validation script (copy from existing project)
-├── VIEW.bat                — Viewer launcher (copy from existing project)
-├── assets/
-│   ├── asset_index.json    — Asset registry
-│   ├── models/             — .obj model files
-│   ├── materials.mtl       — Material definitions
-│   ├── scenes/             — Scene JSON files (.lscn.json)
-│   └── textures/           — Texture files
-├── engine/
-│   └── game.cpp            — Main game code (C++)
-├── config/
-│   └── world_state.json    — World state
-├── saves/                  — Save files
-└── world/
-    └── scenes/             — World scenes
-
-#########################################################################
-# SECTION 7: GAME — "CONCRETE ECHOES" (GTA IV CLONE)
-#########################################################################
+=== litt_engine_systems.h ===
+Canonical module umbrella only. Historical duplicate blueprint implementations were removed; functionality lives in the individual supported headers.
 
 === IDENTITY ===
 Title: "Concrete Echoes"
