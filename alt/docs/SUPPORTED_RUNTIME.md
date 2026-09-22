@@ -128,6 +128,8 @@ The release gate covers:
 - the packaged C++ SDK: canonical headers plus `liblittcore.a`
 - a game-level C++ contract that includes `litt.h` and exercises gameplay/rendering systems together
 
+The deterministic `.tar.gz` SDK archive contract is produced and package-consumer tested on Linux. Windows is part of the runtime/compiler contract, but a Windows-specific SDK archive format is not claimed by this release.
+
 ## Explicitly unavailable
 
 The following are not release features:
