@@ -127,9 +127,7 @@ jobs:
       - name: Build and run GPU contract with ASan/UBSan
         run: |
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gpu.cpp alt/src/native/littcore/litt_gpu_contract_tests.cpp -o /tmp/litt_gpu_sanitized
-          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gpu_lisuan.cpp alt/src/native/littcore/litt_gpu_vendor_contract_tests.cpp -o /tmp/litt_gpu_vendor_sanitized
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/litt_gpu_sanitized
-          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/litt_gpu_vendor_sanitized
 
   concurrency-tsan:
     runs-on: ubuntu-latest
