@@ -72,7 +72,7 @@ release-package-test:
 	cmp /tmp/litt-sdk-a.tar.gz /tmp/litt-sdk-b.tar.gz
 	mkdir -p /tmp/litt-sdk-extract
 	tar -xzf /tmp/litt-sdk-a.tar.gz -C /tmp/litt-sdk-extract
-	python3 -c 'import json,subprocess; m=json.load(open("/tmp/litt-sdk-extract/litt-sdk/manifest.json")); assert m["source_sha"] == subprocess.check_output(["git","rev-parse","HEAD"], text=True).strip(); assert m["package_version"] == 1'
+	python3 -c 'import json,subprocess; m=json.load(open("/tmp/litt-sdk-extract/litt-sdk/manifest.json")); assert m["source_sha"] == subprocess.check_output(["git","rev-parse","HEAD"], text=True).strip(); assert m["package_version"] == "1.1.0"; assert m["c_abi_version"] == "1.1"'
 	printf '%s\n' '#include <litt/litt_profiler.h>' 'int main() { auto& p = litt::Profiler::get_instance(); p.reset(); p.begin_sample("package"); p.end_sample("package"); return p.get_stats("package").sample_count == 1u ? 0 : 1; }' > /tmp/litt-package-consumer.cpp
 	cd /tmp && $(CXX) -std=c++17 -I /tmp/litt-sdk-extract/litt-sdk/include /tmp/litt-package-consumer.cpp /tmp/litt-sdk-extract/litt-sdk/lib/liblittcore.a -lm -pthread -o /tmp/litt-package-consumer
 	cd /tmp && /tmp/litt-package-consumer
