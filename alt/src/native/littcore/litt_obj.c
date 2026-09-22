@@ -374,12 +374,18 @@ int lv_obj_load(const char *path, LvModel *out) {
                     uvtex[nc] = tv - 1;
                 }
 
+                /*
+                 * Normals are not part of LvMesh's runtime payload. Preserve
+                 * their token shape for vertex remapping when resolvable, but
+                 * do not reject geometry solely because optional normal data
+                 * is absent or stale. Position and UV references remain strict
+                 * because those values are consumed by the runtime.
+                 */
                 normals[nc] = -1;
                 if (has_normal) {
                     const int normal_count = gn.n / 3;
                     if (tn < 0) tn += normal_count + 1;
-                    if (tn < 1 || tn > normal_count) { malformed = 1; break; }
-                    normals[nc] = tn - 1;
+                    if (tn >= 1 && tn <= normal_count) normals[nc] = tn - 1;
                 }
 
                 corners[nc++] = (unsigned)(vi - 1);
