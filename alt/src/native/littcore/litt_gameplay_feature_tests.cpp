@@ -27,6 +27,12 @@ int main(){
     assert(clicks==1);assert(ui.draw_commands().size()==2u);
     assert(ui.draw_commands()[1].kind==UIElementKind::Button);
     ui.onMouseUp(Vec2{20,20});assert(!button->isPressed());
+    UIManager bounded_ui;
+    assert(!bounded_ui.addWindow(nullptr));
+    for(size_t i=0;i<UIManager::kMaxWindows;++i)
+        assert(bounded_ui.addWindow(std::make_shared<UIWindow>("w",Vec2{0,0},Vec2{1,1})));
+    assert(!bounded_ui.addWindow(std::make_shared<UIWindow>("overflow",Vec2{0,0},Vec2{1,1})));
+    assert(bounded_ui.window_count()==UIManager::kMaxWindows);
 
     // Particles: bounded emission and simulation.
     ParticleSystem particles(32);
@@ -39,6 +45,8 @@ int main(){
     const float x0=particles.get_particles()[0].position.x;
     particles.update(0.1f);
     assert(particles.get_particles()[0].position.x>x0);
+    ParticleSystem bounded_particles(UINT32_MAX);
+    assert(bounded_particles.get_max_particles()==65536u);
 
     // Terrain: deterministic generation and editing.
     TerrainSystem& terrain=TerrainSystem::get_instance();
@@ -49,6 +57,12 @@ int main(){
     assert(nearf(sample,terrain.get_height_at(3.0f,3.0f)));
     terrain.set_height_at(2.0f,2.0f,42.0f);
     assert(nearf(terrain.get_height_at(2.0f,2.0f),42.0f));
+
+    // LOD: bounded level table and deterministic rejection past the ceiling.
+    LODGroup bounded_lod;
+    for(size_t i=0;i<LODGroup::kMaxLevels;++i)
+        assert(bounded_lod.add_level({static_cast<float>(i),1,1,1.0f}));
+    assert(!bounded_lod.add_level({1000.0f,1,1,1.0f}));
 
     // Frustum culling.
     const Mat4 vp=Mat4::perspective(60.0f,1.0f,0.1f,100.0f)*
@@ -120,6 +134,9 @@ int main(){
     assert(library.load_shader("combined",combined)!=nullptr);
     assert(library.get_shader("combined")!=nullptr);library.remove_shader("combined");std::remove(combined);
 
+    terrain.shutdown();
+    terrain.initialize(8,1.0f,4097,1);
+    assert(terrain.get_total_vertex_count()==0u);
     terrain.shutdown();
     return 0;
 }
