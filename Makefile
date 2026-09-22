@@ -1,7 +1,7 @@
 # Litt Engine — Game Build Makefile
 # Use these targets to build games the correct way.
 
-.PHONY: game validate clean test stabilization-test scene-persistence-test engine-contract-test editor-contract-test ffi-contract-test dither-contract-test gameplay-feature-test cpp-game
+.PHONY: game validate clean test stabilization-test scene-persistence-test engine-contract-test editor-contract-test ffi-contract-test dither-contract-test gameplay-feature-test release-hardening-test release-package-test cpp-game
 
 GAME ?= mygame
 
@@ -56,6 +56,20 @@ gameplay-feature-test:
 		alt/src/native/littcore/litt_gpu.cpp \
 		-o gameplay_feature_tests.exe
 	./gameplay_feature_tests.exe
+
+release-hardening-test:
+	$(CC) -std=c11 -O2 -Wall -Wextra -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json_release_hardening.o
+	$(CXX) -std=c++17 -O2 -Wall -Wextra -pthread -I alt/src/native/littcore \
+		alt/src/native/littcore/litt_release_hardening_tests.cpp \
+		/tmp/litt_json_release_hardening.o -o release_hardening_tests.exe
+	./release_hardening_tests.exe
+
+release-package-test:
+	$(MAKE) -C alt/src/native cpp-sdk
+	rm -f /tmp/litt-sdk-a.tar.gz /tmp/litt-sdk-b.tar.gz
+	python3 alt/tools/release_package.py --root . --out /tmp/litt-sdk-a.tar.gz
+	python3 alt/tools/release_package.py --root . --out /tmp/litt-sdk-b.tar.gz
+	cmp /tmp/litt-sdk-a.tar.gz /tmp/litt-sdk-b.tar.gz
 
 cpp-game:
 	g++ -std=c++17 -I alt/src/native/littcore -o $(GAME).exe alt/Project/$(GAME)/engine/game.cpp alt/src/native/littcore/litt_obj.c alt/src/native/littcore/litt_json.c alt/src/native/littcore/litt_world.c -lgdi32 -luser32 -lwinmm
