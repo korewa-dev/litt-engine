@@ -12,10 +12,10 @@ This page is the authoritative graphics capability ledger. Backend enums, placeh
 | Software, Win32 presentation | **GREEN bounded contract** | Partial | Windows CI builds/runs the GPU contract; physical display output is not certified |
 | Vulkan | **GREEN fail-fast contract** | **Unavailable** | capability reports unavailable; selection must reject or initialization must fail explicitly |
 | DirectX 12 | **GREEN fail-fast contract** | **Unavailable** | capability reports unavailable; selection must reject or initialization must fail explicitly |
-| OpenGL | Not promoted | Unavailable | no backend implementation |
-| Metal | Not promoted | Unavailable | no backend implementation |
+| OpenGL | **GREEN fail-fast contract** | **Unavailable / non-release** | capability reports unavailable; device creation does not fabricate a backend |
+| Metal | **GREEN fail-fast contract** | **Unavailable / non-release** | capability reports unavailable; device creation does not fabricate a backend |
 
-The Vulkan and DX12 fail-fast contracts run in the GPU contract on GCC, Clang, ASan/UBSan, and Windows. A build flag or placeholder device must never turn an unavailable backend into fabricated success.
+The Vulkan, DX12, OpenGL and Metal fail-fast contracts run in the GPU contract on GCC, Clang, ASan/UBSan, and Windows. A build flag or placeholder device must never turn an unavailable backend into fabricated success.
 
 ## Vendor and GPU status
 
