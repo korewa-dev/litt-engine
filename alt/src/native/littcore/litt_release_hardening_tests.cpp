@@ -118,7 +118,7 @@ static void concurrent_event_queue_contract() {
 
     std::vector<std::thread> threads;
     for (uint32_t producer = 0; producer < producers; ++producer) {
-        threads.emplace_back([producer, &queue] {
+        threads.emplace_back([producer, per_producer, &queue] {
             const uint32_t base = producer * per_producer;
             for (uint32_t i = 0; i < per_producer; ++i) {
                 queue.push(base + i);
