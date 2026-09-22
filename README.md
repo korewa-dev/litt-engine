@@ -1,91 +1,91 @@
 # Litt Engine
 
-Litt is a low-resource, headless-first game engine and procedural game-building toolkit. The project aims for a small runtime and dependency footprint while retaining useful game, tooling, and world-generation capability.
+Litt is a low-resource, headless-first game engine and procedural game-building toolkit. The release surface is intentionally smaller than the repository's historical research surface: everything in the supported surface must have executable behavior and CI evidence.
 
-> **Release contract:** see `alt/docs/SUPPORTED_RUNTIME.md` for the exact tested boundary. A subsystem name or experimental backend existing in the repository does not by itself imply release support.
+> **Authoritative contract:** `alt/docs/SUPPORTED_RUNTIME.md`.
 
-## Philosophy
+## What can be used to make a game
 
-- **Little runtime cost:** avoid large fixed allocations and unnecessary default dependencies.
-- **Useful capability:** prioritize features that produce playable games rather than feature-count claims.
-- **Headless first:** game/runtime validation must work without a graphics window.
-- **Deterministic generation:** seeded world generation should be reproducible and testable.
-- **Honest failure:** unavailable functionality must report failure instead of returning fabricated or successful-looking results.
+The current release surface is green for:
 
-## Capability status
-
-| Area | Status |
+| Area | Release status |
 |---|---|
-| Generated-game native runtime | **Supported/tested** |
-| Native JSON/world/OBJ contracts | **Supported/tested** |
-| C ABI / SDK | **Supported/tested**, versioned and externally consumer-tested |
-| C++ Engine facade | **Supported bounded headless contract** |
-| Scene graph / persistence v1 | **Supported bounded contract** |
-| Assets / materials | **Supported bounded core**; shader compilation/GPU upload/async extensions not promoted |
-| Physics | **Supported bounded AABB rigid-body core** |
-| Audio | **Supported bounded decode/software-mix core**; physical device output is platform-specific |
-| Scripting VM | **Supported bounded language/runtime contract** |
-| Software/headless renderer | **Supported bounded CPU renderer** |
-| Vulkan/DX12/OpenGL/Metal generic facade | Experimental/unavailable |
-| GPU ray tracing | Experimental/unavailable |
-| WorldKit helpers | **Supported/tested** |
-| Networking | Minimal TCP transport **supported/tested**; higher-level multiplayer experimental |
-| Python/C#/Lua integrations | Experimental, not release-supported |
-| Legacy FFI world deployment | Incomplete |
-| `litt_engine2.h` | Legacy |
-| Editor tooling | Demo/example; Litt GUI is a separate integration project |
+| Generated-game runtime and WorldGen | **GREEN - supported/tested** |
+| C++ `litt.h` SDK | **GREEN - packaged and external-consumer tested** |
+| C ABI / SDK | **GREEN - versioned and external-consumer tested** |
+| Engine lifecycle / scene graph / persistence | **GREEN - bounded contract** |
+| Software renderer / render pipeline / textures | **GREEN - bounded CPU contract** |
+| UI retained-mode draw commands | **GREEN - tested** |
+| Terrain / particles / culling / LOD | **GREEN - tested** |
+| Lighting / PBR helpers / shadow state | **GREEN - tested** |
+| Assets / materials | **GREEN - bounded OBJ/TGA/PBR core** |
+| Physics | **GREEN - bounded linear AABB rigid-body core** |
+| Audio | **GREEN - WAV decode and software stereo mixer** |
+| Scripting VM | **GREEN - bounded embedded language subset** |
+| Networking | **GREEN - bounded framed TCP transport** |
+| Serialization / profiler / input / events / memory | **GREEN - tested** |
+| Portable editor core | **GREEN - scene mutation and undo/redo** |
+| Dither3D CPU processing and Dither C ABI | **GREEN - tested** |
+| Precompiled SPIR-V/DXIL artifact validation | **GREEN - tested** |
 
-## Verified build and smoke-test path
+The release renderer is the software renderer. Vulkan, DirectX 12, OpenGL, Metal and GPU ray tracing are **not release backends**. Their public capability contract is fail-fast/unavailable, and CI verifies they cannot masquerade as supported hardware rendering.
+
+Historical/research translation units for accelerated APIs may remain in the repository for future work, but they are not part of `litt.h`, the packaged C++ SDK runtime path, or the definition of a complete Litt release.
+
+## Build and prove the engine
 
 Linux:
 
 ```sh
 make -C alt/src/native test
-make -C alt/src/native asset-test
+make engine-contract-test
+make gameplay-feature-test
+make release-hardening-test
+make release-package-test
+make -C alt/src/native cpp-sdk-test
+make -C alt/src/native network-test
 make -C alt/src/native gpu-contract-test
 make -C alt/src/native bin/littcli bin/littview
 alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
-python3 alt/tools/template/tools/worldgen/test_worldkit.py
-python3 alt/tools/template/tools/worldgen/test_gen_props.py
-python3 alt/tools/template/tools/worldgen/worldgen_quality_gate.py
+python3 alt/tools/template/tools/worldgen/worldgen_quality_gate.py --require-native
 ```
 
-The `Stabilization` GitHub Actions workflow is the cross-platform release gate. It additionally checks GCC/Clang, ASan/UBSan, Windows native compilation/runtime, standalone public-header compilation, scene/engine persistence, asset/material behavior, the C bridge, networking, software rendering, and cross-OS WorldGen determinism.
+The `Stabilization` workflow is the authoritative cross-platform gate. It additionally covers GCC, Clang, Windows/MSVC, ASan/UBSan, ThreadSanitizer concurrency checks, standalone public-header compilation, malformed-input and persistence hardening, SDK packaging, generated games and cross-OS WorldGen determinism.
 
-## Runtime/API entry point
+## Make a game
 
-For new generated games and automated game-building work, start with the native generated-game runtime and `GAME_BUILD_PROTOCOL.md`. For the exact support boundary and subsystem limits, read `alt/docs/SUPPORTED_RUNTIME.md`.
-
-## Quick start
-
-The supported path does not require vcpkg, Vulkan, DX12, OpenGL, Metal, an editor, or language bindings.
+Generate one directly:
 
 ```sh
-git clone https://github.com/korewa-dev/litt-engine.git
-cd litt-engine
-make -C alt/src/native test
-make -C alt/src/native asset-test
-make -C alt/src/native gpu-contract-test
-make -C alt/src/native bin/littcli bin/littview
-alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
-python3 alt/tools/template/tools/worldgen/worldgen_quality_gate.py
+make game GAME=mygame DESC="small haunted forest action adventure"
+make -C alt/src/native bin/littcli
+alt/src/native/bin/littcli validate alt/Project/mygame --frames 60
 ```
 
-For Windows, `.github/workflows/stabilization.yml` is the authoritative clean-checkout verification contract.
+Or build against the packaged C++ SDK:
+
+```sh
+make -C alt/src/native cpp-sdk
+```
+
+Then include `<litt/litt.h>` and link `liblittcore.a`.
+
+## Design rules
+
+- Keep the default runtime dependency-light.
+- Prefer bounded contracts over broad unverified feature claims.
+- Unsupported operations fail explicitly.
+- Generated worlds must be deterministic for a fixed seed.
+- Increase proof before increasing release surface.
 
 ## Documentation
 
-Start with:
-
-- `alt/docs/SUPPORTED_RUNTIME.md` for the exact support boundary
-- `alt/docs/graphics-api/graphics-api-status.md` for accelerated graphics status
-- `alt/docs/reports/RELEASE_READINESS_ROADMAP.md` for release gates
-- `alt/docs/reports/RESOURCE_BASELINE.md` for low-resource budgets
-- `alt/docs/reports/WORLDGEN_QUALITY_RESOURCE_AUDIT.md` for measured generator results
-- `alt/tools/template/tools/worldgen/README.md` for procedural generation usage
-
-Historical/design documents may describe experimental systems. Their presence does not promote those systems into the release-supported contract.
+- `alt/docs/SUPPORTED_RUNTIME.md` - exact supported boundary
+- `alt/docs/IMPLEMENTATION_STATUS.md` - current source inventory
+- `alt/docs/graphics-api/graphics-api-status.md` - accelerated API capability boundary
+- `alt/docs/reports/RELEASE_READINESS_ROADMAP.md` - release engineering gates
+- `GAME_BUILD_PROTOCOL.md` - generated-game workflow
 
 ## License
 
-MIT License. See `LICENSE` for details.
+MIT License. See `LICENSE`.
