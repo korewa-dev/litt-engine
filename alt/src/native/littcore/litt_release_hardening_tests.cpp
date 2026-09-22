@@ -70,7 +70,7 @@ static void allocation_and_overflow_contract() {
 
     SoftwareRenderer device;
     assert(device.set_framebuffer_size(64u, 64u));
-    assert(device.initialize("hardening"));
+    assert(device.initialize("headless"));
 
     BufferDesc huge_buffer{};
     huge_buffer.size = software_detail::MAX_BUFFER_BYTES + 1u;
