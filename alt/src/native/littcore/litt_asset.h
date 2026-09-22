@@ -164,8 +164,8 @@ public:
     std::shared_ptr<Shader> loadShader(const std::string& vertexPath, const std::string& fragmentPath) {
         (void)vertexPath;
         (void)fragmentPath;
-        // Shader compilation belongs to the accelerated renderer contract,
-        // which is not promoted. Never return a successful-looking placeholder.
+        // Source shader compilation is outside the software release contract.
+        // Fail explicitly rather than fabricate a compiled shader.
         return nullptr;
     }
     
