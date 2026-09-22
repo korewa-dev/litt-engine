@@ -197,14 +197,20 @@ private:
 
 class UIWindow : public UIElementBase {
 public:
+    static constexpr size_t kMaxElements = 1024u;
+
     UIWindow(const std::string& title, const Vec2& pos, const Vec2& size) : title_(title) {
         rect_.position = pos;
         rect_.size = size;
     }
 
-    void addElement(std::shared_ptr<UIElementBase> element) {
-        if (element) elements_.push_back(std::move(element));
+    bool addElement(std::shared_ptr<UIElementBase> element) {
+        if (!element || elements_.size() >= kMaxElements) return false;
+        elements_.push_back(std::move(element));
+        return true;
     }
+
+    size_t element_count() const { return elements_.size(); }
 
     void append_draw_commands(std::vector<UIDrawCommand>& out) const override {
         if (!rect_.visible) return;
@@ -242,9 +248,15 @@ private:
 
 class UIManager {
 public:
-    void addWindow(std::shared_ptr<UIWindow> window) {
-        if (window) windows_.push_back(std::move(window));
+    static constexpr size_t kMaxWindows = 256u;
+
+    bool addWindow(std::shared_ptr<UIWindow> window) {
+        if (!window || windows_.size() >= kMaxWindows) return false;
+        windows_.push_back(std::move(window));
+        return true;
     }
+
+    size_t window_count() const { return windows_.size(); }
 
     void removeWindow(UIWindow* window) {
         windows_.erase(std::remove_if(windows_.begin(), windows_.end(),
