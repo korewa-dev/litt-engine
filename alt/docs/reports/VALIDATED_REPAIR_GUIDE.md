@@ -1,60 +1,60 @@
 # Validated Repair Guide
 
 Source audit: `alt/docs/reports/VALIDATED_HEAVY_AUDIT.md`
-Audit baseline: `15235b43a32c1f11ecee828670b8a55c3d721be2`
+Audit baseline: `657455360e4f0208e7fe286a46d41f1bffc0b863`
 
-## Non-negotiable repair rules
+This guide contains only defects/inconsistencies independently confirmed against current code, the authoritative support contract, current tests, exact-main CI evidence, documentation intent, and historical/archive status.
+
+## Non-negotiable rules
 
 Use a fresh branch from current `main`.
 
-Do not merge or cherry-pick `audit-c-bridge-components-20260922`. Its attempted C-bridge repair deletes 305 lines from `litt_c.cpp` and is not a surgical change.
+Do not weaken tests, CI gates, support contracts, failure behavior, or intentional project constraints to obtain a green result.
 
-Do not use `c-bridge-component-contract-20260920` as a base. It is stale and far behind current main.
+Do not merge or cherry-pick `audit-c-bridge-components-20260922`: its narrow-looking bridge change is actually +26/-305 lines in `litt_c.cpp`. Do not use stale `c-bridge-component-contract-20260920` as a repair base.
 
-For every repair:
+For each repair use:
 
-`understand -> specify -> test -> implement -> validate -> audit -> merge -> validate main`
+`understand -> specify -> test -> implement -> validate -> audit -> merge -> validate exact main`
 
-Do not weaken tests, capability checks, support contracts, or failure behavior to get green CI.
+GPU physical certification may remain on hold.
 
-## Repair 1: fix canonical ray/AABB inside-origin distance
+## Repair 1: correct inside-origin ray/AABB distance
 
-Priority: 1
 Severity: RED
-Expected scope:
+Priority: 1
+
+Affected paths:
+
 - `alt/src/native/littcore/litt_math.h`
-- a currently gated C++ contract test, preferably `alt/src/native/littcore/litt_engine_tests.cpp`
+- a currently gated canonical C++ contract test, preferably `alt/src/native/littcore/litt_engine_tests.cpp`
 
-### Specify
+### Evidence proving the defect
 
-For a finite ray interval intersecting an AABB:
+Current `ray_aabb` computes slab entry/exit distances but uses:
 
-- if the computed slab entry is after the ray minimum, report the entry;
-- otherwise, when the ray begins inside the box, report the computed slab exit;
-- if the selected intersection is outside the ray interval, report no hit.
+```cpp
+float t = tmin > r.t_min ? tmin : r.t_max;
+```
 
-Preserve existing strict-boundary behavior unless a separate contract change is justified.
+For an origin inside an AABB, this chooses the ray's global far bound instead of the computed slab exit. Example: box `[-1,1]^3`, origin `(0,0,0)`, direction `+X`, interval `[0,10]` yields computed exit `1` but current code returns `10`, placing the reported hit outside the box.
 
-### Test first
+The existing ray/AABB regression starts outside the box, so it cannot exercise this branch. The authoritative runtime contract promotes C++17 math and the packaged C++ SDK, so this is live supported behavior.
 
-Add regressions equivalent to:
+### Appropriate change
 
-1. outside ray: origin `(0,0,-5)`, direction `+Z`, box z `[0,2]`, expected `t=5`;
-2. inside ray: origin `(0,0,0)`, direction `+X`, box x `[-1,1]`, ray far `10`, expected `t=1`;
-3. clipped inside ray: same box/origin/direction but ray far `0.5`, expected no hit;
-4. parallel miss: a direction parallel to one slab with origin outside that slab, expected no hit.
+Test first, then replace only the erroneous fallback selection so an inside-origin ray uses computed `tmax`. Preserve unrelated boundary and zero-direction policy.
 
-Confirm the inside-origin regression fails before implementation.
+Add gated cases for:
 
-### Implement
+1. outside-origin entry;
+2. inside-origin exit;
+3. inside-origin exit beyond ray `t_max` -> no hit;
+4. parallel miss outside a slab.
 
-Make the smallest change in `ray_aabb`: when entry is before the permitted ray minimum, use the computed slab exit `tmax`, not `r.t_max`.
+### Validation checks
 
-Do not refactor unrelated math code.
-
-### Validate
-
-Run at minimum:
+At minimum:
 
 ```sh
 make engine-contract-test
@@ -62,146 +62,142 @@ make release-hardening-test
 make -C alt/src/native cpp-sdk-test
 ```
 
-Then run the full Stabilization workflow through the PR and again on exact merged main.
+Then require the full Stabilization workflow on the repair PR and exact merged main.
 
-## Repair 2: make C bridge component configuration truthful
+Regression risk: low if the change is limited to the fallback selection; medium if slab/boundary logic is refactored. Do not refactor it in this repair.
 
-Priority: 2
+Merge readiness: not ready until the new inside-origin regression fails before the fix, passes after it, existing math/SDK contracts remain green, and full Stabilization passes.
+
+## Repair 2: make C bridge component configuration fail-closed and truthful
+
 Severity: ORANGE
-Expected scope:
+Priority: 2
+
+Affected paths:
+
 - `alt/src/native/litt_c.h`
 - `alt/src/native/litt_c.cpp`
 - `alt/src/native/litt_c_tests.cpp`
 
-### Specify before code
+### Evidence proving the inconsistency
 
-Document the existing minimal component contract instead of inventing new subsystem schemas:
+Current `litt_world_add_component` discards `config_json` with `(void)config_json`, sets only a presence bit, and returns success. No per-type configuration is stored. Existing tests pass `"{}"` and only prove the presence bit.
 
-- the C bridge currently owns component presence metadata;
-- Transform data is configured through the dedicated transform API;
-- non-transform typed JSON configuration is not yet a promoted contract;
-- default/no configuration may be represented by null, empty string, or a strict empty JSON object;
-- meaningful or malformed configuration must fail explicitly until a typed schema and backing runtime behavior are implemented.
+The authoritative support contract promotes the versioned C bridge for entity/component/transform use. Issue #53 forbids successful no-ops and requires unavailable operations to fail explicitly. Therefore meaningful configuration cannot truthfully return success while being ignored.
 
-This keeps current presence behavior but eliminates silent acceptance of ignored configuration.
+### Appropriate change
+
+Do not invent Mesh/Physics/Light/etc. schemas. Preserve the implemented presence-only behavior and make unsupported configuration explicit:
+
+- accept `nullptr`, empty string, and strict empty object as default/no configuration;
+- reject meaningful objects, malformed JSON, arrays, scalars, and other unsupported configuration before changing the bitmap;
+- keep Transform configuration on its existing setter/getter API;
+- document the presence-only limitation in `litt_c.h`.
+
+Use the existing strict JSON parser already in the native dependency graph if possible. Keep the implementation diff local and small.
 
 ### Test first
 
-Extend `litt_c_tests.cpp` with all of the following:
+Add cases proving:
 
-- add Mesh with `nullptr` succeeds and sets presence;
-- remove it;
-- add Mesh with `""` succeeds and sets presence;
-- remove it;
-- add Mesh with `"{}"` succeeds and sets presence;
-- remove it;
-- add Mesh with a meaningful object such as `"{\"path\":\"mesh.obj\"}"` fails and does not set presence;
-- malformed JSON fails and does not set presence;
-- array/scalar configuration fails and does not set presence;
-- invalid entity and invalid component type still fail;
-- Transform remains present and continues to use the transform setter/getter contract.
+- Mesh + `nullptr` succeeds;
+- Mesh + `""` succeeds;
+- Mesh + `"{}"` succeeds;
+- meaningful object fails and leaves presence false;
+- malformed JSON fails and leaves presence false;
+- array/scalar fail and leave presence false;
+- invalid entity/type behavior remains unchanged;
+- Transform setter/getter behavior remains unchanged.
 
-Confirm the meaningful-config test fails before implementation.
+Confirm a meaningful-config test fails before implementation.
 
-### Implement surgically
+### Validation checks
 
-Do not replace `litt_c.cpp`.
+Run the bridge contract and inspect the diff for accidental deletion or unrelated changes. Then use the strengthened CI in Repair 3 and require full Stabilization.
 
-Add a small helper that classifies default/no configuration. Prefer the existing strict JSON parser already in the native dependency graph. If parsing a non-empty configuration:
+Regression risk: medium because this intentionally changes previously accepted-but-ignored inputs into explicit failure. That is appropriate because successful ignored configuration violates the promoted truthfulness constraint. Do not add typed schemas in the same patch.
 
-- parse strictly;
-- accept only an empty object as the current no-configuration form;
-- free the parse tree on every path;
-- reject everything else before mutating the component bitmap.
-
-Keep this change local to the component-add path.
-
-### Validate
-
-Run the C-bridge contract locally/CI before any merge.
-
-Also inspect the diff and reject it if unrelated functions disappear or large unrelated blocks change. The expected `litt_c.cpp` implementation diff is small.
+Merge readiness: ready only when presence-only defaults still work, unsupported configuration fails without mutation, bridge ABI remains compatible, Windows/Linux/sanitizer gates are green, and exact merged main is green.
 
 ## Repair 3: close C bridge Windows and sanitizer proof gaps
 
-Priority: 3
 Severity: ORANGE
-Expected scope:
+Priority: 3
+
+Affected path:
+
 - `.github/workflows/stabilization.yml`
 
-Do this in the same C-bridge repair PR or immediately after Repair 2.
+### Evidence proving the proof gap
 
-### ASan/UBSan
+Exact-main Stabilization run `35785302169` shows:
 
-Build `litt_json.c` with ASan/UBSan and build/link:
+- Linux bridge tests execute;
+- Windows only compiles the C bridge and does not execute `litt_c_tests.cpp`;
+- the ASan/UBSan job does not build/run the bridge contract.
 
-- `alt/src/native/litt_c.cpp`
-- `alt/src/native/litt_c_tests.cpp`
-- sanitized JSON object
+`SUPPORTED_RUNTIME.md` promotes the C ABI/SDK and requires Windows/Linux coverage where applicable plus sanitizer coverage for memory-unsafe promoted paths. The existing gate therefore falls short of the repository's own promotion rule.
 
-Run it under the same `ASAN_OPTIONS` and `UBSAN_OPTIONS` used by the existing sanitizer job.
+### Appropriate change
 
-### Windows
+In Windows CI, build/link and execute `litt_c_tests.cpp` with `litt_c.cpp`, the existing JSON object, and the system libraries already required by the bridge object.
 
-Replace the compile-only C-bridge evidence with a build-and-run contract:
+In Linux sanitizer CI, build the bridge dependencies and execute the bridge contract under the existing ASan/UBSan options.
 
-- compile/link `litt_c.cpp`
-- compile/link `litt_c_tests.cpp`
-- link the existing `litt_json.obj`
-- include the same Windows system libraries required by the Engine-containing bridge object
-- execute the resulting test binary
+Keep the existing Linux external packaged C consumer gate. Do not add a Windows package archive requirement because the support contract explicitly does not claim one.
 
-Keep the Linux packaged external C-consumer gate.
+### Validation checks
 
-Do not add unsupported Windows package-archive requirements.
+Inspect workflow syntax, then require the new Windows bridge execution and sanitizer bridge execution to pass in CI along with every existing Stabilization job.
 
-## Repair 4: repair the live littcore README examples
+Regression risk: low to medium. This changes proof, not runtime behavior, but may expose latent defects. If it does, fix those defects; do not weaken the new gates.
 
-Priority: 4
+Merge readiness: ready only when the new jobs/steps actually execute tests rather than compile-only checks and full Stabilization is green.
+
+## Repair 4: repair active littcore README examples against the current API
+
 Severity: ORANGE
-Expected scope:
+Priority: 4
+
+Affected path:
+
 - `alt/src/native/littcore/README.md`
 
-Update examples to current API names and signatures.
+### Evidence proving the inconsistency
 
-At minimum fix:
+The active quick-start README uses invalid current API names/signatures including `Quatf`, `Rayf`, `HitInfof`, `litt::math::ray_aabb`, `litt::math::ray_triangle`, `Mat4f::rotation_y`, ECS `create_entity/add_component/get_component/has_component`, and `Transform::data`.
 
-- `Quatf` -> `Quat`
-- `Rayf` -> `Ray`
-- `HitInfof` -> `HitInfo`
-- `litt::math::ray_aabb` -> `litt::ray_aabb`
-- `litt::math::ray_triangle` -> `litt::ray_triangle`
-- `Mat4f::rotation_y` -> current `Mat4::rot_y` or equivalent current alias usage
-- ECS `create_entity/add_component/get_component/has_component` examples -> current `World::create/add/get/has`
+Current code exposes `Quat`, `Ray`, `HitInfo`, namespace-level `ray_aabb/ray_triangle`, `Mat4::rot_y`, ECS `create/add/get/has`, and the current Transform member contract.
 
-Also correct the Transform example to set `Transform::position` rather than a nonexistent `data` member.
+Revalidation also proved that `Vec2f`, `Vec3f`, `Vec4f`, `Mat4f`, and `Aabbf` are intentional aliases in `litt_math.h`. They are valid and must not be changed merely for naming consistency.
 
-Validate the final snippets by compiling them against the packaged C++ SDK. Do not merely spell-check the names.
+### Appropriate change
 
-## Final validation and merge order
+Update only invalid names, calls, and member usage. Keep valid aliases if desired. Do not rewrite the architecture or claim unavailable backends.
 
-Recommended order:
+### Validation checks
 
-1. Repair 1 in a focused branch/PR.
-2. Repair 2 and Repair 3 together because the new semantics need the strengthened C-bridge gates.
-3. Repair 4 as a docs-only cleanup, preferably in the same final repair PR only if it stays reviewable.
-4. Run all targeted tests.
-5. Run full Stabilization on each repair PR.
-6. Merge only green PRs.
-7. Verify the exact merged `main` SHA receives a fully green Stabilization run.
-8. Re-run this audit against that merged SHA.
+Extract or mirror the final quick-start, math, and ECS examples into compile checks against the packaged C++ SDK. A documentation-only spelling review is insufficient.
 
-## Things this guide intentionally does not repair
+Regression risk: low if limited to current public API examples.
 
-Do not spend this repair cycle on:
+Merge readiness: ready only when every presented snippet compiles against the packaged SDK and the resulting documentation matches `SUPPORTED_RUNTIME.md`.
 
-- GPU hardware certification;
-- Vulkan/DX12/OpenGL/Metal implementation;
-- historical ROADMAP wording;
-- GitHub repository description;
-- old non-release `litt_world.cpp`;
-- C bridge persistence semantics not yet specified;
-- C bridge rendering/quality controls outside the supported bridge boundary;
-- asset async/options behavior outside the current synchronous release contract.
+## Intentionally excluded from repair
 
-If new evidence proves one of those is part of the live supported contract, audit it separately before changing it.
+Do not spend this repair cycle changing GPU certification status, implementing Vulkan/DX12/OpenGL/Metal, editing historical/research backend documents solely for old claims, changing the GitHub repository description, promoting old `litt_world.cpp`, inventing C bridge persistence semantics, expanding bridge renderer controls outside the supported boundary, or implementing asset async/options behavior outside the synchronous release contract.
+
+`alt/src/native/littcore/SUMMARY.md` also contains old-style examples, but its current documentation intent is ambiguous and it reads as a historical creation summary. It is deliberately excluded until maintainers establish it as an active user-facing contract.
+
+## Recommended merge order
+
+1. Repair 1 as a focused correctness PR.
+2. Repairs 2 and 3 together or in immediately adjacent PRs so the changed bridge semantics are protected by the stronger gates.
+3. Repair 4 as a focused documentation/API-proof PR.
+4. Run targeted tests for each repair.
+5. Require full Stabilization on every PR.
+6. Merge only green, scoped diffs.
+7. Require full Stabilization on the exact merged main SHA.
+8. Re-run the heavy audit against that SHA.
+
+Current main remains CI-green but not final heavy-audit merge-ready while RED-1 is present. GPU physical certification may remain on hold.
