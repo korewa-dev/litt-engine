@@ -31,6 +31,23 @@ int main() {
     assert(editor.redo());
     assert(editor.scene().getNode(node) == nullptr);
 
+    uint32_t parent = UINT32_MAX;
+    uint32_t child = UINT32_MAX;
+    assert(editor.create_node("Parent", root, &parent));
+    assert(editor.create_node("Child", root, &child));
+    assert(editor.reparent_node(child, parent));
+    assert(editor.scene().getNode(child)->parent == editor.scene().getNode(parent));
+    assert(!editor.reparent_node(parent, child));
+    assert(editor.scene().getNode(parent)->parent == editor.scene().root);
+
+    editor.clear_history();
+    for (size_t i = 0; i < EditorSession::kMaxHistory + 25u; ++i) {
+        assert(editor.rename_node(parent, "Parent_" + std::to_string(i)));
+    }
+    assert(editor.undo_count() == EditorSession::kMaxHistory);
+    assert(editor.undo());
+    assert(editor.redo());
+
     ChatSystem chat;
     assert(chat.process_command("/status", &editor));
     assert(chat.size() == 2u);
