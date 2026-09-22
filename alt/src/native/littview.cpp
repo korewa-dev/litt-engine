@@ -286,10 +286,15 @@ struct Scene {
 
             std::string key(mdl);
             if (cache.map.find(key) == cache.map.end()) {
-                char p2[1024];
-                snprintf(p2, sizeof(p2), "%s/%s.obj", models, mdl);
+                const std::string model_path =
+                    std::string(models) + "/" + std::string(mdl) + ".obj";
+                if (model_path.size() > 4096u) {
+                    cache.map[key] = LvModel{nullptr, 0};
+                    missing++;
+                    continue;
+                }
                 LvModel m;
-                if (lv_obj_load(p2, &m)) {
+                if (lv_obj_load(model_path.c_str(), &m)) {
                     cache.map[key] = LvModel{nullptr, 0};
                     missing++;
                     continue;
