@@ -4,7 +4,7 @@ import sys
 
 required = {
     "README.md": [
-        "Vulkan/DX12/OpenGL/Metal generic facade | Experimental/unavailable",
+        "Vulkan, DirectX 12, OpenGL, Metal and GPU ray tracing are **not release backends**.",
     ],
     "alt/docs/SUPPORTED_RUNTIME.md": [
         "generic Vulkan/DX12/OpenGL/Metal renderer facade backends that return unavailable",
@@ -12,6 +12,8 @@ required = {
     "alt/docs/graphics-api/graphics-api-status.md": [
         "| Vulkan | **GREEN fail-fast contract** | **Unavailable** |",
         "| DirectX 12 | **GREEN fail-fast contract** | **Unavailable** |",
+        "| OpenGL | **GREEN fail-fast contract** | **Unavailable / non-release** |",
+        "| Metal | **GREEN fail-fast contract** | **Unavailable / non-release** |",
         "Physical Litt certification",
     ],
     "alt/docs/platforms/windows.md": [
