@@ -20,7 +20,7 @@ A branch is not a release. The final gate is the exact merged `main` SHA.
 | Native C runtime | **GREEN** | JSON/world/OBJ runtime and generated-game simulation |
 | C bridge / SDK | **GREEN** | versioned external C consumer |
 | Packaged C++ SDK | **GREEN** | canonical headers + `liblittcore.a` external game consumer |
-| Reproducible SDK package | **GREEN** | deterministic archive built twice byte-for-byte, manifest, source SHA, SHA256SUMS, LICENSE |
+| Reproducible SDK package | **GREEN** | Linux `.tar.gz` archive built twice byte-for-byte, versioned manifest/source SHA/checksums/LICENSE, plus package-only external C++ consumer |
 | Generated-game path | **GREEN** | checked-in game plus fresh natural-language game generation and native validation |
 | WorldGen determinism | **GREEN** | representative output compared across Linux and Windows |
 | Scene persistence properties | **GREEN** | deterministic multi-seed round trips and transactional malformed-input checks |
