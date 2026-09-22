@@ -155,7 +155,7 @@ The portable supported path requires:
 
 No graphics SDK or package manager is required for the supported path.
 
-Win32 presentation and waveOut are platform extensions. Headless/software behavior is the cross-platform contract.
+The certified release platform matrix is Windows and Linux. Win32 presentation and waveOut are bounded Windows platform extensions. Headless/software behavior is the portable Windows/Linux contract. macOS is not certified in this release; adding it later is a platform promotion rather than an unresolved release requirement.
 
 ## Promotion rule
 
