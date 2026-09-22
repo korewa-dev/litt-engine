@@ -381,9 +381,11 @@ class MeshBuilder:
         return len(self.vn) - 1
 
     def tri(self, A, B, C):
-        ni = self._nidx(self._face_normal(A, B, C))
+        ni = self._nidx(self._face_normal(A, B, C)) + 1
         ia, ib, ic = self._vi(A), self._vi(B), self._vi(C)
-        self._cur["faces"].append("f %d//%d %d//%d %d//%d" % (ia,ni,ib,ni,ic,ni))
+        self._cur["faces"].append(
+            "f %d//%d %d//%d %d//%d" % (ia, ni, ib, ni, ic, ni)
+        )
 
     def quad(self, A, B, C, D):
         self.tri(A, B, C)
