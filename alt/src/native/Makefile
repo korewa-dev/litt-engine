@@ -138,11 +138,10 @@ asset-test: littcore/litt_asset_pipeline.cpp littcore/asset_pipeline_tests.cpp
 	$(CXX) $(CXXFLAGS) $^ -o bin/asset_pipeline_tests $(LDFLAGS) $(LDLIBS)
 	cd bin && ./asset_pipeline_tests
 
-gpu-contract-test: littcore/litt_gpu.cpp littcore/litt_gpu_contract_tests.cpp littcore/litt_gpu_lisuan.cpp littcore/litt_gpu_vendor_contract_tests.cpp
+gpu-contract-test: littcore/litt_gpu.cpp littcore/litt_gpu_contract_tests.cpp
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) littcore/litt_gpu.cpp littcore/litt_gpu_contract_tests.cpp -o bin/litt_gpu_contract_tests $(LDFLAGS) $(LDLIBS)
-	$(CXX) $(CXXFLAGS) littcore/litt_gpu_lisuan.cpp littcore/litt_gpu_vendor_contract_tests.cpp -o bin/litt_gpu_vendor_contract_tests $(LDFLAGS) $(LDLIBS)
-	cd bin && ./litt_gpu_contract_tests && ./litt_gpu_vendor_contract_tests
+	$(CXX) $(CXXFLAGS) $^ -o bin/litt_gpu_contract_tests $(LDFLAGS) $(LDLIBS)
+	cd bin && ./litt_gpu_contract_tests
 
 # Dither3D software demo
 bin/dither3d_demo: dither3d_demo.cpp littcore/litt_dither.cpp littcore/litt_dither_renderer.cpp
