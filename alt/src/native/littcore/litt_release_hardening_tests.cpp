@@ -64,6 +64,20 @@ static void malformed_scene_fuzz_smoke() {
     }
 }
 
+static void hierarchy_failure_contract() {
+    Scene scene;
+    SceneNode& parent = scene.createNode("parent");
+    SceneNode& child = scene.createNode("child");
+    assert(scene.setParent(child.id, parent.id));
+    assert(!scene.setParent(parent.id, child.id));
+    assert(!scene.setParent(child.id, UINT32_MAX));
+    assert(child.parent == &parent);
+
+    const std::string baseline = scene.serializeToJson();
+    assert(!scene.deserializeFromJson("{broken"));
+    assert(scene.serializeToJson() == baseline);
+}
+
 static void allocation_and_overflow_contract() {
     SoftwareRenderer renderer;
     assert(!renderer.set_framebuffer_size(65535u, 65535u));
@@ -141,6 +155,7 @@ static void concurrent_event_queue_contract() {
 int main() {
     scene_property_contract();
     malformed_scene_fuzz_smoke();
+    hierarchy_failure_contract();
     allocation_and_overflow_contract();
     lifecycle_soak();
     concurrent_event_queue_contract();
