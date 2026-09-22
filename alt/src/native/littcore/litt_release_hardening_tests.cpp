@@ -92,8 +92,8 @@ static void allocation_and_overflow_contract() {
     assert(name_limit);
 
     BinarySerializer binary;
-    std::vector<uint8_t> too_large(serialization_detail::kMaxBinaryBytes + 1u, 0u);
-    assert(!binary.deserialize_from_buffer(too_large));
+    const uint8_t one = 0;
+    assert(!binary.write_bytes(&one, serialization_detail::kMaxBinaryBytes + 1u));
 }
 
 static void lifecycle_soak() {
