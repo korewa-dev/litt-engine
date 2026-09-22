@@ -1,154 +1,91 @@
 # Litt Engine Implementation Inventory
 
-> This file inventories implemented surfaces. It is not a release-support matrix. `SUPPORTED_RUNTIME.md` is authoritative for release support and promotion status.
+> `SUPPORTED_RUNTIME.md` is authoritative for release support. This inventory describes the live canonical source surface after removal of the old blueprint mega-header.
 
-## Current surface inventory
+## Canonical public C++ surface
 
-### Implemented surfaces with varying support levels
+The packaged C++ SDK is rooted at `litt.h`. `litt_engine_systems.h` is now an include umbrella only; it contains no duplicate fake subsystem implementations.
 
-**Core Math & Types** (`litt_math.h`):
-- Vec2, Vec3, Vec4 with full arithmetic operators
-- Mat4 (16-element flat array) with identity, translation, zero, multiplication
-- Quat with slerp, from_axis_angle, to_mat4
-- Aabb (axis-aligned bounding box) with empty(), expand(), contains()
-- OBB (oriented bounding box) with transform + half_extents
-- Ray with origin/direction
-- Legacy aliases: `Vec2f = Vec2`, `Aabbf = Aabb` (backward compat)
+### Core
 
-**ECS** (`litt_ecs.h`):
-- Entity/Component/System architecture
-- Sparse set component storage
-- No duplicate type stubs (Mesh, Material, Light, Camera removed)
+- `litt_math.h` - vectors, matrices, quaternions, AABB/OBB/rays
+- `litt_ecs.h` - generational entities and component storage
+- `litt_event.h` - dispatcher and thread-safe deferred queue
+- `litt_memory.h`, `litt_memory_pool.h` - bounded memory helpers
+- `litt_input.h` - deterministic input/action state
+- `litt_config.h` - runtime configuration
+- `litt_profiler.*` - timing and frame statistics
 
-**Event System** (`litt_event.h`):
-- Type-safe event dispatcher with compile-time routing
+### Engine, scene and persistence
 
-**Memory** (`litt_memory.h`, `litt_memory_pool.h`):
-- Arena allocator, frame allocator, object pool
-- StaticPool template
+- `litt_engine.h` - lifecycle, default scene, update/render loop
+- `litt_scene.h` - bounded hierarchy and transactional persistence v1
+- `litt_serialization.h` - bounded JSON/binary/scene serialization
+- `litt_world.h` / C world runtime - game-world state and generated-game simulation
 
-**Scene** (`litt_scene.h`):
-- Release-supported bounded hierarchy and scene-persistence v1 contract
-- 8 MiB serialized input, 65,536 nodes, 4 KiB node-name limits
-- Transactional deserialize failure semantics
-- Component pointers to renderer types remain outside persistence v1
+### Rendering
 
-**Renderer** (`litt_renderer.h`, `litt_gpu_software.h`):
-- MeshData, RenderMaterial, RenderCamera, Light (authoritative)
-- Release-supported bounded headless software renderer for CPU buffer/texture/raster/depth/mesh operations
-- 64 MiB software-buffer and 16,777,216-pixel image ceilings
-- Generic Vulkan/DX12/OpenGL/Metal hardware backends remain experimental/unavailable; fail-fast is tested, not accelerated rendering
+- `litt_renderer.h` - software-backed renderer facade
+- `litt_gpu.h`, `litt_gpu_software.h` - GPU abstraction and supported CPU implementation
+- `litt_render_pass.*` - render targets and executable CPU pipeline passes
+- `litt_texture.*` - bounded CPU texture storage, PPM/TGA loading, mipmaps and atlases
+- `litt_lighting.*` - direct PBR lighting, environment helpers and bounded shadow-map state
+- `litt_shader_system.*` - portable shader-source metadata/uniform/binding registry
+- `litt_shader_artifacts.h`, `litt_shader_compilation.cpp` - precompiled SPIR-V/DXIL artifact validation
+- `litt_dither.*` - generated Dither3D patterns and CPU RGBA post-processing
 
-**Lighting & PBR** (`litt_lighting.h`, `litt_material.h`, `litt_pbr_material.h`):
-- LightType enum, Light struct, PBRLighting
-- PBRMaterial with metallic/roughness, CookTorranceBRDF
-- MaterialSerializer with JSON/binary
+### Gameplay systems
 
-**Assets / Materials** (`litt_asset.h`, `litt_asset_pipeline.*`, `litt_pbr_material.h`):
-- Release-supported bounded OBJ/TGA loading and synchronous asset metadata/reimport contract
-- PBR factories and PBR-to-render-material conversion
-- Placeholder shader compilation now fails explicitly; GPU upload and async asset loading are outside the supported core
+- `litt_physics.h` - bounded linear AABB rigid-body physics
+- `litt_audio.h` - PCM WAV state plus dependency-free stereo software mixer
+- `litt_scripting_vm.h` - bounded embedded scripting subset
+- `litt_networking.h` - bounded framed TCP client/server transport
+- `litt_ui.h` - retained UI interaction and deterministic draw commands
+- `litt_lod.h` - bounded LOD groups/components
+- `litt_culling.*` - frustum and conservative software occlusion culling
+- `litt_particle_system.*` - bounded deterministic particle simulation
+- `litt_terrain_system.*` - deterministic chunk terrain and noise generation
 
-**Textures** (`litt_texture.h`):
-- Texture class with formats, mip levels, sampling
+### Assets and materials
 
-**Physics** (`litt_physics.h`):
-- Release-supported bounded AABB rigid-body core
-- 4,096-body budget, finite-state validation, sweep-and-prune broadphase
-- AABB contacts, triggers/static bodies, linear force/impulse integration
-- Rotation, friction, joints, CCD, and complex collider shapes are not part of the supported core
+- `litt_asset.h`, `litt_asset_pipeline.*` - bounded OBJ/TGA and synchronous asset registry/reimport
+- `litt_material.h`, `litt_pbr_material.h` - material and PBR conversion helpers
 
-**BVH** (`litt_bvh.h`):
-- SAH-based BVH construction
-- Ray traversal
+### Tooling and SDKs
 
-**World** (`litt_world.h`, `litt_world.cpp`):
-- WorldManager, SceneManager
-- Entity management
+- `litteditor.h` - portable scene editor state with bounded undo/redo
+- `litt_c.h` / `litt_c.cpp` - versioned C bridge
+- `alt/include/litt_ffi.h` / `litt_ffi.cpp` - standalone Dither C ABI
+- generated-game `littcli`, `littview`, WorldKit and WorldGen tools
+- packaged C++ SDK with canonical headers and `liblittcore.a`
 
-**Audio** (`litt_audio.h`, `litt_audio_wav.h`):
-- Release-supported bounded PCM WAV decode and source-state contract
-- Cross-platform SoftwareAudioMixer produces interleaved stereo float PCM
-- Mono/stereo mix, volume, pitch, loop, play/pause/stop, master gain and output clamp are tested
-- Windows waveOut is an optional platform sink; cross-platform physical-device output is not claimed
+## Release evidence
 
-**UI** (`litt_ui.h`):
-- UIElementKind enum, UIPanel, UIButton, UILabel, UISlider
-- UIManager singleton
+The Stabilization matrix covers:
 
-**Advanced Rendering** (in `litt_engine_systems.h`):
-- SSR (screen-space reflections)
-- SSAO (screen-space ambient occlusion)
-- HDRPipeline with tone mapping (Reinhard, ACES, Filmic)
-- BloomEffect
-- DepthOfField
-- MotionBlur
-- TAA (temporal anti-aliasing)
-- VarianceShadowMap
+- GCC and Clang
+- Windows/MSVC
+- ASan/UBSan
+- ThreadSanitizer concurrency contract
+- public-header standalone compilation
+- all-features gameplay contract
+- generated-game end-to-end generation and validation
+- C and C++ external SDK consumers
+- networking malformed/partial-frame handling
+- persistence properties and malformed-input smoke
+- lifecycle and allocation-limit hardening
+- deterministic release packaging
+- cross-OS WorldGen determinism
 
-**Animation** (in `litt_engine_systems.h`):
-- Bone, Keyframe, AnimationClip
-- SkeletalAnimationController
-- Skeleton (bone hierarchy)
-- AnimationBlender
+## Retired or non-release research
 
-**Scripting** (`litt_scripting_vm.h`, C bridge):
-- Release-supported bounded embedded VM subset for variables, literals, print/return, arithmetic/comparison/logical expressions
-- Source/instruction/stack budgets are enforced
-- Unsupported control flow fails at compile time
-- Python/C#/Lua remain separate experimental integrations
+These are not part of the live feature inventory:
 
-**Networking** (in `litt_engine_systems.h`):
-- NetworkManager with CLIENT/SERVER modes
+- generic Vulkan / DirectX 12 / OpenGL / Metal renderer implementations
+- GPU ray tracing / DXR / Vulkan RT
+- vendor-specific physical GPU certification helpers
+- Python / C# / Lua runtime integrations
+- legacy `litt_engine2.h`
+- the former duplicate blueprint systems previously embedded in `litt_engine_systems.h`
 
-**Gameplay Systems** (in `litt_engine_systems.h`):
-- SaveLoadSystem
-- AchievementSystem
-- QuestSystem
-- DialogueSystem
-
-**Performance** (in `litt_engine_systems.h`):
-- Profiler (begin_scope/end_scope)
-- OcclusionCulling
-- LODSystem (select_lod)
-- TextureStreaming
-- MemoryTracker
-
-**Large World** (in `litt_engine_systems.h`):
-- TerrainRenderer
-- FoliageSystem
-- WorldPartitioning
-- LevelStreaming
-
-**Engine Loop** (in `litt_engine_systems.h`):
-- UISystem
-- AssetPackager
-- EngineLoop (initialize/run/stop)
-- Benchmark
-
-**Serialization** (`litt_serialization.h`):
-- Serializer base, JSONSerializer, BinarySerializer
-- SceneSerializer
-
-### 📦 Test Coverage
-- `test_full.cpp` - Minimal compilation test (all core headers) ✅
-- `litt_engine_tests.cpp` - 58 comprehensive tests covering all systems ✅
-
-### 🚫 Removed / Cleaned Up
-- 15 dead phase test files (~2000 lines)
-- `litt_scene_graph.h/cpp` (conflicted with SceneNode)
-- `litt_audio_system.h` (conflicted with litt_audio.h)
-- All Rust references from documentation
-
-### 🔗 Architecture
-- **Headless-first design** - no editor dependency
-- **AI-accessible inventory** - C API is release-tested; Python API, JSON-RPC, and web editor surfaces are experimental/inventory unless separately promoted
-- **Header-heavy core** - many implementations are inline in .h files
-- **Rendering design surface** - software/headless rendering is tested; generic Vulkan/DX12 and advanced path-tracing features remain experimental/unavailable unless explicitly promoted
-
-### Next Steps (Blueprint Steps 40-44)
-- Step 40: Skeletal Rigging (Bone Hierarchy) ✅ in litt_engine_systems.h
-- Step 41: Animation Blending ✅ in litt_engine_systems.h
-- Step 42: Canvas UI ✅ in litt_engine_systems.h
-- Step 43: Editor Tooling (AI Editor API exists in python/ + editor/)
-- Step 44: Serialization ✅ in litt_serialization.h
+Their presence in historical/design files does not make them release features.
