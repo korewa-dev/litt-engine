@@ -87,10 +87,13 @@ int main() {
           "reimport keeps asset identity");
     check(factory.get_asset(handle) != nullptr, "reimport preserves stable handle");
     factory.unload_asset(handle);
-    check(factory.get_asset(handle) != nullptr &&
-          !factory.get_asset(handle)->get_handle().is_loaded(),
-          "unload preserves identity and clears loaded state");
-    check(pipeline.reimport(handle), "reimport after unload succeeds");
+    check(factory.get_asset(handle) == nullptr,
+          "unload removes asset from registry");
+    check(!pipeline.reimport(handle),
+          "unloaded handle cannot be reimported implicitly");
+    const AssetHandle reloaded = pipeline.import(path, AssetType::MESH);
+    check(reloaded.is_valid() && reloaded.id != handle.id,
+          "explicit import after unload creates a new registry identity");
 
     const AssetHandle missing = pipeline.import("does-not-exist.asset", AssetType::MESH);
     check(!missing.is_valid(), "missing file import fails cleanly");
