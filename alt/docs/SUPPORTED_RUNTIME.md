@@ -136,6 +136,7 @@ The following are not release features:
 - generic DirectX 12 renderer backend
 - generic OpenGL renderer backend
 - generic Metal renderer backend
+- generic Vulkan/DX12/OpenGL/Metal renderer facade backends that return unavailable
 - GPU ray tracing / DXR / Vulkan RT
 - named-vendor physical GPU certification
 - Python/C#/Lua runtime integrations
