@@ -51,7 +51,7 @@ namespace litt {
 struct EngineSystemsContract final {
     static constexpr uint32_t version = 1u;
     static constexpr const char* description =
-        "canonical module umbrella; no duplicate placeholder subsystems";
+        "canonical module umbrella; no duplicate subsystem implementations";
 };
 
 } // namespace litt
