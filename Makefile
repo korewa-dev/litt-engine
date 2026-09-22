@@ -66,10 +66,16 @@ release-hardening-test:
 
 release-package-test:
 	$(MAKE) -C alt/src/native cpp-sdk
-	rm -f /tmp/litt-sdk-a.tar.gz /tmp/litt-sdk-b.tar.gz
+	rm -rf /tmp/litt-sdk-extract /tmp/litt-sdk-a.tar.gz /tmp/litt-sdk-b.tar.gz /tmp/litt-package-consumer.cpp /tmp/litt-package-consumer
 	python3 alt/tools/release_package.py --root . --out /tmp/litt-sdk-a.tar.gz
 	python3 alt/tools/release_package.py --root . --out /tmp/litt-sdk-b.tar.gz
 	cmp /tmp/litt-sdk-a.tar.gz /tmp/litt-sdk-b.tar.gz
+	mkdir -p /tmp/litt-sdk-extract
+	tar -xzf /tmp/litt-sdk-a.tar.gz -C /tmp/litt-sdk-extract
+	python3 -c 'import json,subprocess; m=json.load(open("/tmp/litt-sdk-extract/litt-sdk/manifest.json")); assert m["source_sha"] == subprocess.check_output(["git","rev-parse","HEAD"], text=True).strip(); assert m["package_version"] == 1'
+	printf '%s\n' '#include <litt/litt_profiler.h>' 'int main() { auto& p = litt::Profiler::get_instance(); p.reset(); p.begin_sample("package"); p.end_sample("package"); return p.get_stats("package").sample_count == 1u ? 0 : 1; }' > /tmp/litt-package-consumer.cpp
+	cd /tmp && $(CXX) -std=c++17 -I /tmp/litt-sdk-extract/litt-sdk/include /tmp/litt-package-consumer.cpp /tmp/litt-sdk-extract/litt-sdk/lib/liblittcore.a -lm -pthread -o /tmp/litt-package-consumer
+	cd /tmp && /tmp/litt-package-consumer
 
 cpp-game:
 	g++ -std=c++17 -I alt/src/native/littcore -o $(GAME).exe alt/Project/$(GAME)/engine/game.cpp alt/src/native/littcore/litt_obj.c alt/src/native/littcore/litt_json.c alt/src/native/littcore/litt_world.c -lgdi32 -luser32 -lwinmm
