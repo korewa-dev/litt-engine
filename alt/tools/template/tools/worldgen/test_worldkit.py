@@ -360,7 +360,7 @@ def test_byte_determinism(tmp):
 
 
 def test_obj_face_indices_are_one_based():
-    mb = MeshBuilder()
+    mb = wk.MeshBuilder()
     mb.begin("tri", "mat")
     mb.tri([0, 0, 0], [1, 0, 0], [0, 1, 0])
     text, nv, nf = mb.to_obj("tri", "materials")
