@@ -4,41 +4,124 @@
 
 #include "litt_math.h"
 #include <vector>
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <cstdint>
 #include <unordered_map>
+#include <functional>
+#include <atomic>
+#include <cmath>
+#include <limits>
 
 namespace litt {
 
-// Render target
+class RenderTarget;
+
+namespace render_target_detail {
+inline std::atomic<uint32_t>& next_id() {
+    static std::atomic<uint32_t> value{1u};
+    return value;
+}
+inline std::unordered_map<uint32_t, RenderTarget*>& registry() {
+    static std::unordered_map<uint32_t, RenderTarget*> value;
+    return value;
+}
+inline const RenderTarget*& bound_target() {
+    static thread_local const RenderTarget* value = nullptr;
+    return value;
+}
+inline bool valid_dimensions(uint32_t width, uint32_t height) {
+    return width > 0u && height > 0u &&
+           static_cast<uint64_t>(width) * static_cast<uint64_t>(height) <=
+               16ull * 1024ull * 1024ull;
+}
+inline uint8_t channel(float value) {
+    if (!std::isfinite(value)) return 0u;
+    return static_cast<uint8_t>(
+        std::clamp(value, 0.0f, 1.0f) * 255.0f + 0.5f);
+}
+inline RenderTarget* find(uint32_t texture_id) {
+    const auto it = registry().find(texture_id);
+    return it == registry().end() ? nullptr : it->second;
+}
+} // namespace render_target_detail
+
+// Portable CPU render target. Kept header-resident so the software renderer
+// remains usable in translation units that only consume the header-heavy core.
 class RenderTarget {
 public:
-    RenderTarget(uint32_t width, uint32_t height);
-    ~RenderTarget();
-    
-    // Bind/unbind render target
-    void bind() const;
-    void unbind() const;
-    
-    // Resize
-    void resize(uint32_t width, uint32_t height);
-    
-    // Clear
-    void clear(const Vec4& color = Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    RenderTarget(uint32_t width, uint32_t height)
+        : width_(width), height_(height), color_texture_(0), depth_texture_(0),
+          framebuffer_(0) {
+        if (!render_target_detail::valid_dimensions(width_, height_)) {
+            width_ = height_ = 0;
+            return;
+        }
+        color_texture_ = render_target_detail::next_id().fetch_add(1u);
+        depth_texture_ = render_target_detail::next_id().fetch_add(1u);
+        framebuffer_ = render_target_detail::next_id().fetch_add(1u);
+        color_pixels_.resize(static_cast<size_t>(width_) * height_ * 4u);
+        depth_pixels_.resize(static_cast<size_t>(width_) * height_, 1.0f);
+        render_target_detail::registry()[color_texture_] = this;
+    }
+
+    ~RenderTarget() {
+        if (render_target_detail::bound_target() == this)
+            render_target_detail::bound_target() = nullptr;
+        render_target_detail::registry().erase(color_texture_);
+    }
+
+    RenderTarget(const RenderTarget&) = delete;
+    RenderTarget& operator=(const RenderTarget&) = delete;
+    RenderTarget(RenderTarget&&) = delete;
+    RenderTarget& operator=(RenderTarget&&) = delete;
+
+    void bind() const {
+        if (framebuffer_) render_target_detail::bound_target() = this;
+    }
+    void unbind() const {
+        if (render_target_detail::bound_target() == this)
+            render_target_detail::bound_target() = nullptr;
+    }
+
+    void resize(uint32_t width, uint32_t height) {
+        if (!render_target_detail::valid_dimensions(width, height)) return;
+        width_ = width;
+        height_ = height;
+        color_pixels_.assign(static_cast<size_t>(width_) * height_ * 4u, 0u);
+        depth_pixels_.assign(static_cast<size_t>(width_) * height_, 1.0f);
+    }
+
+    void clear(const Vec4& color = Vec4(0.0f, 0.0f, 0.0f, 1.0f)) {
+        const uint8_t r = render_target_detail::channel(color.x);
+        const uint8_t g = render_target_detail::channel(color.y);
+        const uint8_t b = render_target_detail::channel(color.z);
+        const uint8_t a = render_target_detail::channel(color.w);
+        for (size_t i = 0; i < color_pixels_.size(); i += 4u) {
+            color_pixels_[i] = r;
+            color_pixels_[i + 1u] = g;
+            color_pixels_[i + 2u] = b;
+            color_pixels_[i + 3u] = a;
+        }
+        std::fill(depth_pixels_.begin(), depth_pixels_.end(), 1.0f);
+    }
     
     // Get texture ID
     uint32_t get_texture_id() const { return color_texture_; }
     
     // Get depth ID
     uint32_t get_depth_id() const { return depth_texture_; }
+    const std::vector<uint8_t>& color_pixels() const { return color_pixels_; }
+    std::vector<uint8_t>& mutable_color_pixels() { return color_pixels_; }
+    const std::vector<float>& depth_pixels() const { return depth_pixels_; }
     
     // Get dimensions
     uint32_t get_width() const { return width_; }
     uint32_t get_height() const { return height_; }
     
     // Set MSAA samples
-    void set_msaa_samples(uint32_t samples) { msaa_samples_ = samples; }
+    void set_msaa_samples(uint32_t samples) { msaa_samples_ = std::min(samples, 16u); }
 
 private:
     uint32_t width_;
@@ -47,6 +130,8 @@ private:
     uint32_t depth_texture_;
     uint32_t framebuffer_;
     uint32_t msaa_samples_ = 0;
+    std::vector<uint8_t> color_pixels_;
+    std::vector<float> depth_pixels_;
 };
 
 // Render pass types
@@ -77,11 +162,16 @@ public:
     // Enable/disable
     bool is_enabled() const { return enabled_; }
     void set_enabled(bool enabled) { enabled_ = enabled; }
+    void set_callback(std::function<void()> callback) { callback_ = std::move(callback); }
+    uint64_t execution_count() const { return execution_count_; }
 
 protected:
     RenderPassType type_;
     std::string name_;
     bool enabled_ = true;
+    std::function<void()> callback_;
+    uint64_t execution_count_ = 0;
+    void run_callback() { ++execution_count_; if (callback_) callback_(); }
 };
 
 // Shadow pass

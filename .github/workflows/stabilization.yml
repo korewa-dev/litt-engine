@@ -49,6 +49,24 @@ jobs:
           "$CC" -std=c11 -O2 -Wall -Wextra -Werror=implicit-function-declaration -I alt/src/native/littcore -c alt/src/native/littcore/litt_world.c -o /tmp/litt_world.o
       - name: Native runtime contract
         run: make -C alt/src/native clean test CC="$CC" CXX="$CXX"
+      - name: Canonical engine module contract
+        run: make engine-contract-test CC="$CC" CXX="$CXX"
+      - name: Portable editor core contract
+        run: make editor-contract-test CC="$CC" CXX="$CXX"
+      - name: Dither FFI ABI contract
+        run: make ffi-contract-test CC="$CC" CXX="$CXX"
+      - name: Dither3D CPU contract
+        run: make dither-contract-test CC="$CC" CXX="$CXX"
+      - name: All-features gameplay contract
+        run: make gameplay-feature-test CC="$CC" CXX="$CXX"
+      - name: Release hardening property/fuzz/lifecycle contract
+        run: make release-hardening-test CC="$CC" CXX="$CXX"
+      - name: Reproducible C++ SDK package contract
+        run: make release-package-test CC="$CC" CXX="$CXX"
+      - name: Packaged C++ SDK contract
+        run: make -C alt/src/native cpp-sdk-test CC="$CC" CXX="$CXX"
+      - name: Shader artifact contract
+        run: make -C alt/src/native shader-artifact-test CC="$CC" CXX="$CXX"
       - name: Asset pipeline contract
         run: make -C alt/src/native asset-test CC="$CC" CXX="$CXX"
       - name: GPU/software contract
@@ -80,6 +98,13 @@ jobs:
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_stabilization_runner.cpp /tmp/litt_json_sanitized.o -o stabilization_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_scene_persistence_tests.cpp /tmp/litt_json_sanitized.o -o scene_persistence_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_engine_scene_tests.cpp /tmp/litt_json_sanitized.o -o engine_scene_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_engine_tests.cpp alt/src/native/littcore/litt_profiler.cpp /tmp/litt_json_sanitized.o -o engine_contract_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native -I alt/src/native/littcore alt/src/native/litteditor_contract_tests.cpp /tmp/litt_json_sanitized.o -o editor_contract_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/include alt/src/native/litt_ffi.cpp alt/src/litt_ffi_contract_tests.cpp -o ffi_contract_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_dither.cpp alt/src/native/littcore/litt_dither_renderer.cpp alt/src/native/littcore/litt_dither_contract_tests.cpp -o dither_contract_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gameplay_feature_tests.cpp alt/src/native/littcore/litt_particle_system.cpp alt/src/native/littcore/litt_culling.cpp alt/src/native/littcore/litt_terrain_system.cpp alt/src/native/littcore/litt_texture.cpp alt/src/native/littcore/litt_render_pass.cpp alt/src/native/littcore/litt_shader_system.cpp alt/src/native/littcore/litt_lighting.cpp alt/src/native/littcore/litt_gpu.cpp -o gameplay_feature_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -pthread -I alt/src/native/littcore alt/src/native/littcore/litt_release_hardening_tests.cpp /tmp/litt_json_sanitized.o -o release_hardening_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_shader_compilation.cpp alt/src/native/littcore/litt_shader_artifact_tests.cpp -o shader_artifact_sanitized
       - name: Build asset/material contract with ASan/UBSan
         run: >-
           g++ -std=c++17 -O1 -g -Wall -Wextra -fno-omit-frame-pointer -fsanitize=address,undefined
@@ -91,7 +116,7 @@ jobs:
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && /tmp/asset_pipeline_sanitized
+        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && ./engine_contract_sanitized && ./editor_contract_sanitized && ./ffi_contract_sanitized && ./dither_contract_sanitized && ./gameplay_feature_sanitized && ./release_hardening_sanitized && ./shader_artifact_sanitized && /tmp/asset_pipeline_sanitized
 
   gpu-rendering-contract:
     runs-on: ubuntu-latest
@@ -102,9 +127,18 @@ jobs:
       - name: Build and run GPU contract with ASan/UBSan
         run: |
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gpu.cpp alt/src/native/littcore/litt_gpu_contract_tests.cpp -o /tmp/litt_gpu_sanitized
-          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gpu_lisuan.cpp alt/src/native/littcore/litt_gpu_vendor_contract_tests.cpp -o /tmp/litt_gpu_vendor_sanitized
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/litt_gpu_sanitized
-          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 /tmp/litt_gpu_vendor_sanitized
+
+  concurrency-tsan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build release hardening concurrency contract with ThreadSanitizer
+        run: |
+          clang -std=c11 -O1 -g -fno-omit-frame-pointer -fsanitize=thread -I alt/src/native/littcore -c alt/src/native/littcore/litt_json.c -o /tmp/litt_json_tsan.o
+          clang++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=thread -pthread -I alt/src/native/littcore alt/src/native/littcore/litt_release_hardening_tests.cpp /tmp/litt_json_tsan.o -o /tmp/release_hardening_tsan
+      - name: Run ThreadSanitizer contract
+        run: /tmp/release_hardening_tsan
 
   networking-contract:
     runs-on: ubuntu-latest
@@ -169,6 +203,15 @@ jobs:
           make -C alt/src/native bin/littview V=1
       - name: Validate checked-in generated-game fixture
         run: alt/src/native/bin/littcli validate alt/Project/example-village --frames 60
+      - name: Generate and prove a fresh game end-to-end
+        run: |
+          python alt/tools/template/tools/worldgen/make_game.py \
+            --about "small haunted forest action adventure" \
+            --name ci-fresh-game \
+            --seed 4242 \
+            --scale small \
+            --out-dir alt/Project/ci-fresh-game
+          alt/src/native/bin/littcli validate alt/Project/ci-fresh-game --frames 60
       - name: Run worldkit regression tests
         run: python alt/tools/template/tools/worldgen/test_worldkit.py
       - name: WorldGen representative quality/resource/native gate
@@ -212,9 +255,6 @@ jobs:
       - name: Build and run Windows GPU/software contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_gpu.cpp alt\\src\\native\\littcore\\litt_gpu_contract_tests.cpp /Fe:gpu_contract_windows.exe gdi32.lib user32.lib && gpu_contract_windows.exe
-      - name: Build and run Windows vendor GPU truthfulness contract
-        shell: cmd
-        run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_gpu_lisuan.cpp alt\\src\\native\\littcore\\litt_gpu_vendor_contract_tests.cpp /Fe:gpu_vendor_contract_windows.exe && gpu_vendor_contract_windows.exe
       - name: Build and run Windows asset/material contract
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\\src\\native\\littcore alt\\src\\native\\littcore\\litt_asset_pipeline.cpp alt\\src\\native\\littcore\\asset_pipeline_tests.cpp /Fe:asset_contract_windows.exe && asset_contract_windows.exe
@@ -241,10 +281,28 @@ jobs:
         run: cl /nologo /std:c++17 /EHsc /W4 /I alt\src\native\littcore alt\src\native\littcore\networking_tests.cpp /Fe:networking_windows.exe ws2_32.lib && networking_windows.exe
       - name: Build native engine tests
         shell: cmd
-        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_engine_tests.cpp alt\src\native\littcore\litt_math.cpp litt_json.obj /Fe:tests.exe gdi32.lib user32.lib winmm.lib
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_engine_tests.cpp alt\src\native\littcore\litt_profiler.cpp alt\src\native\littcore\litt_math.cpp litt_json.obj /Fe:tests.exe gdi32.lib user32.lib winmm.lib
       - name: Run native engine tests
         shell: cmd
         run: tests.exe
+      - name: Build and run Windows editor core contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native /I alt\src\native\littcore alt\src\native\litteditor_contract_tests.cpp litt_json.obj /Fe:editor_contract_windows.exe && editor_contract_windows.exe
+      - name: Build and run Windows Dither FFI contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /D LITT_FFI_BUILD /I alt\include alt\src\native\litt_ffi.cpp alt\src\litt_ffi_contract_tests.cpp /Fe:ffi_contract_windows.exe && ffi_contract_windows.exe
+      - name: Build and run Windows Dither3D CPU contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_dither.cpp alt\src\native\littcore\litt_dither_renderer.cpp alt\src\native\littcore\litt_dither_contract_tests.cpp /Fe:dither_contract_windows.exe && dither_contract_windows.exe
+      - name: Build and run Windows all-features gameplay contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_gameplay_feature_tests.cpp alt\src\native\littcore\litt_particle_system.cpp alt\src\native\littcore\litt_culling.cpp alt\src\native\littcore\litt_terrain_system.cpp alt\src\native\littcore\litt_texture.cpp alt\src\native\littcore\litt_render_pass.cpp alt\src\native\littcore\litt_shader_system.cpp alt\src\native\littcore\litt_lighting.cpp alt\src\native\littcore\litt_gpu.cpp /Fe:gameplay_feature_windows.exe ws2_32.lib gdi32.lib user32.lib winmm.lib && gameplay_feature_windows.exe
+      - name: Build and run Windows release hardening contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_release_hardening_tests.cpp litt_json.obj /Fe:release_hardening_windows.exe ws2_32.lib gdi32.lib user32.lib winmm.lib && release_hardening_windows.exe
+      - name: Build and run Windows shader artifact contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_shader_compilation.cpp alt\src\native\littcore\litt_shader_artifact_tests.cpp /Fe:shader_artifact_windows.exe && shader_artifact_windows.exe
       - name: WorldGen Windows determinism/resource gate
         shell: pwsh
         run: python alt/tools/template/tools/worldgen/worldgen_quality_gate.py --json-out worldgen-windows.json

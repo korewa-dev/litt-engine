@@ -36,7 +36,7 @@ zero external dependencies.
 | `litt_world.h` | Game world sim: gravity, enemies, goals, win/lose |
 | `litt_council.h` | Compile-time feature flags + runtime weighted-vote council |
 | `litt_scene.h` | Scene graph with hierarchical transforms |
-| `litt_audio.h` | Clip/source/listener management (backend stub) |
+| `litt_audio.h` | PCM WAV state plus bounded cross-platform software stereo mixer |
 | `litt_config.h` | Key/value Settings store + quality presets |
 | `litt_ui.h`, `litt_profiler.h` | UI helpers, profiler |
 

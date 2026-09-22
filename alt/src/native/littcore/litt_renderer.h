@@ -12,6 +12,7 @@
 #include "litt_material.h"
 #include "litt_render_pass.h"
 #include "litt_dither.h"
+#include "litt_gpu_software.h"
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -26,6 +27,7 @@ namespace litt {
 // =============================================================================
 
 enum class RenderBackend {
+    Software,
     Vulkan,
     DirectX12,
     OpenGL,
@@ -257,185 +259,155 @@ public:
 class Renderer : public IRenderer {
 public:
     Renderer() = default;
-    ~Renderer() override = default;
+    ~Renderer() override { shutdown(); }
 
     bool initialize(uint32_t width, uint32_t height, RenderBackend backend) override {
-        backend_ = backend;
+        shutdown();
+        if (backend != RenderBackend::Software) {
+            backend_ = backend;
+            width_ = width;
+            height_ = height;
+            return false;
+        }
+        if (!software_.set_framebuffer_size(width, height)) return false;
+        if (!software_.initialize("headless")) return false;
+        backend_ = RenderBackend::Software;
         width_ = width;
         height_ = height;
-
-        // Initialize based on backend
-        switch (backend) {
-            case RenderBackend::Vulkan:
-                return init_vulkan(width, height);
-            case RenderBackend::DirectX12:
-                return init_dx12(width, height);
-            case RenderBackend::OpenGL:
-                return init_opengl(width, height);
-            case RenderBackend::Metal:
-                return init_metal(width, height);
-        }
-        return false;
+        initialized_ = true;
+        current_camera_.aspect = height ? static_cast<float>(width) / static_cast<float>(height) : 1.0f;
+        current_camera_.update();
+        return true;
     }
 
     void shutdown() override {
-        // Cleanup resources
+        software_.shutdown();
+        initialized_ = false;
+        lights_.clear();
+        cameras_.clear();
+        current_camera_set_ = false;
     }
 
-    void begin_frame() override {
-        // Begin rendering
-    }
+    void begin_frame() override {}
+    void end_frame() override {}
+    void present() override { if (initialized_) software_.present(); }
 
-    void end_frame() override {
-        // End rendering
-    }
-
-    void present() override {
-        // Present frame
-    }
-
-    void clear(Vec3, float, uint32_t) override {
-        // Clear buffers
+    void clear(Vec3 color, float depth = 1.0f, uint32_t stencil = 0) override {
+        (void)depth;
+        (void)stencil;
+        if (!initialized_) return;
+        auto channel = [](float value) -> uint32_t {
+            if (!std::isfinite(value)) return 0u;
+            value = std::clamp(value, 0.0f, 1.0f);
+            return static_cast<uint32_t>(value * 255.0f + 0.5f);
+        };
+        const uint32_t packed = (channel(color.x) << 16) |
+                                (channel(color.y) << 8) |
+                                channel(color.z);
+        software_.clear(packed);
     }
 
     void set_camera(const RenderCamera& camera) override {
         current_camera_ = camera;
+        current_camera_.update();
+        current_camera_set_ = true;
     }
 
-    void draw_mesh(const RenderMesh&, const Mat4&, const RenderMaterial&) override {
-        // Draw mesh with transform and material
+    void draw_mesh(const RenderMesh& mesh, const Mat4& transform,
+                   const RenderMaterial& material) override {
+        if (!initialized_ || mesh.data.positions.empty() || mesh.data.indices.empty()) return;
+        RenderCamera camera = current_camera_;
+        if (!current_camera_set_) camera.update();
+        const Mat4 view_projection = camera.view_projection * transform;
+        software_.draw_mesh(mesh.data.positions, mesh.data.indices, view_projection,
+                            pack_color(material.albedo));
     }
 
-    void draw_line(const Vec3&, const Vec3&, Vec3) override {
-        // Draw line (for debug visualization)
+    void draw_line(const Vec3& start, const Vec3& end, Vec3 color) override {
+        if (!initialized_) return;
+        RenderCamera camera = current_camera_;
+        if (!current_camera_set_) camera.update();
+        int x0 = 0, y0 = 0, x1 = 0, y1 = 0;
+        float z0 = 1.0f, z1 = 1.0f;
+        if (software_.project_checked(start, camera.view_projection, x0, y0, z0) &&
+            software_.project_checked(end, camera.view_projection, x1, y1, z1)) {
+            software_.draw_line_3d(x0, y0, z0, x1, y1, z1, pack_color(color));
+        }
     }
 
     void draw_gizmo(const Vec3& pos, const Vec3&, float scale) override {
-        // Draw transform gizmo
-        float len = 30.0f * scale;
-
-        // X axis (red)
+        if (!std::isfinite(scale) || scale <= 0.0f) return;
+        const float len = scale;
         draw_line(pos, pos + Vec3(len, 0, 0), Vec3(1, 0, 0));
-        // Y axis (green)
         draw_line(pos, pos + Vec3(0, len, 0), Vec3(0, 1, 0));
-        // Z axis (blue)
         draw_line(pos, pos + Vec3(0, 0, len), Vec3(0, 0, 1));
     }
 
     uint32_t get_width() const override { return width_; }
     uint32_t get_height() const override { return height_; }
 
-    void* get_native_handle() override { return nullptr; }
+    void* get_native_handle() override { return software_.get_window(); }
+
     std::string get_backend_name() const override {
         switch (backend_) {
-            case RenderBackend::Vulkan: return "Vulkan";
-            case RenderBackend::DirectX12: return "DirectX 12";
-            case RenderBackend::OpenGL: return "OpenGL";
-            case RenderBackend::Metal: return "Metal";
+            case RenderBackend::Software: return "Software";
+            case RenderBackend::Vulkan: return "Vulkan (unavailable)";
+            case RenderBackend::DirectX12: return "DirectX 12 (unavailable)";
+            case RenderBackend::OpenGL: return "OpenGL (unavailable)";
+            case RenderBackend::Metal: return "Metal (unavailable)";
         }
         return "Unknown";
     }
 
-    // Scene rendering
+    bool initialized() const { return initialized_; }
+    const std::vector<uint8_t>& framebuffer_pixels() const {
+        return software_.framebuffer_pixels();
+    }
+    uint32_t get_pixel(int x, int y) const { return software_.get_pixel(x, y); }
+
     void render_scene(const RenderScene& scene) {
-        render_node(*scene.root);
+        if (scene.root) render_node(*scene.root);
     }
 
     void render_node(const RenderNode& node) {
         if (!node.visible) return;
-
-        // Render this node
         if (node.mesh && node.material) {
-            set_camera(current_camera_);
             draw_mesh(*node.mesh, node.transform.matrix, *node.material);
         }
-
-        // Render children
-        for (auto& child : node.children) {
-            render_node(*child);
+        for (const auto& child : node.children) {
+            if (child) render_node(*child);
         }
     }
 
-    // Add light
-    void add_light(std::shared_ptr<Light> light) {
-        lights_.push_back(light);
+    void add_light(const std::shared_ptr<Light>& light) {
+        if (light) lights_.push_back(light);
     }
 
-    // Add camera
-    void add_camera(std::shared_ptr<RenderCamera> camera) {
+    void add_camera(const std::shared_ptr<RenderCamera>& camera) {
+        if (!camera) return;
         cameras_.push_back(camera);
-        if (!current_camera_set_) {
-            current_camera_ = *camera;
-            current_camera_set_ = true;
-        }
+        if (!current_camera_set_) set_camera(*camera);
     }
 
 private:
-    bool init_vulkan(uint32_t, uint32_t) {
-        // Vulkan is NOT implemented. Return false to prevent silent stub.
-        return false;
+    static uint32_t pack_color(const Vec3& color) {
+        auto channel = [](float value) -> uint32_t {
+            if (!std::isfinite(value)) return 0u;
+            value = std::clamp(value, 0.0f, 1.0f);
+            return static_cast<uint32_t>(value * 255.0f + 0.5f);
+        };
+        return (channel(color.x) << 16) | (channel(color.y) << 8) | channel(color.z);
     }
 
-    bool init_dx12(uint32_t, uint32_t) {
-        // DirectX 12 initialization
-        return false;
-    }
-
-    bool init_opengl(uint32_t, uint32_t) {
-        // OpenGL initialization
-        return false;
-    }
-
-    bool init_metal(uint32_t, uint32_t) {
-        // Metal initialization
-        return false;
-    }
-
-    RenderBackend backend_ = RenderBackend::Vulkan;
-    uint32_t width_ = 1920;
-    uint32_t height_ = 1080;
-
+    SoftwareRenderer software_;
+    RenderBackend backend_ = RenderBackend::Software;
+    uint32_t width_ = 800;
+    uint32_t height_ = 600;
+    bool initialized_ = false;
     RenderCamera current_camera_;
     bool current_camera_set_ = false;
-
     std::vector<std::shared_ptr<Light>> lights_;
     std::vector<std::shared_ptr<RenderCamera>> cameras_;
-
-    // =============================================================================
-    // Dither3D Integration
-    // =============================================================================
-
-    DitherMaterial dither_material_;
-    DitherAssetManager dither_assets_;
-
-    void enable_dither(DitherColorMode mode = DitherColorMode::Grayscale,
-                       DitherPattern pattern = DitherPattern::P8x8) {
-        dither_material_.enabled = true;
-        dither_material_.color_mode = mode;
-        dither_material_.pattern = pattern;
-        dither_assets_.generate_textures();
-    }
-
-    void disable_dither() {
-        dither_material_.enabled = false;
-    }
-
-    void set_dither_scale(float scale) {
-        dither_material_.scale = scale;
-    }
-
-    void set_dither_mode(DitherColorMode mode) {
-        dither_material_.color_mode = mode;
-    }
-
-    void set_dither_params(float scale, float size_var, float contrast,
-                          DitherColorMode mode, DitherPattern pattern) {
-        dither_material_.scale = scale;
-        dither_material_.size_variability = size_var;
-        dither_material_.contrast = contrast;
-        dither_material_.color_mode = mode;
-        dither_material_.pattern = pattern;
-    }
 };
 
 } // namespace litt

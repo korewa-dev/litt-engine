@@ -3,16 +3,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 typedef struct {
     float *v; int n, cap;
 } FVec;
 
 static int fv_push(FVec *a, float x) {
+    if (!a || !isfinite(x) || a->n < 0 || a->n >= LV_OBJ_MAX_FLOAT_VALUES) return 1;
     if (a->n == a->cap) {
-        int nc = a->cap ? a->cap * 2 : 64;
+        int nc = a->cap ? a->cap : 64;
+        if (nc > LV_OBJ_MAX_FLOAT_VALUES / 2) nc = LV_OBJ_MAX_FLOAT_VALUES;
+        else nc *= 2;
+        if (nc <= a->cap || nc > LV_OBJ_MAX_FLOAT_VALUES) return 1;
         float *nv = realloc(a->v, sizeof(float) * (size_t)nc);
-        if (!nv) return 1;               /* m4: old buffer intact, caller errs */
+        if (!nv) return 1;
         a->v = nv;
         a->cap = nc;
     }
@@ -25,10 +30,14 @@ typedef struct {
 } IVec;
 
 static int iv_push(IVec *a, unsigned x) {
+    if (!a || a->n < 0 || a->n >= LV_OBJ_MAX_INDICES) return 1;
     if (a->n == a->cap) {
-        int nc = a->cap ? a->cap * 2 : 64;
+        int nc = a->cap ? a->cap : 64;
+        if (nc > LV_OBJ_MAX_INDICES / 2) nc = LV_OBJ_MAX_INDICES;
+        else nc *= 2;
+        if (nc <= a->cap || nc > LV_OBJ_MAX_INDICES) return 1;
         unsigned *nv = realloc(a->v, sizeof(unsigned) * (size_t)nc);
-        if (!nv) return 1;               /* m4 */
+        if (!nv) return 1;
         a->v = nv;
         a->cap = nc;
     }
@@ -48,10 +57,14 @@ static int rmap_get(RMap *m, int gpos, int guv, int gnorm, unsigned *out) {
 }
 
 static int rmap_put(RMap *m, int gpos, int guv, int gnorm, unsigned local) {
+    if (!m || m->n < 0 || m->n >= LV_OBJ_MAX_REMAP) return 1;
     if (m->n == m->cap) {
-        int nc = m->cap ? m->cap * 2 : 64;
+        int nc = m->cap ? m->cap : 64;
+        if (nc > LV_OBJ_MAX_REMAP / 2) nc = LV_OBJ_MAX_REMAP;
+        else nc *= 2;
+        if (nc <= m->cap || nc > LV_OBJ_MAX_REMAP) return 1;
         Remap *nv = realloc(m->v, sizeof(Remap) * (size_t)nc);
-        if (!nv) return 1;               /* m4 */
+        if (!nv) return 1;
         m->v = nv;
         m->cap = nc;
     }
@@ -104,6 +117,13 @@ static void lv_mtl_load(const char *obj_path, const char *mtllib,
     }
     FILE *f = fopen(path, "rb");
     if (!f) return;
+    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return; }
+    long mtl_size = ftell(f);
+    if (mtl_size <= 0 || (unsigned long)mtl_size > (unsigned long)LV_MTL_MAX_FILE_BYTES) {
+        fclose(f);
+        return;
+    }
+    rewind(f);
     char line[512];
     char cur[64] = "";
     while (fgets(line, sizeof(line), f)) {
@@ -134,7 +154,8 @@ static void lv_mtl_load(const char *obj_path, const char *mtllib,
             }
         } else if (!strncmp(p, "Kd ", 3) || !strncmp(p, "Ke ", 3)) {
             float r, g, b;
-            if (*cur && sscanf(p + 3, "%f %f %f", &r, &g, &b) == 3) {
+            if (*cur && sscanf(p + 3, "%f %f %f", &r, &g, &b) == 3 &&
+                isfinite(r) && isfinite(g) && isfinite(b)) {
                 LvMtl *e = mtl_find(lib, cur);
                 if (e) {
                     float *dst = (p[1] == 'd') ? e->kd : e->ke;
@@ -170,15 +191,27 @@ static void mesh_bounds(LvMesh *me) {
 }
 
 int lv_obj_load(const char *path, LvModel *out) {
+    if (!path || !*path || !out) return 1;
+    out->meshes = NULL;
+    out->count = 0;
+
     FILE *f = fopen(path, "rb");
     if (!f) return 1;
-    fseek(f, 0, SEEK_END);
+    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return 1; }
     long sz = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    if (sz <= 0) { fclose(f); return 1; }
-    char *buf = malloc((size_t)sz + 1);
+    if (sz <= 0 || (unsigned long)sz > (unsigned long)LV_OBJ_MAX_FILE_BYTES) {
+        fclose(f);
+        return 1;
+    }
+    rewind(f);
+    char *buf = malloc((size_t)sz + 1u);
     if (!buf) { fclose(f); return 1; }
     size_t rd = fread(buf, 1, (size_t)sz, f);
+    if (rd != (size_t)sz || ferror(f)) {
+        free(buf);
+        fclose(f);
+        return 1;
+    }
     fclose(f);
     buf[rd] = 0;
 
@@ -191,7 +224,8 @@ int lv_obj_load(const char *path, LvModel *out) {
     RMap rm = {0};
     char cur_name[64] = "obj_mesh";
     int any_face = 0;
-    int oom = 0;                         /* m4: any allocation failure */
+    int oom = 0;
+    int malformed = 0;                         /* m4: any allocation failure */
     LvMtlLib lib;                        /* MTL side-table (4.1/4.2) */
     char cur_mtl[64] = "";
     memset(&lib, 0, sizeof(lib));
@@ -199,6 +233,7 @@ int lv_obj_load(const char *path, LvModel *out) {
 #define FLUSH()                                                          \
     do {                                                                 \
         if (cv.n > 0) {                                                  \
+            if (model.count >= LV_OBJ_MAX_MESHES) { oom = 1; break; }    \
             LvMesh *nm = realloc(model.meshes,                           \
                 sizeof(LvMesh) * (size_t)(model.count + 1));             \
             if (!nm) {                                                   \
@@ -236,7 +271,7 @@ int lv_obj_load(const char *path, LvModel *out) {
 
     char *line = buf;
     char *end = buf + rd;
-    while (line < end && !oom) {
+    while (line < end && !oom && !malformed) {
         char *nl = memchr(line, '\n', (size_t)(end - line));
         char *next = nl ? nl + 1 : end;
         if (nl) *nl = 0;   /* last line may lack '\n' - never deref NULL */
@@ -246,23 +281,27 @@ int lv_obj_load(const char *path, LvModel *out) {
 
         if (!strncmp(line, "v ", 2)) {
             float x, y, z;
-            if (sscanf(line + 2, "%f %f %f", &x, &y, &z) == 3) {
-                if (fv_push(&gp, x)) oom = 1;
-                if (fv_push(&gp, y)) oom = 1;
-                if (fv_push(&gp, z)) oom = 1;
+            if (sscanf(line + 2, "%f %f %f", &x, &y, &z) != 3 ||
+                !isfinite(x) || !isfinite(y) || !isfinite(z)) {
+                malformed = 1;
+            } else {
+                if (fv_push(&gp, x) || fv_push(&gp, y) || fv_push(&gp, z)) oom = 1;
             }
         } else if (!strncmp(line, "vt ", 3)) {
             float u, v;
-            if (sscanf(line + 3, "%f %f", &u, &v) == 2) {
-                if (fv_push(&gt, u)) oom = 1;
-                if (fv_push(&gt, v)) oom = 1;
+            if (sscanf(line + 3, "%f %f", &u, &v) != 2 ||
+                !isfinite(u) || !isfinite(v)) {
+                malformed = 1;
+            } else if (fv_push(&gt, u) || fv_push(&gt, v)) {
+                oom = 1;
             }
         } else if (!strncmp(line, "vn ", 3)) {
             float x, y, z;
-            if (sscanf(line + 3, "%f %f %f", &x, &y, &z) == 3) {
-                if (fv_push(&gn, x)) oom = 1;
-                if (fv_push(&gn, y)) oom = 1;
-                if (fv_push(&gn, z)) oom = 1;
+            if (sscanf(line + 3, "%f %f %f", &x, &y, &z) != 3 ||
+                !isfinite(x) || !isfinite(y) || !isfinite(z)) {
+                malformed = 1;
+            } else if (fv_push(&gn, x) || fv_push(&gn, y) || fv_push(&gn, z)) {
+                oom = 1;
             }
         } else if (!strncmp(line, "g ", 2) || !strncmp(line, "o ", 2)) {
             FLUSH();
@@ -289,70 +328,100 @@ int lv_obj_load(const char *path, LvModel *out) {
             if (sp3) *sp3 = 0;
         } else if (!strncmp(line, "f ", 2)) {
             unsigned corners[64];
-            int uvtex[64];                       /* 0-based vt idx, -1 none */
+            int uvtex[64];
+            int normals[64];
             int nc = 0;
             char *tok = line + 2;
-            while (*tok && nc < 64) {
-                while (*tok == ' ' || *tok == '\t') tok++;  /* n4: tabs split too */
+            while (*tok) {
+                while (*tok == ' ' || *tok == '\t') tok++;
                 if (!*tok) break;
-                int vi = 0;
-                int got = sscanf(tok, "%d", &vi);
-                if (!got) break;
-                if (vi < 0) vi += (int)(gp.n / 3) + 1;      /* n4: OBJ relative wrap */
-                if (vi < 1) break;     /* 0 or out-of-range negative: drop face */
-                /* optional /vt[/vn] slots after the position index */
-                uvtex[nc] = -1;
-                const char *slash = strchr(tok, '/');
-                if (slash && slash[1] && slash[1] != ' ' && slash[1] != '\t' &&
-                    slash[1] != '/') {
-                    int tv;
-                    if (sscanf(slash + 1, "%d", &tv) == 1) {
-                        if (tv < 0) tv += (int)(gt.n / 2) + 1;  /* relative wrap */
-                        if (tv >= 1) uvtex[nc] = tv - 1;
-                    }
+                if (nc >= 64) { malformed = 1; break; }
+
+                char *token_end = tok;
+                while (*token_end && *token_end != ' ' && *token_end != '\t') token_end++;
+                size_t token_len = (size_t)(token_end - tok);
+                if (token_len == 0 || token_len >= 128u) { malformed = 1; break; }
+
+                char spec[128];
+                memcpy(spec, tok, token_len);
+                spec[token_len] = 0;
+
+                int vi = 0, tv = 0, tn = 0, consumed = 0;
+                int has_uv = 0, has_normal = 0;
+                if (sscanf(spec, "%d/%d/%d%n", &vi, &tv, &tn, &consumed) == 3 &&
+                    spec[consumed] == 0) {
+                    has_uv = 1; has_normal = 1;
+                } else if (sscanf(spec, "%d//%d%n", &vi, &tn, &consumed) == 2 &&
+                           spec[consumed] == 0) {
+                    has_normal = 1;
+                } else if (sscanf(spec, "%d/%d%n", &vi, &tv, &consumed) == 2 &&
+                           spec[consumed] == 0) {
+                    has_uv = 1;
+                } else if (!(sscanf(spec, "%d%n", &vi, &consumed) == 1 &&
+                             spec[consumed] == 0)) {
+                    malformed = 1; break;
                 }
-                /* skip to next whitespace-delimited token */
-                while (*tok && *tok != ' ' && *tok != '\t') tok++;
+
+                const int pos_count = gp.n / 3;
+                if (vi < 0) vi += pos_count + 1;
+                if (vi < 1 || vi > pos_count) { malformed = 1; break; }
+
+                uvtex[nc] = -1;
+                if (has_uv) {
+                    const int uv_count = gt.n / 2;
+                    if (tv < 0) tv += uv_count + 1;
+                    if (tv < 1 || tv > uv_count) { malformed = 1; break; }
+                    uvtex[nc] = tv - 1;
+                }
+
+                /*
+                 * Normals are not part of LvMesh's runtime payload. Preserve
+                 * their token shape for vertex remapping when resolvable, but
+                 * do not reject geometry solely because optional normal data
+                 * is absent or stale. Position and UV references remain strict
+                 * because those values are consumed by the runtime.
+                 */
+                normals[nc] = -1;
+                if (has_normal) {
+                    const int normal_count = gn.n / 3;
+                    if (tn < 0) tn += normal_count + 1;
+                    if (tn >= 1 && tn <= normal_count) normals[nc] = tn - 1;
+                }
+
                 corners[nc++] = (unsigned)(vi - 1);
+                tok = token_end;
             }
-            if (nc >= 3) {
+
+            if (!malformed && nc < 3) malformed = 1;
+            if (!malformed) {
                 for (int i = 2; i < nc && !oom; i++) {
                     unsigned tri[3] = { corners[0], corners[i - 1], corners[i] };
                     int tri_t[3] = { uvtex[0], uvtex[i - 1], uvtex[i] };
+                    int tri_n[3] = { normals[0], normals[i - 1], normals[i] };
                     for (int t = 0; t < 3; t++) {
                         unsigned local;
-                        if (!rmap_get(&rm, (int)tri[t],
-                                      tri_t[t] < 0 ? -1 : tri_t[t], -1, &local)) {
+                        if (!rmap_get(&rm, (int)tri[t], tri_t[t], tri_n[t], &local)) {
                             local = (unsigned)(cv.n / 3);
-                            if (rmap_put(&rm, (int)tri[t],
-                                         tri_t[t] < 0 ? -1 : tri_t[t], -1,
-                                         local)) { oom = 1; break; }
-                            for (int k = 0; k < 3; k++) {
-                                size_t gi = (size_t)tri[t] * 3u + (size_t)k; /* n4: no signed overflow */
-                                if (fv_push(&cv, gi < (size_t)gp.n ? gp.v[gi] : 0.0f)) {
-                                    oom = 1;
-                                    break;
-                                }
+                            if (rmap_put(&rm, (int)tri[t], tri_t[t], tri_n[t], local)) {
+                                oom = 1; break;
                             }
-                            if (oom) break;
+                            const size_t pos = (size_t)tri[t] * 3u;
+                            if (pos + 2u >= (size_t)gp.n ||
+                                fv_push(&cv, gp.v[pos]) ||
+                                fv_push(&cv, gp.v[pos + 1u]) ||
+                                fv_push(&cv, gp.v[pos + 2u])) {
+                                oom = 1; break;
+                            }
                             if (tri_t[t] >= 0) {
-                                size_t gi = (size_t)tri_t[t] * 2u;
-                                if (gi < (size_t)gt.n) {
-                                    if (fv_push(&ct, gt.v[gi])) oom = 1;
-                                    if (!oom && fv_push(&ct, gi + 1 < (size_t)gt.n
-                                                        ? gt.v[gi + 1] : 0.0f)) oom = 1;
-                                } else {
-                                    if (fv_push(&ct, 0.0f)) oom = 1;
-                                    if (!oom && fv_push(&ct, 0.0f)) oom = 1;
+                                const size_t uv = (size_t)tri_t[t] * 2u;
+                                if (uv + 1u >= (size_t)gt.n ||
+                                    fv_push(&ct, gt.v[uv]) ||
+                                    fv_push(&ct, gt.v[uv + 1u])) {
+                                    oom = 1; break;
                                 }
-                            } else {
-                                /* keep the uv table parallel even when this
-                                 * face has no vt: emit (0,0) so index math
-                                 * stays uniform for consumers */
-                                if (fv_push(&ct, 0.0f)) oom = 1;
-                                if (!oom && fv_push(&ct, 0.0f)) oom = 1;
+                            } else if (fv_push(&ct, 0.0f) || fv_push(&ct, 0.0f)) {
+                                oom = 1; break;
                             }
-                            if (oom) break;
                         }
                         if (iv_push(&ci, local)) { oom = 1; break; }
                     }
@@ -374,7 +443,7 @@ int lv_obj_load(const char *path, LvModel *out) {
     free(buf);
 
     /* m4: OOM or no usable geometry -> clean error, nothing leaked */
-    if (oom || model.count == 0 || !any_face) {
+    if (oom || malformed || model.count == 0 || !any_face) {
         lv_model_free(&model);
         return 1;
     }

@@ -8,6 +8,13 @@
 extern "C" {
 #endif
 
+#define LV_OBJ_MAX_FILE_BYTES (32u * 1024u * 1024u)
+#define LV_MTL_MAX_FILE_BYTES (4u * 1024u * 1024u)
+#define LV_OBJ_MAX_FLOAT_VALUES 9000000
+#define LV_OBJ_MAX_INDICES 3000000
+#define LV_OBJ_MAX_REMAP 3000000
+#define LV_OBJ_MAX_MESHES 65536
+
 typedef struct {
     char name[64];
     float *verts;      /* xyz triplets */

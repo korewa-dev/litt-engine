@@ -38,6 +38,23 @@ static void write_test_tga(const char* path) {
     out.write(reinterpret_cast<const char*>(pixels), sizeof(pixels));
 }
 
+static void write_oriented_test_tga(const char* path) {
+    const uint8_t header[18] = {
+        0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        2, 0, 2, 0, 24, 0x10
+    };
+    // Bottom-right origin: BR white, BL blue, TR green, TL red.
+    const uint8_t pixels[12] = {
+        255, 255, 255,
+        255, 0, 0,
+        0, 255, 0,
+        0, 0, 255
+    };
+    std::ofstream out(path, std::ios::binary | std::ios::trunc);
+    out.write(reinterpret_cast<const char*>(header), sizeof(header));
+    out.write(reinterpret_cast<const char*>(pixels), sizeof(pixels));
+}
+
 int main() {
     const char* path = "asset_pipeline_test.tmp";
     { std::ofstream out(path, std::ios::binary); out << "litt-asset"; }
@@ -69,6 +86,14 @@ int main() {
     check(factory.get_asset(handle)->get_handle().id == handle.id,
           "reimport keeps asset identity");
     check(factory.get_asset(handle) != nullptr, "reimport preserves stable handle");
+    factory.unload_asset(handle);
+    check(factory.get_asset(handle) == nullptr,
+          "unload removes asset from registry");
+    check(!pipeline.reimport(handle),
+          "unloaded handle cannot be reimported implicitly");
+    const AssetHandle reloaded = pipeline.import(path, AssetType::MESH);
+    check(reloaded.is_valid() && reloaded.id != handle.id,
+          "explicit import after unload creates a new registry identity");
 
     const AssetHandle missing = pipeline.import("does-not-exist.asset", AssetType::MESH);
     check(!missing.is_valid(), "missing file import fails cleanly");
@@ -129,6 +154,17 @@ int main() {
     check(texture && texture->data[0] == 255 && texture->data[1] == 0 &&
           texture->data[2] == 0, "asset_manager_tga_bgr_to_rgb");
 
+    const char* oriented_tga = "asset_manager_oriented.tga";
+    write_oriented_test_tga(oriented_tga);
+    const auto oriented = manager.loadTexture(oriented_tga);
+    check(oriented && oriented->width == 2 && oriented->height == 2 &&
+          oriented->data.size() == 12 &&
+          oriented->data[0] == 255 && oriented->data[1] == 0 && oriented->data[2] == 0 &&
+          oriented->data[3] == 0 && oriented->data[4] == 255 && oriented->data[5] == 0 &&
+          oriented->data[6] == 0 && oriented->data[7] == 0 && oriented->data[8] == 255 &&
+          oriented->data[9] == 255 && oriented->data[10] == 255 && oriented->data[11] == 255,
+          "asset_manager_tga_origin_normalized_top_left");
+
     const char* bad_tga = "asset_manager_bad.tga";
     { std::ofstream out(bad_tga, std::ios::binary | std::ios::trunc); out << "TGA"; }
     check(!manager.loadTexture(bad_tga), "asset_manager_rejects_truncated_tga");
@@ -140,6 +176,7 @@ int main() {
     std::remove("asset_manager_test.obj");
     std::remove("asset_manager_bad.obj");
     std::remove("asset_manager_test.tga");
+    std::remove("asset_manager_oriented.tga");
     std::remove("asset_manager_bad.tga");
     return failures == 0 ? 0 : 1;
 }

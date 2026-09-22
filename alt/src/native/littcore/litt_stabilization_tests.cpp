@@ -596,6 +596,28 @@ static void test_scripting_vm() {
     check(arithmetic.type == ValueType::FLOAT && near_float(arithmetic.float_val, 7.0f),
           "script_vm_arithmetic_result");
 
+    check(vm.compile("comparison", "return 2 < 3\n") && vm.execute("comparison"),
+          "script_vm_comparison_executes");
+    const Value comparison = vm.pop();
+    check(comparison.type == ValueType::BOOL && comparison.bool_val,
+          "script_vm_comparison_result");
+
+    check(vm.compile("logical", "return true and false\n") && vm.execute("logical"),
+          "script_vm_logical_executes");
+    const Value logical = vm.pop();
+    check(logical.type == ValueType::BOOL && !logical.bool_val,
+          "script_vm_logical_result");
+
+    check(vm.compile("unary_not", "return not false\n") && vm.execute("unary_not"),
+          "script_vm_unary_not_executes");
+    const Value unary_not = vm.pop();
+    check(unary_not.type == ValueType::BOOL && unary_not.bool_val,
+          "script_vm_unary_not_result");
+
+    check(!vm.compile("nonfinite", "return 1e999\n") &&
+          vm.last_error().find("non-finite") != std::string::npos,
+          "script_vm_rejects_nonfinite_literal");
+
     check(!vm.compile("unsupported_flow", "if true\n"),
           "script_vm_rejects_unsupported_control_flow");
     check(!vm.last_error().empty(), "script_vm_compile_error_is_reported");

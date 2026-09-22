@@ -85,9 +85,11 @@ int main(void) {
     /* ---- obj loader: groups become named meshes ---- */
     if (write_file("t_rig.obj",
                    "g knight_torso\nusemtl prop_metal\n"
-                   "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1//1 2//1 3//1\n"
+                   "v 0 0 0\nv 1 0 0\nv 0 1 0\nvn 0 0 1\n"
+                   "f 1//1 2//1 3//1\n"
                    "g knight_leg_l\nusemtl prop_metal_dk\n"
-                   "v 5 0 0\nv 6 0 0\nv 5 1 0\nf 4//2 5//2 6//2\n")) {
+                   "v 5 0 0\nv 6 0 0\nv 5 1 0\nvn 0 1 0\n"
+                   "f 4//2 5//2 6//2\n")) {
         printf("FAIL io: cannot write t_rig.obj\n");
         failures++;
     } else {
@@ -176,6 +178,93 @@ int main(void) {
                   "obj: index 0 drops the face -> clean error, no crash (n4)");
         }
         remove("t_zero.obj");
+
+        if (write_file("t_oob.obj",
+                       "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 99\n")) {
+            failures++;
+        } else {
+            LvModel mo = {0};
+            CHECK(lv_obj_load("t_oob.obj", &mo) != 0,
+                  "obj: positive out-of-range index rejects whole model");
+            CHECK(mo.meshes == NULL && mo.count == 0,
+                  "obj: out-of-range failure is transactional");
+        }
+        remove("t_oob.obj");
+
+        if (write_file("t_nan.obj",
+                       "v nan 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n")) {
+            failures++;
+        } else {
+            LvModel mn = {0};
+            CHECK(lv_obj_load("t_nan.obj", &mn) != 0,
+                  "obj: non-finite vertex rejected");
+        }
+        remove("t_nan.obj");
+
+        if (write_file("t_badface.obj",
+                       "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1/foo 2 3\n")) {
+            failures++;
+        } else {
+            LvModel mb = {0};
+            CHECK(lv_obj_load("t_badface.obj", &mb) != 0,
+                  "obj: malformed face token rejected");
+        }
+        remove("t_badface.obj");
+
+        {
+            FILE *of = fopen("t_oversize.obj", "wb");
+            if (!of ||
+                fseek(of, (long)LV_OBJ_MAX_FILE_BYTES, SEEK_SET) != 0 ||
+                fputc('\n', of) == EOF) {
+                CHECK(0, "obj: oversized fixture created");
+            } else {
+                CHECK(1, "obj: oversized fixture created");
+            }
+            if (of) fclose(of);
+            LvModel ml = {0};
+            CHECK(lv_obj_load("t_oversize.obj", &ml) != 0,
+                  "obj: oversized file rejected before allocation");
+            remove("t_oversize.obj");
+        }
+
+        write_file("t_nonfinite.mtl",
+                   "newmtl bad\nKd nan 0.5 0.5\nKe 0 0 inf\n");
+        write_file("t_nonfinite_mtl.obj",
+                   "mtllib t_nonfinite.mtl\nusemtl bad\n"
+                   "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n");
+        {
+            LvModel mm = {0};
+            int rc = lv_obj_load("t_nonfinite_mtl.obj", &mm);
+            CHECK(rc == 0, "obj: geometry survives invalid optional MTL values");
+            if (rc == 0) {
+                CHECK(mm.count == 1 && !mm.meshes[0].has_kd && !mm.meshes[0].has_ke,
+                      "obj: non-finite MTL properties are not imported");
+                lv_model_free(&mm);
+            }
+        }
+        remove("t_nonfinite.mtl");
+        remove("t_nonfinite_mtl.obj");
+
+        {
+            unsigned state = 0x51A7u;
+            int fuzz_ok = 1;
+            for (int iter = 0; iter < 256 && fuzz_ok; ++iter) {
+                FILE *ff = fopen("t_fuzz.obj", "wb");
+                if (!ff) { fuzz_ok = 0; break; }
+                int n = 1 + (int)(state % 256u);
+                for (int i = 0; i < n; ++i) {
+                    state = state * 1664525u + 1013904223u;
+                    unsigned char ch = (unsigned char)(32u + (state % 95u));
+                    if (fwrite(&ch, 1, 1, ff) != 1) { fuzz_ok = 0; break; }
+                }
+                fclose(ff);
+                LvModel mf = {0};
+                int rc = lv_obj_load("t_fuzz.obj", &mf);
+                if (rc == 0) lv_model_free(&mf);
+            }
+            CHECK(fuzz_ok, "obj: deterministic malformed-input fuzz smoke");
+            remove("t_fuzz.obj");
+        }
     }
 
     /* ---- world: mode resolution + physics defaults ---- */

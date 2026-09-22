@@ -1,62 +1,34 @@
-// C contract for the Litt engine FFI bridge.
-// Dither3D helper ABI. World-deployment declarations below are legacy/experimental.
-// They are not part of the release-supported runtime contract.
+// Litt Dither FFI - small C ABI for Dither3D configuration helpers
 #ifndef LITT_FFI_H
 #define LITT_FFI_H
 
-#include <cstddef>
+#include <stddef.h>
 
-#ifdef _WIN32
-#define LITT_API extern "C" __declspec(dllimport)
+#if defined(_WIN32)
+  #if defined(LITT_FFI_BUILD)
+    #define LITT_FFI_API __declspec(dllexport)
+  #else
+    #define LITT_FFI_API __declspec(dllimport)
+  #endif
 #else
-#define LITT_API extern "C"
+  #define LITT_FFI_API
 #endif
 
-// =============================================================================
-// Basic Types
-// =============================================================================
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-struct LittWorld;
+#define LITT_DITHER_FFI_ABI_VERSION_MAJOR 1u
+#define LITT_DITHER_FFI_ABI_VERSION_MINOR 0u
+#define LITT_DITHER_FFI_ABI_VERSION \
+    ((LITT_DITHER_FFI_ABI_VERSION_MAJOR << 16) | LITT_DITHER_FFI_ABI_VERSION_MINOR)
 
-// =============================================================================
-// Version
-// =============================================================================
-
-LITT_API const char* litt_version();
-
-// =============================================================================
-// World Deployment (LEGACY / UNAVAILABLE)
-// =============================================================================
-// These functions are retained for source compatibility only. litt_deploy_world
-// currently returns nullptr with an explanatory error. New integrations must use
-// the supported native generated-game runtime documented in alt/docs/SUPPORTED_RUNTIME.md.
-
-LITT_API LittWorld* litt_deploy_world(const char* scene_path,
-                                      const char* assets_base,
-                                      char* out_error /* >=256 bytes, nullable */);
-
-LITT_API size_t litt_world_triangles(const LittWorld*);
-LITT_API size_t litt_world_spheres(const LittWorld*);
-LITT_API size_t litt_world_meshes(const LittWorld*);
-
-LITT_API int  litt_world_missing_count(const LittWorld*);
-LITT_API int  litt_world_missing_at(const LittWorld*, int index,
-                                    char* buf, size_t cap);
-
-LITT_API void litt_world_free(LittWorld*);
-
-// =============================================================================
-// Dither3D Support
-// =============================================================================
-
-// Dither color mode
 typedef enum {
     LITT_DITHER_GRAYSCALE = 0,
-    LITT_DITHER_RGB       = 1,
-    LITT_DITHER_CMYK      = 2,
+    LITT_DITHER_RGB = 1,
+    LITT_DITHER_CMYK = 2,
 } LittDitherColorMode;
 
-// Dither pattern size
 typedef enum {
     LITT_DITHER_P1x1 = 0,
     LITT_DITHER_P2x2 = 1,
@@ -64,28 +36,31 @@ typedef enum {
     LITT_DITHER_P8x8 = 3,
 } LittDitherPattern;
 
-// Dither material configuration
 typedef struct {
-    int    enabled;               // 0 or 1
-    int    color_mode;            // LittDitherColorMode
-    int    pattern;               // LittDitherPattern
-    float  scale;                 // Dot scale (2.0-10.0)
-    float  size_variability;      // 0=Bayer, 1=Halftone
-    float  contrast;              // 0.0-2.0
-    float  stretch_smoothness;    // 0.0-2.0
-    float  input_exposure;        // 0.0-5.0
-    float  input_offset;          // -1.0-1.0
-    int    inverse_dots;          // 0 or 1
-    int    radial_compensation;   // 0 or 1
-    int    quantize_layers;       // 0 or 1
-    int    debug_fractal;         // 0 or 1
+    int enabled;
+    int color_mode;
+    int pattern;
+    float scale;
+    float size_variability;
+    float contrast;
+    float stretch_smoothness;
+    float input_exposure;
+    float input_offset;
+    int inverse_dots;
+    int radial_compensation;
+    int quantize_layers;
+    int debug_fractal;
 } LittDitherMaterial;
 
-// Get dither texture path by pattern
-LITT_API const char* litt_dither_texture_path(LittDitherPattern pattern, char* buf, size_t cap);
-LITT_API const char* litt_dither_ramp_path(char* buf, size_t cap);
+LITT_FFI_API unsigned litt_dither_ffi_abi_version(void);
+LITT_FFI_API const char* litt_dither_texture_path(
+    LittDitherPattern pattern, char* buf, size_t cap);
+LITT_FFI_API const char* litt_dither_ramp_path(char* buf, size_t cap);
+LITT_FFI_API int litt_dither_default_material(
+    LittDitherColorMode mode, LittDitherMaterial* out);
 
-// Get default dither material for a mode
-LITT_API void litt_dither_default_material(LittDitherColorMode mode, LittDitherMaterial* out);
+#ifdef __cplusplus
+}
+#endif
 
-#endif // LITT_FFI_H
+#endif

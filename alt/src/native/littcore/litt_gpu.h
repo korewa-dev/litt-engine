@@ -47,10 +47,9 @@ enum class TextureUsage {
 };
 
 enum class GPUBackendSupport {
-    TestOnly,
-    Supported,
-    Partial,
-    Unavailable
+    TestOnly = 0,
+    Supported = 1,
+    Unavailable = 3
 };
 
 struct GPUBackendCapability {
@@ -74,19 +73,19 @@ inline GPURayTracingCapability gpu_ray_tracing_capability(const std::string& bac
     }
     if (backend_name == "vulkan") {
         return {"vulkan", GPUBackendSupport::Unavailable,
-                "Vulkan ray tracing backend is not implemented or hardware-certified"};
+                "Vulkan ray tracing is outside the release renderer and not hardware-certified"};
     }
     if (backend_name == "dx12") {
         return {"dx12", GPUBackendSupport::Unavailable,
-                "DXR backend is not implemented or hardware-certified"};
+                "DXR is outside the release renderer and not hardware-certified"};
     }
     if (backend_name == "opengl") {
         return {"opengl", GPUBackendSupport::Unavailable,
-                "OpenGL GPU ray tracing backend is not implemented"};
+                "OpenGL GPU ray tracing is outside the release renderer"};
     }
     if (backend_name == "metal") {
         return {"metal", GPUBackendSupport::Unavailable,
-                "Metal ray tracing backend is not implemented"};
+                "Metal ray tracing is outside the release renderer"};
     }
     return {nullptr, GPUBackendSupport::Unavailable, "unknown backend"};
 }
@@ -107,19 +106,19 @@ inline GPUBackendCapability gpu_backend_capability(const std::string& backend_na
     }
     if (backend_name == "vulkan") {
         return {"vulkan", GPUBackendSupport::Unavailable, true, false,
-                "generic Vulkan backend is not implemented or hardware-certified"};
+                "generic Vulkan rendering is outside the release renderer and not hardware-certified"};
     }
     if (backend_name == "dx12") {
         return {"dx12", GPUBackendSupport::Unavailable, true, false,
-                "generic DX12 backend is not implemented or hardware-certified"};
+                "generic DX12 rendering is outside the release renderer and not hardware-certified"};
     }
     if (backend_name == "opengl") {
         return {"opengl", GPUBackendSupport::Unavailable, true, false,
-                "OpenGL backend is not implemented"};
+                "OpenGL rendering is outside the release renderer"};
     }
     if (backend_name == "metal") {
         return {"metal", GPUBackendSupport::Unavailable, true, false,
-                "Metal backend is not implemented"};
+                "Metal rendering is outside the release renderer"};
     }
     return {nullptr, GPUBackendSupport::Unavailable, false, false, "unknown backend"};
 }

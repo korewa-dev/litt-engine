@@ -19,6 +19,7 @@ enum class LightType {
 
 // Light structure
 struct Light {
+    uint32_t id = 0;
     LightType type = LightType::DIRECTIONAL;
     Vec3 position = Vec3::zero();
     Vec3 direction = Vec3(0.0f, -1.0f, 0.0f);

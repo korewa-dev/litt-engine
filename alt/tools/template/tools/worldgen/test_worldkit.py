@@ -359,6 +359,17 @@ def test_byte_determinism(tmp):
     assert scene_bytes(pa, 7) == scene_bytes(pb, 7)
 
 
+def test_obj_face_indices_are_one_based():
+    mb = wk.MeshBuilder()
+    mb.begin("tri", "mat")
+    mb.tri([0, 0, 0], [1, 0, 0], [0, 1, 0])
+    text, nv, nf = mb.to_obj("tri", "materials")
+    assert nv == 3 and nf == 1
+    face = next(line for line in text.splitlines() if line.startswith("f "))
+    assert "//0" not in face
+    assert face == "f 1//1 2//1 3//1"
+
+
 def main():
     tests = [(k, v) for k, v in sorted(globals().items())
              if k.startswith("test_")]

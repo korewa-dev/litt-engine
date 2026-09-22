@@ -55,12 +55,14 @@ public:
     
     // Check if linked
     bool is_linked() const { return linked_; }
+    bool has_uniform(const std::string& name) const { return uniform_values_.find(name) != uniform_values_.end(); }
+    static const ShaderProgram* bound_program();
 
 private:
     uint32_t program_id_ = 0;
     bool linked_ = false;
-    std::unordered_map<ShaderType, uint32_t> shaders_;
-    std::unordered_map<std::string, int> uniform_locations_;
+    std::unordered_map<ShaderType, std::string> shaders_;
+    std::unordered_map<std::string, std::vector<float>> uniform_values_;
 };
 
 // Shader library

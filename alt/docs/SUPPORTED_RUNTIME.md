@@ -1,135 +1,173 @@
 # Supported Runtime Contract
 
-This document defines the release-supported Litt Engine path. Interfaces outside this contract may exist for experimentation or compatibility, but they are not evidence of production readiness.
+This document is the authoritative release boundary for Litt Engine.
 
-## Supported path
+A feature is release-supported only when it has executable behavior, bounded failure semantics, cross-platform coverage where applicable, and a green Stabilization gate. Historical source files and research backends do not become supported merely because they are present in the repository.
 
-The primary supported path is the native generated-game runtime under `alt/src/native`, the bounded native/C++ support contracts below, and the WorldGen/template toolchain under `alt/tools/template`.
+## Primary game-building paths
 
-Release CI gates the supported contracts on GCC, Clang, ASan/UBSan, and Windows/MSVC where applicable, plus generated-game and cross-OS WorldGen validation.
+Litt has two supported ways to build a game:
 
-## Release-supported contracts
+1. **Generated games** - `make_game.py` creates a complete project from a description or seeded generator configuration, then runs lint and native proof gates.
+2. **C++ games** - include `<litt/litt.h>` from the packaged C++ SDK and link `liblittcore.a`.
 
-### Generated runtime and tooling
+The generated-game CI gate builds native tools, validates the checked-in fixture for 60 frames, generates a brand-new game from a natural-language description, runs that generator's own native proof, validates the fresh result for 60 frames, and compares representative WorldGen output across Linux and Windows.
 
-- native C runtime used by generated games
-- generated-game validation/runtime path
-- hardened JSON/world/OBJ contracts
-- WorldKit deterministic generation helpers
-- representative WorldGen output/resource budgets
-- versioned C bridge entity/component/transform contract and external SDK consumer
-- minimal framed TCP transport in `litt_networking.h`
+## Release-supported runtime
 
-### C++ Engine facade and scene persistence v1
+### Core, scene and persistence
 
-The headless C++ Engine facade is release-supported for lifecycle, default-scene ownership, save/load, and scene persistence v1.
+- C++17 math, ECS, events, bounded memory helpers, input and configuration
+- scene hierarchy, transforms and lifecycle
+- transactional scene persistence v1
+- C++ Engine lifecycle with the software renderer as the default backend
+- versioned C bridge for entity/component/transform use
 
-Scene persistence v1 supports scene identity, hierarchy, transforms, visibility, and cullable flags. It is transactional on load failure and enforces:
+Scene persistence v1 is bounded to 8 MiB serialized JSON, 65,536 nodes, and 4 KiB node names.
 
-- serialized JSON: at most 8 MiB
-- scene nodes: at most 65,536
-- node names: at most 4 KiB
+### Rendering and visual runtime
 
-Runtime/render attachments are outside scene persistence v1 and are not implied by this contract.
+The portable software path is the release renderer.
 
-### Asset and material core
+Supported behavior includes:
 
-The bounded asset/material contract supports:
+- software GPU device creation through `create_gpu_device("software")`
+- CPU buffers and RGBA8 GPU-abstraction textures
+- software shader/uniform objects
+- CPU render targets
+- framebuffer clear, pixels, lines, rectangles and filled triangles
+- depth-tested and clipped 3D triangles and indexed meshes
+- generic `Renderer` facade backed by the software renderer
+- CPU texture storage, PPM/TGA loading, mip generation, binding and atlases
+- render-target/pipeline passes with geometry, lighting, post-processing and UI callbacks
+- CPU tone mapping, simple bloom and simple FXAA post-processing
+- stable light IDs, directional/point/spot direct PBR lighting and bounded shadow-map state
+- environment diffuse/specular approximation helpers
+- Dither3D generated patterns and CPU RGBA post-processing
+- precompiled SPIR-V and DXIL artifact validation/loading
 
-- hardened native OBJ parsing used by the generated runtime
-- C++ OBJ loading with finite-value and resource checks
-- uncompressed 8/24/32-bit TGA loading with orientation normalization
-- synchronous asset registry/import/reimport metadata flow
-- PBR material factories and PBR-to-render material conversion
+Software image allocation is capped at 16,777,216 pixels and software GPU buffers at 64 MiB.
 
-The C++ asset manager intentionally rejects its placeholder shader compiler. Asynchronous loading, GPU upload, shader compilation, and broad format support are outside this release contract.
+### Gameplay-facing systems
 
-### Physics core
+The canonical `litt.h` surface includes and tests:
 
-The bounded physics contract supports up to 4,096 registered finite AABB rigid bodies with:
+- AABB rigid-body physics with broadphase, contacts, triggers, forces and impulses
+- deterministic terrain chunks and seeded noise generation
+- frustum and conservative software occlusion culling
+- bounded particle simulation and emitter shapes
+- retained-mode UI interaction with deterministic draw-command output
+- bounded LOD groups and registered LOD components
+- JSON, binary and scene serialization utilities
+- profiler timing and frame statistics
+- scene/world simulation helpers
+- deterministic input action bindings
 
-- sweep-and-prune broadphase
-- AABB overlap contacts
-- static bodies and trigger bodies
-- linear force/impulse integration
-- simple penetration and normal-velocity resolution
-- explicit rejection/filtering of malformed and non-finite body state
+Physics is a bounded linear AABB core, not a claim of joints, rotational rigid-body dynamics, CCD or arbitrary collider support.
 
-Rotational dynamics, friction, joints, continuous collision detection, complex collider shapes, and a general-purpose production physics feature set are outside this contract.
+### Audio
 
-### Audio core
-
-The cross-platform audio core supports:
+Supported audio behavior includes:
 
 - bounded PCM WAV decoding
-- source state semantics
-- a dependency-free software mixer producing interleaved stereo float PCM
-- mono/stereo source mixing
-- per-source volume, pitch, looping, pause, play, and stop
-- master volume and output clamping
+- source play/pause/stop state
+- dependency-free software stereo mixing
+- mono/stereo mixing, volume, pitch, looping and master gain
 
-The software mixer supports at most 256 registered sources and at most 1,048,576 output frames per render call. Cross-platform physical audio-device output is not part of this contract. Windows waveOut remains an optional platform integration.
+The mixer supports at most 256 sources and 1,048,576 output frames per render call. Cross-platform physical audio-device output is not claimed. Win32 waveOut remains an optional platform sink.
 
-### Scripting VM
+### Assets and materials
 
-The bounded scripting VM is release-supported through both C++ and the versioned C ABI for its documented compact language subset:
+Supported behavior includes:
 
-- variable declarations
-- finite numeric, boolean, nil, and single-token string literals
+- hardened OBJ parsing
+- uncompressed TGA asset loading
+- synchronous asset registry/import/reimport and metadata
+- PBR material factories and render-material conversion
+- deterministic Dither assets
+
+General image codecs, asynchronous GPU upload and runtime source shader compilation are not claimed. Shader source objects are portable runtime metadata; native GPU shader compilation is outside the software release path.
+
+### Scripting
+
+The embedded VM supports its documented bounded subset:
+
+- variables and finite literals
 - existing-variable reads
-- `print` and `return`
-- deterministic left-to-right arithmetic/comparison/logical binary expressions
+- arithmetic, comparison and logical expressions
 - unary `not`
-- configurable source-byte, instruction, and stack-value limits
+- `print` and `return`
+- configurable source, instruction and stack limits
 
-Unsupported control-flow syntax such as `if`, `while`, and `function` fails at compile time instead of producing placeholder bytecode. Python, C#, and Lua are separate experimental integrations.
+Unsupported control-flow syntax fails at compile time. Python, C# and Lua integrations are not part of the release runtime.
 
-### Software renderer
+### Networking
 
-The headless software renderer is release-supported for its bounded CPU rendering contract:
+The release contract includes the bounded framed TCP server/client transport in `litt_networking.h`, with Linux and Windows runtime coverage.
 
-- CPU vertex/index buffers
-- RGBA8 textures
-- framebuffer clear and pixel access
-- 2D filled triangles
-- depth-tested rasterization
-- clipped 3D triangles and indexed meshes
-- grid/cube/terrain helper rendering
-- 1000-frame headless soak
+It does not claim a full replication, prediction, matchmaking or multiplayer gameplay framework.
 
-Allocations are bounded to 64 MiB per software buffer and 16,777,216 pixels per software image. Win32 window presentation exists as a platform-specific extension and is not a cross-platform presentation guarantee.
+### Editor core
 
-## Experimental or unavailable
+The portable editor core supports:
 
+- scene-backed selection and mutations
+- create, rename, reparent and delete operations
+- bounded snapshot undo/redo
+- bounded editor/chat command history
+- CLI integration using the same editor core
+
+A full visual desktop GUI is a separate integration project and is not implied.
+
+### SDKs
+
+The release gate covers:
+
+- the versioned C ABI/SDK consumer path
+- the standalone Dither C ABI
+- the packaged C++ SDK: canonical headers plus `liblittcore.a`
+- a game-level C++ contract that includes `litt.h` and exercises gameplay/rendering systems together
+
+The deterministic `.tar.gz` SDK archive contract is produced and package-consumer tested on Linux. Windows is part of the runtime/compiler contract, but a Windows-specific SDK archive format is not claimed by this release.
+
+## Explicitly unavailable
+
+The following are not release features:
+
+- generic Vulkan renderer backend
+- generic DirectX 12 renderer backend
+- generic OpenGL renderer backend
+- generic Metal renderer backend
 - generic Vulkan/DX12/OpenGL/Metal renderer facade backends that return unavailable
-- GPU ray tracing
-- FFI world deployment stubs
-- Python/C#/Lua integrations not exercised by the Stabilization matrix
-- legacy `litt_engine2.h` JSON runtime
+- GPU ray tracing / DXR / Vulkan RT
+- named-vendor physical GPU certification
+- Python/C#/Lua runtime integrations
+- legacy `litt_engine2.h`
 
-For Vulkan/DX12, the fail-fast contract is green: selection must reject or initialization must fail explicitly until a real backend is promoted. This is not accelerated rendering support.
+Selecting unavailable accelerated backends must fail explicitly. Source files retained for research or compatibility are not evidence that those backends work.
 
-## Compatibility rule
+## Platform contract
 
-Unsupported or unavailable operations must fail explicitly. They must not return fabricated GPU data, fake entity IDs, mock framebuffers, successful no-op mutations, or placeholder shader success.
+The portable supported path requires:
 
-## Resource rule
+- C11 compiler
+- C++17 compiler
+- `make`
+- Python 3 for generated-game tooling and release tests
 
-The supported path remains small and dependency-light. New default dependencies, large fixed allocations, excessive generated assets, or substantial runtime memory increases require measurement and justification.
+No graphics SDK or package manager is required for the supported path.
+
+The certified release platform matrix is Windows and Linux. Win32 presentation and waveOut are bounded Windows platform extensions. Headless/software behavior is the portable Windows/Linux contract. macOS is not certified in this release; adding it later is a platform promotion rather than an unresolved release requirement.
 
 ## Promotion rule
 
-A partial or experimental subsystem becomes release-supported only after it has:
+A new subsystem or backend becomes release-supported only after it has:
 
-1. an explicit behavioral and error contract;
-2. regression tests for success and failure cases;
-3. Windows/Linux compile and runtime coverage where applicable;
-4. sanitizer coverage for memory-unsafe code paths;
-5. documentation matching the tested behavior;
+1. explicit success and failure behavior;
+2. tests for both;
+3. Windows/Linux coverage where applicable;
+4. sanitizer coverage for memory-unsafe paths;
+5. documentation matching the executable behavior;
 6. successful validation on the exact merged `main` SHA.
 
-## Platform prerequisites
-
-The supported POSIX path needs a C11 compiler, a C++17 compiler, `make`, and Python 3 for WorldGen/tests. It does not require a graphics SDK or package manager. Windows release verification uses the native compiler environment provided by the CI runner.
-
-The supported path does not require Vulkan, DX12, OpenGL, Metal, an editor, or language bindings.
+The rule is simple: increase proof before increasing claims.

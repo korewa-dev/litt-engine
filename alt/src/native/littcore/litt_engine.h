@@ -35,7 +35,7 @@ struct EngineConfig {
     uint32_t height = 1080;
     bool fullscreen = false;
     bool vsync = true;
-    RenderBackend backend = RenderBackend::Vulkan;
+    RenderBackend backend = RenderBackend::Software;
     float target_fps = 60.0f;
     bool headless = false;
 };

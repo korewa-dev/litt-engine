@@ -2,11 +2,39 @@
 # `make` builds littcli + littview; `make test` runs unit tests.
 CXX ?= c++
 CC  ?= cc
+AR  ?= ar
 CFLAGS = -std=c11 -O2 -Wall -Wextra -I.
 CXXFLAGS = -std=c++17 -O2 -Wall -Wextra -I.
 LDLIBS ?= -lm
+THREAD_LIBS ?= -pthread
 CORE = littcore/litt_json.c littcore/litt_obj.c littcore/litt_world.c
 DITHER = littcore/litt_dither.cpp littcore/litt_dither_renderer.cpp
+
+CPP_CORE = \
+	littcore/litt_profiler.cpp \
+	littcore/litt_particle_system.cpp \
+	littcore/litt_culling.cpp \
+	littcore/litt_terrain_system.cpp \
+	littcore/litt_texture.cpp \
+	littcore/litt_render_pass.cpp \
+	littcore/litt_shader_system.cpp \
+	littcore/litt_lighting.cpp \
+	littcore/litt_asset_pipeline.cpp \
+	littcore/litt_dither.cpp \
+	littcore/litt_dither_renderer.cpp \
+	littcore/litt_gpu.cpp
+CPP_CORE_OBJS = $(patsubst littcore/%.cpp,bin/core_%.o,$(CPP_CORE))
+
+CPP_PUBLIC_HEADERS = \
+	litt.h litt_engine_systems.h litt_game.h litt_math.h litt_ecs.h litt_event.h \
+	litt_memory.h litt_memory_pool.h litt_scene.h litt_engine.h litt_renderer.h \
+	litt_gpu.h litt_gpu_software.h litt_lighting.h litt_material.h litt_texture.h \
+	litt_render_pass.h litt_asset.h litt_asset_pipeline.h litt_physics.h litt_audio.h \
+	litt_input.h litt_ui.h litt_profiler.h litt_lod.h litt_culling.h \
+	litt_particle_system.h litt_terrain_system.h litt_shader_system.h litt_dither.h \
+	litt_serialization.h litt_scripting.h litt_scripting_vm.h litt_networking.h \
+	litt_config.h litt_world.h litt_json.h litt_obj.h
+
 
 all: bin/littcli bin/littview
 
@@ -15,6 +43,27 @@ all: bin/littcli bin/littview
 PREFIX ?= /usr/local
 LIBDIR ?= $(PREFIX)/lib
 INCLUDEDIR ?= $(PREFIX)/include/litt
+
+
+bin/core_%.o: littcore/%.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+bin/liblittcore.a: bin/litt_json.o bin/litt_obj.o bin/litt_world.o $(CPP_CORE_OBJS)
+	$(AR) rcs $@ $^
+	@echo "[build] bin/liblittcore.a OK"
+
+cpp-sdk: bin/liblittcore.a
+	@mkdir -p dist/include/litt dist/lib
+	cp $(addprefix littcore/,$(CPP_PUBLIC_HEADERS)) dist/include/litt/
+	cp bin/liblittcore.a dist/lib/liblittcore.a
+	@echo "[build] dist Litt C++ SDK OK"
+
+cpp-sdk-test: cpp-sdk
+	$(CXX) $(CXXFLAGS) -DLITT_INSTALLED_SDK=1 -I dist/include \
+		littcore/litt_gameplay_feature_tests.cpp dist/lib/liblittcore.a \
+		-o bin/cpp_sdk_contract $(LDFLAGS) $(LDLIBS) $(THREAD_LIBS)
+	cd bin && ./cpp_sdk_contract
 
 bin/litt_json.o: littcore/litt_json.c littcore/litt_json.h
 	@mkdir -p bin
@@ -89,21 +138,25 @@ asset-test: littcore/litt_asset_pipeline.cpp littcore/asset_pipeline_tests.cpp
 	$(CXX) $(CXXFLAGS) $^ -o bin/asset_pipeline_tests $(LDFLAGS) $(LDLIBS)
 	cd bin && ./asset_pipeline_tests
 
-gpu-contract-test: littcore/litt_gpu.cpp littcore/litt_gpu_contract_tests.cpp littcore/litt_gpu_lisuan.cpp littcore/litt_gpu_vendor_contract_tests.cpp
+gpu-contract-test: littcore/litt_gpu.cpp littcore/litt_gpu_contract_tests.cpp
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) littcore/litt_gpu.cpp littcore/litt_gpu_contract_tests.cpp -o bin/litt_gpu_contract_tests $(LDFLAGS) $(LDLIBS)
-	$(CXX) $(CXXFLAGS) littcore/litt_gpu_lisuan.cpp littcore/litt_gpu_vendor_contract_tests.cpp -o bin/litt_gpu_vendor_contract_tests $(LDFLAGS) $(LDLIBS)
-	cd bin && ./litt_gpu_contract_tests && ./litt_gpu_vendor_contract_tests
+	$(CXX) $(CXXFLAGS) $^ -o bin/litt_gpu_contract_tests $(LDFLAGS) $(LDLIBS)
+	cd bin && ./litt_gpu_contract_tests
 
-# Dither3D demo
-bin/dither3d_demo: bin/litt_json.o bin/litt_obj.o bin/litt_world.o litt_dither.o litt_dither_renderer.o dither3d_demo.cpp
+# Dither3D software demo
+bin/dither3d_demo: dither3d_demo.cpp littcore/litt_dither.cpp littcore/litt_dither_renderer.cpp
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 	@echo "[build] bin/dither3d_demo OK"
+
+shader-artifact-test: littcore/litt_shader_compilation.cpp littcore/litt_shader_artifact_tests.cpp
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) $^ -o bin/shader_artifact_tests $(LDFLAGS) $(LDLIBS)
+	cd bin && ./shader_artifact_tests
 
 dither3d_demo: bin/dither3d_demo
 
 clean:
 	rm -rf bin dist
 
-.PHONY: all sdk install-sdk test selftest network-test asset-test gpu-contract-test clean dither3d_demo
+.PHONY: all sdk cpp-sdk cpp-sdk-test install-sdk test selftest network-test asset-test gpu-contract-test shader-artifact-test clean dither3d_demo

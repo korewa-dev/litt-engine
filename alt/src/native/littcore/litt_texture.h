@@ -63,7 +63,7 @@ struct TextureDesc {
 // Texture base class
 class Texture {
 public:
-    virtual ~Texture() = default;
+    virtual ~Texture();
     
     // Bind texture
     void bind(uint32_t slot = 0) const;
@@ -82,8 +82,12 @@ public:
     // Set data
     void set_data(const void* data, size_t size);
     
-    // Generate mipmaps
+    // Generate CPU mipmaps for uncompressed 8-bit formats.
     void generate_mipmaps();
+
+    size_t get_data_size() const;
+    size_t get_mip_count() const;
+    static const Texture* bound_texture(uint32_t slot);
 
 protected:
     Texture(const TextureDesc& desc);

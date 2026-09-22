@@ -2,7 +2,7 @@
 // Demonstrates the Dither3D integration in Litt Engine
 //
 // This is a simplified demo that shows how to use the Dither3D API.
-// Full renderer integration requires Vulkan/DirectX backend.
+// The demo exercises the supported generated-pattern CPU post-process.
 
 #include <iostream>
 #include <memory>
@@ -67,21 +67,17 @@ int main(int argc, char* argv[]) {
     std::cout << "========================================" << std::endl;
     std::cout << "  Demo completed successfully!" << std::endl;
     std::cout << "========================================" << std::endl;
-    std::cout << std::endl;
-    std::cout << "To run the full graphical demo:" << std::endl;
-    std::cout << "  1. Install Vulkan SDK" << std::endl;
-    std::cout << "  2. Build with: cmake -DVULKAN_SDK=... -B build && cmake --build build" << std::endl;
-    std::cout << "  3. Run: ./bin/dither3d_demo" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Shader files:" << std::endl;
-    std::cout << "  shaders/dither3d/include.glsl" << std::endl;
-    std::cout << "  shaders/dither3d/mesh.vert.glsl" << std::endl;
-    std::cout << "  shaders/dither3d/mesh.frag.glsl" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Documentation:" << std::endl;
-    std::cout << "  docs/rendering/dither3d.md" << std::endl;
-    std::cout << "  docs/rendering/dither3d-checklist.md" << std::endl;
-    std::cout << "  docs/rendering/dither3d-summary.md" << std::endl;
+    std::vector<uint8_t> pixels = {
+        0,0,0,255, 64,64,64,255, 192,192,192,255, 255,255,255,255
+    };
+    if (!DitherProcessor::apply_rgba8(pixels, 2, 2, mat)) {
+        std::cerr << "Dither CPU post-process failed" << std::endl;
+        return 1;
+    }
+    std::cout << "CPU post-process output: ";
+    for (size_t i = 0; i < pixels.size(); i += 4) {
+        std::cout << static_cast<int>(pixels[i]) << (i + 4 < pixels.size() ? "," : "\n");
+    }
 
     return 0;
 }
