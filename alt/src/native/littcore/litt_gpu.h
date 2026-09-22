@@ -47,10 +47,9 @@ enum class TextureUsage {
 };
 
 enum class GPUBackendSupport {
-    TestOnly,
-    Supported,
-    Partial,
-    Unavailable
+    TestOnly = 0,
+    Supported = 1,
+    Unavailable = 3
 };
 
 struct GPUBackendCapability {
