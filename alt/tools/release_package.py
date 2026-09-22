@@ -12,6 +12,8 @@ import tempfile
 
 FORBIDDEN_SUFFIXES = (".o", ".o.tmp", ".exe.tmp")
 FORMAT_VERSION = 1
+PACKAGE_VERSION = "1.1.0"
+C_ABI_VERSION = "1.1"
 
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
@@ -75,7 +77,8 @@ def main() -> int:
 
         manifest = {
             "format_version": FORMAT_VERSION,
-            "package_version": FORMAT_VERSION,
+            "package_version": PACKAGE_VERSION,
+            "c_abi_version": C_ABI_VERSION,
             "source_sha": git_sha(root),
             "language": "C++17",
             "library": "lib/liblittcore.a",
