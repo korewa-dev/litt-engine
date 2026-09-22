@@ -87,6 +87,9 @@ int main(){
     assert(ibl.x>0.0f);
     ShadowMap shadow(32);shadow.begin_pass(Vec3{0,10,0},Vec3{0,-1,0});assert(shadow.get_light_view_proj().m[15]!=0.0f||shadow.get_light_view_proj().m[11]!=0.0f);
     lights.remove_light(sun_id);assert(lights.get_light(sun_id)==nullptr);
+    for(uint32_t i=0;i<4096u;++i) assert(lights.add_light(sun)!=0u);
+    assert(lights.add_light(sun)==0u);
+    lights.clear();
 
     // Software GPU device: all release-supported resource constructors work.
     auto gpu=create_gpu_device("software");assert(gpu&&gpu->initialize("headless"));
