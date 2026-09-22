@@ -69,6 +69,7 @@ static void allocation_and_overflow_contract() {
     assert(!renderer.set_framebuffer_size(65535u, 65535u));
 
     SoftwareRenderer device;
+    assert(device.set_framebuffer_size(64u, 64u));
     assert(device.initialize("hardening"));
 
     BufferDesc huge_buffer{};
