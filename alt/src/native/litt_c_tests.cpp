@@ -76,14 +76,56 @@ int main() {
 
     check(litt_world_has_component(world, id, LITT_COMPONENT_TRANSFORM),
           "transform_component_present");
-    check(litt_world_add_component(world, id, LITT_COMPONENT_MESH, "{}"),
-          "component_add");
+
+    check(litt_world_add_component(world, id, LITT_COMPONENT_MESH, nullptr),
+          "component_add_null_config");
     check(litt_world_has_component(world, id, LITT_COMPONENT_MESH),
-          "component_has");
+          "component_has_after_null_config");
     check(litt_world_remove_component(world, id, LITT_COMPONENT_MESH),
-          "component_remove");
-    check(!litt_world_has_component(world, id, LITT_COMPONENT_MESH),
-          "component_removed");
+          "component_remove_after_null_config");
+
+    check(litt_world_add_component(world, id, LITT_COMPONENT_MESH, ""),
+          "component_add_empty_config");
+    check(litt_world_remove_component(world, id, LITT_COMPONENT_MESH),
+          "component_remove_after_empty_config");
+
+    check(litt_world_add_component(world, id, LITT_COMPONENT_MESH, "{}"),
+          "component_add_empty_object");
+    check(litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_has_after_empty_object");
+    check(litt_world_remove_component(world, id, LITT_COMPONENT_MESH),
+          "component_remove_after_empty_object");
+
+    check(litt_world_add_component(world, id, LITT_COMPONENT_MESH, " { \n\t } "),
+          "component_add_whitespace_empty_object");
+    check(litt_world_remove_component(world, id, LITT_COMPONENT_MESH),
+          "component_remove_after_whitespace_empty_object");
+
+    check(!litt_world_add_component(world, id, LITT_COMPONENT_MESH, "{\"asset\":\"cube\"}") &&
+          !litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_rejects_meaningful_object_without_mutation");
+    check(!litt_world_add_component(world, id, LITT_COMPONENT_MESH, "{") &&
+          !litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_rejects_malformed_json_without_mutation");
+    check(!litt_world_add_component(world, id, LITT_COMPONENT_MESH, "[]") &&
+          !litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_rejects_array_without_mutation");
+    check(!litt_world_add_component(world, id, LITT_COMPONENT_MESH, "\"mesh\"") &&
+          !litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_rejects_string_without_mutation");
+    check(!litt_world_add_component(world, id, LITT_COMPONENT_MESH, "42") &&
+          !litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_rejects_number_without_mutation");
+    check(!litt_world_add_component(world, id, LITT_COMPONENT_MESH, "true") &&
+          !litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_rejects_boolean_without_mutation");
+    check(!litt_world_add_component(world, id, LITT_COMPONENT_MESH, "null") &&
+          !litt_world_has_component(world, id, LITT_COMPONENT_MESH),
+          "component_rejects_json_null_without_mutation");
+    check(!litt_world_add_component(world, id + 1000, LITT_COMPONENT_MESH, "{}"),
+          "component_rejects_missing_entity");
+    check(!litt_world_add_component(world, id, static_cast<LittComponentType>(999), "{}"),
+          "component_rejects_invalid_type");
     check(!litt_world_remove_component(world, id, LITT_COMPONENT_TRANSFORM),
           "transform_component_cannot_remove");
 
@@ -93,6 +135,18 @@ int main() {
     check(litt_world_get_position(world, id, &got) &&
           near(got.x, 4.0f) && near(got.y, 5.0f) && near(got.z, 6.0f),
           "position_get");
+
+    litt_vec3_t rot{0.25f, 0.5f, 0.75f};
+    check(litt_world_set_rotation(world, id, &rot), "rotation_set");
+    check(litt_world_get_rotation(world, id, &got) &&
+          near(got.x, 0.25f) && near(got.y, 0.5f) && near(got.z, 0.75f),
+          "rotation_get");
+
+    litt_vec3_t scale{2.0f, 3.0f, 4.0f};
+    check(litt_world_set_scale(world, id, &scale), "scale_set");
+    check(litt_world_get_scale(world, id, &got) &&
+          near(got.x, 2.0f) && near(got.y, 3.0f) && near(got.z, 4.0f),
+          "scale_get");
 
     litt_vec3_t bad{std::numeric_limits<float>::quiet_NaN(), 0.0f, 0.0f};
     check(!litt_world_set_position(world, id, &bad), "position_rejects_nan");
