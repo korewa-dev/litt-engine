@@ -5,6 +5,7 @@
 #include "littcore/litt.h"
 #include "littcore/litt_engine.h"
 #include "littcore/litt_scripting_vm.h"
+#include "littcore/litt_json.h"
 #include <cstdio>
 #include <cstring>
 #include <cstdarg>
@@ -241,10 +242,18 @@ int litt_world_list_entities(LittWorld* world, litt_entity_t* ids, int max_count
 }
 
 bool litt_world_add_component(LittWorld* world, litt_entity_t entity_id, LittComponentType type, const char* config_json) {
-    (void)config_json;
     auto* record = find_entity(world, entity_id);
     const uint32_t bit = component_bit(type);
     if (!record || bit == 0) return false;
+
+    if (config_json && config_json[0] != '\0') {
+        LvJson* config = lvj_parse_strict(config_json);
+        if (!config) return false;
+        const bool is_default_config = config->kind == LJ_OBJ && config->count == 0;
+        lvj_free(config);
+        if (!is_default_config) return false;
+    }
+
     record->components |= bit;
     return true;
 }
