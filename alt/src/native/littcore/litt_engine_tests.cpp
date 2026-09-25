@@ -45,7 +45,7 @@ static void test_math_rays() {
         Ray(Vec3{0.0f, 0.0f, 0.0f}, Vec3{1.0f, 0.0f, 0.0f}, 0.0f, 10.0f),
         box);
     check(inside.hit && nearf(inside.t, 1.0f) &&
-          nearf(inside.position.x, 1.0f),
+          nearf(inside.point.x, 1.0f),
           "ray_aabb_inside_returns_exit");
 
     const HitInfo clipped = ray_aabb(
