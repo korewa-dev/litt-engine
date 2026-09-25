@@ -105,6 +105,7 @@ jobs:
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_gameplay_feature_tests.cpp alt/src/native/littcore/litt_particle_system.cpp alt/src/native/littcore/litt_culling.cpp alt/src/native/littcore/litt_terrain_system.cpp alt/src/native/littcore/litt_texture.cpp alt/src/native/littcore/litt_render_pass.cpp alt/src/native/littcore/litt_shader_system.cpp alt/src/native/littcore/litt_lighting.cpp alt/src/native/littcore/litt_gpu.cpp -o gameplay_feature_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -pthread -I alt/src/native/littcore alt/src/native/littcore/litt_release_hardening_tests.cpp /tmp/litt_json_sanitized.o -o release_hardening_sanitized
           g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native/littcore alt/src/native/littcore/litt_shader_compilation.cpp alt/src/native/littcore/litt_shader_artifact_tests.cpp -o shader_artifact_sanitized
+          g++ -std=c++17 -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -I alt/src/native -I alt/src/native/littcore alt/src/native/litt_c.cpp alt/src/native/litt_c_tests.cpp /tmp/litt_json_sanitized.o -o litt_c_contract_sanitized
       - name: Build asset/material contract with ASan/UBSan
         run: >-
           g++ -std=c++17 -O1 -g -Wall -Wextra -fno-omit-frame-pointer -fsanitize=address,undefined
@@ -116,7 +117,7 @@ jobs:
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && ./engine_contract_sanitized && ./editor_contract_sanitized && ./ffi_contract_sanitized && ./dither_contract_sanitized && ./gameplay_feature_sanitized && ./release_hardening_sanitized && ./shader_artifact_sanitized && /tmp/asset_pipeline_sanitized
+        run: ./stabilization_sanitized && ./scene_persistence_sanitized && ./engine_scene_sanitized && ./engine_contract_sanitized && ./editor_contract_sanitized && ./ffi_contract_sanitized && ./dither_contract_sanitized && ./gameplay_feature_sanitized && ./release_hardening_sanitized && ./shader_artifact_sanitized && ./litt_c_contract_sanitized && /tmp/asset_pipeline_sanitized
 
   gpu-rendering-contract:
     runs-on: ubuntu-latest
@@ -264,6 +265,9 @@ jobs:
       - name: Build scene JSON dependency
         shell: cmd
         run: cl /nologo /TC /I alt\src\native\littcore /c alt\src\native\littcore\litt_json.c /Fo:litt_json.obj
+      - name: Build and run Windows C bridge contract
+        shell: cmd
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native /I alt\src\native\littcore alt\src\native\litt_c_tests.cpp litt_c.obj litt_json.obj /Fe:litt_c_tests_windows.exe && litt_c_tests_windows.exe
       - name: Build Windows stabilization regressions
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_stabilization_runner.cpp litt_json.obj /Fe:stabilization_windows.exe gdi32.lib user32.lib winmm.lib
