@@ -267,7 +267,7 @@ jobs:
         run: cl /nologo /TC /I alt\src\native\littcore /c alt\src\native\littcore\litt_json.c /Fo:litt_json.obj
       - name: Build and run Windows C bridge contract
         shell: cmd
-        run: cl /nologo /std:c++17 /EHsc /I alt\src\native /I alt\src\native\littcore alt\src\native\litt_c_tests.cpp litt_c.obj litt_json.obj /Fe:litt_c_tests_windows.exe && litt_c_tests_windows.exe
+        run: cl /nologo /std:c++17 /EHsc /I alt\src\native /I alt\src\native\littcore alt\src\native\litt_c_tests.cpp litt_c.obj litt_json.obj /Fe:litt_c_tests_windows.exe gdi32.lib user32.lib && litt_c_tests_windows.exe
       - name: Build Windows stabilization regressions
         shell: cmd
         run: cl /nologo /std:c++17 /EHsc /I alt\src\native\littcore alt\src\native\littcore\litt_stabilization_runner.cpp litt_json.obj /Fe:stabilization_windows.exe gdi32.lib user32.lib winmm.lib
