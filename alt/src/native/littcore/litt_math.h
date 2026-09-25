@@ -594,7 +594,7 @@ inline HitInfo ray_aabb(const Ray& r, const Aabb& a) {
             if (tmin > tmax) return {};
         }
     }
-    float t = tmin > r.t_min ? tmin : r.t_max;
+    float t = tmin > r.t_min ? tmin : tmax;
     if (t < r.t_min || t > r.t_max) return {};
     Vec3 p = r.at(t);
     Vec3 n;

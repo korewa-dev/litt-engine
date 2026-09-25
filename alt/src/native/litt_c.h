@@ -189,6 +189,11 @@ int litt_world_list_entities(LittWorld* world, litt_entity_t* ids, int max_count
 // Component Management
 // =============================================================================
 
+// Components currently expose presence-only semantics through the C bridge.
+// config_json may be NULL, an empty string, or a strict empty JSON object.
+// Meaningful, malformed, scalar, or array configuration is rejected rather
+// than accepted as an ignored no-op. Transform values use the dedicated
+// position/rotation/scale APIs below.
 bool litt_world_add_component(LittWorld* world, litt_entity_t entity_id, LittComponentType type, const char* config_json);
 bool litt_world_remove_component(LittWorld* world, litt_entity_t entity_id, LittComponentType type);
 bool litt_world_has_component(LittWorld* world, litt_entity_t entity_id, LittComponentType type);

@@ -33,6 +33,32 @@ static void test_umbrella() {
     check(v.x == 1.0f && v.y == 2.0f && v.z == 3.0f, "math_through_umbrella");
 }
 
+static void test_math_rays() {
+    const Aabb box(Vec3{-1.0f, -1.0f, -1.0f}, Vec3{1.0f, 1.0f, 1.0f});
+
+    const HitInfo outside = ray_aabb(
+        Ray(Vec3{-2.0f, 0.0f, 0.0f}, Vec3{1.0f, 0.0f, 0.0f}, 0.0f, 10.0f),
+        box);
+    check(outside.hit && nearf(outside.t, 1.0f), "ray_aabb_outside_entry");
+
+    const HitInfo inside = ray_aabb(
+        Ray(Vec3{0.0f, 0.0f, 0.0f}, Vec3{1.0f, 0.0f, 0.0f}, 0.0f, 10.0f),
+        box);
+    check(inside.hit && nearf(inside.t, 1.0f) &&
+          nearf(inside.point.x, 1.0f),
+          "ray_aabb_inside_returns_exit");
+
+    const HitInfo clipped = ray_aabb(
+        Ray(Vec3{0.0f, 0.0f, 0.0f}, Vec3{1.0f, 0.0f, 0.0f}, 0.0f, 0.5f),
+        box);
+    check(!clipped.hit, "ray_aabb_inside_exit_beyond_tmax_misses");
+
+    const HitInfo parallel_miss = ray_aabb(
+        Ray(Vec3{2.0f, 0.0f, 0.0f}, Vec3{0.0f, 1.0f, 0.0f}, 0.0f, 10.0f),
+        box);
+    check(!parallel_miss.hit, "ray_aabb_parallel_outside_slab_misses");
+}
+
 static void test_input() {
     Input input;
     input.load_defaults();
@@ -193,6 +219,7 @@ static void test_software_renderer() {
 
 int main() {
     test_umbrella();
+    test_math_rays();
     test_input();
     test_ui();
     test_physics();
