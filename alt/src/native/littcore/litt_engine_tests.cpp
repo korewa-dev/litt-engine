@@ -90,10 +90,18 @@ static void test_input() {
 }
 
 static void test_ecs_system_boundary() {
+    struct CountingSystem final : World::System {
+        explicit CountingSystem(int& updates) : updates_(updates) {}
+        void update(float) override { ++updates_; }
+        int& updates_;
+    };
+
     World world;
     world.add_system(nullptr);
+    int updates = 0;
+    world.add_system(std::make_unique<CountingSystem>(updates));
     world.update(1.0f / 60.0f);
-    check(true, "ecs_null_system_is_harmless");
+    check(updates == 1, "ecs_null_system_ignored_valid_system_runs");
 }
 
 static void test_ui() {
