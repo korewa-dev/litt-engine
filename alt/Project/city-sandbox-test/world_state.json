@@ -54,7 +54,7 @@
     "archetype": "open_world_realistic",
     "camera": "third_person",
     "combat": "real_time_combat",
-    "movement": "vehicle_movement",
+    "movement": "free_roam_movement",
     "structure": "open_world",
     "pacing": "cinematic_pacing",
     "pattern": "hub_spoke",
@@ -111,7 +111,7 @@
   },
   "gameplay": {
     "genre": "open_world_action_test",
-    "objective": "city-sandbox-test: explore the city, test traversal, encounters, pickups, and open-world runtime behavior",
+    "objective": "Collect the street pickups, avoid hostile encounter nodes, and reach the city goal marker.",
     "procgen_rules": [
       "district grid with landmark anchors every 200 m"
     ],
@@ -120,7 +120,7 @@
       "district_grids",
       "traffic_arrows"
     ],
-    "enemy_aggro_m": 8.5,
+    "enemy_aggro_m": 9,
     "corpse_run": false,
     "spawn": [
       0,
@@ -132,9 +132,9 @@
       "coins": 25
     },
     "physics": {
-      "gravity": 24,
-      "run_speed": 6.5,
-      "coyote_time_s": 0.1
+      "gravity": 26,
+      "run_speed": 6,
+      "jump_velocity": 7.5
     },
     "side_objectives": [
       "Light every brazier before wave three",
@@ -175,7 +175,26 @@
         "name": "Ash Brute",
         "behavior": "slow tank guarding gates"
       }
-    ]
+    ],
+    "kill_radius_m": 1.1,
+    "score_goal": 20,
+    "runtime_contract": {
+      "implemented": [
+        "third_person_free_roam",
+        "jump",
+        "enemy_contact_reset",
+        "pickup_scoring",
+        "goal_completion"
+      ],
+      "engine_gaps": [
+        "driveable_vehicles",
+        "traffic_simulation",
+        "wanted_police_system",
+        "weapon_combat",
+        "mission_state_machine",
+        "pedestrian_ai"
+      ]
+    }
   },
   "meta": {
     "enriched_seed": 1001,
