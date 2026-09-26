@@ -262,8 +262,13 @@ public:
         };
 
         if (!root || nodes.empty() || nodes.size() > MAX_NODES) return {};
-        const auto root_it = nodes.find(root->id);
-        if (root_it == nodes.end() || root_it->second.get() != root) return {};
+        const auto root_it = std::find_if(
+            nodes.begin(), nodes.end(),
+            [this](const auto& entry) { return entry.second.get() == root; });
+        if (root_it == nodes.end() || !root_it->second ||
+            root_it->first != root_it->second->id) {
+            return {};
+        }
 
         for (const auto& [id, node] : nodes) {
             if (!node || node->id != id || node->name.size() > MAX_NODE_NAME_BYTES ||
