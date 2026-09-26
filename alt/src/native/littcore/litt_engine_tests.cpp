@@ -71,6 +71,22 @@ static void test_input() {
     input.release(Key::Space);
     input.update();
     check(!input.action("jump"), "input_release");
+
+    input.mouse_move(10.0, 5.0);
+    input.mouse_move(13.0, 9.0);
+    input.scroll(2.0);
+    input.scroll(-0.5);
+    input.update();
+    const auto [dx, dy] = input.mouse_delta();
+    const auto [mx, my] = input.mouse_pos();
+    check(dx == 13.0 && dy == 9.0, "input_mouse_delta_accumulates_for_frame");
+    check(mx == 13.0 && my == 9.0, "input_mouse_position_tracks_latest_event");
+    check(input.scroll() == 1.5, "input_scroll_accumulates_for_frame");
+
+    input.update();
+    const auto [next_dx, next_dy] = input.mouse_delta();
+    check(next_dx == 0.0 && next_dy == 0.0 && input.scroll() == 0.0,
+          "input_pointer_edges_reset_next_frame");
 }
 
 static void test_ui() {
