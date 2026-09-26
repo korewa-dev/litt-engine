@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstdint>
 #include <random>
+#include <limits>
 #include <set>
 #include <string>
 #include <thread>
@@ -36,6 +37,20 @@ static void scene_property_contract() {
         assert(restored.deserializeFromJson(first));
         const std::string second = restored.serializeToJson();
         assert(first == second);
+    }
+}
+
+static void scene_serialization_boundary_contract() {
+    {
+        Scene scene;
+        scene.root->position.x = std::numeric_limits<float>::quiet_NaN();
+        assert(scene.serializeToJson().empty());
+    }
+
+    {
+        Scene scene;
+        scene.root->name.assign(Scene::MAX_NODE_NAME_BYTES + 1u, 'x');
+        assert(scene.serializeToJson().empty());
     }
 }
 
@@ -154,6 +169,7 @@ static void concurrent_event_queue_contract() {
 
 int main() {
     scene_property_contract();
+    scene_serialization_boundary_contract();
     malformed_scene_fuzz_smoke();
     hierarchy_failure_contract();
     allocation_and_overflow_contract();

@@ -188,7 +188,9 @@ public:
         virtual ~System() = default;
         virtual void update(float dt) = 0;
     };
-    void add_system(std::unique_ptr<System> sys) { systems_.push_back(std::move(sys)); }
+    void add_system(std::unique_ptr<System> sys) {
+        if (sys) systems_.push_back(std::move(sys));
+    }
     void update(float dt) { for (auto& s : systems_) s->update(dt); }
     
 private:
