@@ -68,8 +68,16 @@ public:
                 mjust_[kv.first] = true;
         }
         prev_mkeys_ = mkeys_;
-        mdx_ = mdy_ = 0;
-        mscl_ = 0;
+
+        // Publish all pointer/wheel events collected since the previous frame.
+        // Engine loops poll platform input before calling update(), so clearing
+        // these values here used to erase the frame's input before gameplay
+        // could read it.
+        mdx_ = pending_mdx_;
+        mdy_ = pending_mdy_;
+        mscl_ = pending_mscl_;
+        pending_mdx_ = pending_mdy_ = 0;
+        pending_mscl_ = 0;
     }
     
     // Mutators (distinct names from queries)
@@ -77,8 +85,13 @@ public:
     void release(Key k) { keys_[(int)k] = false; }
     void mouse_press(Mouse m) { mkeys_[(int)m] = true; }
     void mouse_release(Mouse m) { mkeys_[(int)m] = false; }
-    void mouse_move(double x, double y) { mdx_ = x - mx_; mdy_ = y - my_; mx_ = x; my_ = y; }
-    void scroll(double y) { mscl_ += y; }
+    void mouse_move(double x, double y) {
+        pending_mdx_ += x - mx_;
+        pending_mdy_ += y - my_;
+        mx_ = x;
+        my_ = y;
+    }
+    void scroll(double y) { pending_mscl_ += y; }
     
     void bind(const std::string& action, Key k) { actions_[action].keys.push_back(k); }
     void bind(const std::string& action, Mouse m) { actions_[action].mouses.push_back(m); }
@@ -103,6 +116,8 @@ private:
     std::unordered_map<int, bool> mjust_;
     double mx_ = 0, my_ = 0, mdx_ = 0, mdy_ = 0;
     double mscl_ = 0;
+    double pending_mdx_ = 0, pending_mdy_ = 0;
+    double pending_mscl_ = 0;
     struct Bind { std::vector<Key> keys; std::vector<Mouse> mouses; };
     std::unordered_map<std::string, Bind> actions_;
 };
