@@ -253,6 +253,26 @@ public:
     // intentionally outside v1 until their individual persistence contracts
     // are defined.
     std::string serializeToJson() const {
+        auto finite3 = [](const Vec3& v) {
+            return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
+        };
+        auto finite_quat = [](const Quat& q) {
+            return std::isfinite(q.x) && std::isfinite(q.y) &&
+                   std::isfinite(q.z) && std::isfinite(q.w);
+        };
+
+        if (!root || nodes.empty() || nodes.size() > MAX_NODES) return {};
+        const auto root_it = nodes.find(root->id);
+        if (root_it == nodes.end() || root_it->second.get() != root) return {};
+
+        for (const auto& [id, node] : nodes) {
+            if (!node || node->id != id || node->name.size() > MAX_NODE_NAME_BYTES ||
+                !finite3(node->position) || !finite3(node->scale) ||
+                !finite_quat(node->rotation)) {
+                return {};
+            }
+        }
+
         auto escape = [](const std::string& s) {
             std::string out;
             out.reserve(s.size() + 8);
