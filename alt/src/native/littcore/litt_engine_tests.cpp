@@ -89,6 +89,13 @@ static void test_input() {
           "input_pointer_edges_reset_next_frame");
 }
 
+static void test_ecs_system_boundary() {
+    World world;
+    world.add_system(nullptr);
+    world.update(1.0f / 60.0f);
+    check(true, "ecs_null_system_is_harmless");
+}
+
 static void test_ui() {
     UIManager ui;
     int clicks = 0;
@@ -237,6 +244,7 @@ int main() {
     test_umbrella();
     test_math_rays();
     test_input();
+    test_ecs_system_boundary();
     test_ui();
     test_physics();
     test_audio();
